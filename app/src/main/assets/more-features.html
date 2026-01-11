@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Features Store</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .store-container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 80px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            color: #1e3c72;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 15px;
+        }
+
+        /* Cards */
+        .card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            background: white;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
+            border-color: #aaccff;
+        }
+
+        /* Selection State */
+        .card.active {
+            border: 2px solid #28a745;
+            background: #f0fff4;
+        }
+
+        .card.active::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #28a745;
+        }
+
+        /* Disabled / Already Added State */
+        .card.disabled {
+            opacity: 0.5;
+            cursor: default;
+            background: #f4f4f4;
+            border-color: #e0e0e0;
+            pointer-events: none;
+        }
+
+        .card.disabled i {
+            color: #888;
+        }
+
+        .card.disabled h3 {
+            color: #888;
+        }
+
+        .card.disabled::after {
+            content: 'Added';
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.7em;
+            font-weight: 600;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #666;
+            background: #ddd;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .card i {
+            font-size: 1.4em;
+            margin-bottom: 8px;
+            color: #1e3c72;
+        }
+
+        .card h3 {
+            margin: 0 0 4px 0;
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card p {
+            font-size: 0.75em;
+            color: #777;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* Floating Action */
+        .actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #1e3c72;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2a5298;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #eee;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #ddd;
+        }
+
+        .placeholder-box {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            color: #888;
+            background: #fafafa;
+            margin-top: 10px;
+        }
+
+        /* --- PRINT FIXES --- */
+    </style>
+</head>
+
+<body>
+
+    <div class="store-container">
+        <a href="index.html" style="text-decoration: none; color: #666; font-size: 0.9em;"><i
+                class="fas fa-arrow-left"></i> Back to Resume</a>
+        <h1>Resume Sections</h1>
+        <p class="subtitle">Gray items are already on your resume. Click white items to add them.</p>
+
+        <!-- GROUP 1: ESSENTIALS -->
+        <div class="category-title">Core Essentials</div>
+        <div class="grid" id="gridEssentials"></div>
+
+        <!-- GROUP 2: EXPERIENCE & SKILLS -->
+        <div class="category-title">Experience & Skills</div>
+        <div class="grid" id="gridExp"></div>
+
+        <!-- GROUP 3: ADDITIONAL -->
+        <div class="category-title">Additional Features</div>
+        <div class="grid" id="gridAdd"></div>
+
+        <!-- LAYOUTS -->
+        <div class="category-title">Layouts</div>
+        <div class="grid" id="gridLayouts">
+            <!-- Defined in JS -->
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn-secondary" onclick="window.location.href='index.html'">Cancel</button>
+        <button class="btn-primary" onclick="applyChanges()">Apply Updates</button>
+    </div>
+
+    <script>
+        // Use the same key as index.html
+        const DATA_KEY = 'resume_app_v2_data';
+
+        // --- 1. DEFINE ALL SECTIONS ---
+        const ALL_SECTIONS = [
+            // Core
+            { id: 'personalDetails', name: 'Personal Details', icon: 'fa-id-card', type: 'personal', col: 'left', group: 'gridEssentials', desc: 'Nationality, DOB, Gender, etc.' },
+            { id: 'passportDetails', name: 'Passport Details', icon: 'fa-passport', type: 'passport', col: 'left', group: 'gridEssentials', desc: 'Passport No, Issue/Expiry Dates' },
+            { id: 'summarySection', name: 'Summary / Objective', icon: 'fa-user-tie', type: 'summary_paragraph', col: 'left', group: 'gridEssentials', desc: 'Professional summary paragraph' },
+            { id: 'languages', name: 'Languages', icon: 'fa-language', type: 'languages', col: 'left', group: 'gridEssentials', desc: 'Proficiency levels' },
+
+            // Experience & Skills
+            { id: 'education', name: 'Education', icon: 'fa-graduation-cap', type: 'education', col: 'right', group: 'gridExp', desc: 'Degrees, Institutes, GPA' },
+            { id: 'experience', name: 'Experience', icon: 'fa-briefcase', type: 'experience', col: 'right', group: 'gridExp', desc: 'Jobs, Roles, Responsibilities' },
+            { id: 'projects', name: 'Projects', icon: 'fa-project-diagram', type: 'projects', col: 'right', group: 'gridExp', desc: 'Project Name, Description, Links' },
+            { id: 'skills', name: 'Skills', icon: 'fa-tools', type: 'skills', col: 'left', group: 'gridExp', desc: 'Grouped technical skills' },
+            { id: 'certificates', name: 'Certificates (Simple)', icon: 'fa-certificate', type: 'simple-list', col: 'left', group: 'gridExp', desc: 'Simple list of certifications' },
+
+            // Additional
+            { id: 'awards', name: 'Awards & Honors', icon: 'fa-trophy', type: 'awards', col: 'left', group: 'gridAdd', desc: 'Award Name, Year, Body' },
+            { id: 'certifications', name: 'Certifications (Adv)', icon: 'fa-certificate', type: 'certifications', col: 'left', group: 'gridAdd', desc: 'Detailed: Org, Dates, IDs' },
+            { id: 'volunteer', name: 'Volunteer Exp', icon: 'fa-hands-helping', type: 'volunteer', col: 'right', group: 'gridAdd', desc: 'Community service & roles' },
+            { id: 'publications', name: 'Publications', icon: 'fa-book', type: 'publications', col: 'right', group: 'gridAdd', desc: 'Authors, Journal, Links' },
+            { id: 'affiliations', name: 'Affiliations', icon: 'fa-users', type: 'affiliations', col: 'left', group: 'gridAdd', desc: 'Memberships & Dates' },
+            { id: 'hobbies', name: 'Hobbies', icon: 'fa-gamepad', type: 'simple-list', col: 'left', group: 'gridAdd', desc: 'Interests bullet points' },
+            { id: 'extra', name: 'Extracurricular', icon: 'fa-futbol', type: 'extra', col: 'right', group: 'gridAdd', desc: 'Clubs & Activities' },
+            { id: 'references', name: 'References', icon: 'fa-user-check', type: 'references', col: 'right', group: 'gridAdd', desc: 'Contact info or Upon Request' },
+            { id: 'training', name: 'Training', icon: 'fa-chalkboard-teacher', type: 'training', col: 'right', group: 'gridAdd', desc: 'Workshops & Courses' },
+            { id: 'internships', name: 'Internships', icon: 'fa-laptop-code', type: 'internships', col: 'right', group: 'gridAdd', desc: 'Intern roles & tasks' },
+            { id: 'achievements', name: 'Achievements', icon: 'fa-star', type: 'simple-list', col: 'right', group: 'gridAdd', desc: 'Key bullet points' },
+            { id: 'weblinks', name: 'Web Links', icon: 'fa-link', type: 'weblinks', col: 'left', group: 'gridAdd', desc: 'Portfolio, Socials with icons' },
+            { id: 'declarationSection', name: 'Declaration', icon: 'fa-file-signature', type: 'declaration_block', col: 'left', group: 'gridAdd', desc: 'Signature & statement' }
+        ];
+
+        // --- 2. HTML TEMPLATES ---
+        const CUSTOM_TEMPLATES = {
+            'personal': `
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Nationality:</span> <span class="pd-val" contenteditable="true">Earthling</span></div>
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Date of Birth:</span> <span class="pd-val" contenteditable="true">1 Dec 1400bc </span></div>
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Gender:</span> <span class="pd-val" contenteditable="true">Male</span></div>
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Marital Status:</span> <span class="pd-val" contenteditable="true">Unmarried</span></div>
+            `,
+
+            'languages': `<div class="data-table-item"><div class="table-row"><span class="table-label" contenteditable="true">Lang:</span> <span class="table-val" contenteditable="true">Level</span></div></div>`,
+
+            'passport': `
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Passport No:</span> <span class="pd-val" contenteditable="true">Not Available</span></div>
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Date of Issue:</span> <span class="pd-val" contenteditable="true">Not Available</span></div>
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Issued By:</span> <span class="pd-val" contenteditable="true">Issuing Authority</span></div>
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Expiry Date:</span> <span class="pd-val" contenteditable="true">Not Available</span></div>
+            `,
+
+            'education': `<div class="data-table-item"><div class="table-row"><span class="table-label">Institute:</span> <span class="table-val" contenteditable="true" style="font-weight:600">Name</span></div><div class="table-row"><span class="table-label">Year:</span> <span class="table-val" contenteditable="true">Year</span></div><div class="table-row"><span class="table-label">Degree:</span> <span class="table-val" contenteditable="true">Degree</span> <span style="margin-left:auto; font-size:0.85em; color:#666;" contenteditable="true">GPA: 0.0</span></div></div>`,
+
+            'experience': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Company</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color:#777">Dates</span></div><div class="table-row"><span class="table-val exp-role" contenteditable="true">Role</span></div><ul class="resp-list"><li contenteditable="true">Responsibility...</li></ul></div>`,
+
+            'projects': `<div class="data-table-item"><div class="table-row" style="justify-content: space-between;"><span class="table-val" contenteditable="true" style="font-weight:700;">Project</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color:#777;">Year</span></div><div class="proj-desc" contenteditable="true">Description...</div><div class="table-row" style="margin-top:5px;"><a href="#" onclick="promptLink(this); return false;" style="font-size:0.85em; color:var(--primary-color); text-decoration:underline;">Link</a></div></div>`,
+
+            'skills': `<div class="skill-group"><span class="skill-header" contenteditable="true">Category</span><div class="skill-sub" contenteditable="true">Skills...</div></div>`,
+
+            'simple-list': `<div class="simple-list-item" contenteditable="true">New Item</div>`,
+
+            'summary_paragraph': `<p style="line-height: 1.6; color: #444;" contenteditable="true">Write your professional summary here...</p>`,
+
+            'declaration_block': `<p contenteditable="true">I hereby certify that the above information is true...</p><div class="signature-wrapper"><div class="signature-line"><span id="textSignature" contenteditable="true">Name</span></div></div>`,
+
+            'awards': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Award Name</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color:#777">Year</span></div><div class="table-row"><span class="table-val" contenteditable="true" style="font-size:0.9em">Issuing Body</span></div><div class="proj-desc" contenteditable="true">Brief description</div></div>`,
+
+            'certifications': `<div class="data-table-item"><div class="table-row"><span class="table-val" contenteditable="true" style="font-weight:700">Certification Name</span></div><div class="table-row"><span class="table-label">Org:</span> <span class="table-val" contenteditable="true">Issuing Organization</span></div><div class="table-row"><span class="table-label">Date:</span> <span class="table-val" contenteditable="true">Obtained</span> <span class="table-label" style="margin-left:10px">Exp:</span> <span class="table-val" contenteditable="true">Expiry</span></div><div class="table-row"><a href="#" onclick="promptLink(this);return false;" style="font-size:0.85em; color:var(--primary-color)">Credential ID/Link</a></div></div>`,
+
+            'volunteer': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Organization</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color:#777">Dates</span></div><div class="table-row"><span class="table-val exp-role" contenteditable="true">Role</span></div><ul class="resp-list"><li contenteditable="true">Achievement...</li></ul></div>`,
+
+            'publications': `<div class="data-table-item"><div class="table-row"><span class="table-val" contenteditable="true" style="font-weight:700; font-style:italic">"Title"</span></div><div class="table-row"><span class="table-val" contenteditable="true" style="font-size:0.9em">Authors, Journal/Publisher, Year</span></div><div class="table-row"><a href="#" onclick="promptLink(this);return false;" style="font-size:0.85em; color:var(--primary-color)">DOI/Link</a></div></div>`,
+
+            'affiliations': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Organization Name</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color:#777">Dates</span></div><div class="proj-desc" contenteditable="true">Membership Type / Role</div></div>`,
+
+            'extra': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Activity/Club Name</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color:#777">Dates</span></div><div class="table-row"><span class="table-val exp-role" contenteditable="true">Role</span> <span style="font-size:0.9em; margin-left:5px; color:#666;" contenteditable="true">- Organization</span></div><ul class="resp-list"><li contenteditable="true">Achievement...</li></ul></div>`,
+
+            'references': `<div class="data-table-item"><div class="table-row"><span class="table-val" contenteditable="true" style="font-weight:700">Reference Name</span></div><div class="table-row"><span class="table-val" contenteditable="true">Job Title, Company</span></div><div class="table-row"><i class="fas fa-phone" style="font-size:0.8em; margin-right:5px"></i><span class="table-val" contenteditable="true">Phone</span></div><div class="table-row"><i class="fas fa-envelope" style="font-size:0.8em; margin-right:5px"></i><span class="table-val" contenteditable="true">Email</span></div></div>`,
+
+            'training': `<div class="data-table-item"><div class="table-row"><span class="table-val" contenteditable="true" style="font-weight:700">Course/Workshop Name</span></div><div class="table-row"><span class="table-val" contenteditable="true" style="font-size:0.9em">Provider - Date</span></div><div class="table-row"><a href="#" onclick="promptLink(this);return false;" style="font-size:0.85em; color:var(--primary-color)">Credential Link</a></div></div>`,
+
+            'internships': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Company</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color:#777">Dates</span></div><div class="table-row"><span class="table-val exp-role" contenteditable="true">Intern Title</span></div><ul class="resp-list"><li contenteditable="true">Responsibility...</li></ul></div>`,
+
+            'weblinks': `<div class="data-table-item link-item"><div class="table-row" style="align-items:flex-start; gap:12px"><div class="link-icon-container" onclick="rotateIcon(this)"><i class="fas fa-globe fa-2x"></i></div><div style="flex:1"><div class="table-row"><a href="#" onclick="promptLink(this);return false;" class="table-val" style="font-weight:700; text-decoration:underline">Website Name</a></div><div class="proj-desc" contenteditable="true">Description...</div></div></div></div>`
+        };
+
+        // --- STATE ---
+        let selectedSections = [];
+        let selectedLayout = localStorage.getItem('target_layout') || 'default';
+
+        const LAYOUTS = [
+            { id: 'default', name: 'Standard Modern', icon: 'fa-table-columns', desc: 'Classic two-column layout with header' },
+            { id: 'sidebar', name: 'Sidebar Pro', icon: 'fa-id-card-clip', desc: 'Professional left sidebar profile' }
+        ];
+
+        // --- INIT ---
+        window.onload = () => {
+            restoreSelections();
+            renderSections();
+            renderLayouts();
+        };
+
+        function renderLayouts() {
+            const grid = document.getElementById('gridLayouts');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            LAYOUTS.forEach(layout => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                if (layout.id === selectedLayout) {
+                    div.classList.add('active');
+                }
+
+                div.onclick = () => {
+                    selectedLayout = layout.id;
+                    renderLayouts();
+                };
+
+                div.innerHTML = `
+                     <i class="fas ${layout.icon}"></i>
+                     <h3>${layout.name}</h3>
+                     <p>${layout.desc}</p>
+                 `;
+                grid.appendChild(div);
+            });
+        }
+
+        function renderSections() {
+            // Read resume to find existing IDs from the CORRECT key
+            const currentResumeHTML = localStorage.getItem(DATA_KEY) || "";
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(currentResumeHTML, 'text/html');
+
+            // Iterate categories
+            ALL_SECTIONS.forEach(sec => {
+                const grid = document.getElementById(sec.group);
+                if (!grid) return;
+
+                // Check if ID exists in resume
+                const isAlreadyPresent = doc.getElementById(sec.id) !== null;
+
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.id = 'card-' + sec.id;
+
+                if (isAlreadyPresent) {
+                    div.classList.add('disabled');
+                    div.title = "Already in resume";
+                } else {
+                    div.onclick = () => toggleSection(sec);
+                    // Check if checked in this session
+                    if (selectedSections.some(s => s.id === sec.id)) {
+                        div.classList.add('active');
+                    }
+                }
+
+                div.innerHTML = `
+                    <i class="fas ${sec.icon}"></i>
+                    <h3>${sec.name}</h3>
+                    <p>${sec.desc}</p>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function toggleSection(sec) {
+            const card = document.getElementById('card-' + sec.id);
+            if (card.classList.contains('disabled')) return;
+
+            const index = selectedSections.findIndex(s => s.id === sec.id);
+            if (index === -1) {
+                selectedSections.push(sec);
+                card.classList.add('active');
+            } else {
+                selectedSections.splice(index, 1);
+                card.classList.remove('active');
+            }
+
+            // SAVE IMMEDIATELY
+            localStorage.setItem('temp_selected_sections', JSON.stringify(selectedSections));
+        }
+
+        function restoreSelections() {
+            const saved = localStorage.getItem('temp_selected_sections');
+            if (saved) {
+                selectedSections = JSON.parse(saved);
+            }
+        }
+
+        // --- APPLY ---
+        function applyChanges() {
+            // 1. Save Layout Pref
+            localStorage.setItem('target_layout', selectedLayout);
+
+            // 2. Pass Data to Index (only if sections selected)
+            if (selectedSections.length > 0) {
+                localStorage.setItem('resume_config_new_sections', JSON.stringify(selectedSections));
+                localStorage.setItem('resume_config_templates', JSON.stringify(CUSTOM_TEMPLATES));
+            }
+
+            // 3. Clear Temp Storage
+            localStorage.removeItem('temp_selected_sections');
+
+            // 4. Redirect
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

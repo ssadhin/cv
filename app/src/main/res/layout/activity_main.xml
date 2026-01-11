@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- WebView fills the entire screen in the background -->
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Collapsible Side Panel -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/side_panel_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/panel_content_layout_left"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/swap_button_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                <View
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/custom_shadow" />
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:clickable="false"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/swap" />
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/pill_background"
+                android:orientation="vertical"
+                android:paddingVertical="8dp">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:orientation="vertical">
+
+                        <include
+                            android:id="@+id/toggle_icons_button_left"
+                            layout="@layout/panel_button" />
+
+                        <include
+                            android:id="@+id/delete_button_left"
+                            layout="@layout/panel_button" />
+
+                        <include
+                            android:id="@+id/zoom_button_left"
+                            layout="@layout/panel_button" />
+
+                        <FrameLayout
+                            android:id="@+id/zoom_slider_container_left"
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp"
+                            android:visibility="gone">
+
+                            <SeekBar
+                                android:id="@+id/zoom_slider_left"
+                                android:layout_width="150dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:max="100"
+                                android:progress="25"
+                                android:rotation="270" />
+                        </FrameLayout>
+
+                        <include
+                            android:id="@+id/font_size_button_left"
+                            layout="@layout/panel_button" />
+
+                        <FrameLayout
+                            android:id="@+id/font_size_slider_container_left"
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp"
+                            android:visibility="gone">
+
+                            <SeekBar
+                                android:id="@+id/font_size_slider_left"
+                                android:layout_width="150dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:max="14"
+                                android:progress="4"
+                                android:rotation="270" />
+                        </FrameLayout>
+
+                        <include
+                            android:id="@+id/font_color_button_left"
+                            layout="@layout/panel_button" />
+
+                        <include
+                            android:id="@+id/line_spacing_button_left"
+                            layout="@layout/panel_button" />
+
+                        <FrameLayout
+                            android:id="@+id/line_spacing_slider_container_left"
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp"
+                            android:visibility="gone">
+
+                            <SeekBar
+                                android:id="@+id/line_spacing_slider_left"
+                                android:layout_width="150dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:max="99"
+                                android:progress="49"
+                                android:rotation="270" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/hide_button_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                <View
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/custom_shadow" />
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:clickable="false"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/hide" />
+            </FrameLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Collapsible Side Panel Right -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/side_panel_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationX="300dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/panel_content_layout_right"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/swap_button_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                <View
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/custom_shadow" />
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:clickable="false"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/swap" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/pill_background"
+                android:orientation="vertical"
+                android:paddingVertical="8dp">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animateLayoutChanges="true"
+                        android:orientation="vertical">
+
+                        <include
+                            android:id="@+id/toggle_icons_button_right"
+                            layout="@layout/panel_button" />
+
+                        <include
+                            android:id="@+id/delete_button_right"
+                            layout="@layout/panel_button" />
+
+                        <include
+                            android:id="@+id/zoom_button_right"
+                            layout="@layout/panel_button" />
+
+                        <FrameLayout
+                            android:id="@+id/zoom_slider_container_right"
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp"
+                            android:visibility="gone">
+
+                            <SeekBar
+                                android:id="@+id/zoom_slider_right"
+                                android:layout_width="150dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:max="100"
+                                android:progress="25"
+                                android:rotation="270" />
+                        </FrameLayout>
+
+                        <include
+                            android:id="@+id/font_size_button_right"
+                            layout="@layout/panel_button" />
+
+                        <FrameLayout
+                            android:id="@+id/font_size_slider_container_right"
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp"
+                            android:visibility="gone">
+
+                            <SeekBar
+                                android:id="@+id/font_size_slider_right"
+                                android:layout_width="150dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:max="14"
+                                android:progress="4"
+                                android:rotation="270" />
+                        </FrameLayout>
+
+                        <include
+                            android:id="@+id/font_color_button_right"
+                            layout="@layout/panel_button" />
+
+                        <include
+                            android:id="@+id/line_spacing_button_right"
+                            layout="@layout/panel_button" />
+
+                        <FrameLayout
+                            android:id="@+id/line_spacing_slider_container_right"
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp"
+                            android:visibility="gone">
+
+                            <SeekBar
+                                android:id="@+id/line_spacing_slider_right"
+                                android:layout_width="150dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:max="99"
+                                android:progress="49"
+                                android:rotation="270" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/hide_button_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                <View
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/custom_shadow" />
+
+                <ImageButton
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:clickable="false"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/hide" />
+            </FrameLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Show Panel Button (Initially Hidden) -->
+    <FrameLayout
+        android:id="@+id/show_button_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <View
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center"
+            android:background="@drawable/custom_shadow" />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:clickable="false"
+            android:scaleType="fitCenter"
+            android:src="@drawable/unhide" />
+    </FrameLayout>
+
+    <!-- Show Panel Button Right (Initially Hidden) -->
+    <FrameLayout
+        android:id="@+id/show_button_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <View
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center"
+            android:background="@drawable/custom_shadow" />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:clickable="false"
+            android:scaleType="fitCenter"
+            android:src="@drawable/unhide" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/undo_redo_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <FrameLayout
+            android:id="@+id/fab_undo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp">
+
+            <View
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:background="@drawable/custom_shadow" />
+
+            <ImageButton
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:clickable="false"
+                android:contentDescription="Undo"
+                android:scaleType="fitCenter"
+                android:src="@drawable/undo" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/fab_redo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <View
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:background="@drawable/custom_shadow" />
+
+            <ImageButton
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:clickable="false"
+                android:contentDescription="Redo"
+                android:scaleType="fitCenter"
+                android:src="@drawable/redo" />
+
+        </FrameLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/add_edit_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="end"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:id="@+id/fab_edit"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="16dp">
+
+            <View
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center"
+                android:background="@drawable/custom_shadow" />
+
+            <ImageButton
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="false"
+                android:contentDescription="Edit"
+                android:scaleType="fitCenter"
+                android:src="@drawable/edit" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/print_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp">
+
+                <View
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/custom_shadow" />
+
+                <ImageButton
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_gravity="center"
+                    android:background="@android:color/transparent"
+                    android:clickable="false"
+                    android:contentDescription="@string/print"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/print" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/fab_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <View
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/custom_shadow" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    style="@style/Widget.MaterialComponents.FloatingActionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:clickable="false"
+                    android:contentDescription="Add Features"
+                    android:src="@android:drawable/ic_input_add"
+                    app:backgroundTint="@android:color/white"
+                    app:elevation="0dp"
+                    app:tint="@android:color/black" />
+            </FrameLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/temporary_panel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/temporary_panel_content"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/pill_background"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingVertical="8dp">
+
+            <!-- Group/Section Buttons -->
+            <include
+                android:id="@+id/temp_add_button"
+                layout="@layout/panel_button" />
+
+            <include
+                android:id="@+id/temp_copy_button"
+                layout="@layout/panel_button" />
+
+            <include
+                android:id="@+id/temp_edit_button"
+                layout="@layout/panel_button" />
+
+            <include
+                android:id="@+id/temp_swap_button"
+                layout="@layout/panel_button" />
+
+            <!-- Item Buttons -->
+            <include
+                android:id="@+id/temp_list_button"
+                layout="@layout/panel_button" />
+
+            <!-- Universal Button -->
+            <include
+                android:id="@+id/temp_delete_button"
+                layout="@layout/panel_button" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
