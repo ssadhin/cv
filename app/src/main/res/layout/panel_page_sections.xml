@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@android:color/transparent" android:padding="12dp">
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Select Section to Add" android:textStyle="bold" android:textSize="16sp" android:textColor="#000000" android:gravity="center" android:layout_marginBottom="16dp"/>
+
+    <!-- 2 Column Scrollable Grid -->
+    <!-- 2 Column Manual Scroll Layout -->
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:scrollbars="vertical" android:paddingBottom="8dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:id="@+id/sections_container">
+
+            <!-- Left Column -->
+            <LinearLayout android:id="@+id/column_left" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:paddingRight="4dp"/>
+
+            <!-- Right Column -->
+            <LinearLayout android:id="@+id/column_right" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:paddingLeft="4dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Button android:id="@+id/btn_reset_all" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Reset Resume Data" android:layout_marginTop="8dp" android:backgroundTint="#F44336" android:textColor="#FFFFFF" android:textAllCaps="false" android:elevation="2dp" android:paddingVertical="12dp"/>
+
+</LinearLayout>

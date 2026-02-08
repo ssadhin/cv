@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:cardMaxElevation="0dp" app:cardPreventCornerOverlap="false" app:cardBackgroundColor="#FFFFFF" android:foreground="?android:attr/selectableItemBackground">
+
+    <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+
+        <!-- Large Thumbnail Image (Proportional 1:1 Ratio) -->
+        <ImageView android:id="@+id/ivIcon" android:layout_width="0dp" android:layout_height="0dp" android:scaleType="centerCrop" android:src="@drawable/ic_description" app:tint="#BDBDBD" app:layout_constraintDimensionRatio="H,1:1" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Selection Indicator -->
+        <ImageView android:id="@+id/ivSelectionIndicator" android:layout_width="32dp" android:layout_height="32dp" android:layout_margin="8dp" android:background="@drawable/circular_button_background" android:padding="4dp" android:src="@drawable/ic_check_v" android:visibility="gone" app:tint="#4CAF50" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Info Container -->
+        <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/infoContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:background="#FFFFFF" app:layout_constraintTop_toBottomOf="@id/ivIcon" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView android:id="@+id/tvResumeName" android:layout_width="0dp" android:layout_height="wrap_content" android:text="Untitled Resume" android:textColor="#333333" android:textSize="16sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toStartOf="@id/btnDeleteOption" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toTopOf="@id/tvLastModified"/>
+
+            <TextView android:id="@+id/tvLastModified" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="Just now" android:textColor="#757575" android:textSize="12sp" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="@id/tvResumeName" app:layout_constraintTop_toBottomOf="@id/tvResumeName" app:layout_constraintBottom_toBottomOf="parent" />
+
+            <ImageButton android:id="@+id/btnUngroup" android:layout_width="32dp" android:layout_height="32dp" android:layout_marginEnd="8dp" android:background="?attr/selectableItemBackgroundBorderless" android:padding="4dp" android:src="@drawable/ic_keyboard_return" android:visibility="gone" app:tint="#BDBDBD" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@id/btnDeleteOption" />
+
+            <ImageButton android:id="@+id/btnDeleteOption" android:layout_width="32dp" android:layout_height="32dp" android:background="?attr/selectableItemBackgroundBorderless" android:padding="4dp" android:src="@drawable/ic_close" app:tint="#BDBDBD" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

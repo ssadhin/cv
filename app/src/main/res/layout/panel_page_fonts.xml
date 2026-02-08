@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@android:color/transparent" android:fillViewport="true">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Select Typography" android:textStyle="bold" android:textSize="14sp" android:textColor="#000000" android:layout_marginBottom="12dp"/>
+
+        <Button android:id="@+id/btn_font_roboto" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Roboto (Modern)" android:textColor="#000000" android:fontFamily="sans-serif" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+
+        <Button android:id="@+id/btn_font_poppins" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Poppins (Geometric)" android:textColor="#000000" android:fontFamily="sans-serif" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+
+        <Button android:id="@+id/btn_font_opensans" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Open Sans (Clean)" android:textColor="#000000" android:fontFamily="sans-serif-condensed" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+
+        <Button android:id="@+id/btn_font_ubuntu" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ubuntu (Distinctive)" android:textColor="#000000" android:fontFamily="sans-serif" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+
+        <Button android:id="@+id/btn_font_merriweather" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Merriweather (Serif)" android:textColor="#000000" android:fontFamily="serif" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+
+        <Button android:id="@+id/btn_font_monospace" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Courier Prime (Code)" android:textColor="#000000" android:fontFamily="monospace" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+
+        <Button android:id="@+id/btn_font_custom" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Import Custom Font..." android:textColor="#FFFFFF" android:layout_marginTop="16dp" style="@style/Widget.AppCompat.Button.Colored"/>
+
+    </LinearLayout>
+</ScrollView>

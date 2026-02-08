@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#f8f9fa" tools:context=".StepByStepActivity">
+
+    <!-- Header -->
+    <RelativeLayout android:id="@+id/header" android:layout_width="match_parent" android:layout_height="64dp" android:background="@color/white" android:elevation="4dp" android:paddingHorizontal="16dp" app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton android:id="@+id/btnClose" android:layout_width="48dp" android:layout_height="48dp" android:layout_centerVertical="true" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_close_clear_cancel" app:tint="#333" />
+
+        <TextView android:id="@+id/tvStepTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" android:text="Select Purpose" android:textColor="#333" android:textSize="20sp" android:textStyle="bold" />
+
+        <Button android:id="@+id/btnSwitchToEditor" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:text="Editor" android:textColor="#1a237e" />
+    </RelativeLayout>
+
+    <!-- Progress Indicator -->
+    <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/progressBar" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="3" android:progress="1" app:layout_constraintTop_toBottomOf="@id/header" />
+
+    <!-- Guideline for Resizing Split -->
+    <androidx.constraintlayout.widget.Guideline android:id="@+id/splitGuideline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" app:layout_constraintGuide_percent="0.45" />
+
+    <!-- Preview Section (Top) -->
+    <FrameLayout android:id="@+id/previewContainer" android:layout_width="match_parent" android:layout_height="0dp" android:background="#E0E0E0" app:layout_constraintBottom_toTopOf="@id/resizerHandle" app:layout_constraintTop_toBottomOf="@id/progressBar">
+        <WebView android:id="@+id/wizardWebView" android:layout_width="match_parent" android:layout_height="match_parent" />
+        <ProgressBar android:id="@+id/previewLoading" style="?android:attr/progressBarStyleSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:visibility="gone" />
+
+        <!-- Zoom Controls Overlay -->
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_margin="16dp" android:background="#CCFFFFFF" android:elevation="6dp" android:orientation="horizontal" android:padding="2dp">
+            <ImageButton android:id="@+id/btnZoomOut" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_remove" app:tint="#333" />
+            <TextView android:id="@+id/tvZoomValue" android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center" android:minWidth="48dp" android:text="50%" android:textColor="#333" android:textStyle="bold" />
+            <ImageButton android:id="@+id/btnZoomIn" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_add" app:tint="#333" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Resizer Handle -->
+    <View android:id="@+id/resizerHandle" android:layout_width="match_parent" android:layout_height="24dp" android:background="#F0F0F0" app:layout_constraintBottom_toTopOf="@id/splitGuideline" app:layout_constraintTop_toBottomOf="@id/splitGuideline" />
+
+    <!-- Visual Indicator for Handle -->
+    <View android:layout_width="40dp" android:layout_height="4dp" android:background="#CCC" android:elevation="2dp" app:layout_constraintBottom_toBottomOf="@id/resizerHandle" app:layout_constraintEnd_toEndOf="@id/resizerHandle" app:layout_constraintStart_toStartOf="@id/resizerHandle" app:layout_constraintTop_toTopOf="@id/resizerHandle" />
+
+    <!-- ViewPager2 for Steps (Bottom) -->
+    <androidx.viewpager2.widget.ViewPager2 android:id="@+id/viewPager" android:layout_width="match_parent" android:layout_height="0dp" app:layout_constraintBottom_toTopOf="@id/footer" app:layout_constraintTop_toBottomOf="@id/resizerHandle" />
+
+    <!-- Footer -->
+    <LinearLayout android:id="@+id/footer" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/white" android:elevation="8dp" android:orientation="horizontal" android:padding="16dp" app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button android:id="@+id/btnBack" style="@style/Widget.MaterialComponents.Button.OutlinedButton" android:layout_width="0dp" android:layout_height="56dp" android:layout_marginEnd="8dp" android:layout_weight="1" android:text="Back" android:visibility="invisible" />
+
+        <Button android:id="@+id/btnNext" android:layout_width="0dp" android:layout_height="56dp" android:layout_marginStart="8dp" android:layout_weight="1" android:backgroundTint="#1a237e" android:text="Next" android:textColor="@color/white" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

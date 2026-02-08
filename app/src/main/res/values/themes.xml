@@ -24,4 +24,5 @@
         <item name="cornerSizeTopRight">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
+
 </resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingVertical="4dp">
+
+    <!-- Pill-shaped container -->
+    <LinearLayout android:id="@+id/section_container" android:layout_width="match_parent" android:layout_height="56dp" android:background="@drawable/pill_background" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="8dp" android:elevation="1dp" android:clickable="true" android:focusable="true">
+
+        <!-- Icon (Left) -->
+        <FrameLayout android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="@drawable/circular_button_background" android:backgroundTint="#E3F2FD">
+
+            <ImageView android:id="@+id/section_icon" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_add" app:tint="#1976D2" />
+        </FrameLayout>
+
+        <!-- Section Info (Center) -->
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_vertical">
+
+            <TextView android:id="@+id/section_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Section Title" android:textColor="#1a237e" android:textSize="15sp" android:textStyle="bold" />
+
+            <TextView android:id="@+id/section_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Short description" android:textColor="#757575" android:textSize="12sp" android:maxLines="1" android:ellipsize="end" />
+        </LinearLayout>
+
+        <!-- Add Button (Right) -->
+        <ImageButton android:id="@+id/btn_add_section" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/circular_button_background" android:src="@drawable/ic_add" android:padding="8dp" android:backgroundTint="#4CAF50" app:tint="#FFFFFF" android:clickable="false" />
+        <!-- Click handled by parent -->
+
+    </LinearLayout>
+
+</LinearLayout>
