@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#f5f5f5" tools:context=".AIActivity">
+
+    <LinearLayout android:id="@+id/aiToolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:background="#FFFFFF" android:elevation="4dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="16dp" app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton android:id="@+id/btnBack" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_revert" app:tint="#1a237e" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:text="AI Assistant" android:textColor="#1a237e" android:textSize="20sp" android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@id/aiToolbar">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="24dp">
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="AI Data Input" android:textColor="#1a237e" android:textSize="24sp" android:textStyle="bold" />
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Paste your JSON or Smart Text here. The app will use this to populate your CV." android:textColor="#757575" android:textSize="14sp" />
+
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnCopyPrompt" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_gravity="start" android:text="Copy Master Prompt" android:textSize="12sp" app:icon="@android:drawable/ic_menu_edit" app:cornerRadius="16dp" app:backgroundTint="#d7d9ef" android:textColor="#1a237e" app:iconTint="#1a237e" />
+
+            <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:hint="Resume Data" app:boxStrokeColor="#1a237e" app:hintTextColor="#1a237e">
+
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/etJsonInput" android:layout_width="match_parent" android:layout_height="250dp" android:gravity="top" android:inputType="textMultiLine" android:fontFamily="monospace" android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal" android:gravity="start">
+
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnPaste" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Paste" android:textSize="12sp" app:icon="@android:drawable/ic_menu_agenda" app:cornerRadius="16dp" app:backgroundTint="#e8eaf6" android:textColor="#1a237e" app:iconTint="#1a237e" />
+
+                <com.google.android.material.button.MaterialButton android:id="@+id/btnClear" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Clear" android:textSize="12sp" app:icon="@android:drawable/ic_menu_close_clear_cancel" app:cornerRadius="16dp" app:backgroundTint="#ffebee" android:textColor="#c62828" app:iconTint="#c62828" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton android:id="@+id/btnNext" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:text="Next: Choose Template" android:textAllCaps="false" android:textSize="16sp" app:cornerRadius="8dp" app:backgroundTint="#1a237e" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

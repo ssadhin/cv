@@ -82,7 +82,9 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
 
         rvRecentResumes = findViewById(R.id.rvRecentResumes);
         tvEmptyState = findViewById(R.id.tvEmptyState);
-        FloatingActionButton fabNew = findViewById(R.id.fabNewResume);
+        View btnHomeNewCV = findViewById(R.id.btnHomeNewCV);
+        View btnHomeStepByStep = findViewById(R.id.btnHomeStepByStep);
+        View btnHomeAI = findViewById(R.id.btnHomeAI);
         btnToggleView = findViewById(R.id.btnToggleView);
         btnSort = findViewById(R.id.btnSort);
         gridSizeSlider = findViewById(R.id.gridSizeSlider);
@@ -226,49 +228,29 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             }
         });
 
-        // FAB Click and Custom Shorter Long Click
-        final android.os.Handler longClickHandler = new android.os.Handler();
-        final Runnable longClickRunnable = () -> {
-            android.util.Log.d("HomeActivity", "Custom Long Click Triggered");
-            toggleMenu(true);
-        };
-
-        fabNew.setOnTouchListener(new View.OnTouchListener() {
-            private float startX, startY;
-            private boolean isLongPressTriggered = false;
-
-            @Override
-            public boolean onTouch(View v, android.view.MotionEvent event) {
-                switch (event.getAction()) {
-                    case android.view.MotionEvent.ACTION_DOWN:
-                        startX = event.getX();
-                        startY = event.getY();
-                        isLongPressTriggered = false;
-                        longClickHandler.postDelayed(longClickRunnable, 250); // Faster duration: 250ms
-                        return false; // Allow click to happen if released early
-
-                    case android.view.MotionEvent.ACTION_MOVE:
-                        float diffX = Math.abs(event.getX() - startX);
-                        float diffY = Math.abs(event.getY() - startY);
-                        if (diffX > 10 || diffY > 10) {
-                            longClickHandler.removeCallbacks(longClickRunnable);
-                        }
-                        return false;
-
-                    case android.view.MotionEvent.ACTION_UP:
-                    case android.view.MotionEvent.ACTION_CANCEL:
-                        longClickHandler.removeCallbacks(longClickRunnable);
-                        return false;
-                }
-                return false;
-            }
-        });
-
-        fabNew.setOnClickListener(v -> {
+        btnHomeNewCV.setOnClickListener(v -> {
             if (isMenuOpen) {
                 toggleMenu(false);
             } else {
                 createNewResume();
+            }
+        });
+
+        btnHomeStepByStep.setOnClickListener(v -> {
+            if (isMenuOpen) {
+                toggleMenu(false);
+            } else {
+                Intent intent = new Intent(HomeActivity.this, StepByStepActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnHomeAI.setOnClickListener(v -> {
+            if (isMenuOpen) {
+                toggleMenu(false);
+            } else {
+                Intent intent = new Intent(HomeActivity.this, AIActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -1010,6 +992,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             e.printStackTrace();
             return null;
         }
+
     }
 
     private void zipFolder(File folder, String parentPath, ZipOutputStream zos) throws IOException {

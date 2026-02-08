@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.view.animation.OvershootInterpolator;
@@ -20,13 +21,26 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import android.widget.Toast;
+import android.widget.GridLayout;
+import android.widget.FrameLayout;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.EditText;
+import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Collections;
 
+import android.content.res.ColorStateList;
+import android.widget.PopupMenu;
 import android.content.SharedPreferences;
+
 import android.net.Uri;
 import org.json.JSONObject;
 import android.os.Bundle;
@@ -34,6 +48,7 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,12 +60,9 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
-import android.widget.TextView;
+import android.widget.ViewFlipper;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -64,6 +76,7 @@ import android.view.LayoutInflater;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.card.MaterialCardView;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -74,6 +87,7 @@ import org.json.JSONObject;
 import org.json.JSONException;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ColorDrawable;
 import org.json.JSONException;
 
 
@@ -96,11 +110,24 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
     private SidePanelHelper leftPanel;
     private SidePanelHelper rightPanel;
+    
+    private int currentHeaderDesignIdx = 0; // Page index for Header
+    private int currentSectionDesignIdx = 0; // Page index for Section
+    private int currentProgressDesignIdx = 0; // Page index for Progress
+    
+    private int currentHeaderIdx = 1; // Selected choice index
+    private int currentSectionIdx = 0;
+    private int currentProgressIdx = 0;
+
+    private final String[] sectionDesignIds = {"default", "timeline", "glass", "bento"};
+    private final String[] headerDesignIds = {"none", "d1", "d2", "d3"};
+    private final String[] progressDesignIds = {"bar", "circle", "plain"};
+    private boolean isPickingBgImage = false;
     private boolean isPanelSwitching = false;
     private static final String TAG = "MainActivity";
     private static final int COLOR_PICKER_ID = 1;
-
     private static final int HIGHLIGHT_COLOR_PICKER_ID = 2;
+    private static final int BACKGROUND_COLOR_ID = 3;
     private static final String PREFS_NAME = "ResumeBuilderPrefs";
     private static final String KEY_SELECTED_FONT = "SelectedFontName";
 
@@ -130,9 +157,12 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private CardView addFeaturePanel;
     private View btnAddExperience, btnAddEducation, btnAddSkills, btnAddProjects, btnAddLanguages, btnAddCertificates, btnAddAwards, btnAddReferences, btnChangeTemplate, btnResetAll;
     private ViewPager2 viewPager; // To access from changeNativeFont
+    private AddPanelAdapter addPanelAdapter;
 
 
     private SeekBar preciseColumnWidthSlider;
+    private SeekBar precisePhotoRadiusSlider;
+    private TextView precisePhotoRadiusValue;
     private SeekBar preciseZoomSlider;
     private SeekBar preciseFontSizeSlider;
     private SeekBar preciseLineSpacingSlider;
@@ -154,6 +184,16 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private String currentFilePath;
     private boolean isNewFile;
     private String pendingJsonState; // Holds JSON data read from file until WebView is ready
+
+    // Template Selection Mode UI
+    private boolean isTemplateSelectionMode = false;
+    private View templateInfoPanel;
+    private View templateSelectionControls;
+    private View btnTemplateCancel;
+    private View btnTemplateConfirm;
+    private View btnCollapseInfo;
+    private View infoContent;
+    private View btnTemplateInfoMinimized;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,6 +213,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 if (currentFilePath != null) {
                     loadResumeFromFile(currentFilePath);
                 }
+            } else if (getIntent().hasExtra("EXTRA_FROM_AI")) {
+                 // Logic to handle AI Data is in setupWebView -> onPageFinished
+                 Log.d(TAG, "Opened from AI Activity");
             } else {
                 Log.d(TAG, "No intent extras - default initialization");
             }
@@ -193,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         setupActionPanels();
         setupAddFeaturePanel();
         setupATSHub();
+        setupTemplateSelectionUI();
 
         preciseColumnWidthSlider = findViewById(R.id.precise_column_width_slider);
         if (preciseColumnWidthSlider != null) {
@@ -341,6 +385,35 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         preciseZoomValue = findViewById(R.id.precise_zoom_value);
         preciseFontSizeValue = findViewById(R.id.precise_font_size_value);
         preciseLineSpacingValue = findViewById(R.id.precise_line_spacing_value);
+        precisePhotoRadiusValue = findViewById(R.id.precise_photo_radius_value);
+
+        precisePhotoRadiusSlider = findViewById(R.id.precise_photo_radius_slider);
+        if (precisePhotoRadiusSlider != null) {
+            precisePhotoRadiusSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        if (precisePhotoRadiusValue != null) {
+                            precisePhotoRadiusValue.setText(String.valueOf(progress));
+                        }
+                        if (myWebView != null) {
+                            myWebView.evaluateJavascript("if(window.updateProfileRadius) window.updateProfileRadius(" + progress + ");", null);
+                        }
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                    if (precisePhotoRadiusValue != null) precisePhotoRadiusValue.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    if (precisePhotoRadiusValue != null) precisePhotoRadiusValue.setVisibility(View.GONE);
+                    seekBar.setVisibility(View.GONE);
+                }
+            });
+        }
 
         // ATS Badge
         atsBadge = findViewById(R.id.ats_badge);
@@ -458,9 +531,20 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 btnDown.setVisibility(View.VISIBLE);
                 btnDelete.setVisibility(View.VISIBLE);
                 
-                setupPanelButton(btnAdd, "Add", R.drawable.ic_add, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; const contentArea = section.querySelector('.content-area'); if(contentArea) { const lastItem = contentArea.querySelector('.data-table-item:last-child, .skill-group:last-child, .simple-list-item:last-child, .pd-row:last-child'); if(lastItem) { const newItem = lastItem.cloneNode(true); newItem.querySelectorAll('.table-val, .table-label, .skill-sub, .skill-header, .pd-val, .pd-label, .exp-role, .proj-desc, li, .simple-list-item').forEach(el => { el.contentEditable = true; el.textContent = el.classList.contains('table-label') || el.classList.contains('pd-label') ? 'Label:' : 'New entry...'; }); contentArea.appendChild(newItem); newItem.onclick = (e) => { e.stopPropagation(); currentEditableElement = newItem; if(window.Android) Android.showToolbar('default'); }; newItem.querySelectorAll('li').forEach(li => { li.onclick = (e) => { e.stopPropagation(); currentEditableElement = li; if(window.Android) Android.showToolbar('item'); }; }); triggerAutoSave(); } } removeToolbar(); }", null));
+                setupPanelButton(btnAdd, "Add", R.drawable.ic_add, v -> myWebView.evaluateJavascript("console.log('WEB_DEBUG: Native Add Button Clicked'); if(currentEditableElement) { console.log('WEB_DEBUG: Calling addItemToSection for ' + currentEditableElement.dataset.type); addItemToSection(currentEditableElement); removeToolbar(); triggerAutoSave(); } else { console.error('WEB_DEBUG: No currentEditableElement'); }", null));
                 setupPanelButton(btnCopy, "Copy", R.drawable.copy, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; let clone = section.cloneNode(true); let baseId = section.id.replace(/-\\d+$/, ''); let num = 1; while(document.getElementById(baseId + '-' + num)) num++; clone.id = baseId + '-' + num; section.parentNode.insertBefore(clone, section.nextSibling); triggerAutoSave(); const h2 = clone.querySelector('h2'); if(h2) h2.onclick = (e) => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }; if(typeof enableFreeDrag === 'function') enableFreeDrag(clone); clone.querySelectorAll('.data-table-item, .simple-list-item, .skill-group, .pd-row').forEach(item => { item.onclick = (e) => { e.stopPropagation(); currentEditableElement = item; if(window.Android) Android.showToolbar('default'); }; }); clone.querySelectorAll('li').forEach(li => { li.onclick = (e) => { e.stopPropagation(); currentEditableElement = li; if(window.Android) Android.showToolbar('item'); }; }); clone.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }, 200); }", null));
-                setupPanelButton(btnEdit, "Edit", R.drawable.edit, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const sec = currentEditableElement; if(sec.dataset.editing === 'true') { sec.removeAttribute('data-editing'); sec.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = false); sec.querySelectorAll('.section-icon-upload-btn').forEach(b => b.remove()); sec.querySelectorAll('.section-icon-file-input').forEach(i => i.remove()); triggerAutoSave(); } else { sec.dataset.editing = 'true'; sec.querySelectorAll('.table-val, .table-label, .pd-val, .pd-label, .exp-role, .skill-header, .skill-sub, .proj-desc, span:not(.table-label):not(.pd-label), .simple-list-item').forEach(el => el.contentEditable = true); const h2 = sec.querySelector('h2'); if(h2) { h2.contentEditable = true; const icon = h2.querySelector('i'); if(icon && !h2.querySelector('.section-icon-upload-btn')) { const uploadBtn = document.createElement('span'); uploadBtn.className = 'section-icon-upload-btn'; uploadBtn.innerHTML = '<i class=\"fas fa-cloud-upload-alt\"></i>'; uploadBtn.contentEditable = 'false'; uploadBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); let input = h2.querySelector('.section-icon-file-input'); if(!input) { input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.className = 'section-icon-file-input'; input.style.display = 'none'; input.onchange = (ev) => { const file = ev.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = (re) => { icon.style.backgroundImage = 'url(' + re.target.result + ')'; icon.style.backgroundSize = 'contain'; icon.style.backgroundRepeat = 'no-repeat'; icon.style.backgroundPosition = 'center'; icon.style.color = 'transparent'; icon.dataset.customIcon = 'true'; triggerAutoSave(); }; reader.readAsDataURL(file); } }; h2.appendChild(input); } input.click(); }; h2.insertBefore(uploadBtn, icon.nextSibling); } } } const isEditing = sec.dataset.editing === 'true'; if(window.Android) Android.updateEditButton(isEditing); }", null));
+                setupPanelButton(btnEdit, "Edit", R.drawable.edit, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const sec = currentEditableElement; if(sec.dataset.editing === 'true') { sec.removeAttribute('data-editing'); sec.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = false); const h2 = sec.querySelector('h2'); if(h2) { h2.querySelectorAll('.section-icon-upload-btn, .section-gear-btn').forEach(b => b.remove()); } sec.querySelectorAll('.section-icon-file-input').forEach(i => i.remove()); triggerAutoSave(); } else { sec.dataset.editing = 'true'; sec.querySelectorAll('.table-val, .table-label, .pd-val, .pd-label, .exp-role, .skill-header, .skill-sub, .proj-desc, span:not(.table-label):not(.pd-label), .simple-list-item').forEach(el => el.contentEditable = true); const h2 = sec.querySelector('h2'); if(h2) { h2.contentEditable = true; const icon = h2.querySelector('i'); if(icon && !h2.querySelector('.section-icon-upload-btn')) { " +
+                        "const uploadBtn = document.createElement('span'); uploadBtn.className = 'section-icon-upload-btn'; uploadBtn.innerHTML = '<i class=\"fas fa-cloud-upload-alt\"></i>'; uploadBtn.contentEditable = 'false'; " +
+                        "uploadBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); let input = h2.querySelector('.section-icon-file-input'); if(!input) { input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.className = 'section-icon-file-input'; input.style.display = 'none'; input.onchange = (ev) => { const file = ev.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = (re) => { icon.style.backgroundImage = 'url(' + re.target.result + ')'; icon.style.backgroundSize = 'contain'; icon.style.backgroundRepeat = 'no-repeat'; icon.style.backgroundPosition = 'center'; icon.style.color = 'transparent'; icon.dataset.customIcon = 'true'; triggerAutoSave(); }; reader.readAsDataURL(file); } }; h2.appendChild(input); } input.click(); }; h2.insertBefore(uploadBtn, icon.nextSibling); " +
+                        "const gearBtn = document.createElement('span'); gearBtn.className = 'section-gear-btn'; gearBtn.innerHTML = '<i class=\"fas fa-cog\"></i>'; gearBtn.contentEditable = 'false'; " +
+                        "gearBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); if(window.Android && window.Android.openSectionBackgroundManager) { " +
+                        "const rgbToHex = (rgb) => { if(!rgb || rgb.startsWith(\"#\")) return rgb || \"#ffffff\"; const match = rgb.match(/^rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/); if(!match) return \"#ffffff\"; return \"#\" + [match[1], match[2], match[3]].map(x => parseInt(x).toString(16).padStart(2, \"0\")).join(\"\"); }; " +
+                        "const items = []; const secBg = rgbToHex(window.getComputedStyle(sec).backgroundColor); items.push({ id: sec.id, name: 'Entire Section', color: secBg, opacity: 100, isMaster: true }); " +
+                        "sec.querySelectorAll('.data-table-item, .skill-group, .simple-list-item, .pd-row, .declaration, .photo-card, .skill-sub, .objective, .resp-list li').forEach((el, idx) => { " +
+                        "if(!el.id) el.id = sec.id + '_item_' + idx; let name = el.innerText.split('\\n')[0].substring(0, 20) || 'Item ' + (idx + 1); if(el.querySelector('.job-title')) name = el.querySelector('.job-title').innerText; else if(el.querySelector('.school')) name = el.querySelector('.school').innerText; " +
+                        "let op = 100; const opVal = el.querySelector('.section-opacity-val'); if(opVal) op = parseInt(opVal.innerText) || 100; " +
+                        "const col = rgbToHex(getComputedStyle(el).getPropertyValue('--item-bg').trim()); items.push({ id: el.id, name: name, color: col, opacity: op, isMaster: false }); }); " +
+                        "window.Android.openSectionBackgroundManager(JSON.stringify(items)); } }; h2.insertBefore(gearBtn, uploadBtn.nextSibling); } } } const isEditing = sec.dataset.editing === 'true'; if(window.Android) Android.updateEditButton(isEditing); }", null));
                 setupPanelButton(btnSwap, "Swap", R.drawable.swap, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; const p = section.closest('.left-column') ? document.getElementById('leftCol') : document.getElementById('rightCol'); const t = p.id === 'leftCol' ? document.getElementById('rightCol') : document.getElementById('leftCol'); t.appendChild(section); section.style.transform = 'translateY(0)'; removeToolbar(); triggerAutoSave(); }", null));
                 setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.style.marginTop = ''; currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
                 setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
@@ -495,14 +579,15 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         viewPager = findViewById(R.id.panel_view_pager);
 
         if (tabLayout != null && viewPager != null) {
-            AddPanelAdapter adapter = new AddPanelAdapter();
-            viewPager.setAdapter(adapter);
+            addPanelAdapter = new AddPanelAdapter();
+            viewPager.setAdapter(addPanelAdapter);
 
             new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                 switch(position) {
                     case 0: tab.setText("Sections"); break;
                     case 1: tab.setText("Template"); break;
                     case 2: tab.setText("Fonts"); break;
+                    case 3: tab.setText("Customization"); break;
                 }
             }).attach();
         }
@@ -532,14 +617,24 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         if (addFabIcon != null) animateIconSwap(addFabIcon, R.drawable.ic_add);
     }
 
+    // Helper method to generate CV-specific font key
+    private String getFontKeyForCurrentCv() {
+        if (currentFilePath != null && !currentFilePath.isEmpty()) {
+            return KEY_SELECTED_FONT + "_" + new java.io.File(currentFilePath).getName();
+        }
+        return KEY_SELECTED_FONT; // Fallback for new unsaved CVs
+    }
+
     private void changeNativeFont(String fontName, String fontFamily, String fontUrl) {
-         // Persist selection
-         getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(KEY_SELECTED_FONT, fontName).apply();
+         // Persist selection using CV-specific key
+         getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(getFontKeyForCurrentCv(), fontName).apply();
          
          String json = "{ \"id\": \"" + fontName + "\", \"name\": \"" + fontName + "\", \"family\": \"" + fontFamily + "\", \"url\": \"" + fontUrl + "\", \"isCustom\": false }";
          json = json.replace("\"", "\\\"");
          json = json.replace("'", "\\'");
-         String js = "localStorage.setItem('resume_font_config', '" + json + "'); applyFontConfig();";
+         String cvId = currentFilePath != null ? new java.io.File(currentFilePath).getName() : "";
+         String fontKey = cvId.isEmpty() ? "resume_font_config" : "resume_font_config_" + cvId;
+         String js = "localStorage.setItem('" + fontKey + "', '" + json + "'); window.currentCvFontKey = '" + fontKey + "'; applyFontConfig();";
          myWebView.evaluateJavascript(js, null);
          
          // Refresh panel to update indicators
@@ -669,8 +764,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
     @Override
     public void onColorSelected(int dialogId, int color) {
+        // Default to opaque hex for standard CSS compatibility
         String formattedColor = String.format("#%06X", (0xFFFFFF & color));
         
+        // Security: Check if color is fully transparent (alpha == 0)
+        // This often happens if the picker returns an invalid state or if 'no color' is selected.
+        // We prevent this from defaulting to Opaque Black (#000000) for critical elements.
+        boolean isTransparent = (color >>> 24) == 0;
+
         if (dialogId == COLOR_PICKER_ID) {
             // Regular color picker for UI elements (header, columns, text, etc.)
             if (myWebView != null) {
@@ -681,6 +782,21 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             currentHighlightColor = formattedColor;
             if (myWebView != null) {
                 myWebView.evaluateJavascript("if(window.setHighlightColor) window.setHighlightColor('" + formattedColor + "');", null);
+            }
+        } else if (dialogId == BACKGROUND_COLOR_ID) {
+            // Background color picker
+            if (isTransparent) {
+                Log.w(TAG, "Transparent background selected - ignoring to prevent black screening.");
+                return;
+            }
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateBgColor) window.updateBgColor('" + formattedColor + "');", null);
+            }
+        } else if (dialogId == SECTION_BG_COLOR_ID) {
+             if (pendingColorItem != null && pendingColorAdapter != null) {
+                pendingColorAdapter.updateColor(pendingColorItem, color);
+                pendingColorItem = null;
+                pendingColorAdapter = null;
             }
         }
     }
@@ -1064,9 +1180,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private void setupResultLaunchers() {
         mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
                 uri -> {
-                    if (mUploadMessage != null && uri != null) {
-                        mUploadMessage.onReceiveValue(new Uri[]{uri});
-                        mUploadMessage = null;
+                    if (uri != null) {
+                        if (isPickingBgImage) {
+                            isPickingBgImage = false;
+                            updateBgImage(uri);
+                        } else if (mUploadMessage != null) {
+                            mUploadMessage.onReceiveValue(new Uri[]{uri});
+                            mUploadMessage = null;
+                        }
                     }
                 });
 
@@ -1096,12 +1217,53 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         webSettings.setAllowFileAccess(true);
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
+        // Inject Java Interface
+        myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
+        
+        // Load HTML
+        // myWebView.loadUrl("file:///android_asset/index.html"); // Moved for custom handling
+
+        // Check for AI Data passed via Intent
+        String aiJson = getIntent().getStringExtra("EXTRA_STEP_BY_STEP_DATA");
+        String aiTemplate = getIntent().getStringExtra("EXTRA_TARGET_LAYOUT");
+        String aiPath = getIntent().getStringExtra("EXTRA_GENERATED_FILEPATH");
         
         // Custom Client to inject saved zoom on load
         myWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                
+                // 0. Update currentFilePath if provided by AI
+                if (aiPath != null) {
+                    currentFilePath = aiPath;
+                }
+
+                // 1. Load AI Data (if exists)
+                if (aiJson != null && !aiJson.isEmpty()) {
+                    Log.d(TAG, "Injecting AI JSON data...");
+                    String safeJson = aiJson.replace("'", "\\'").replace("\n", "\\n"); // Better escaping
+                    myWebView.evaluateJavascript("window.loadResumeData('" + safeJson + "');", null);
+                } else if (currentFilePath != null) {
+                    loadResumeFromFile(currentFilePath);
+                }
+
+                // 2. Apply Template (if exists)
+                if (aiTemplate != null && !aiTemplate.isEmpty()) {
+                     Log.d(TAG, "Applying AI Template: " + aiTemplate);
+                     // Map IDs just in case, or pass directly if matching JS
+                     // sectionDesignIds = {"default", "timeline", "glass", "bento"};
+                     myWebView.evaluateJavascript("if(window.updateSectionDesign) window.updateSectionDesign('" + aiTemplate + "');", null);
+                     
+                     // Update Native Index for UI consistency
+                     for(int i=0; i<sectionDesignIds.length; i++) {
+                         if(sectionDesignIds[i].equals(aiTemplate)) {
+                             currentSectionIdx = i;
+                             break;
+                         }
+                     }
+                }
+                
                 // Apply saved zoom level
                 SharedPreferences prefs = getPreferences(MODE_PRIVATE);
                 int savedZoom = prefs.getInt("zoom_level", 15);
@@ -1113,8 +1275,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     String safePath = currentFilePath.replace("\\", "\\\\").replace("'", "\\'");
                     view.evaluateJavascript("window.CURRENT_FILE_PATH = '" + safePath + "';", null);
                     Log.d(TAG, "✓ Injected file path into WebView: " + currentFilePath);
+
+                    // Inject CV ID for per-CV color data isolation
+                    String cvId = new java.io.File(currentFilePath).getName();
+                    view.evaluateJavascript("if(window.setCvId) { window.setCvId('" + cvId.replace("'", "\\'") + "'); }", null);
+                    Log.d(TAG, "✓ Injected CV ID into WebView: " + cvId);
                 } else {
                     view.evaluateJavascript("window.CURRENT_FILE_PATH = null;", null);
+                    view.evaluateJavascript("if(window.setCvId) { window.setCvId(''); }", null);
                     Log.d(TAG, "✗ No file path - this is a new CV");
                 }
                 
@@ -1123,6 +1291,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     String layout = getIntent().getStringExtra("EXTRA_TARGET_LAYOUT");
                     String wizardData = getIntent().getStringExtra("EXTRA_STEP_BY_STEP_DATA");
                     String generatedPath = getIntent().getStringExtra("EXTRA_GENERATED_FILEPATH");
+                    String templateJson = getIntent().getStringExtra("EXTRA_TEMPLATE_JSON");
                     
                     if (generatedPath != null) {
                         currentFilePath = generatedPath;
@@ -1145,11 +1314,19 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                             "localStorage.removeItem('resume_app_v2_redo');";
                     
                     if (wizardData != null) {
-                        String layoutSafe = (layout != null) ? "'" + layout + "'" : "null";
-                        String setupJs = "window.loadResumeData(" + wizardData + ", " + layoutSafe + "); ";
-                        view.evaluateJavascript(clearStorageJs + setupJs, null);
-                        Log.d(TAG, "✓ Injected Full Wizard Data (via loadResumeData)");
-                    } else if (sections != null) {
+                        if (templateJson != null) {
+                            String safeTemplate = org.json.JSONObject.quote(templateJson);
+                            String setupJs = "window.applyUserTemplate(" + safeTemplate + ", " + wizardData + "); ";
+                            view.evaluateJavascript(clearStorageJs + setupJs, null);
+                            Log.d(TAG, "✓ Applied Full Template + AI Data via applyUserTemplate");
+                        } else {
+                            String layoutSafe = (layout != null) ? "'" + layout + "'" : "null";
+                            String setupJs = "window.loadResumeData(" + wizardData + ", " + layoutSafe + "); ";
+                            view.evaluateJavascript(clearStorageJs + setupJs, null);
+                            Log.d(TAG, "✓ Injected Full Wizard Data (via loadResumeData)");
+                        }
+                    }
+ else if (sections != null) {
                         StringBuilder sb = new StringBuilder("[");
                         for (int i = 0; i < sections.size(); i++) {
                             sb.append("'").append(sections.get(i)).append("'");
@@ -1172,6 +1349,11 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 } else if (pendingJsonState != null) {
                     Log.d(TAG, "Loading CV data from file (" + pendingJsonState.length() + " bytes)");
                     String safeJson = pendingJsonState.replace("\\", "\\\\").replace("'", "\\'").replace("\n", "\\n").replace("\r", "");
+                    // Set CV-specific font key before loading data
+                    if (currentFilePath != null) {
+                        String fontKey = "resume_font_config_" + new java.io.File(currentFilePath).getName();
+                        view.evaluateJavascript("window.currentCvFontKey = '" + fontKey + "';", null);
+                    }
                     view.evaluateJavascript("window.loadResumeData('" + safeJson + "')", null);
                     pendingJsonState = null; // Clear after loading to prevent reuse
                     Log.d(TAG, "Cleared pendingJsonState after loading");
@@ -1201,7 +1383,26 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 }
                 createWebPrintJob(myWebView);
             });
+
+            printFab.setOnLongClickListener(v -> {
+                android.widget.PopupMenu popup = new android.widget.PopupMenu(this, v);
+                popup.getMenu().add("Save as Template");
+                popup.getMenu().add("Save as Docx");
+                popup.setOnMenuItemClickListener(item -> {
+                    if (item.getTitle().equals("Save as Template")) {
+                        saveCurrentAsTemplate();
+                    } else if (item.getTitle().equals("Save as Docx")) {
+                        saveCurrentAsDocx();
+                    }
+                    return true;
+                });
+                popup.show();
+                return true;
+            });
         }
+
+
+
 
         undoFab = findViewById(R.id.fab_undo);
         undoRedoContainer = findViewById(R.id.undo_redo_container);
@@ -1224,6 +1425,16 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 Log.d(TAG, "Native Redo Clicked");
                 if (myWebView != null) {
                     myWebView.evaluateJavascript("if(window.redo) { console.log('JS Redo Calling'); window.redo(); } else { console.error('window.redo not found'); }", null);
+                }
+            });
+        }
+
+        View restoreBtnView = findViewById(R.id.btn_restore_color);
+        if (restoreBtnView != null) {
+            restoreBtnView.setOnClickListener(v -> {
+                Log.d(TAG, "Native Restore Color Clicked");
+                if (myWebView != null) {
+                    myWebView.evaluateJavascript("if(window.restoreManualColors) { window.restoreManualColors(); } else { console.error('restoreManualColors not found'); }", null);
                 }
             });
         }
@@ -1273,6 +1484,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                             .setInterpolator(new OvershootInterpolator())
                             .withEndAction(() -> {
                                 if (addFabIcon != null) animateIconSwap(addFabIcon, R.drawable.ic_check_v); // Icon -> V
+                                // MANDATORY REFRESH when opening to ensure UI is in sync
+                                loadSectionsFromWebView();
                             })
                             .start();
                     }
@@ -1490,6 +1703,13 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
 
         @JavascriptInterface
+        public void onColorCorruption() {
+            runOnUiThread(() -> {
+                Toast.makeText(mContext, "⚠️ Color corruption detected! Auto-reverting to safe colors.", Toast.LENGTH_LONG).show();
+            });
+        }
+
+        @JavascriptInterface
         public void openSignatureActivity() {
             runOnUiThread(() -> {
                 Log.d(TAG, "Launching SignatureActivity on main thread.");
@@ -1499,10 +1719,37 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
 
         @JavascriptInterface
+        public void openPhotoRadiusSlider(int currentRadius) {
+            // Deprecated - replaced by openProfileSettings
+            openProfileSettings("smooth", currentRadius, 100, 0, 0);
+        }
+
+        @JavascriptInterface
+        public void openProfileSettings(String mode, int radius, int scale, int x, int y) {
+            MainActivity.this.openProfileSettings(mode, radius, scale, x, y);
+        }
+
+        @JavascriptInterface
         public void toggleNativeFab(boolean visible) {
             runOnUiThread(() -> {
+                if (isTemplateSelectionMode) return; // Ignore if in selection mode
                 isNativeEditing = visible;
                 updateNativeUI(visible);
+            });
+        }
+
+        @JavascriptInterface
+        public void onTemplateSectionsSelected(String jsonSections) {
+            // Optional: called from JS if we wanted JS-initiated save
+        }
+        
+        @JavascriptInterface
+        public void updateNativeEditState(boolean isEditing) {
+            runOnUiThread(() -> {
+                isNativeEditing = isEditing;
+                if (!isTemplateSelectionMode) {
+                    updateNativeUI(isEditing);
+                }
             });
         }
 
@@ -1528,6 +1775,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 }
             });
         }
+        
 
         @JavascriptInterface
         public void saveResume(String jsonState) {
@@ -1588,7 +1836,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     if (myWebView != null) {
                         String safePath = currentFilePath.replace("\\", "\\\\").replace("'", "\\'");
                         myWebView.evaluateJavascript("window.CURRENT_FILE_PATH = '" + safePath + "';", null);
-                        Log.d(TAG, "Updated WebView with new file path");
+                        // Set CV-specific font key
+                        String fontKey = "resume_font_config_" + new java.io.File(currentFilePath).getName();
+                        myWebView.evaluateJavascript("window.currentCvFontKey = '" + fontKey + "';", null);
+                        Log.d(TAG, "Updated WebView with new file path and font key");
                     }
                 } else {
                     Log.d(TAG, "Updating EXISTING CV file: " + currentFilePath);
@@ -1651,6 +1902,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                                      if (myWebView != null) {
                                          String safePath = currentFilePath.replace("\\", "\\\\").replace("'", "\\'");
                                          myWebView.evaluateJavascript("window.CURRENT_FILE_PATH = '" + safePath + "';", null);
+                                         // Update CV-specific font key after rename
+                                         String fontKey = "resume_font_config_" + new java.io.File(currentFilePath).getName();
+                                         myWebView.evaluateJavascript("window.currentCvFontKey = '" + fontKey + "';", null);
                                      }
                                  }
                              }
@@ -1677,48 +1931,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             });
         }
         
-        private void saveWebViewScreenshot(String jsonPath) {
-             if (myWebView == null || myWebView.getWidth() <= 0 || myWebView.getHeight() <= 0) return;
-             
-             try {
-                 // Store current scroll position to restore later
-                 int scrollX = myWebView.getScrollX();
-                 int scrollY = myWebView.getScrollY();
-                 
-                 // Scroll to top to ensure we capture the resume header for the thumbnail
-                 myWebView.scrollTo(0, 0);
-                                  // Create a bitmap of the WebView visible content (now at the top)
-                  // CROP: Reduce width by 8 pixels to remove potential right-side dark lines/artifacts
-                  int captureWidth = Math.max(1, myWebView.getWidth() - 8);
-                  int captureHeight = myWebView.getHeight();
-                  
-                  android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(
-                          captureWidth, 
-                          captureHeight, 
-                          android.graphics.Bitmap.Config.ARGB_8888);
-                  
-                  android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
-                  myWebView.draw(canvas);
-                 
-                 // Restore original scroll position so the user's view doesn't jump
-                 myWebView.scrollTo(scrollX, scrollY);
-                 
-                 if (bitmap != null) {
-                     // Determine screenshot path (replace .json with .png)
-                     String imagePath = jsonPath.replace(".json", ".png");
-                     File imageFile = new File(imagePath);
-                     
-                     try (FileOutputStream fos = new FileOutputStream(imageFile)) {
-                         bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 80, fos);
-                         Log.d(TAG, "Screenshot saved from top: " + imagePath);
-                     } catch (IOException e) {
-                         Log.e(TAG, "Error saving screenshot", e);
-                     }
-                 }
-             } catch (Exception e) {
-                 Log.e(TAG, "Error creating screenshot bitmap", e);
-             }
-        }
 
 
 
@@ -1835,8 +2047,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         @JavascriptInterface
         public void onToolbarAction(String action) {
             Log.d(TAG, "onToolbarAction called: " + action);
-            // This is a stub to prevent JS crashes.
-            // Future implementation can handle specific actions here if needed.
+            if ("section_delete".equals(action)) {
+                // Refresh the panel state ONLY if a full section was removed
+                onSectionAdded();
+            }
         }
 
         @JavascriptInterface
@@ -1852,10 +2066,13 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         @JavascriptInterface
         public void onSectionAdded() {
             // Refresh the Add Panel to update green frames and sorting
+            // DELAYED to allow WebView deletion animation (400ms) to complete
             runOnUiThread(() -> {
-                if (addFeaturePanel != null && addFeaturePanel.getVisibility() == View.VISIBLE) {
-                    loadSectionsFromWebView();
-                }
+                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                    if (addFeaturePanel != null && addFeaturePanel.getVisibility() == View.VISIBLE) {
+                        loadSectionsFromWebView();
+                    }
+                }, 500); 
             });
         }
 
@@ -1895,9 +2112,70 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
 
         @JavascriptInterface
-        public void onMobilePanelActive() {
-            // This can be used to show a native menu or just bridge to the wizard
-            Log.d(TAG, "onMobilePanelActive triggered");
+        public String loadUserTemplateJson(String fileName) {
+            try {
+                File dir = new File(getFilesDir(), "user_templates");
+                File file = new File(dir, fileName);
+                if (!file.exists()) return null;
+                
+                java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(file));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) sb.append(line);
+                reader.close();
+                return sb.toString();
+            } catch (Exception e) {
+                Log.e(TAG, "Error loading user template JSON", e);
+                return null;
+            }
+        }
+
+        @JavascriptInterface
+        public void updateNativeDesignSelection(String category, String typeId) {
+            runOnUiThread(() -> {
+                Log.d(TAG, "updateNativeDesignSelection called for " + category + " with type: " + typeId);
+                String[] ids;
+                if (category.equals("header")) ids = headerDesignIds;
+                else if (category.equals("section")) ids = sectionDesignIds;
+                else if (category.equals("progress")) ids = progressDesignIds;
+                else return;
+
+                int index = -1;
+                for (int i = 0; i < ids.length; i++) {
+                    if (ids[i].equals(typeId)) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (index != -1) {
+                    if (category.equals("header")) currentHeaderIdx = index;
+                    else if (category.equals("section")) currentSectionIdx = index;
+                    else if (category.equals("progress")) currentProgressIdx = index;
+
+                    // Refresh the Customization tab if it's visible
+                    if (addFeaturePanel != null && addFeaturePanel.getVisibility() == View.VISIBLE && viewPager != null) {
+                        RecyclerView.Adapter adapter = viewPager.getAdapter();
+                        if (adapter != null) {
+                            adapter.notifyItemChanged(3); // Tab 3 is Customization
+                        }
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void openSectionBackgroundManager(String jsonItems) {
+            runOnUiThread(() -> {
+                showSectionBackgroundDialog(jsonItems);
+            });
+        }
+
+        @JavascriptInterface
+        public void openNameSettings(int currentRotation, int currentScale) {
+            runOnUiThread(() -> {
+                showNameSettingsDialog(currentRotation, currentScale);
+            });
         }
     }
 
@@ -1919,6 +2197,135 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     .setShowAlphaSlider(true)
                     .show(MainActivity.this);
         });
+    }
+
+    public void openProfileSettings(String shapeMode, int radius, int scale, int x, int y) {
+        runOnUiThread(() -> {
+            BottomSheetDialog dialog = new BottomSheetDialog(this);
+            View view = getLayoutInflater().inflate(R.layout.dialog_profile_settings, null);
+            dialog.setContentView(view);
+
+            // Limit height to 35% of screen
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int maxHeight = (int) (displayMetrics.heightPixels * 0.35);
+            view.getLayoutParams().height = maxHeight;
+
+            com.google.android.material.button.MaterialButtonToggleGroup toggleGroup = view.findViewById(R.id.toggle_group_shape);
+            SeekBar sliderRadius = view.findViewById(R.id.slider_radius);
+            SeekBar sliderSize = view.findViewById(R.id.slider_size);
+            SeekBar sliderX = view.findViewById(R.id.slider_x);
+            SeekBar sliderY = view.findViewById(R.id.slider_y);
+
+            TextView txtSliderLabel = view.findViewById(R.id.txt_slider_label);
+            TextView txtRadius = view.findViewById(R.id.txt_radius_val);
+            TextView txtSize = view.findViewById(R.id.txt_size_val);
+            TextView txtX = view.findViewById(R.id.txt_x_val);
+            TextView txtY = view.findViewById(R.id.txt_y_val);
+
+            // Set initial state
+            if ("polygon".equals(shapeMode)) {
+                toggleGroup.check(R.id.btn_mode_polygon);
+                txtSliderLabel.setText("Sides");
+                if (radius < 3) sliderRadius.setProgress(3); // Min 3 sides
+                else sliderRadius.setProgress(radius);
+            } else {
+                toggleGroup.check(R.id.btn_mode_smooth);
+                txtSliderLabel.setText("Radius");
+                sliderRadius.setProgress(radius);
+            }
+
+            sliderSize.setProgress(scale);
+            sliderX.setProgress(x + 100);
+            sliderY.setProgress(y + 100);
+
+            txtRadius.setText(String.valueOf(sliderRadius.getProgress()));
+            txtSize.setText(String.valueOf(scale));
+            txtX.setText(String.valueOf(x));
+            txtY.setText(String.valueOf(y));
+
+            final String[] currentMode = {shapeMode != null ? shapeMode : "smooth"};
+
+            SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        int r = sliderRadius.getProgress();
+                        // Enforce min sides if in polygon mode
+                        if ("polygon".equals(currentMode[0]) && r < 3) {
+                            r = 3;
+                            sliderRadius.setProgress(3);
+                        }
+                        
+                        int s = sliderSize.getProgress();
+                        int posX = sliderX.getProgress() - 100;
+                        int posY = sliderY.getProgress() - 100;
+
+                        txtRadius.setText(String.valueOf(r));
+                        txtSize.setText(String.valueOf(s));
+                        txtX.setText(String.valueOf(posX));
+                        txtY.setText(String.valueOf(posY));
+
+                        if ("polygon".equals(currentMode[0])) {
+                            TextView txtShape = view.findViewById(R.id.txt_shape_name);
+                            txtShape.setVisibility(View.VISIBLE);
+                            txtShape.setText(getShapeName(r));
+                        }
+
+                        if (myWebView != null) {
+                            String js = String.format("if(window.updateProfileConfig) window.updateProfileConfig({shapeMode:'%s', radius:%d, scale:%d, x:%d, y:%d});", currentMode[0], r, s, posX, posY);
+                            myWebView.evaluateJavascript(js, null);
+                        }
+                    }
+                }
+                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+            };
+
+            toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (isChecked) {
+                    if (checkedId == R.id.btn_mode_smooth) {
+                        currentMode[0] = "smooth";
+                        txtSliderLabel.setText("Radius");
+                    } else if (checkedId == R.id.btn_mode_polygon) {
+                        currentMode[0] = "polygon";
+                        txtSliderLabel.setText("Sides");
+                        if (sliderRadius.getProgress() < 3) {
+                            sliderRadius.setProgress(3);
+                            txtRadius.setText("3");
+                        }
+                    }
+                    // Trigger update immediately when mode changes
+                    listener.onProgressChanged(sliderRadius, sliderRadius.getProgress(), true);
+                }
+            });
+
+            sliderRadius.setOnSeekBarChangeListener(listener);
+            sliderSize.setOnSeekBarChangeListener(listener);
+            sliderX.setOnSeekBarChangeListener(listener);
+            sliderY.setOnSeekBarChangeListener(listener);
+
+            // Initial label update
+            if ("polygon".equals(currentMode[0])) {
+                TextView txtShape = view.findViewById(R.id.txt_shape_name);
+                txtShape.setVisibility(View.VISIBLE);
+                txtShape.setText(getShapeName(sliderRadius.getProgress()));
+            }
+
+            dialog.show();
+        });
+    }
+
+    private String getShapeName(int sides) {
+        if (sides <= 3) return "(Triangle)";
+        if (sides == 4) return "(Diamond)";
+        if (sides == 5) return "(Pentagon)";
+        if (sides == 6) return "(Hexagon)";
+        if (sides == 7) return "(Heptagon)";
+        if (sides == 8) return "(Octagon)";
+        if (sides < 12) return "(Polygon)";
+        if (sides < 30) return "(Circle with lines)";
+        return "(Circle)";
     }
 
     private void animatePanelChildren(View view) {
@@ -2036,6 +2443,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             case "fa-user-tie": return R.drawable.ic_edit;
             case "fa-palette": return R.drawable.ic_palette;
             case "fa-link": return R.drawable.ic_zoom;
+            case "fa-id-badge": return R.drawable.ic_format_bold; // Name
+            case "fa-address-book": return R.drawable.ic_format_underlined; // Contact
+            case "fa-window-maximize": return R.drawable.ic_swap; // Header Box Togglebhn
+            case "fa-chart-line": return R.drawable.ic_chart; // Progress
             default: return R.drawable.ic_add;
         }
     }
@@ -2115,51 +2526,135 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
         for (int i = 0; i < items.size(); i++) {
             SectionItem item = items.get(i);
+            final String initialCol = item.col.toLowerCase().contains("left") ? "left" : "right";
+            final String[] currentTargetCol = { initialCol }; // Mutable state for this item instance
+
             View v = inflater.inflate(R.layout.item_section_add, (i % 2 == 0) ? leftCol : rightCol, false);
 
+            View cardRoot = v.findViewById(R.id.card_root);
             TextView title = v.findViewById(R.id.section_title);
             TextView desc = v.findViewById(R.id.section_desc);
             ImageView icon = v.findViewById(R.id.section_icon);
             View iconContainer = v.findViewById(R.id.section_container); 
             ImageButton btnAdd = v.findViewById(R.id.btn_add_section);
+            ImageView doneBadge = v.findViewById(R.id.done_badge);
+            
+            // Placement toggle UI
+            View placementContainer = v.findViewById(R.id.placement_container);
+            TextView tvIndicator = v.findViewById(R.id.tv_placement_indicator);
+            View btnToggle = v.findViewById(R.id.btn_toggle_placement);
 
             title.setText(item.name);
             desc.setText(item.desc);
             icon.setImageResource(item.iconRes);
             
-            // Handle Added/Not Added state
+            // Handle Added/Done state
             if (item.isAdded) {
-                // If added, change button to checkmark/gray or hide?
                 btnAdd.setImageResource(R.drawable.ic_check);
                 btnAdd.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#E0E0E0")));
                 btnAdd.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#757575")));
                 btnAdd.setEnabled(false);
+                if (doneBadge != null) doneBadge.setVisibility(View.VISIBLE);
                 v.setAlpha(0.6f);
             } else {
                 btnAdd.setImageResource(R.drawable.ic_add);
                 btnAdd.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
                 btnAdd.setImageTintList(android.content.res.ColorStateList.valueOf(Color.WHITE));
                 btnAdd.setEnabled(true);
+                if (doneBadge != null) doneBadge.setVisibility(View.GONE);
                 v.setAlpha(1.0f);
             }
 
-            // Click listener on the whole container or button
-            View.OnClickListener addListener = view -> {
-                if (!item.isAdded) {
-                    addNativeSection(item.id, item.col);
-                }
-            };
-            
-            if (iconContainer != null) iconContainer.setOnClickListener(addListener);
-            if (btnAdd != null) btnAdd.setOnClickListener(addListener);
-
-            // Add to appropriate column
-            if (i % 2 == 0) {
-                leftCol.addView(v);
-            } else {
-                rightCol.addView(v);
+            // Sync indicator text initially
+            if (tvIndicator != null) {
+                String loc = item.col.toLowerCase();
+                if (loc.contains("left")) currentTargetCol[0] = "left";
+                else if (loc.contains("right")) currentTargetCol[0] = "right";
+                else if (loc.contains("both")) currentTargetCol[0] = "both";
+                else if (loc.contains("header")) currentTargetCol[0] = "header";
+                
+                tvIndicator.setText("Add to: " + (currentTargetCol[0].substring(0, 1).toUpperCase() + currentTargetCol[0].substring(1)));
             }
+            
+            // Toggle logic (Cycles 4 states)
+            if (btnToggle != null) {
+                btnToggle.setOnClickListener(view -> {
+                    switch (currentTargetCol[0]) {
+                        case "left": currentTargetCol[0] = "right"; break;
+                        case "right": currentTargetCol[0] = "both"; break;
+                        case "both": currentTargetCol[0] = "header"; break;
+                        case "header": currentTargetCol[0] = "left"; break;
+                        default: currentTargetCol[0] = "left";
+                    }
+                    tvIndicator.setText("Add to: " + (currentTargetCol[0].substring(0, 1).toUpperCase() + currentTargetCol[0].substring(1)));
+                });
+            }
+
+            // Click listener for Expansion & Morphing
+            if (iconContainer != null) {
+                iconContainer.setOnClickListener(view -> {
+                    if (item.isAdded) return;
+                    
+                    ViewGroup animRoot = (ViewGroup) addFeaturePanel.findViewById(R.id.panel_view_pager);
+                    if (animRoot == null) animRoot = addFeaturePanel; 
+                    
+                    TransitionManager.beginDelayedTransition(animRoot, new AutoTransition().setDuration(250));
+                    
+                    // Collapse others and revert their background
+                    if (expandedSectionView != null && expandedSectionView != v) {
+                        View otherPlacement = expandedSectionView.findViewById(R.id.placement_container);
+                        MaterialCardView otherCard = expandedSectionView.findViewById(R.id.card_root);
+                        if (otherPlacement != null) otherPlacement.setVisibility(View.GONE);
+                        if (otherCard != null) animateCornerRadius(otherCard, 12, 28);
+                    }
+                    
+                    if (placementContainer.getVisibility() == View.VISIBLE) {
+                        // COMPACT MODE
+                        placementContainer.setVisibility(View.GONE);
+                        animateCornerRadius((MaterialCardView)cardRoot, 12, 28);
+                        expandedSectionView = null;
+                        icon.animate().rotation(0).setDuration(200).start();
+                    } else {
+                        // EXPANDED MODE (Rounded Box)
+                        placementContainer.setVisibility(View.VISIBLE);
+                        animateCornerRadius((MaterialCardView)cardRoot, 28, 12);
+                        expandedSectionView = v;
+                        icon.animate().rotation(360).setDuration(300).start();
+                    }
+                });
+            }
+
+            // Add button logic
+            if (btnAdd != null) {
+                btnAdd.setOnClickListener(view -> {
+                    if (!item.isAdded) {
+                        addNativeSection(item.id, currentTargetCol[0]);
+                        // Immediate locally "Done" state for responsiveness
+                        btnAdd.setImageResource(R.drawable.ic_check);
+                        btnAdd.setEnabled(false);
+                        v.animate().alpha(0.6f).setDuration(300).start();
+                        if (doneBadge != null) doneBadge.setVisibility(View.VISIBLE);
+                        
+                        // Collapse
+                        placementContainer.setVisibility(View.GONE);
+                        animateCornerRadius((MaterialCardView)cardRoot, 12, 28);
+                        expandedSectionView = null;
+                    }
+                });
+            }
+
+            // Add to appropriate column (left/right display logic)
+            if (i % 2 == 0) leftCol.addView(v);
+            else rightCol.addView(v);
         }
+    }
+
+    private void animateCornerRadius(MaterialCardView card, int fromDp, int toDp) {
+        float density = getResources().getDisplayMetrics().density;
+        ValueAnimator animator = ValueAnimator.ofFloat(fromDp * density, toDp * density);
+        animator.setDuration(300);
+        animator.addUpdateListener(animation -> card.setRadius((float) animation.getAnimatedValue()));
+        animator.start();
     }
 
 
@@ -2176,6 +2671,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             if (viewType == 0) layoutId = R.layout.panel_page_sections;
             else if (viewType == 1) layoutId = R.layout.panel_page_templates;
             else if (viewType == 2) layoutId = R.layout.panel_page_fonts;
+            else if (viewType == 3) layoutId = R.layout.panel_page_customization;
             
             View v = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
             return new ViewHolder(v, viewType);
@@ -2187,7 +2683,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
 
         @Override
-        public int getItemCount() { return 3; }
+        public int getItemCount() { return 4; }
 
         class ViewHolder extends RecyclerView.ViewHolder {
             int type;
@@ -2210,8 +2706,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                             .show();
                     });
                 } else if (type == 1) { // Templates
-                    bindTemplateBtn(R.id.btn_template_classic, "default");
-                    bindTemplateBtn(R.id.btn_template_sidebar, "sidebar");
+                    refreshUserTemplates(itemView);
                 } else if (type == 2) { // Fonts
                     bindFontBtn(R.id.btn_font_roboto, "Roboto", "'Roboto', sans-serif", "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap");
                     bindFontBtn(R.id.btn_font_poppins, "Poppins", "'Poppins', sans-serif", "https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
@@ -2222,20 +2717,83 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     
                     View btnCustom = itemView.findViewById(R.id.btn_font_custom);
                     if (btnCustom != null) btnCustom.setOnClickListener(v -> importCustomFont());
+                } else if (type == 3) { // Customization
+                    setupPagedExplorer(itemView, "header", headerDesignIds);
+                    setupPagedExplorer(itemView, "section", sectionDesignIds);
+                    setupPagedExplorer(itemView, "progress", progressDesignIds);
+                    
+                    bindBackgroundControls(itemView);
                 }
+            }
+
+            void bindBackgroundControls(View root) {
+                View btnColor = root.findViewById(R.id.btn_bg_color);
+                View btnImage = root.findViewById(R.id.btn_bg_image);
+                SeekBar seekOpacity = root.findViewById(R.id.seek_bg_opacity);
+                SeekBar seekGrayscale = root.findViewById(R.id.seek_bg_grayscale);
+
+                if (btnColor != null) btnColor.setOnClickListener(v -> openColorPicker(BACKGROUND_COLOR_ID));
+                if (btnImage != null) btnImage.setOnClickListener(v -> pickBackgroundImage());
+
+                if (seekOpacity != null) {
+                    seekOpacity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                        @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            if (myWebView != null) myWebView.evaluateJavascript("if(window.updateBgOpacity) window.updateBgOpacity(" + progress + ");", null);
+                        }
+                        @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                        @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                    });
+                }
+
+                if (seekGrayscale != null) {
+                    seekGrayscale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                        @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            if (myWebView != null) myWebView.evaluateJavascript("if(window.updateBgGrayscale) window.updateBgGrayscale(" + progress + ");", null);
+                        }
+                        @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                        @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                    });
+                }
+
+                SeekBar seekColOpacity = root.findViewById(R.id.seek_col_opacity);
+                if (seekColOpacity != null) {
+                    seekColOpacity.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                        @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            if (myWebView != null) myWebView.evaluateJavascript("if(window.updateColOpacity) window.updateColOpacity(" + progress + ");", null);
+                        }
+                        @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                        @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                    });
+                }
+            }
+            
+            void bindPlaceholder(int id, String toastMsg) {
+                View btn = itemView.findViewById(id);
+                if (btn != null) btn.setOnClickListener(v -> 
+                    Toast.makeText(itemView.getContext(), toastMsg + " (Placeholder)", Toast.LENGTH_SHORT).show()
+                );
             }
             
             void bindTemplateBtn(int id, String type) {
                 View btn = itemView.findViewById(id);
                 if (btn != null) btn.setOnClickListener(v -> changeNativeTemplate(type));
             }
+
+            void bindProgressBtn(int id, String type) {
+                 View btn = itemView.findViewById(id);
+                 if (btn != null) btn.setOnClickListener(v -> {
+                     if (myWebView != null) {
+                         myWebView.evaluateJavascript("if(window.applyProgressDesign) window.applyProgressDesign('" + type + "');", null);
+                     }
+                 });
+             }
             
             void bindFontBtn(int id, String name, String family, String url) {
                  android.widget.TextView btn = itemView.findViewById(id);
                  if (btn != null) {
                      btn.setOnClickListener(v -> changeNativeFont(name, family, url));
                      
-                     String currentFont = itemView.getContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString(KEY_SELECTED_FONT, "Roboto");
+                     String currentFont = itemView.getContext().getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getString(getFontKeyForCurrentCv(), "Roboto");
                      if (currentFont.equals(name)) {
                          btn.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_active_dot, 0);
                      } else {
@@ -2243,7 +2801,94 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                      }
                  }
             }
+            
+            void bindSectionDesignBtn(int id, String type) {
+                 View btn = itemView.findViewById(id);
+                 if (btn != null) btn.setOnClickListener(v -> {
+                     if (myWebView != null) {
+                         myWebView.evaluateJavascript("if(window.applySectionDesign) window.applySectionDesign('" + type + "');", null);
+                     }
+                 });
+             }
+
+            void setupPagedExplorer(View root, String category, String[] ids) {
+                int flipperId = root.getResources().getIdentifier("flipper_" + category, "id", root.getContext().getPackageName());
+                int prevId = root.getResources().getIdentifier("btn_" + category + "_prev", "id", root.getContext().getPackageName());
+                int nextId = root.getResources().getIdentifier("btn_" + category + "_next", "id", root.getContext().getPackageName());
+                
+                ViewFlipper flipper = root.findViewById(flipperId);
+                View btnPrev = root.findViewById(prevId);
+                View btnNext = root.findViewById(nextId);
+                
+                if (flipper != null) {
+                    if (btnPrev != null) btnPrev.setOnClickListener(v -> { flipper.setInAnimation(root.getContext(), android.R.anim.slide_in_left); flipper.setOutAnimation(root.getContext(), android.R.anim.slide_out_right); flipper.showPrevious(); });
+                    if (btnNext != null) btnNext.setOnClickListener(v -> { flipper.setInAnimation(root.getContext(), R.anim.slide_in_right); flipper.setOutAnimation(root.getContext(), R.anim.slide_out_left); flipper.showNext(); });
+                    
+                    for (int i = 0; i < ids.length; i++) {
+                        int choiceId = root.getResources().getIdentifier("txt_" + category + "_choice_" + i, "id", root.getContext().getPackageName());
+                        TextView txtChoice = root.findViewById(choiceId);
+                        if (txtChoice != null) {
+                            final int idx = i;
+                            final String typeId = ids[i];
+                            txtChoice.setOnClickListener(v -> {
+                                if (myWebView != null) {
+                                    String jsFunc = "apply" + category.substring(0, 1).toUpperCase() + category.substring(1) + "Design";
+                                    myWebView.evaluateJavascript("if(window."+jsFunc+") window."+jsFunc+"('" + typeId + "');", null);
+                                }
+                                if (category.equals("header")) currentHeaderIdx = idx;
+                                else if (category.equals("section")) currentSectionIdx = idx;
+                                else if (category.equals("progress")) currentProgressIdx = idx;
+                                updateChoiceHighlights(root, category, ids.length);
+                            });
+                        }
+                    }
+                    
+                    // Auto-slide to the page containing the active choice
+                    int activeIdx = (category.equals("header")) ? currentHeaderIdx : (category.equals("section") ? currentSectionIdx : currentProgressIdx);
+                    flipper.setDisplayedChild(activeIdx / 2);
+                    
+                    updateChoiceHighlights(root, category, ids.length);
+                }
+            }
+
+            void updateChoiceHighlights(View root, String category, int count) {
+                int activeIdx = (category.equals("header")) ? currentHeaderIdx : (category.equals("section") ? currentSectionIdx : currentProgressIdx);
+                
+                for (int i = 0; i < count; i++) {
+                    int choiceId = root.getResources().getIdentifier("txt_" + category + "_choice_" + i, "id", root.getContext().getPackageName());
+                    TextView txt = root.findViewById(choiceId);
+                    if (txt != null) {
+                        if (i == activeIdx) {
+                            txt.setBackgroundResource(R.drawable.shape_active_choice);
+                            txt.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_active_dot, 0);
+                            txt.setCompoundDrawablePadding(4);
+                        } else {
+                            txt.setBackgroundResource(0);
+                            txt.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    private void openColorPicker(int requestId) {
+        ColorPickerDialog.newBuilder()
+            .setDialogId(requestId)
+            .setAllowPresets(true)
+            .setDialogType(ColorPickerDialog.TYPE_CUSTOM)
+            .setShowAlphaSlider(true)
+            .show(this);
+    }
+
+    private void pickBackgroundImage() {
+        isPickingBgImage = true;
+        mGetContent.launch("image/*");
+    }
+
+    private void updateBgImage(Uri uri) {
+        if (uri == null) return;
+        myWebView.evaluateJavascript("if(window.updateBgImage) window.updateBgImage('" + uri.toString() + "');", null);
     }
 
 
@@ -2595,4 +3240,654 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             });
         }
     }
+
+    private void saveCurrentAsTemplate() {
+        enterTemplateSelectionMode();
+    }
+
+    private void setupTemplateSelectionUI() {
+        templateInfoPanel = findViewById(R.id.template_info_panel);
+        templateSelectionControls = findViewById(R.id.template_selection_controls);
+        btnTemplateCancel = findViewById(R.id.btn_template_cancel);
+        btnTemplateConfirm = findViewById(R.id.btn_template_confirm);
+        btnCollapseInfo = findViewById(R.id.btn_collapse_info);
+        infoContent = findViewById(R.id.info_content);
+
+        if (btnTemplateCancel != null) {
+            btnTemplateCancel.setOnClickListener(v -> exitTemplateSelectionMode());
+        }
+
+        if (btnTemplateConfirm != null) {
+            btnTemplateConfirm.setOnClickListener(v -> {
+                // Trigger JS to get selected sections
+                if (myWebView != null) {
+                    // Fix: Use ternary expression instead of 'return' which is invalid at top-level
+                    myWebView.evaluateJavascript("(window.getSelectedSections ? window.getSelectedSections() : '[]')", value -> {
+                        // Value will be JSON array string e.g. "[]" or "[{...}]"
+                        if (value == null || value.equals("null") || value.equals("\"[]\"") || value.equals("[]")) {
+                            Toast.makeText(this, "Please select at least one section!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        onTemplateConfirmed(value);
+                    });
+                }
+            });
+        }
+
+        if (btnCollapseInfo != null && templateInfoPanel != null) {
+            // Find minimized button if not already found (it's in activity_main)
+            btnTemplateInfoMinimized = findViewById(R.id.btn_template_info_minimized);
+            
+            // Set listener on the collapse button to MINIMIZE the whole panel
+            btnCollapseInfo.setOnClickListener(v -> {
+                // Hide Panel
+                templateInfoPanel.animate()
+                    .alpha(0f)
+                    .scaleX(0.8f)
+                    .scaleY(0.8f)
+                    .setDuration(300)
+                    .withEndAction(() -> {
+                         templateInfoPanel.setVisibility(View.GONE);
+                         // Show Minimized Button
+                         if (btnTemplateInfoMinimized != null) {
+                             btnTemplateInfoMinimized.setVisibility(View.VISIBLE);
+                             btnTemplateInfoMinimized.setAlpha(0f);
+                             btnTemplateInfoMinimized.setScaleX(0f);
+                             btnTemplateInfoMinimized.setScaleY(0f);
+                             btnTemplateInfoMinimized.animate()
+                                 .alpha(1f)
+                                 .scaleX(1f)
+                                 .scaleY(1f)
+                                 .setDuration(300)
+                                 .start();
+                         }
+                    })
+                    .start();
+            });
+            
+            // Set listener on minimized button to RESTORE the panel
+            if (btnTemplateInfoMinimized != null) {
+                btnTemplateInfoMinimized.setOnClickListener(v -> {
+                     // Hide Button
+                     btnTemplateInfoMinimized.animate()
+                         .alpha(0f)
+                         .scaleX(0f)
+                         .scaleY(0f)
+                         .setDuration(200)
+                         .withEndAction(() -> {
+                             btnTemplateInfoMinimized.setVisibility(View.GONE);
+                             // Show Panel
+                             templateInfoPanel.setVisibility(View.VISIBLE);
+                             templateInfoPanel.setScaleX(0.8f);
+                             templateInfoPanel.setScaleY(0.8f);
+                             templateInfoPanel.setAlpha(0f);
+                             templateInfoPanel.animate()
+                                 .alpha(1f)
+                                 .scaleX(1f)
+                                 .scaleY(1f)
+                                 .setDuration(300)
+                                 .start();
+                         })
+                         .start();
+                });
+            }
+        }
+    }
+
+    private void enterTemplateSelectionMode() {
+        if (isTemplateSelectionMode) return;
+        isTemplateSelectionMode = true;
+        
+        // Hide Main UI
+        if (addFab != null) addFab.setVisibility(View.GONE);
+        if (printFab != null) printFab.setVisibility(View.GONE);
+        if (editFab != null) editFab.setVisibility(View.GONE);
+        View wizardFab = findViewById(R.id.fab_wizard);
+        if (wizardFab != null) wizardFab.setVisibility(View.GONE);
+        if (undoRedoContainer != null) undoRedoContainer.setVisibility(View.GONE);
+        hideActiveNativeToolbar();
+        if (leftPanel != null) leftPanel.hidePanel();
+        if (rightPanel != null) rightPanel.hidePanel();
+        if (cvNameDisplay != null) cvNameDisplay.setVisibility(View.GONE);
+
+        // Show Template UI
+        if (templateInfoPanel != null) {
+            templateInfoPanel.setVisibility(View.VISIBLE);
+            templateInfoPanel.setAlpha(0f);
+            templateInfoPanel.animate().alpha(1f).setDuration(300).start();
+        }
+        if (templateSelectionControls != null) {
+            templateSelectionControls.setVisibility(View.VISIBLE);
+            templateSelectionControls.setTranslationY(200);
+            templateSelectionControls.animate().translationY(0).setDuration(300).start();
+        }
+
+        // Notify JS
+        if (myWebView != null) {
+            myWebView.evaluateJavascript("if(window.enterTemplateSelectionMode) window.enterTemplateSelectionMode();", null);
+        }
+    }
+
+    private void exitTemplateSelectionMode() {
+        if (!isTemplateSelectionMode) return;
+        isTemplateSelectionMode = false;
+
+        // Hide Template UI
+        if (templateInfoPanel != null) templateInfoPanel.setVisibility(View.GONE);
+        if (templateSelectionControls != null) templateSelectionControls.setVisibility(View.GONE);
+        if (btnTemplateInfoMinimized != null) btnTemplateInfoMinimized.setVisibility(View.GONE);
+
+        // Restore Main UI
+        if (editFab != null) editFab.setVisibility(View.VISIBLE);
+        View wizardFab = findViewById(R.id.fab_wizard);
+        if (wizardFab != null) wizardFab.setVisibility(View.VISIBLE);
+        updateNativeUI(isNativeEditing); // Restores FABs based on edit mode
+        if (undoRedoContainer != null) undoRedoContainer.setVisibility(View.VISIBLE);
+        if (cvNameDisplay != null) cvNameDisplay.setVisibility(View.VISIBLE);
+
+        // Notify JS
+        if (myWebView != null) {
+            myWebView.evaluateJavascript("if(window.exitTemplateSelectionMode) window.exitTemplateSelectionMode();", null);
+        }
+    }
+
+    private void onTemplateConfirmed(String selectedSectionsJson) {
+        Log.d(TAG, "Template Sections Selected: " + selectedSectionsJson);
+        
+        if (selectedSectionsJson == null || selectedSectionsJson.equals("null")) {
+             Toast.makeText(this, "Error: No data returned", Toast.LENGTH_SHORT).show();
+             return;
+        }
+
+        // Unquote if necessary (JS returns "\"[\"...]\"")
+        String finalJson;
+        if (selectedSectionsJson.startsWith("\"") && selectedSectionsJson.endsWith("\"")) {
+             finalJson = selectedSectionsJson.substring(1, selectedSectionsJson.length() - 1)
+                 .replace("\\\"", "\"")
+                 .replace("\\\\", "\\");
+        } else {
+            finalJson = selectedSectionsJson;
+        }
+
+        // Show Enhanced Save Dialog
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_save_template, null);
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.TransparentDialog)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create();
+
+        EditText etName = dialogView.findViewById(R.id.et_template_name);
+        EditText etEmail = dialogView.findViewById(R.id.et_template_email);
+        EditText etTag = dialogView.findViewById(R.id.et_template_tag);
+        Button btnSave = dialogView.findViewById(R.id.btn_confirm_save);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel_save);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnSave.setOnClickListener(v -> {
+            String name = etName.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
+            String tag = etTag.getText().toString().trim();
+
+            if (name.isEmpty()) {
+                name = generateDefaultTemplateName();
+            }
+
+            performTemplateSave(finalJson, name, email, tag);
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private String generateDefaultTemplateName() {
+        File dir = new File(getFilesDir(), "user_templates");
+        if (!dir.exists()) return "Template";
+        
+        String base = "Template";
+        File firstFile = new File(dir, "Template_" + base + ".json");
+        if (!firstFile.exists()) return base;
+
+        int count = 2;
+        while (new File(dir, "Template_" + base + " " + count + ".json").exists()) {
+            count++;
+        }
+        return base + " " + count;
+    }
+
+    private void performTemplateSave(String json, String name, String email, String tag) {
+        try {
+            File dir = new File(getFilesDir(), "user_templates");
+            if (!dir.exists()) dir.mkdirs();
+            
+            // Clean name for filename
+            String safeName = name.replaceAll("[\\\\/:*?\"<>|]", "_");
+            File file = new File(dir, "Template_" + safeName + ".json");
+            
+            try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
+                JSONObject fullTemplate = new JSONObject(json);
+                fullTemplate.put("timestamp", System.currentTimeMillis());
+                fullTemplate.put("template_name", name);
+                if (!email.isEmpty()) fullTemplate.put("user_email", email);
+                if (!tag.isEmpty()) fullTemplate.put("template_tag", tag);
+                writer.write(fullTemplate.toString());
+            }
+            
+            saveWebViewScreenshot(file.getAbsolutePath());
+            
+            // Notify panel adapter that new template exists
+            if (addPanelAdapter != null) {
+                addPanelAdapter.notifyItemChanged(1); // Index 1 is Template tab
+            }
+            
+            Toast.makeText(this, "Template '" + name + "' Saved!", Toast.LENGTH_SHORT).show();
+            exitTemplateSelectionMode();
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Error performing template save", e);
+            Toast.makeText(this, "Failed to save template", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void saveCurrentAsDocx() {
+        // Placeholder for future Docx export logic
+        Toast.makeText(this, "Docx Export Placeholder: Saved!", Toast.LENGTH_SHORT).show();
+    }
+
+    private static class VitaeData {
+        String json;
+        Bitmap thumbnail;
+    }
+
+    private VitaeData loadVitaeAsset(String assetPath) {
+        VitaeData data = new VitaeData();
+        try (java.io.InputStream is = getAssets().open(assetPath);
+             java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(is)) {
+            
+            java.util.zip.ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                String name = entry.getName().toLowerCase();
+                Log.d(TAG, "Vitae Asset Entry: " + name + " in " + assetPath);
+                
+                if (name.endsWith(".json")) {
+                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = zis.read(buffer)) > 0) baos.write(buffer, 0, len);
+                    data.json = baos.toString("UTF-8");
+                } else if (name.endsWith(".png")) {
+                    // Robust way to decode Bitmap from ZipInputStream: read to byte array first
+                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                    byte[] buffer = new byte[1024];
+                    int len;
+                    while ((len = zis.read(buffer)) > 0) baos.write(buffer, 0, len);
+                    byte[] bytes = baos.toByteArray();
+                    data.thumbnail = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                }
+                zis.closeEntry();
+            }
+        } catch (java.io.IOException e) {
+            Log.e(TAG, "Error reading .vitae asset: " + assetPath, e);
+        }
+        return data;
+    }
+
+    private void refreshUserTemplates(View root) {
+        GridLayout container = root.findViewById(R.id.user_templates_container);
+        TextView noTemplatesTv = root.findViewById(R.id.tv_no_templates);
+        if (container == null) return;
+        
+        container.removeAllViews();
+
+        int totalItems = 0;
+
+        // 1. Load Default Templates from Assets (Non-deletable)
+        try {
+            String[] assetTemplates = getAssets().list("default_templates");
+            if (assetTemplates != null) {
+                for (String assetName : assetTemplates) {
+                    if (assetName.endsWith(".vitae")) {
+                        VitaeData vData = loadVitaeAsset("default_templates/" + assetName);
+                        
+                        View itemView = getLayoutInflater().inflate(R.layout.item_user_template, container, false);
+                        
+                        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                        params.width = 0;
+                        params.height = GridLayout.LayoutParams.WRAP_CONTENT;
+                        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+                        params.setMargins(8, 8, 8, 8);
+                        itemView.setLayoutParams(params);
+
+                        TextView tvName = itemView.findViewById(R.id.tvTemplateName);
+                        ImageView ivThumb = itemView.findViewById(R.id.ivTemplateThumbnail);
+                        ImageButton btnDelete = itemView.findViewById(R.id.btnDeleteTemplate);
+
+                        tvName.setText(assetName.replace(".vitae", ""));
+                        
+                        if (vData.thumbnail != null) {
+                            ivThumb.setImageBitmap(vData.thumbnail);
+                            ivThumb.setImageTintList(null);
+                        } else {
+                            ivThumb.setImageResource(R.drawable.ic_description);
+                            ivThumb.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
+                        }
+
+                        btnDelete.setVisibility(View.GONE);
+
+                        itemView.setOnClickListener(v -> {
+                            if (vData.json != null && myWebView != null) {
+                                String safeJson = org.json.JSONObject.quote(vData.json);
+                                myWebView.evaluateJavascript("window.applyUserTemplate(" + safeJson + ")", null);
+                                Toast.makeText(this, "Template '" + assetName.replace(".vitae", "") + "' Applied!", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Log.e(TAG, "Template data missing for: " + assetName);
+                                Toast.makeText(this, "Error: Template data missing", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        container.addView(itemView);
+                        totalItems++;
+                    }
+                }
+            }
+        } catch (java.io.IOException e) {
+            Log.e(TAG, "Error listing asset templates", e);
+        }
+
+        // 2. Load User-Saved Templates from Files (Deletable)
+        File dir = new File(getFilesDir(), "user_templates");
+        if (!dir.exists()) dir.mkdirs();
+        File[] templates = dir.listFiles((d, name) -> name.endsWith(".json"));
+        
+        if (templates != null && templates.length > 0) {
+            noTemplatesTv.setVisibility(View.GONE);
+            for (File t : templates) {
+                View itemView = getLayoutInflater().inflate(R.layout.item_user_template, container, false);
+                
+                // Set GridLayout params for 2 columns
+                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                params.width = 0;
+                params.height = GridLayout.LayoutParams.WRAP_CONTENT;
+                params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+                params.setMargins(8, 8, 8, 8);
+                itemView.setLayoutParams(params);
+
+                ImageView ivThumb = itemView.findViewById(R.id.ivTemplateThumbnail);
+                TextView tvName = itemView.findViewById(R.id.tvTemplateName);
+                ImageButton btnDelete = itemView.findViewById(R.id.btnDeleteTemplate);
+
+                tvName.setText(t.getName().replace("Template_", "").replace(".json", ""));
+
+                // Load thumbnail
+                File thumbFile = new File(t.getAbsolutePath().replace(".json", ".png"));
+                if (thumbFile.exists()) {
+                    ivThumb.setImageBitmap(BitmapFactory.decodeFile(thumbFile.getAbsolutePath()));
+                    ivThumb.setImageTintList(null);
+                }
+
+                itemView.setOnClickListener(v -> {
+                    try {
+                        StringBuilder sb = new StringBuilder();
+                        try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(t))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) {
+                                sb.append(line);
+                            }
+                        }
+                        String fullJson = sb.toString();
+
+                        if (myWebView != null) {
+                            String safeJson = org.json.JSONObject.quote(fullJson);
+                            myWebView.evaluateJavascript("window.applyUserTemplate(" + safeJson + ")", null);
+                            Toast.makeText(this, "Template Applied!", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error applying user template", e);
+                        Toast.makeText(this, "Failed to apply template", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                btnDelete.setOnClickListener(v -> deleteUserTemplate(t, root));
+                
+                container.addView(itemView);
+                totalItems++;
+            }
+        }
+
+        // Handle Spacers and Visibility
+        if (totalItems > 0) {
+            noTemplatesTv.setVisibility(View.GONE);
+            if (totalItems % 2 != 0) {
+                View spacer = new View(this);
+                GridLayout.LayoutParams spacerParams = new GridLayout.LayoutParams();
+                spacerParams.width = 0;
+                spacerParams.height = 1;
+                spacerParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+                spacerParams.setMargins(8, 8, 8, 8);
+                spacer.setLayoutParams(spacerParams);
+                container.addView(spacer);
+            }
+        } else {
+            noTemplatesTv.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void deleteUserTemplate(File templateFile, View root) {
+        new AlertDialog.Builder(this)
+            .setTitle("Delete Template")
+            .setMessage("Are you sure you want to delete this template?")
+            .setPositiveButton("Delete", (dialog, which) -> {
+                if (templateFile.delete()) {
+                    File thumbFile = new File(templateFile.getAbsolutePath().replace(".json", ".png"));
+                    if (thumbFile.exists()) thumbFile.delete();
+                    Toast.makeText(this, "Template deleted", Toast.LENGTH_SHORT).show();
+                    refreshUserTemplates(root);
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+    }
+
+    private void saveWebViewScreenshot(String jsonPath) {
+         if (myWebView == null || myWebView.getWidth() <= 0 || myWebView.getHeight() <= 0) return;
+         
+         try {
+             // Store current scroll position to restore later
+             int scrollX = myWebView.getScrollX();
+             int scrollY = myWebView.getScrollY();
+             
+             // Scroll to top to ensure we capture the resume header for the thumbnail
+             myWebView.scrollTo(0, 0);
+                              // Create a bitmap of the WebView visible content (now at the top)
+              // CROP: Reduce width by 8 pixels to remove potential right-side dark lines/artifacts
+              int captureWidth = Math.max(1, myWebView.getWidth() - 8);
+              int captureHeight = myWebView.getHeight();
+              
+              android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(
+                      captureWidth, 
+                      captureHeight, 
+                      android.graphics.Bitmap.Config.ARGB_8888);
+              
+              android.graphics.Canvas canvas = new android.graphics.Canvas(bitmap);
+              myWebView.draw(canvas);
+             
+             // Restore original scroll position so the user's view doesn't jump
+             myWebView.scrollTo(scrollX, scrollY);
+             
+             if (bitmap != null) {
+                 // Determine screenshot path (replace .json with .png)
+                 String imagePath = jsonPath.replace(".json", ".png");
+                 File imageFile = new File(imagePath);
+                 
+                 try (FileOutputStream fos = new FileOutputStream(imageFile)) {
+                     bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 80, fos);
+                     Log.d(TAG, "Screenshot saved from top: " + imagePath);
+                 } catch (IOException e) {
+                     Log.e(TAG, "Error saving screenshot", e);
+                 }
+             }
+         } catch (Exception e) {
+             Log.e(TAG, "Error creating screenshot bitmap", e);
+         }
+    }
+
+    public WebView getWebView() { return myWebView; }
+
+    // --- Section Background Manager Logic ---
+
+    public static final int SECTION_BG_COLOR_ID = 999;
+    public SectionBgItem pendingColorItem;
+    public SectionBgAdapter pendingColorAdapter;
+
+    private void showSectionBackgroundDialog(String jsonItems) {
+        try {
+            JSONArray arr = new JSONArray(jsonItems);
+            List<SectionBgItem> items = new ArrayList<>();
+            for(int i=0; i<arr.length(); i++) {
+                JSONObject obj = arr.getJSONObject(i);
+                boolean isNameProf = obj.optBoolean("isNameProfession", false);
+                String itemName = obj.getString("name");
+                
+                // Debug logging
+                Log.d("SectionBgDebug", "Item: " + itemName + ", isNameProfession: " + isNameProf);
+                
+                items.add(new SectionBgItem(
+                    obj.getString("id"),
+                    itemName,
+                    obj.getString("color"),
+                    obj.optInt("opacity", 100),
+                    obj.optInt("radius", 0),
+                    (float) obj.optDouble("lineHeight", 1.2),
+                    obj.optBoolean("isMaster", false),
+                    obj.optInt("rotation", 0),
+                    obj.optInt("nameFontSize", 100),
+                    obj.optInt("titleFontSize", 100),
+                    obj.optInt("alignment", 1),
+                    obj.optInt("fontSize", 14),
+                    isNameProf
+                ));
+            }
+
+            BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
+            View view = getLayoutInflater().inflate(R.layout.dialog_section_backgrounds, null);
+            dialog.setContentView(view);
+            
+            RecyclerView recycler = view.findViewById(R.id.recycler_backgrounds);
+            recycler.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
+            SectionBgAdapter adapter = new SectionBgAdapter(items, dialog, this);
+            recycler.setAdapter(adapter);
+            
+            // Limit height to 35% of screen
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int maxHeight = (int) (displayMetrics.heightPixels * 0.35);
+            view.getLayoutParams().height = maxHeight;
+            
+            view.findViewById(R.id.btn_close).setOnClickListener(v -> dialog.dismiss());
+            
+            // Hide toolbars/gear
+            myWebView.evaluateJavascript("window.prepareForSettingsEdit();", null);
+            dialog.setOnDismissListener(d -> {
+                myWebView.evaluateJavascript("window.cleanupSettingsEdit();", null);
+            });
+            
+            dialog.show();
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Error parsing section items", e);
+        }
+    }
+    private void showNameSettingsDialog(int currentRotation, int currentScale) {
+        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
+        View view = getLayoutInflater().inflate(R.layout.dialog_name_settings, null);
+        dialog.setContentView(view);
+        
+        // Limit height to 35% of screen
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int maxHeight = (int) (displayMetrics.heightPixels * 0.35);
+        view.getLayoutParams().height = maxHeight;
+        
+        SeekBar seekRotation = dialog.findViewById(R.id.seek_rotation);
+        SeekBar seekScale = dialog.findViewById(R.id.seek_scale);
+        TextView textRotation = dialog.findViewById(R.id.text_rotation_val);
+        EditText editScale = dialog.findViewById(R.id.edit_scale_val);
+        Button btnReset = dialog.findViewById(R.id.btn_reset_name_settings);
+        
+        // Setup initial values
+        if (seekRotation != null) {
+            seekRotation.setProgress(currentRotation);
+            if (textRotation != null) textRotation.setText(currentRotation + "°");
+            
+            seekRotation.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (textRotation != null) textRotation.setText(progress + "°");
+                    updateNameSettings("mainHeader", progress, seekScale != null ? seekScale.getProgress() : 100, 100, 1);
+                }
+                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        }
+        
+        if (seekScale != null) {
+            // Scale defaults to 100 if invalid
+            if (currentScale < 50) currentScale = 100;
+            seekScale.setProgress(currentScale);
+            if (editScale != null) editScale.setText(String.valueOf(currentScale));
+            
+            seekScale.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (progress < 50) progress = 50; // enforce min here too just in case
+                    if (fromUser && editScale != null) {
+                        editScale.setText(String.valueOf(progress));
+                    }
+                    updateNameSettings("mainHeader", seekRotation != null ? seekRotation.getProgress() : 0, progress, 100, 1);
+                }
+                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+        }
+
+        if (editScale != null) {
+             editScale.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+                    try {
+                        int val = Integer.parseInt(editScale.getText().toString());
+                        if (val < 50) val = 50;
+                        if (val > 200) val = 200;
+                        if (seekScale != null) seekScale.setProgress(val);
+                        // Trigger update
+                         updateNameSettings("mainHeader", seekRotation != null ? seekRotation.getProgress() : 0, val, 100, 1);
+                    } catch (NumberFormatException e) {
+                        // ignore
+                    }
+                    android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(editScale.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
+            });
+        }
+        
+        if (btnReset != null) {
+            btnReset.setOnClickListener(v -> {
+                if (seekRotation != null) seekRotation.setProgress(0);
+                if (seekScale != null) seekScale.setProgress(100);
+                if (editScale != null) editScale.setText("100");
+                updateNameSettings("mainHeader", 0, 100, 100, 1);
+            });
+        }
+        
+        dialog.show();
+    }
+    
+    public void updateNameSettings(String targetId, int rotation, int nameSize, int titleSize, int alignment) {
+        if (myWebView != null) {
+            myWebView.evaluateJavascript("if(window.updateNameSettings) window.updateNameSettings('" + targetId + "', " + rotation + ", " + nameSize + ", " + titleSize + ", " + alignment + ");", null);
+        }
+    }
 }
+

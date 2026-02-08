@@ -19,13 +19,18 @@
     <!-- Show Panel Button (Initially Hidden) -->
     <FrameLayout android:id="@+id/show_button_left" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16dp" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:background="@android:color/transparent" android:clickable="false" android:scaleType="fitCenter" android:src="@drawable/ic_show" />
+        <ImageButton android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:background="@android:color/transparent" android:clickable="false" android:scaleType="fitCenter" android:src="@drawable/ic_unhide" />
     </FrameLayout>
 
     <!-- Show Panel Button Right (Initially Hidden) -->
     <FrameLayout android:id="@+id/show_button_right" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16dp" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:background="@android:color/transparent" android:clickable="false" android:scaleType="fitCenter" android:src="@drawable/ic_show" />
+        <ImageButton android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:background="@android:color/transparent" android:clickable="false" android:scaleType="fitCenter" android:src="@drawable/ic_unhide" />
+    </FrameLayout>
+
+    <FrameLayout android:id="@+id/fab_restore_color" android:layout_width="44dp" android:layout_height="44dp" android:layout_marginStart="16dp" android:layout_marginBottom="8dp" android:visibility="visible" app:layout_constraintBottom_toTopOf="@+id/undo_redo_container" app:layout_constraintStart_toStartOf="parent">
+        <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
+        <ImageButton android:id="@+id/btn_restore_color" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="true" android:focusable="true" android:contentDescription="Restore Fav Colors" android:scaleType="fitCenter" android:src="@android:drawable/ic_menu_rotate" app:tint="#1a237e" />
     </FrameLayout>
 
     <LinearLayout android:id="@+id/undo_redo_container" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginStart="16dp" android:layout_marginBottom="16dp" android:orientation="horizontal" app:layout_constraintWidth_percent="0.26" app:layout_constraintHeight_percent="0.053" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent">
@@ -51,7 +56,7 @@
 
         <FrameLayout android:id="@+id/fab_wizard" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginBottom="16dp">
             <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
-            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="Step by Step Wizard" android:scaleType="fitCenter" android:src="@android:drawable/ic_menu_myplaces" app:tint="#1a237e" />
+            <ImageButton android:id="@+id/btn_wizard" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="Step by Step Wizard" android:scaleType="fitCenter" android:src="@android:drawable/ic_menu_myplaces" app:tint="#1a237e" />
         </FrameLayout>
 
         <FrameLayout android:id="@+id/fab_edit" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginBottom="16dp">
@@ -128,6 +133,10 @@
 
     <TextView android:id="@+id/precise_line_spacing_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="50" android:textSize="24sp" android:textColor="#333333" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
 
+    <SeekBar android:id="@+id/precise_photo_radius_slider" android:layout_width="0dp" android:layout_height="112dp" android:max="60" android:progress="0" android:progressDrawable="@android:color/transparent" android:rotation="270" android:thumb="@drawable/slider_thumb_large" android:splitTrack="false" android:paddingStart="0dp" android:paddingEnd="0dp" android:visibility="gone" app:layout_constraintWidth_percent="0.646" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView android:id="@+id/precise_photo_radius_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="24sp" android:textColor="#333333" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
 
 
 
@@ -163,4 +172,10 @@
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+    <!-- Template Selection Mode UI -->
+    <include android:id="@+id/template_info_panel" layout="@layout/template_info_panel" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:visibility="gone" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintWidth_percent="0.9" />
+
+    <include android:id="@+id/template_selection_controls" layout="@layout/template_selection_controls" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginBottom="32dp" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintWidth_percent="0.9" />
+
+    <ImageButton android:id="@+id/btn_template_info_minimized" android:layout_width="56dp" android:layout_height="56dp" android:layout_marginBottom="100dp" android:src="@drawable/ic_info" android:background="@drawable/shape_circle_fab" android:padding="12dp" app:tint="#FFFFFF" android:elevation="8dp" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

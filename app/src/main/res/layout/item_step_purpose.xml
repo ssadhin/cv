@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/cardPurpose" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="16dp" app:cardElevation="2dp" app:strokeColor="#eee" app:strokeWidth="1dp" app:rippleColor="#1a237e1a" android:clickable="true" android:focusable="true">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/cardPurpose" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:strokeColor="#eee" app:strokeWidth="1.5dp" app:rippleColor="#1a237e1a" android:clickable="true" android:focusable="true">
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="24dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="20dp">
 
-        <ImageView android:id="@+id/ivPurposeIcon" android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="#1a237e" />
+        <FrameLayout android:layout_width="86dp" android:layout_height="86dp" android:background="@drawable/bg_circle_purpose">
 
-        <TextView android:id="@+id/tvPurposeTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Job" android:textColor="#333" android:textSize="16sp" android:textStyle="bold" />
+            <ImageView android:id="@+id/ivPurposeIcon" android:layout_width="52dp" android:layout_height="52dp" android:layout_gravity="center" />
+        </FrameLayout>
 
-        <TextView android:id="@+id/tvPurposeDesc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:text="Standard job application" android:textColor="#777" android:textSize="12sp" />
+        <TextView android:id="@+id/tvPurposeTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Job" android:textColor="#1A237E" android:textSize="17sp" android:textStyle="bold" />
+
+        <TextView android:id="@+id/tvPurposeDesc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:text="Standard job application" android:textColor="#666" android:textSize="13sp" />
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

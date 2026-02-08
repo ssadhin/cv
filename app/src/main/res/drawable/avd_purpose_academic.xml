@@ -1,0 +1,84 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+
+            <!-- GRADUATION CAP (Middle Layer) -->
+            <group android:name="cap_shake_root" android:pivotX="24" android:pivotY="24" android:translateX="0" android:translateY="0" android:rotation="0">
+                <group android:name="cap_float_group" android:translateX="0" android:translateY="0">
+                    <path android:name="cap_top" android:fillColor="#1A237E" android:pathData="M8,20 L24,12 L40,20 L24,28 Z" />
+                    <path android:name="cap_band" android:fillColor="#1A237E" android:pathData="M16,24 L16,30 C16,33 32,33 32,30 L32,24" />
+                    <path android:name="tassel" android:fillColor="#c5a059" android:pathData="M40,20 L40,32 C40,34 38,34 38,32" />
+                </group>
+            </group>
+
+            <!-- WHIZZING WIND STREAKS (Top Layer - Drawn Over Cap) -->
+            <!-- Positioned below peak (Y=12) to only show ascent -->
+            <group android:name="wind1_root" android:translateX="0" android:translateY="0">
+                <path android:name="wind1_path" android:strokeColor="#1A237E" android:strokeWidth="2.0" android:strokeAlpha="1.0" android:strokeLineCap="round" android:pathData="M12,24 L12,34" />
+            </group>
+            <group android:name="wind2_root" android:translateX="0" android:translateY="0">
+                <path android:name="wind2_path" android:strokeColor="#1A237E" android:strokeWidth="2.0" android:strokeAlpha="1.0" android:strokeLineCap="round" android:pathData="M36,20 L36,30" />
+            </group>
+            <group android:name="wind3_root" android:translateX="0" android:translateY="0">
+                <path android:name="wind3_path" android:strokeColor="#1A237E" android:strokeWidth="2.0" android:strokeAlpha="1.0" android:strokeLineCap="round" android:pathData="M24,30 L24,45" />
+            </group>
+            <group android:name="wind4_root" android:translateX="0" android:translateY="0">
+                <path android:name="wind4_path" android:strokeColor="#1A237E" android:strokeWidth="1.8" android:strokeAlpha="0.7" android:strokeLineCap="round" android:pathData="M18,32 L18,42" />
+            </group>
+            <group android:name="wind5_root" android:translateX="0" android:translateY="0">
+                <path android:name="wind5_path" android:strokeColor="#1A237E" android:strokeWidth="1.8" android:strokeAlpha="0.7" android:strokeLineCap="round" android:pathData="M30,34 L30,44" />
+            </group>
+
+        </vector>
+    </aapt:attr>
+
+    <!-- CAP ANIMATION: Turbulent Jitter + Float -->
+    <target android:name="cap_float_group">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY" android:duration="800" android:valueFrom="0" android:valueTo="-3" android:valueType="floatType" android:repeatCount="infinite" android:repeatMode="reverse" android:interpolator="@android:anim/accelerate_decelerate_interpolator" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="cap_shake_root">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="translateX" android:duration="100" android:valueFrom="-0.4" android:valueTo="0.4" android:valueType="floatType" android:repeatCount="infinite" android:repeatMode="reverse" />
+                <objectAnimator android:propertyName="rotation" android:duration="150" android:valueFrom="-1.5" android:valueTo="1.5" android:valueType="floatType" android:repeatCount="infinite" android:repeatMode="reverse" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- BULLET-PROOF WHIZZING WIND (Ultra Fast 300ms, Linear, Top Layer) -->
+
+    <target android:name="wind1_root">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY" android:duration="300" android:valueFrom="0" android:valueTo="40" android:valueType="floatType" android:repeatCount="infinite" android:repeatMode="restart" android:interpolator="@android:anim/linear_interpolator" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="wind2_root">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY" android:startOffset="100" android:duration="300" android:valueFrom="0" android:valueTo="45" android:valueType="floatType" android:repeatCount="infinite" android:repeatMode="restart" android:interpolator="@android:anim/linear_interpolator" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="wind3_root">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY" android:startOffset="200" android:duration="300" android:valueFrom="0" android:valueTo="35" android:valueType="floatType" android:repeatCount="infinite" android:repeatMode="restart" android:interpolator="@android:anim/linear_interpolator" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="wind4_root">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY" android:startOffset="50" android:duration="300" android:valueFrom="0" android:valueTo="42" android:valueType="floatType" android:repeatCount="infinite" android:repeatMode="restart" android:interpolator="@android:anim/linear_interpolator" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="wind5_root">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY" android:startOffset="150" android:duration="300" android:valueFrom="0" android:valueTo="38" android:valueType="floatType" android:repeatCount="infinite" android:repeatMode="restart" android:interpolator="@android:anim/linear_interpolator" />
+        </aapt:attr>
+    </target>
+
+</animated-vector>

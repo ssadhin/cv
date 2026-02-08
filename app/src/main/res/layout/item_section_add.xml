@@ -2,27 +2,45 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingVertical="4dp">
 
-    <!-- Pill-shaped container -->
-    <LinearLayout android:id="@+id/section_container" android:layout_width="match_parent" android:layout_height="56dp" android:background="@drawable/pill_background" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="8dp" android:elevation="1dp" android:clickable="true" android:focusable="true">
+    <!-- Main Card Container -->
+    <com.google.android.material.card.MaterialCardView android:id="@+id/card_root" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="#E0E0E0" app:cardCornerRadius="28dp" app:cardElevation="2dp" app:contentPadding="0dp" app:cardUseCompatPadding="false" android:clipToPadding="false">
 
-        <!-- Icon (Left) -->
-        <FrameLayout android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="@drawable/circular_button_background" android:backgroundTint="#E3F2FD">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="4dp">
 
-            <ImageView android:id="@+id/section_icon" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_add" app:tint="#1976D2" />
-        </FrameLayout>
+            <!-- Pill-shaped container (Visible part) -->
+            <LinearLayout android:id="@+id/section_container" android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="8dp" android:clickable="true" android:focusable="true">
 
-        <!-- Section Info (Center) -->
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_vertical">
+                <!-- Icon (Left) -->
+                <FrameLayout android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="@drawable/circular_button_background" android:backgroundTint="#E3F2FD">
 
-            <TextView android:id="@+id/section_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Section Title" android:textColor="#1a237e" android:textSize="15sp" android:textStyle="bold" />
+                    <ImageView android:id="@+id/section_icon" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_add" app:tint="#1976D2" />
+                </FrameLayout>
 
-            <TextView android:id="@+id/section_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Short description" android:textColor="#757575" android:textSize="12sp" android:maxLines="1" android:ellipsize="end" />
+                <!-- Section Info (Center) -->
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_vertical">
+
+                    <TextView android:id="@+id/section_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Section Title" android:textColor="#1a237e" android:textSize="14sp" android:textStyle="bold" />
+
+                    <TextView android:id="@+id/section_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Short description" android:textColor="#757575" android:textSize="11sp" android:maxLines="1" android:ellipsize="end" />
+                </LinearLayout>
+
+                <!-- Done Badge (Center-Right) -->
+                <ImageView android:id="@+id/done_badge" android:layout_width="16dp" android:layout_height="16dp" android:layout_marginEnd="8dp" android:src="@drawable/ic_check" app:tint="#4CAF50" android:visibility="gone" />
+
+                <!-- Add Button (Right) -->
+                <ImageButton android:id="@+id/btn_add_section" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/circular_button_background" android:src="@drawable/ic_add" android:padding="8dp" android:scaleType="centerInside" android:backgroundTint="#4CAF50" app:tint="#FFFFFF" android:clickable="true" />
+
+            </LinearLayout>
+
+            <!-- Placement Controls (Toggle Style) -->
+            <LinearLayout android:id="@+id/placement_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingHorizontal="12dp" android:paddingVertical="8dp" android:visibility="gone" android:gravity="center_vertical">
+
+                <TextView android:id="@+id/tv_placement_indicator" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Add to: Left" android:textStyle="bold" android:textSize="12sp" android:textColor="#1a237e" />
+
+                <ImageButton android:id="@+id/btn_toggle_placement" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/circular_button_background" android:backgroundTint="#f0f2f5" android:src="@drawable/ic_swap" android:padding="6dp" app:tint="#555555" android:scaleType="centerInside" />
+
+            </LinearLayout>
         </LinearLayout>
-
-        <!-- Add Button (Right) -->
-        <ImageButton android:id="@+id/btn_add_section" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/circular_button_background" android:src="@drawable/ic_add" android:padding="8dp" android:backgroundTint="#4CAF50" app:tint="#FFFFFF" android:clickable="false" />
-        <!-- Click handled by parent -->
-
-    </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

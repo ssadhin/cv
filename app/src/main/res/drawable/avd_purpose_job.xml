@@ -1,0 +1,27 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+            <group android:name="briefcase_root" android:pivotX="24" android:pivotY="12">
+                <group android:name="briefcase_group">
+                    <!-- Briefcase Body -->
+                    <path android:name="body" android:fillColor="#1a237e" android:pathData="M10,14 C8,14 6,16 6,18 L6,38 C6,40 8,42 10,42 L38,42 C40,42 42,40 42,38 L42,18 C42,16 40,14 38,14 L30,14 L30,10 C30,8 28,6 26,6 L22,6 C20,6 18,8 18,10 L18,14 L10,14 Z M22,10 L26,10 L26,14 L22,14 L22,10 Z" />
+                    <!-- Buckle/Detail -->
+                    <path android:fillColor="#ffffff" android:pathData="M20,24 L28,24 L28,28 L20,28 L20,24 Z" />
+                </group>
+            </group>
+        </vector>
+    </aapt:attr>
+    <target android:name="briefcase_root">
+        <aapt:attr name="android:animation">
+            <set>
+                <!-- Stronger Tilt/Swing for "invisible man walking" -->
+                <objectAnimator android:propertyName="rotation" android:duration="800" android:valueFrom="-12" android:valueTo="12" android:repeatCount="infinite" android:repeatMode="reverse" android:interpolator="@android:anim/accelerate_decelerate_interpolator" />
+                <!-- More pronounced walk bounce -->
+                <objectAnimator android:propertyName="translateY" android:duration="400" android:valueFrom="0" android:valueTo="4" android:repeatCount="infinite" android:repeatMode="reverse" android:interpolator="@android:anim/accelerate_decelerate_interpolator" />
+                <!-- Distinct side-to-side sway -->
+                <objectAnimator android:propertyName="translateX" android:duration="800" android:valueFrom="-3" android:valueTo="3" android:repeatCount="infinite" android:repeatMode="reverse" android:interpolator="@android:anim/accelerate_decelerate_interpolator" />
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

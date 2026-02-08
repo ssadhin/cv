@@ -74,7 +74,27 @@
 
     </FrameLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fabNewResume" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="24dp" android:contentDescription="Create New CV" android:src="@drawable/ic_add" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/home_fab_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginEnd="16dp" android:layout_marginBottom="16dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Step by Step Wizard Button -->
+        <FrameLayout android:id="@+id/btnHomeStepByStep" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginBottom="16dp" app:layout_constraintDimensionRatio="1:1" app:layout_constraintWidth_percent="0.135" app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toTopOf="@id/btnHomeNewCV">
+            <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
+            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="Step by Step Wizard" android:scaleType="fitCenter" android:src="@drawable/ic_steps_plus_centered" app:tint="#1a237e" />
+        </FrameLayout>
+
+        <!-- New CV Button (+) -->
+        <FrameLayout android:id="@+id/btnHomeNewCV" android:layout_width="0dp" android:layout_height="0dp" app:layout_constraintDimensionRatio="1:1" app:layout_constraintWidth_percent="0.135" app:layout_constraintTop_toBottomOf="@id/btnHomeStepByStep" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent">
+            <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
+            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:contentDescription="Create New CV" android:scaleType="fitCenter" android:src="@drawable/ic_add" />
+        </FrameLayout>
+
+        <!-- AI Assistant Button (Left of Plus) -->
+        <FrameLayout android:id="@+id/btnHomeAI" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginEnd="16dp" app:layout_constraintDimensionRatio="1:1" app:layout_constraintWidth_percent="0.135" app:layout_constraintBottom_toBottomOf="@id/btnHomeNewCV" app:layout_constraintEnd_toStartOf="@id/btnHomeNewCV" app:layout_constraintTop_toTopOf="@id/btnHomeNewCV">
+            <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
+            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="AI Assistant" android:scaleType="fitCenter" android:src="@android:drawable/ic_menu_view" app:tint="#1a237e" />
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Folder Expansion Animation Overlay -->
     <View android:id="@+id/folderRevealOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#FFFFFF" android:visibility="invisible" android:elevation="25dp" />

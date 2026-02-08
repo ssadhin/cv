@@ -1,0 +1,85 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+
+            <!-- PREMIUM PLANE (Sleek Professional Path) -->
+            <group android:name="plane_root" android:pivotX="24" android:pivotY="24" android:scaleX="0" android:scaleY="0" android:translateX="0" android:translateY="6">
+                <path android:name="plane_path" android:fillColor="#1A237E" android:pathData="M42,22 L30,22 L20,10 L16,10 L24,22 L10,22 L6,18 L4,18 L8,24 L4,30 L6,30 L10,26 L24,26 L16,38 L20,38 L30,26 L42,26 C46,26 46,22 42,22 Z" />
+            </group>
+
+            <!-- WHIZZING WIND STREAKS (0-1s only) -->
+            <group android:name="wind1_root" android:translateY="0">
+                <path android:name="wind1_path" android:strokeColor="#1A237E" android:strokeWidth="1.8" android:strokeAlpha="1.0" android:strokeLineCap="round" android:pathData="M12,24 L12,34" />
+            </group>
+            <group android:name="wind2_root" android:translateY="0">
+                <path android:name="wind2_path" android:strokeColor="#1A237E" android:strokeWidth="1.8" android:strokeAlpha="1.0" android:strokeLineCap="round" android:pathData="M36,20 L36,30" />
+            </group>
+
+            <!-- GRADUATION CAP -->
+            <group android:name="cap_root" android:pivotX="24" android:pivotY="24" android:scaleX="1" android:scaleY="1">
+                <group android:name="cap_move_group">
+                    <path android:name="cap_top" android:fillColor="#1A237E" android:pathData="M8,20 L24,12 L40,20 L24,28 Z" />
+                    <path android:name="cap_band" android:fillColor="#1A237E" android:pathData="M16,24 L16,30 C16,33 32,33 32,30 L32,24" />
+                    <path android:name="tassel" android:fillColor="#c5a059" android:pathData="M40,20 L40,32 C40,34 38,34 38,32" />
+                </group>
+            </group>
+        </vector>
+    </aapt:attr>
+
+    <!-- PHASE 1: ACADEMIC LIFT (0-1s) -->
+    <target android:name="cap_move_group">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY" android:duration="500" android:valueFrom="0" android:valueTo="-4" android:repeatCount="1" android:repeatMode="reverse" android:interpolator="@android:anim/accelerate_decelerate_interpolator" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="wind1_root">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY" android:duration="333" android:valueFrom="0" android:valueTo="40" android:repeatCount="2" android:repeatMode="restart" android:interpolator="@android:anim/linear_interpolator" />
+        </aapt:attr>
+    </target>
+    <target android:name="wind1_path">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="strokeAlpha" android:duration="100" android:startOffset="1000" android:valueFrom="1.0" android:valueTo="0.0" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="wind2_root">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateY" android:startOffset="150" android:duration="333" android:valueFrom="0" android:valueTo="40" android:repeatCount="2" android:repeatMode="restart" android:interpolator="@android:anim/linear_interpolator" />
+        </aapt:attr>
+    </target>
+    <target android:name="wind2_path">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="strokeAlpha" android:duration="100" android:startOffset="1000" android:valueFrom="1.0" android:valueTo="0.0" />
+        </aapt:attr>
+    </target>
+
+    <!-- PHASE 2: PREMIUM PLANE REVEAL & BOARDING (1s - 1.8s) -->
+    <target android:name="plane_root">
+        <aapt:attr name="android:animation">
+            <set>
+                <!-- Smoother Overshoot Reveal -->
+                <objectAnimator android:propertyName="scaleX" android:startOffset="1000" android:duration="400" android:valueFrom="0" android:valueTo="1" android:interpolator="@android:anim/overshoot_interpolator" />
+                <objectAnimator android:propertyName="scaleY" android:startOffset="1000" android:duration="400" android:valueFrom="0" android:valueTo="1" android:interpolator="@android:anim/overshoot_interpolator" />
+                <!-- Takeoff Movement (Accelerated) -->
+                <objectAnimator android:propertyName="translateX" android:startOffset="2000" android:duration="1000" android:valueFrom="0" android:valueTo="60" android:interpolator="@android:anim/accelerate_interpolator" />
+                <objectAnimator android:propertyName="translateY" android:startOffset="2000" android:duration="1000" android:valueFrom="0" android:valueTo="-30" android:interpolator="@android:anim/accelerate_interpolator" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="cap_root">
+        <aapt:attr name="android:animation">
+            <set>
+                <!-- Shrink into Fuselage -->
+                <objectAnimator android:propertyName="scaleX" android:startOffset="1100" android:duration="800" android:valueFrom="1" android:valueTo="0.01" />
+                <objectAnimator android:propertyName="scaleY" android:startOffset="1100" android:duration="800" android:valueFrom="1" android:valueTo="0.01" />
+                <objectAnimator android:propertyName="translateX" android:startOffset="1100" android:duration="800" android:valueFrom="0" android:valueTo="10" />
+                <objectAnimator android:propertyName="translateY" android:startOffset="1100" android:duration="800" android:valueFrom="0" android:valueTo="6" />
+            </set>
+        </aapt:attr>
+    </target>
+
+</animated-vector>

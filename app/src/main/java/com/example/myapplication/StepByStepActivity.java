@@ -1,6 +1,8 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -126,6 +128,7 @@ public class StepByStepActivity extends AppCompatActivity {
                     break;
                 case "personal":
                     fields.add(new FieldModel("nationality", "Nationality", "American", "text"));
+                    fields.add(new FieldModel("ethnicity", "Ethnicity", "Origin/Heritage", "text"));
                     fields.add(new FieldModel("dob", "Date of Birth", "15 January 1990", "text"));
                     fields.add(new FieldModel("gender", "Gender", "Male", "text"));
                     fields.add(new FieldModel("ms", "Marital Status", "Single", "text"));
@@ -213,6 +216,57 @@ public class StepByStepActivity extends AppCompatActivity {
                     fields.add(new FieldModel("act", "Activity", "Activity Name", "text"));
                     fields.add(new FieldModel("desc", "Description", "Description...", "textarea"));
                     break;
+                case "visa":
+                    fields.add(new FieldModel("status", "Visa / Work Status", "Eligible/Required/H1-B/etc", "text"));
+                    fields.add(new FieldModel("country", "Target Country", "", "text"));
+                    break;
+                case "research":
+                    fields.add(new FieldModel("topic", "Research Topic", "", "text"));
+                    fields.add(new FieldModel("role", "Your Role", "Lead/Assistant/etc", "text"));
+                    fields.add(new FieldModel("desc", "Method/Findings", "", "textarea"));
+                    break;
+                case "teaching":
+                    fields.add(new FieldModel("course", "Course Name", "", "text"));
+                    fields.add(new FieldModel("inst", "Institution", "", "text"));
+                    fields.add(new FieldModel("desc", "Responsibilities", "", "textarea"));
+                    break;
+                case "grants":
+                    fields.add(new FieldModel("title", "Grant/Funding Title", "", "text"));
+                    fields.add(new FieldModel("amt", "Amount/Agency", "", "text"));
+                    fields.add(new FieldModel("year", "Year", "", "text"));
+                    break;
+                case "test_scores":
+                    fields.add(new FieldModel("test", "Test Name", "IELTS/SAT/GRE/etc", "text"));
+                    fields.add(new FieldModel("score", "Score/Band", "", "text"));
+                    fields.add(new FieldModel("date", "Test Date", "", "text"));
+                    break;
+                case "family":
+                    fields.add(new FieldModel("father", "Father's Occ.", "", "text"));
+                    fields.add(new FieldModel("mother", "Mother's Occ.", "", "text"));
+                    fields.add(new FieldModel("siblings", "Siblings Info", "e.g., 2 Brothers, 1 Sister", "text"));
+                    break;
+                case "expectations":
+                    fields.add(new FieldModel("pref", "Partner Preferences", "What you're looking for...", "textarea"));
+                    break;
+                case "lifestyle":
+                    fields.add(new FieldModel("diet", "Diet", "Veg/Non-Veg/etc", "text"));
+                    fields.add(new FieldModel("habits", "Social Habits", "Drinking/Smoking/etc", "text"));
+                    break;
+                case "physical":
+                    fields.add(new FieldModel("weight", "Weight", "", "text"));
+                    fields.add(new FieldModel("complexion", "Complexion", "Fair/Tanned/etc", "text"));
+                    fields.add(new FieldModel("build", "Body Build", "Athletic/Slim/etc", "text"));
+                    break;
+                case "photography":
+                    fields.add(new FieldModel("head", "Headshot Link/Desc", "Close-up portrait", "text"));
+                    fields.add(new FieldModel("body", "Full Body Link/Desc", "Standing photo", "text"));
+                    fields.add(new FieldModel("life", "Lifestyle Link/Desc", "General activity photo", "text"));
+                    break;
+                case "astrological":
+                    fields.add(new FieldModel("rashi", "Rashi", "Zodiac Sign", "text"));
+                    fields.add(new FieldModel("nakshatra", "Nakshatra", "Birth Star", "text"));
+                    fields.add(new FieldModel("gotra", "Gotra", "Lineage", "text"));
+                    break;
                 default:
                     fields.add(new FieldModel("val", "Content", "New Item", "text"));
             }
@@ -231,10 +285,11 @@ public class StepByStepActivity extends AppCompatActivity {
         String desc;
         int iconRes;
 
-        public PurposeModel(String id, String name, String desc) {
+        public PurposeModel(String id, String name, String desc, int iconRes) {
             this.id = id;
             this.name = name;
             this.desc = desc;
+            this.iconRes = iconRes;
         }
     }
 
@@ -243,10 +298,19 @@ public class StepByStepActivity extends AppCompatActivity {
         String id;
         String name;
         int previewRes;
+        boolean isUserTemplate = false;
+        String filePath = null;
 
         public TemplateModel(String id, String name) {
             this.id = id;
             this.name = name;
+        }
+
+        public TemplateModel(String id, String name, boolean isUserTemplate, String filePath) {
+            this.id = id;
+            this.name = name;
+            this.isUserTemplate = isUserTemplate;
+            this.filePath = filePath;
         }
     }
 
@@ -254,10 +318,11 @@ public class StepByStepActivity extends AppCompatActivity {
         new SectionModel("headerSection", "Header Info", "fa-user-circle", "header", "gridEssentials"),
         new SectionModel("personalDetails", "Personal Details", "fa-id-card", "personal", "gridEssentials"),
         new SectionModel("passportDetails", "Passport Details", "fa-passport", "passport", "gridEssentials"),
-        new SectionModel("summarySection", "Summary / Objective", "fa-user-tie", "summary_paragraph", "gridEssentials"),
+        new SectionModel("summarySection", "Professional Summary", "fa-user-tie", "summary_paragraph", "gridEssentials"),
+        new SectionModel("visaStatus", "Visa / Work Authorization", "fa-file-invoice", "visa", "gridEssentials"),
         new SectionModel("languages", "Languages", "fa-language", "languages", "gridEssentials"),
         new SectionModel("education", "Education", "fa-graduation-cap", "education", "gridExp"),
-        new SectionModel("experience", "Experience", "fa-briefcase", "experience", "gridExp"),
+        new SectionModel("experience", "Work Experience", "fa-briefcase", "experience", "gridExp"),
         new SectionModel("projects", "Projects", "fa-project-diagram", "projects", "gridExp"),
         new SectionModel("skills", "Skills", "fa-tools", "skills", "gridExp"),
         new SectionModel("certificates", "Certificates (Simple)", "fa-certificate", "simple-list", "gridExp"),
@@ -265,6 +330,9 @@ public class StepByStepActivity extends AppCompatActivity {
         new SectionModel("certifications", "Certifications (Adv)", "fa-certificate", "certifications", "gridAdd"),
         new SectionModel("volunteer", "Volunteer Exp", "fa-hands-helping", "volunteer", "gridAdd"),
         new SectionModel("publications", "Publications", "fa-book", "publications", "gridAdd"),
+        new SectionModel("researchExp", "Research Experience", "fa-microscope", "research", "gridAdd"),
+        new SectionModel("teachingExp", "Teaching Experience", "fa-chalkboard-teacher", "teaching", "gridAdd"),
+        new SectionModel("grants", "Grants & Funding", "fa-hand-holding-usd", "grants", "gridAdd"),
         new SectionModel("affiliations", "Affiliations", "fa-users", "affiliations", "gridAdd"),
         new SectionModel("hobbies", "Hobbies", "fa-gamepad", "hobbies", "gridAdd"),
         new SectionModel("extra", "Extracurricular", "fa-futbol", "extra", "gridAdd"),
@@ -272,7 +340,12 @@ public class StepByStepActivity extends AppCompatActivity {
         new SectionModel("training", "Training", "fa-chalkboard-teacher", "training", "gridAdd"),
         new SectionModel("internships", "Internships", "fa-laptop-code", "internships", "gridAdd"),
         new SectionModel("achievements", "Achievements", "fa-star", "achievements", "gridAdd"),
+        new SectionModel("testScores", "Test Scores (Professional)", "fa-check-double", "test_scores", "gridAdd"),
         new SectionModel("weblinks", "Web Links", "fa-link", "weblinks", "gridAdd"),
+        new SectionModel("familyDetails", "Family Details", "fa-users-cog", "family", "gridAdd"),
+        new SectionModel("partnerExpectations", "Partner Expectations", "fa-heart", "expectations", "gridAdd"),
+        new SectionModel("lifestyleHabits", "Lifestyle & Habits", "fa-apple-alt", "lifestyle", "gridAdd"),
+        new SectionModel("astrologySection", "Astrological Details", "fa-sun", "astrological", "gridAdd"),
         new SectionModel("physicalProfile", "Physical Profile", "fa-user-check", "physical", "gridAdd"),
         new SectionModel("visualRegistry", "Visual Representation", "fa-camera", "photography", "gridAdd"),
         new SectionModel("activeLife", "Active Lifestyle", "fa-running", "active_lifestyle", "gridAdd"),
@@ -424,35 +497,61 @@ public class StepByStepActivity extends AppCompatActivity {
         switch (selectedPurpose) {
             case "job":
                 defaultIds.remove("passportDetails");
+                defaultIds.remove("visaStatus");
                 defaultIds.add("references");
                 defaultIds.add("training");
                 defaultIds.add("volunteer");
+                defaultIds.add("certifications");
+                defaultIds.add("awards");
                 break;
             case "job_abroad":
-                // Needs passport along with others
                 if (!defaultIds.contains("passportDetails")) defaultIds.add("passportDetails");
+                defaultIds.add("visaStatus");
+                defaultIds.add("testScores");
                 defaultIds.add("references");
                 defaultIds.add("volunteer");
                 defaultIds.add("training");
                 defaultIds.add("achievements");
+                defaultIds.add("certifications");
+                defaultIds.add("internships");
                 break;
             case "academic":
                 defaultIds.remove("passportDetails");
+                defaultIds.remove("visaStatus");
                 defaultIds.remove("experience");
                 defaultIds.add("publications");
+                defaultIds.add("researchExp");
+                defaultIds.add("teachingExp");
+                defaultIds.add("grants");
                 defaultIds.add("weblinks");
                 defaultIds.add("achievements");
+                defaultIds.add("awards");
+                defaultIds.add("affiliations");
                 break;
             case "study_abroad":
+                defaultIds.add("testScores");
                 defaultIds.add("internships");
                 defaultIds.add("weblinks");
                 defaultIds.add("volunteer");
                 defaultIds.add("extra");
+                defaultIds.add("awards");
+                defaultIds.add("achievements");
                 break;
             case "marriage":
                 defaultIds.remove("passportDetails");
+                defaultIds.remove("experience");
+                defaultIds.remove("projects");
+                defaultIds.remove("visaStatus");
+                defaultIds.remove("summarySection");
                 defaultIds.add("extra");
                 defaultIds.add("hobbies");
+                defaultIds.add("achievements");
+                defaultIds.add("references");
+                defaultIds.add("affiliations");
+                defaultIds.add("familyDetails");
+                defaultIds.add("partnerExpectations");
+                defaultIds.add("lifestyleHabits");
+                defaultIds.add("astrologySection");
                 defaultIds.add("physicalProfile");
                 defaultIds.add("visualRegistry");
                 defaultIds.add("activeLife");
@@ -719,11 +818,11 @@ public class StepByStepActivity extends AppCompatActivity {
         PurposeViewHolder(View v) { super(v); rv = v.findViewById(R.id.rvPurposes); }
         void bind() {
             List<PurposeModel> purposes = Arrays.asList(
-                new PurposeModel("job", "Job", "Standard job application"),
-                new PurposeModel("job_abroad", "Job Abroad", "International opportunities"),
-                new PurposeModel("academic", "Academic", "University & research roles"),
-                new PurposeModel("study_abroad", "Study Abroad", "Applying for education abroad"),
-                new PurposeModel("marriage", "Marriage", "Personal biodata for marriage")
+                new PurposeModel("job", "Job", "Standard job application", R.drawable.avd_purpose_job),
+                new PurposeModel("job_abroad", "Job Abroad", "International opportunities", R.drawable.avd_purpose_job_abroad),
+                new PurposeModel("academic", "Academic", "University & research roles", R.drawable.avd_purpose_academic),
+                new PurposeModel("study_abroad", "Study Abroad", "Applying for education abroad", R.drawable.avd_purpose_study_abroad),
+                new PurposeModel("marriage", "Marriage", "Personal biodata for marriage", R.drawable.avd_purpose_marriage)
             );
             rv.setLayoutManager(new GridLayoutManager(StepByStepActivity.this, 2));
             rv.setAdapter(new PurposeAdapter(purposes));
@@ -734,13 +833,50 @@ public class StepByStepActivity extends AppCompatActivity {
         RecyclerView rv;
         TemplateViewHolder(View v) { super(v); rv = v.findViewById(R.id.rvTemplates); }
         void bind() {
-            List<TemplateModel> templates = Arrays.asList(
+            List<TemplateModel> templates = new ArrayList<>(Arrays.asList(
                 new TemplateModel("default", "Standard Modern"),
                 new TemplateModel("sidebar", "Sidebar Pro")
-            );
+            ));
+
+            // Load User Templates
+            templates.addAll(loadUserTemplates());
+
             rv.setLayoutManager(new GridLayoutManager(StepByStepActivity.this, 2));
             rv.setAdapter(new TemplateAdapter(templates));
         }
+    }
+
+    private List<TemplateModel> loadUserTemplates() {
+        List<TemplateModel> userTemplates = new ArrayList<>();
+        File dir = new File(getFilesDir(), "user_templates");
+        if (dir.exists() && dir.isDirectory()) {
+            File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
+            if (files != null) {
+                // Sort by date (newest first)
+                Arrays.sort(files, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()));
+                
+                for (File file : files) {
+                    try {
+                        String content = readFile(file);
+                        JSONObject json = new JSONObject(content);
+                        String name = json.optString("name", file.getName().replace(".json", ""));
+                        userTemplates.add(new TemplateModel(file.getName(), name, true, file.getAbsolutePath()));
+                    } catch (Exception e) {
+                        Log.e("StepByStep", "Error loading user template: " + file.getName(), e);
+                    }
+                }
+            }
+        }
+        return userTemplates;
+    }
+
+    private String readFile(File file) throws java.io.IOException {
+        java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(file));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) sb.append(line);
+        reader.close();
+        return sb.toString();
     }
 
     private class SectionsViewHolder extends RecyclerView.ViewHolder {
@@ -813,10 +949,9 @@ public class StepByStepActivity extends AppCompatActivity {
             desc.setText(s.group.replace("grid", "").toUpperCase());
             icon.setImageResource(getIconResForFontAwesome(s.icon));
             
-            // Set Add Style (Green)
-            btnAdd.setImageResource(R.drawable.ic_add);
-            btnAdd.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#4CAF50")));
-            btnAdd.setImageTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE));
+            // Hide placement buttons in Wizard as they don't apply here
+            View placementContainer = v.findViewById(R.id.placement_container);
+            if (placementContainer != null) placementContainer.setVisibility(View.GONE);
 
             View.OnClickListener listener = view -> {
                 SectionModel instance = new SectionModel(s.id, s.name, s.icon, s.type, s.group);
@@ -894,20 +1029,35 @@ public class StepByStepActivity extends AppCompatActivity {
             PurposeModel m = data.get(p);
             h.tvTitle.setText(m.name);
             h.tvDesc.setText(m.desc);
+            h.ivIcon.setImageResource(m.iconRes);
             h.itemView.setOnClickListener(v -> {
                 selectedPurpose = m.id;
                 notifyDataSetChanged();
+                
+                Drawable drawable = h.ivIcon.getDrawable();
+                if (drawable instanceof Animatable) {
+                    ((Animatable) drawable).start();
+                }
             });
             // Highlight selected
             ((com.google.android.material.card.MaterialCardView)h.itemView).setStrokeColor(
                 selectedPurpose.equals(m.id) ? 0xFF1A237E : 0xFFEEEEEE);
             ((com.google.android.material.card.MaterialCardView)h.itemView).setStrokeWidth(
                 selectedPurpose.equals(m.id) ? 6 : 2);
+
+            // If already selected, start animation anyway (optional but nice)
+            if (selectedPurpose.equals(m.id)) {
+                Drawable drawable = h.ivIcon.getDrawable();
+                if (drawable instanceof Animatable) {
+                    ((Animatable) drawable).start();
+                }
+            }
         }
         @Override public int getItemCount() { return data.size(); }
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvTitle, tvDesc;
-            ViewHolder(View v) { super(v); tvTitle = v.findViewById(R.id.tvPurposeTitle); tvDesc = v.findViewById(R.id.tvPurposeDesc); }
+            ImageView ivIcon;
+            ViewHolder(View v) { super(v); tvTitle = v.findViewById(R.id.tvPurposeTitle); tvDesc = v.findViewById(R.id.tvPurposeDesc); ivIcon = v.findViewById(R.id.ivPurposeIcon); }
         }
     }
 
@@ -920,10 +1070,37 @@ public class StepByStepActivity extends AppCompatActivity {
         @Override public void onBindViewHolder(@NonNull ViewHolder h, int p) {
             TemplateModel m = data.get(p);
             h.tvTitle.setText(m.name);
+            
+            if (m.isUserTemplate && m.filePath != null) {
+                // Load saved thumbnail
+                String imagePath = m.filePath.replace(".json", ".png");
+                File imgFile = new File(imagePath);
+                if (imgFile.exists()) {
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                    h.ivPreview.setImageBitmap(bitmap);
+                    h.ivPreview.setImageTintList(null); // Remove tint for real images
+                    h.ivPreview.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                } else {
+                    h.ivPreview.setImageResource(R.drawable.ic_grid);
+                    h.ivPreview.setImageTintList(android.content.res.ColorStateList.valueOf(0xFF1A237E));
+                    h.ivPreview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+                }
+            } else {
+                // Built-in templates
+                if (m.id.equals("sidebar")) {
+                    h.ivPreview.setImageResource(R.drawable.ic_grid); // Replace with sidebar icon if available
+                } else {
+                    h.ivPreview.setImageResource(R.drawable.ic_grid);
+                }
+                h.ivPreview.setImageTintList(android.content.res.ColorStateList.valueOf(0xFF1A237E));
+                h.ivPreview.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            }
+
             h.itemView.setOnClickListener(v -> {
                 selectedTemplate = m.id;
                 notifyDataSetChanged();
             });
+            
             // Highlight selected
             ((com.google.android.material.card.MaterialCardView)h.itemView).setStrokeColor(
                 selectedTemplate.equals(m.id) ? 0xFF1A237E : 0xFFEEEEEE);
@@ -933,7 +1110,12 @@ public class StepByStepActivity extends AppCompatActivity {
         @Override public int getItemCount() { return data.size(); }
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tvTitle;
-            ViewHolder(View v) { super(v); tvTitle = v.findViewById(R.id.tvTemplateTitle); }
+            ImageView ivPreview;
+            ViewHolder(View v) { 
+                super(v); 
+                tvTitle = v.findViewById(R.id.tvTemplateTitle); 
+                ivPreview = v.findViewById(R.id.ivTemplatePreview);
+            }
         }
     }
 
@@ -1096,10 +1278,6 @@ public class StepByStepActivity extends AppCompatActivity {
         html.append("<header id=\"mainHeader\">");
         
         if (headerData != null) {
-            String img = headerData.optString("image", "");
-            if (!img.isEmpty()) {
-                html.append("<div class=\"profile-img-container is-default\"><img src=\"").append(img).append("\" alt=\"Profile\" class=\"profile-img\" id=\"profileImg\"></div>");
-            }
             html.append("<div class=\"header-info\"><h1>").append(headerData.optString("name", "Your Name")).append("</h1>");
             html.append("<div class=\"contact-info\">");
             
@@ -1283,6 +1461,32 @@ public class StepByStepActivity extends AppCompatActivity {
                 }
                 sb.append("</div>");
                 break;
+            case "visa":
+            case "test_scores":
+            case "family":
+            case "lifestyle":
+            case "astrological":
+                for (FieldModel f : item.fields) {
+                    if (f.value.isEmpty() || f.value.equals("...")) continue;
+                    sb.append("<div class=\"pd-row\"><span class=\"pd-label\">").append(f.label).append(":</span> <span class=\"pd-val\">").append(f.value).append("</span></div>");
+                }
+                break;
+
+            case "research":
+            case "teaching":
+            case "grants":
+                sb.append("<div class=\"data-table-item\" style=\"border-bottom:1px solid #E0E0E0; padding-bottom:12px; margin-bottom:12px;\">");
+                sb.append("<div class=\"table-row\" style=\"justify-content:space-between;\"><span class=\"table-val\" style=\"font-weight:700;\">")
+                  .append((getFieldValue(item, "topic") + getFieldValue(item, "course") + getFieldValue(item, "title")).replace("...", "")).append("</span>");
+                sb.append("<span class=\"table-val\" style=\"font-size:0.85em; color: var(--text-muted);\">")
+                  .append((getFieldValue(item, "year") + getFieldValue(item, "date")).replace("...", "")).append("</span></div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-val\" style=\"font-style:italic;\">")
+                  .append((getFieldValue(item, "role") + getFieldValue(item, "inst") + getFieldValue(item, "amt")).replace("...", "")).append("</span></div>");
+                String rDesc = getFieldValue(item, "desc");
+                if (!rDesc.equals("...")) sb.append("<div class=\"proj-desc\" style=\"margin-top:4px;\">").append(rDesc).append("</div>");
+                sb.append("</div>");
+                break;
+
             case "photography":
                 sb.append("<div class=\"photo-grid\"><div class=\"photo-card\"><i class=\"fas fa-user\"></i><div class=\"img-label\">")
                   .append(getFieldValue(item, "head")).append("</div></div><div class=\"photo-card\"><i class=\"fas fa-male\"></i><div class=\"img-label\">")

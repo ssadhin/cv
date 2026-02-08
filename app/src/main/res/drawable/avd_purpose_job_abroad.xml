@@ -1,0 +1,64 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+            <group android:name="scene_root">
+                <!-- THE PLANE: Centered but scale=0 for first 1.5s -->
+                <group android:name="plane_root" android:pivotX="24" android:pivotY="24" android:scaleX="0.0" android:scaleY="0.0">
+                    <path android:name="plane_path" android:fillColor="#1a237e" android:pathData="M42,22 L30,22 L20,10 L16,10 L24,22 L10,22 L6,18 L4,18 L8,24 L4,30 L6,30 L10,26 L24,26 L16,38 L20,38 L30,26 L42,26 C46,26 46,22 42,22 Z" />
+                </group>
+
+                <!-- THE BRIEFCASE: Centered and fully visible -->
+                <group android:name="briefcase_root" android:pivotX="24" android:pivotY="12">
+                    <group android:name="briefcase_boarding" android:pivotX="24" android:pivotY="24">
+                        <!-- Standard Briefcase Body -->
+                        <path android:name="body" android:fillColor="#1a237e" android:pathData="M10,14 C8,14 6,16 6,18 L6,38 C6,40 8,42 10,42 L38,42 C40,42 42,40 42,38 L42,18 C42,16 40,14 38,14 L30,14 L30,10 C30,8 28,6 26,6 L22,6 C20,6 18,8 18,10 L18,14 L10,14 Z M22,10 L26,10 L26,14 L22,14 L22,10 Z" />
+                        <!-- Buckle -->
+                        <path android:fillColor="#ffffff" android:pathData="M20,24 L28,24 L28,28 L20,28 L20,24 Z" />
+                    </group>
+                </group>
+            </group>
+        </vector>
+    </aapt:attr>
+
+    <!-- 1. SINGLE SLOW TILT (0-800ms) -->
+    <target android:name="briefcase_root">
+        <aapt:attr name="android:animation">
+            <set android:ordering="sequentially">
+                <objectAnimator android:propertyName="rotation" android:duration="400" android:valueFrom="0" android:valueTo="12" />
+                <objectAnimator android:propertyName="rotation" android:duration="400" android:valueFrom="12" android:valueTo="0" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- 2. PLANE POP REVEAL (Starts at 1.5s) -->
+    <target android:name="plane_root">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="scaleX" android:startOffset="1500" android:duration="300" android:valueFrom="0.0" android:valueTo="1.0" android:interpolator="@android:anim/overshoot_interpolator" />
+                <objectAnimator android:propertyName="scaleY" android:startOffset="1500" android:duration="300" android:valueFrom="0.0" android:valueTo="1.0" android:interpolator="@android:anim/overshoot_interpolator" />
+                <!-- Takeoff Movement (Vertical) -->
+                <objectAnimator android:propertyName="translateY" android:startOffset="2200" android:duration="1200" android:valueFrom="0" android:valueTo="-35" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- 3. BOARDING (Starts at 1.5s) -->
+    <target android:name="briefcase_boarding">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="translateX" android:startOffset="1500" android:duration="700" android:valueFrom="0" android:valueTo="8" />
+                <objectAnimator android:propertyName="scaleX" android:startOffset="1500" android:duration="700" android:valueFrom="1.0" android:valueTo="0.01" />
+                <objectAnimator android:propertyName="scaleY" android:startOffset="1500" android:duration="700" android:valueFrom="1.0" android:valueTo="0.01" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- 4. TAKEOFF (Start at 2.2s) -->
+    <target android:name="scene_root">
+        <aapt:attr name="android:animation">
+            <objectAnimator android:propertyName="translateX" android:startOffset="2200" android:duration="1200" android:valueFrom="0" android:valueTo="100" android:interpolator="@android:anim/accelerate_interpolator" />
+        </aapt:attr>
+    </target>
+
+</animated-vector>

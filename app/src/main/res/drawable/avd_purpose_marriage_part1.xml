@@ -1,0 +1,60 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
+            <group android:name="scene_root">
+                <!-- Half Hearts -->
+                <group android:name="half_left_root" android:pivotX="24" android:pivotY="36" android:translateX="-40" android:translateY="-30" android:scaleX="0.1" android:scaleY="0.1">
+                    <group android:name="half_left_bump" android:pivotX="24" android:pivotY="36">
+                        <path android:name="path_half_left" android:fillColor="#e91e63" android:pathData="M24,36 C14,30 8,24 8,16 C8,10 13,8 16,8 C19,8 22,10 24,12 L24,36 Z" />
+                    </group>
+                </group>
+                <group android:name="half_right_root" android:pivotX="24" android:pivotY="36" android:translateX="40" android:translateY="-30" android:scaleX="0.1" android:scaleY="0.1">
+                    <group android:name="half_right_bump" android:pivotX="24" android:pivotY="36">
+                        <path android:name="path_half_right" android:fillColor="#e91e63" android:pathData="M24,36 L24,12 C26,10 30,8 34,8 C39,8 44,12 44,18 C44,24 38,30 24,36 Z" />
+                    </group>
+                </group>
+            </group>
+        </vector>
+    </aapt:attr>
+
+    <!-- FLY IN -->
+    <target android:name="half_left_root">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="translateX" android:duration="1000" android:valueFrom="-40" android:valueTo="0" android:valueType="floatType" android:interpolator="@android:anim/decelerate_interpolator" />
+                <objectAnimator android:propertyName="translateY" android:duration="1000" android:valueFrom="-30" android:valueTo="0" android:valueType="floatType" />
+                <objectAnimator android:propertyName="scaleX" android:duration="1000" android:valueFrom="0.1" android:valueTo="1.0" android:valueType="floatType" />
+                <objectAnimator android:propertyName="scaleY" android:duration="1000" android:valueFrom="0.1" android:valueTo="1.0" android:valueType="floatType" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="half_right_root">
+        <aapt:attr name="android:animation">
+            <set android:ordering="together">
+                <objectAnimator android:propertyName="translateX" android:duration="1000" android:valueFrom="40" android:valueTo="0" android:valueType="floatType" android:interpolator="@android:anim/decelerate_interpolator" />
+                <objectAnimator android:propertyName="translateY" android:duration="1000" android:valueFrom="-30" android:valueTo="0" android:valueType="floatType" />
+                <objectAnimator android:propertyName="scaleX" android:duration="1000" android:valueFrom="0.1" android:valueTo="1.0" android:valueType="floatType" />
+                <objectAnimator android:propertyName="scaleY" android:duration="1000" android:valueFrom="0.1" android:valueTo="1.0" android:valueType="floatType" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- BUMP -->
+    <target android:name="half_left_bump">
+        <aapt:attr name="android:animation">
+            <set android:ordering="sequentially">
+                <objectAnimator android:propertyName="translateX" android:startOffset="1000" android:duration="150" android:valueFrom="0" android:valueTo="4" android:valueType="floatType" />
+                <objectAnimator android:propertyName="translateX" android:duration="150" android:valueFrom="4" android:valueTo="0" android:valueType="floatType" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="half_right_bump">
+        <aapt:attr name="android:animation">
+            <set android:ordering="sequentially">
+                <objectAnimator android:propertyName="translateX" android:startOffset="1000" android:duration="150" android:valueFrom="0" android:valueTo="-4" android:valueType="floatType" />
+                <objectAnimator android:propertyName="translateX" android:duration="150" android:valueFrom="-4" android:valueTo="0" android:valueType="floatType" />
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

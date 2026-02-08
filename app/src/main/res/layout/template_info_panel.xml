@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/template_info_card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="16dp" app:cardBackgroundColor="#FFF8E6" app:cardCornerRadius="16dp" app:cardElevation="4dp" app:strokeColor="#FFD54F" app:strokeWidth="2dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+
+        <!-- Header with Collapse Button -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_info" app:tint="#F57C00" android:layout_marginEnd="12dp" />
+
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Template Selection Mode" android:textColor="#E65100" android:textSize="16sp" android:textStyle="bold" />
+
+            <ImageButton android:id="@+id/btn_collapse_info" android:layout_width="32dp" android:layout_height="32dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_expand_more" app:tint="#F57C00" />
+        </LinearLayout>
+
+        <!-- Collapsible Content -->
+        <LinearLayout android:id="@+id/info_content" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="📌 Press the + icon next to sections you want to include in the template." android:textColor="#5D4037" android:textSize="14sp" android:lineSpacingExtra="4dp" android:layout_marginBottom="8dp" />
+
+            <!-- Warning -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:background="#FFECB3" android:padding="12dp" android:layout_marginTop="8dp" android:gravity="top">
+
+                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_info" app:tint="#F57C00" android:layout_marginEnd="8dp" />
+
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="⚠️ WARNING: Do not include personal information! Templates may be shared online." android:textColor="#E65100" android:textSize="13sp" android:textStyle="bold" android:lineSpacingExtra="4dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
