@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#CCFFFFFF">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+
+        <View android:layout_width="40dp" android:layout_height="4dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" android:background="#E0E0E0" />
+
+        <TextView android:id="@+id/txt_dialog_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Frame Settings" android:textSize="18sp" android:textStyle="bold" android:textColor="#616161" android:layout_marginBottom="16dp" />
+
+        <com.google.android.material.tabs.TabLayout android:id="@+id/tab_layout_settings" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="24dp" app:tabIndicatorColor="#9E9E9E" app:tabTextColor="#757575" app:tabSelectedTextColor="#616161" app:tabBackground="@android:color/transparent" app:tabRippleColor="@android:color/transparent" app:tabIndicatorFullWidth="false" app:tabMode="fixed" />
+
+        <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+
+            <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+
+                <!-- Customize Tab Content -->
+                <LinearLayout android:id="@+id/layout_customize" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+
+                    <!-- Frame Category -->
+                    <LinearLayout android:id="@+id/header_frame" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="12dp" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Frame" android:textColor="#616161" android:textStyle="bold" android:textSize="16sp" />
+                        <ImageView android:id="@+id/img_frame_chevron" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_expand_more" app:tint="#757575" />
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/container_frame" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="8dp" android:paddingBottom="16dp">
+                        <!-- Side Selection with Icons -->
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Show Frame On" android:textColor="#757575" android:textStyle="bold" android:textSize="13sp" android:layout_marginBottom="12dp" />
+
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center" android:layout_marginBottom="24dp">
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                                <CheckBox android:id="@+id/check_top" android:layout_width="wrap_content" android:layout_height="wrap_content" android:button="@drawable/ic_arrow_up" android:buttonTint="#757575" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Top" android:textSize="10sp" android:textColor="#757575" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                                <CheckBox android:id="@+id/check_bottom" android:layout_width="wrap_content" android:layout_height="wrap_content" android:button="@drawable/ic_arrow_down" android:buttonTint="#757575" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bottom" android:textSize="10sp" android:textColor="#757575" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                                <CheckBox android:id="@+id/check_left" android:layout_width="wrap_content" android:layout_height="wrap_content" android:button="@drawable/ic_chevron_left" android:buttonTint="#757575" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Left" android:textSize="10sp" android:textColor="#757575" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
+                                <CheckBox android:id="@+id/check_right" android:layout_width="wrap_content" android:layout_height="wrap_content" android:button="@drawable/ic_chevron_right" android:buttonTint="#757575" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Right" android:textSize="10sp" android:textColor="#757575" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Thickness Slider -->
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="24dp">
+                            <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Thickness" android:textColor="#757575" android:textStyle="bold" />
+                            <SeekBar android:id="@+id/slider_thickness" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="20" android:progress="0" thumbTint="#9E9E9E" />
+                            <TextView android:id="@+id/txt_thickness_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="0" android:gravity="end" android:textColor="#616161" android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Frame Color Gradient -->
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Frame Gradient" android:textColor="#757575" android:textStyle="bold" android:textSize="13sp" android:layout_marginBottom="12dp" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_vertical">
+                                <View android:id="@+id/view_frame_color_start_indicator" android:layout_width="24dp" android:layout_height="24dp" android:background="#FFFFFF" android:layout_marginEnd="8dp" />
+                                <Button android:id="@+id/btn_change_frame_color_start" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Start" style="?attr/materialButtonOutlinedStyle" app:cornerRadius="20dp" android:paddingHorizontal="12dp" android:minHeight="36dp" android:textSize="12sp" android:textColor="#616161" app:strokeColor="#E0E0E0" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="8dp">
+                                <View android:id="@+id/view_frame_color_end_indicator" android:layout_width="24dp" android:layout_height="24dp" android:background="#FFFFFF" android:layout_marginEnd="8dp" />
+                                <Button android:id="@+id/btn_change_frame_color_end" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="End" style="?attr/materialButtonOutlinedStyle" app:cornerRadius="20dp" android:paddingHorizontal="12dp" android:minHeight="36dp" android:textSize="12sp" android:textColor="#616161" app:strokeColor="#E0E0E0" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+                    <!-- Main Category -->
+                    <LinearLayout android:id="@+id/header_main" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="12dp" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Main" android:textColor="#616161" android:textStyle="bold" android:textSize="16sp" />
+                        <ImageView android:id="@+id/img_main_chevron" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_expand_more" app:tint="#757575" />
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/container_main" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="8dp" android:paddingBottom="16dp">
+
+                        <!-- Header Height Slider Wrapper -->
+                        <LinearLayout android:id="@+id/layout_header_height_settings" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp">
+                                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Header Height" android:textSize="14sp" android:textColor="#666"/>
+                                <TextView android:id="@+id/btnHeaderHeightAuto" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Auto" android:textSize="12sp" android:textStyle="bold" android:textColor="#1E3C72" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#EEF2FF" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="24dp">
+                                <SeekBar android:id="@+id/sliderHeaderHeight" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:max="600" android:progress="0" android:progressTint="#1E3C72" android:thumbTint="#1E3C72"/>
+                                <TextView android:id="@+id/txtHeaderHeightVal" android:layout_width="40dp" android:layout_height="wrap_content" android:text="Auto" android:textSize="12sp" android:gravity="end" android:textColor="#333"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Corner Radius Slider -->
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="24dp">
+                            <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Rounding" android:textColor="#757575" android:textStyle="bold" />
+                            <SeekBar android:id="@+id/slider_radius" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="50" android:progress="0" thumbTint="#9E9E9E" />
+                            <TextView android:id="@+id/txt_radius_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="0" android:gravity="end" android:textColor="#616161" android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <!-- Fill Color Gradient -->
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fill Gradient" android:textColor="#757575" android:textStyle="bold" android:textSize="13sp" android:layout_marginBottom="12dp" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_vertical">
+                                <View android:id="@+id/view_column_bg_color_start_indicator" android:layout_width="24dp" android:layout_height="24dp" android:background="#FFFFFF" android:layout_marginEnd="8dp" />
+                                <Button android:id="@+id/btn_change_column_bg_color_start" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Start" style="?attr/materialButtonOutlinedStyle" app:cornerRadius="20dp" android:paddingHorizontal="12dp" android:minHeight="36dp" android:textSize="12sp" android:textColor="#616161" app:strokeColor="#E0E0E0" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="8dp">
+                                <View android:id="@+id/view_column_bg_color_end_indicator" android:layout_width="24dp" android:layout_height="24dp" android:background="#FFFFFF" android:layout_marginEnd="8dp" />
+                                <Button android:id="@+id/btn_change_column_bg_color_end" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="End" style="?attr/materialButtonOutlinedStyle" app:cornerRadius="20dp" android:paddingHorizontal="12dp" android:minHeight="36dp" android:textSize="12sp" android:textColor="#616161" app:strokeColor="#E0E0E0" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Swap Side Button (Hidden by default, shown for Designer Column) -->
+                        <Button android:id="@+id/btn_swap_columns" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Swap Side" android:backgroundTint="#FF9800" android:textColor="#FFFFFF" style="@style/Widget.MaterialComponents.Button" app:cornerRadius="20dp" android:textSize="12sp" android:visibility="gone" android:layout_marginTop="16dp"/>
+
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+                    <!-- Image Category -->
+                    <LinearLayout android:id="@+id/header_image" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="12dp" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Image" android:textColor="#616161" android:textStyle="bold" android:textSize="16sp" />
+                        <ImageView android:id="@+id/img_image_chevron" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_expand_more" app:tint="#757575" />
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/container_image" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="8dp" android:paddingBottom="16dp" android:visibility="gone">
+                        <!-- Header Background Image (shown only for header type) -->
+                        <LinearLayout android:id="@+id/layout_header_bg_image" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="0dp" android:visibility="gone">
+                            <Button android:id="@+id/btn_header_bg_image" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Set Header Image" android:backgroundTint="#2196F3" android:textColor="#FFFFFF" style="@style/Widget.MaterialComponents.Button" app:cornerRadius="20dp" />
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Format: JPG/PNG • Ratio: 16:9 • Res: 1920x1080px" android:textSize="11sp" android:textColor="#9E9E9E" android:layout_marginTop="4dp" />
+
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="12dp">
+                                <TextView android:layout_width="60dp" android:layout_height="wrap_content" android:text="Blur" android:textColor="#757575" android:textStyle="bold" />
+                                <SeekBar android:id="@+id/slider_header_blur" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="20" android:progress="0" thumbTint="#9E9E9E" />
+                            </LinearLayout>
+
+                            <RadioGroup android:id="@+id/rg_header_scale" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp" android:gravity="center_horizontal">
+                                <RadioButton android:id="@+id/rb_header_fill" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fill" android:checked="true" android:layout_marginEnd="16dp" />
+                                <RadioButton android:id="@+id/rb_header_fit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fit" android:layout_marginEnd="16dp" />
+                                <RadioButton android:id="@+id/rb_header_center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Center" />
+                            </RadioGroup>
+                        </LinearLayout>
+
+                        <!-- Left Column Background Image (shown only for left type) -->
+                        <LinearLayout android:id="@+id/layout_left_bg_image" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="0dp" android:visibility="gone">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                                <Button android:id="@+id/btn_left_bg_image" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Set Image" android:backgroundTint="#2196F3" android:textColor="#FFFFFF" style="@style/Widget.MaterialComponents.Button" app:cornerRadius="20dp" android:textSize="12sp" />
+                            </LinearLayout>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Format: JPG/PNG • Ratio: 1:3 • Res: 1080x3240px" android:textSize="11sp" android:textColor="#9E9E9E" android:layout_marginTop="4dp" android:gravity="center_horizontal"/>
+
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="12dp">
+                                <TextView android:layout_width="60dp" android:layout_height="wrap_content" android:text="Blur" android:textColor="#757575" android:textStyle="bold" />
+                                <SeekBar android:id="@+id/slider_left_blur" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="20" android:progress="0" thumbTint="#9E9E9E" />
+                            </LinearLayout>
+
+                            <RadioGroup android:id="@+id/rg_left_scale" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="8dp" android:gravity="center_horizontal">
+                                <RadioButton android:id="@+id/rb_left_fill" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fill" android:checked="true" android:layout_marginEnd="16dp" />
+                                <RadioButton android:id="@+id/rb_left_fit" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fit" android:layout_marginEnd="16dp" />
+                                <RadioButton android:id="@+id/rb_left_center" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Center" />
+                            </RadioGroup>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+                    <!-- Text Category -->
+                    <LinearLayout android:id="@+id/header_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="12dp" android:background="?attr/selectableItemBackground" android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Text" android:textColor="#616161" android:textStyle="bold" android:textSize="16sp" />
+                        <ImageView android:id="@+id/img_text_chevron" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_expand_more" app:tint="#757575" />
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/container_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingTop="8dp" android:paddingBottom="16dp" android:visibility="gone">
+                        <!-- Header Text Color -->
+                        <LinearLayout android:id="@+id/layout_text_color_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Text Color" android:textColor="#757575" android:textStyle="bold" android:textSize="13sp" android:layout_marginBottom="12dp" />
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Color" android:textColor="#9E9E9E" />
+                                <View android:id="@+id/view_text_color_indicator" android:layout_width="32dp" android:layout_height="32dp" android:background="#FFFFFF" android:layout_marginEnd="16dp" />
+                                <Button android:id="@+id/btn_change_text_color" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pick" style="?attr/materialButtonOutlinedStyle" app:cornerRadius="20dp" android:textColor="#616161" app:strokeColor="#E0E0E0" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Styles Tab Content -->
+                <LinearLayout android:id="@+id/layout_styles" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:paddingTop="8dp">
+
+                    <!-- Dot Indicator on Top -->
+                    <com.google.android.material.tabs.TabLayout android:id="@+id/indicator_styles" android:layout_width="wrap_content" android:layout_height="12dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" app:tabBackground="@drawable/selector_carousel_dot" app:tabIndicatorHeight="0dp" app:tabRippleColor="@android:color/transparent" app:tabMaxWidth="12dp" app:tabPaddingStart="4dp" app:tabPaddingEnd="4dp" app:tabMode="fixed" />
+
+                    <androidx.viewpager2.widget.ViewPager2 android:id="@+id/pager_styles" android:layout_width="match_parent" android:layout_height="260dp" android:layout_marginBottom="16dp" />
+
+                </LinearLayout>
+
+            </FrameLayout>
+        </ScrollView>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

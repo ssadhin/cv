@@ -91,6 +91,7 @@ public class ResumeDataManager {
                 break;
             case "passport":
                 fields.add(new FieldModel("pno", "Passport No", "P0000000", "text"));
+                fields.add(new FieldModel("issued", "Issued By", "Place of Issue", "text"));
                 fields.add(new FieldModel("idate", "Issue Date", "DD/MM/YYYY", "text"));
                 fields.add(new FieldModel("edate", "Expiry Date", "DD/MM/YYYY", "text"));
                 break;
@@ -142,16 +143,6 @@ public class ResumeDataManager {
             case "weblinks":
                 fields.add(new FieldModel("name", "Site Name", "Site Name", "text"));
                 fields.add(new FieldModel("url", "URL", "http://", "text"));
-                break;
-            case "contact":
-                fields.add(new FieldModel("email", "Email", "email@example.com", "text"));
-                fields.add(new FieldModel("phone", "Phone", "123-456-7890", "text"));
-                fields.add(new FieldModel("addr", "Address", "City, Country", "text"));
-                fields.add(new FieldModel("linkedin", "LinkedIn", "linkedin.com/in/...", "text"));
-                fields.add(new FieldModel("github", "GitHub", "github.com/...", "text"));
-                fields.add(new FieldModel("portfolio", "Portfolio", "...", "text"));
-                fields.add(new FieldModel("facebook", "Facebook", "facebook.com/...", "text"));
-                fields.add(new FieldModel("web", "Website/Link", "http://...", "text"));
                 break;
             case "references":
                 fields.add(new FieldModel("name", "Name", "Name", "text"));
@@ -234,11 +225,10 @@ public class ResumeDataManager {
     }
 
     public static final List<SectionModel> ALL_SECTIONS_TEMPLATE = Arrays.asList(
-        new SectionModel("headerSection", "Header Info", "fa-user-circle", "header", "gridEssentials"),
-        new SectionModel("contactDetails", "Contact Details", "fa-address-book", "contact", "gridEssentials"),
+        new SectionModel("nameProfessionSection", "Name & Profession", "fa-id-badge", "name_profession", "gridEssentials"),
         new SectionModel("personalDetails", "Personal Details", "fa-id-card", "personal", "gridEssentials"),
         new SectionModel("passportDetails", "Passport Details", "fa-passport", "passport", "gridEssentials"),
-        new SectionModel("summarySection", "Professional Summary", "fa-user-tie", "summary_paragraph", "gridEssentials"),
+        new SectionModel("summarySection", "Summary", "fa-user-tie", "summary_paragraph", "gridEssentials"),
         new SectionModel("visaStatus", "Visa / Work Authorization", "fa-file-invoice", "visa", "gridEssentials"),
         new SectionModel("languages", "Languages", "fa-language", "languages", "gridEssentials"),
         new SectionModel("education", "Education", "fa-graduation-cap", "education", "gridExp"),
@@ -351,8 +341,8 @@ public class ResumeDataManager {
 
     private static final java.util.Map<String, String[]> SHORTHAND_MAP = new java.util.HashMap<String, String[]>() {{
         // key -> [sectionId, sectionName, type]
-        put("hdr", new String[]{"headerSection", "Header Info", "header"});
-        put("sum", new String[]{"summarySection", "Professional Summary", "summary_paragraph"});
+        put("hdr", new String[]{"nameProfessionSection", "Name & Profession", "name_profession"});
+        put("sum", new String[]{"summarySection", "Summary", "summary_paragraph"});
         put("per", new String[]{"personalDetails", "Personal Details", "personal"});
         put("pass", new String[]{"passportDetails", "Passport Details", "passport"});
         put("exp", new String[]{"experience", "Work Experience", "experience"});
@@ -376,7 +366,6 @@ public class ResumeDataManager {
         put("hob", new String[]{"hobbies", "Hobbies", "hobbies"});
         put("ext", new String[]{"extra", "Extracurricular", "extra"});
         put("web", new String[]{"weblinks", "Web Links", "weblinks"});
-        put("cnt", new String[]{"contactDetails", "Contact Details", "contact"});
         put("dec", new String[]{"declarationSection", "Declaration", "declaration_block"});
         put("vis", new String[]{"visaStatus", "Visa Status", "visa"});
         put("tst", new String[]{"testScores", "Test Scores", "test_scores"});
@@ -387,7 +376,7 @@ public class ResumeDataManager {
         put("phy", new String[]{"physicalProfile", "Physical Profile", "physical"});
     }};
 
-    // Contact fields that should ONLY appear in header, not personal details
+    // Contact fields that should appear in header, not personal details
     private static final List<String> CONTACT_FIELDS = Arrays.asList(
         "email", "phone", "addr", "address", "link", "linkedin", "website", "url", "mobile", "tel",
         "portfolio", "github", "medium", "web",
@@ -408,8 +397,6 @@ public class ResumeDataManager {
                         data.put("hdr", hdr);
                     }
                     
-                    JSONObject cnt = data.optJSONObject("cnt");
-                    
                     java.util.Iterator<String> perKeys = per.keys();
                     List<String> keysToMove = new ArrayList<>();
                     while (perKeys.hasNext()) {
@@ -422,8 +409,6 @@ public class ResumeDataManager {
                         if (isContactKey || isContactVal) {
                             if (!hdr.has(key)) {
                                 hdr.put(key, per.get(key));
-                            } else if (cnt != null && !cnt.has(key)) {
-                                cnt.put(key, per.get(key));
                             }
                             keysToMove.add(key);
                         }
@@ -435,26 +420,11 @@ public class ResumeDataManager {
             Log.e("ResumeDataManager", "Error filtering contact fields", e);
         }
 
-        // Second pass: Sync Header -> Contact (ensure sidebar has everything header has)
+        // Second pass: Filter contact fields (Ensure we don't have redundant logic if needed)
         try {
-            JSONObject hdr = data.optJSONObject("hdr");
-            JSONObject cnt = data.optJSONObject("cnt");
-            if (hdr != null) {
-                if (cnt == null) {
-                    cnt = new JSONObject();
-                    data.put("cnt", cnt);
-                }
-                
-                java.util.Iterator<String> hdrKeys = hdr.keys();
-                while (hdrKeys.hasNext()) {
-                    String key = hdrKeys.next();
-                    if (CONTACT_FIELDS.contains(key.toLowerCase()) && !cnt.has(key)) {
-                        cnt.put(key, hdr.get(key));
-                    }
-                }
-            }
+            // Header sync - No longer syncing back to a 'cnt' shorthand since we removed it
         } catch (Exception e) {
-             Log.e("ResumeDataManager", "Error syncing header to contact", e);
+             Log.e("ResumeDataManager", "Error syncing header", e);
         }
         
         try {
@@ -696,7 +666,7 @@ public class ResumeDataManager {
 
                 if (currentSection != null && currentSection.id.equals("personalDetails")) {
                     if (isContactVal) {
-                        // This belongs in Header or Contact, skip adding to Personal
+                        // This belongs in Header, skip adding to Personal
                         Log.d("ResumeDataManager", "SmartText: Skipping contact value in Personal: " + val);
                         continue; 
                     }
@@ -781,7 +751,7 @@ public class ResumeDataManager {
         // 1. Sync Header Data from List if available
         SectionModel headerSec = null;
         for (SectionModel s : sections) {
-            if (s.id.equals("headerSection")) {
+            if (s.id.equals("nameProfessionSection")) {
                 headerSec = s;
                 break;
             }
@@ -821,48 +791,6 @@ public class ResumeDataManager {
                 count++;
             }
             
-            // --- NEW: Merge contactDetails into header if header exists ---
-            SectionModel cntSec = null;
-            for (SectionModel s : sections) {
-                if (s.id.equals("contactDetails")) {
-                    cntSec = s;
-                    break;
-                }
-            }
-            if (cntSec != null && !cntSec.items.isEmpty()) {
-                ItemModel cItem = cntSec.items.get(0);
-                for (FieldModel f : cItem.fields) {
-                    if (f.value.isEmpty() || f.value.equals("...")) continue;
-                    // Check if header already has this value
-                    boolean exists = false;
-                    for (int i=0; i<cItems.length(); i++) {
-                        if (cItems.getJSONObject(i).optString("text").equals(f.value)) {
-                            exists = true; break;
-                        }
-                    }
-                    if (!exists) {
-                        JSONObject c = new JSONObject();
-                        c.put("text", f.value);
-                        
-                        String icon = "fa-info-circle";
-                        String prefix = "fas";
-                        String lowKey = f.key.toLowerCase();
-
-                        if (lowKey.contains("email")) icon = "fa-envelope";
-                        else if (lowKey.contains("phone") || lowKey.contains("tel") || lowKey.contains("mob")) icon = "fa-phone";
-                        else if (lowKey.contains("addr") || lowKey.contains("city") || lowKey.contains("loc")) icon = "fa-map-marker-alt";
-                        else if (lowKey.contains("link") || lowKey.contains("web") || lowKey.contains("url") || lowKey.contains("port") || lowKey.contains("git") || lowKey.contains("site")) icon = "fa-link";
-                        
-                        if (lowKey.contains("git")) { icon = "fa-github"; prefix = "fab"; }
-                        else if (lowKey.contains("linkedin")) { icon = "fa-linkedin"; prefix = "fab"; }
-                        
-                        c.put("icon", prefix + " " + icon);
-                        c.put("column", (count % 2 == 0) ? "left" : "right");
-                        cItems.put(c);
-                        count++;
-                    }
-                }
-            }
             headerData.put("items", cItems);
         }
         
@@ -903,36 +831,15 @@ public class ResumeDataManager {
         
         // List of IDs that belong to the LEFT column
         List<String> leftIds = Arrays.asList(
-            "contactDetails", "personalDetails", "passportDetails", "languages", "skills", 
+            "personalDetails", "passportDetails", "languages", "skills", 
             "certificates", "weblinks", "achievements", "hobbies", "interests",
             "visualRegistry", "physicalProfile", "visaStatus", "lifestyleHabits", 
             "astrologySection", "familyDetails", "partnerExpectations", "testScores"
         );
 
         for (SectionModel s : sections) {
-             if (s.id.equals("headerSection")) continue;
+             if (s.id.equals("nameProfessionSection") || s.id.equals("profileSection")) continue;
              
-             // --- REMOVED SKIP LOGIC: Allow ContactDetails to render in sidebar if template uses it ---
-             /*
-             if (s.id.equals("contactDetails")) {
-                 if (headerSec != null && !headerSec.items.isEmpty()) {
-                     ItemModel hi = headerSec.items.get(0);
-                     String hName = getFieldValue(hi, "name");
-                     String hEmail = getFieldValue(hi, "email");
-                     String hPhone = getFieldValue(hi, "phone");
-                     
-                     // If header has ANY identifiable content, skip the body contact section
-                     boolean hasHdrContent = (!hName.equals("...") && !hName.isEmpty()) ||
-                                            (!hEmail.equals("...") && !hEmail.isEmpty()) ||
-                                            (!hPhone.equals("...") && !hPhone.isEmpty());
-                                            
-                     if (hasHdrContent) {
-                         Log.d("ResumeDataManager", "Skipping ContactDetails because Header has content");
-                         continue; 
-                     }
-                 }
-             }
-             */
              
              if (s.id.equals("summarySection")) {
                  objectiveSecs.add(s);
@@ -1038,7 +945,7 @@ public class ResumeDataManager {
                     sb.append("<div class=\"professional-title\">").append(title).append("</div>");
                 }
 
-                // 2. Contact Info (Email, Phone, Addr, Links)
+                // 2. Header Info (Email, Phone, Addr, Links)
                 sb.append("<div class=\"contact-container\">"); // Optional wrapper
                 for(FieldModel f : item.fields) {
                     if (f.key.equals("name") || f.key.equals("role") || f.key.equals("title")) continue;
@@ -1079,40 +986,6 @@ public class ResumeDataManager {
                 for(FieldModel f : item.fields) {
                     sb.append("<div class=\"pd-row\"><span class=\"pd-label\">").append(f.label).append(":</span> <span class=\"pd-val\">")
                       .append(f.value.isEmpty() ? "N/A" : f.value).append("</span></div>");
-                }
-                break;
-            case "contact":
-                for(FieldModel f : item.fields) {
-                    if (f.value.isEmpty() || f.value.equals("...")) continue;
-                    String icon = "fa-info-circle";
-                    String prefix = "fas";
-                    String lowKey = f.key.toLowerCase();
-                    String val = f.value;
-
-                    if (lowKey.contains("email")) icon = "fa-envelope";
-                    else if (lowKey.contains("phone") || lowKey.contains("tel") || lowKey.contains("mob")) icon = "fa-phone";
-                    else if (lowKey.contains("addr") || lowKey.contains("city") || lowKey.contains("loc")) icon = "fa-map-marker-alt";
-                    else if (lowKey.contains("link") || lowKey.contains("web") || lowKey.contains("url") || lowKey.contains("port") || lowKey.contains("git") || lowKey.contains("site")) icon = "fa-link";
-                    
-                    if (lowKey.contains("git")) { icon = "fa-github"; prefix = "fab"; }
-                    else if (lowKey.contains("linkedin")) { icon = "fa-linkedin"; prefix = "fab"; }
-                    else if (lowKey.contains("face") || lowKey.contains("fb")) { icon = "fa-facebook"; prefix = "fab"; }
-                    else if (lowKey.contains("twit") || lowKey.contains("x")) { icon = "fa-twitter"; prefix = "fab"; }
-                    else if (lowKey.contains("insta")) { icon = "fa-instagram"; prefix = "fab"; }
-                    else if (lowKey.contains("disc")) { icon = "fa-discord"; prefix = "fab"; }
-                    else if (lowKey.contains("red")) { icon = "fa-reddit"; prefix = "fab"; }
-                    else if (lowKey.contains("quo")) { icon = "fa-quora"; prefix = "fab"; }
-                    
-                    String displayVal = val;
-                    if (val.startsWith("http") || val.contains(".com") || val.contains(".org") || val.contains(".me") || val.contains(".io")) {
-                        String href = val.startsWith("http") || val.startsWith("www") ? val : "https://" + val;
-                        if (!val.startsWith("http") && val.startsWith("www")) href = "https://" + val;
-                        displayVal = "<a href=\"" + href + "\" target=\"_blank\">" + val + "</a>";
-                    }
-
-                    sb.append("<div class=\"pd-row\"><i class=\"").append(prefix).append(" ").append(icon).append("\" style=\"width:20px; color:var(--primary-color); opacity:0.8\"></i> ")
-                      .append("<span class=\"pd-label\">").append(f.label).append(":</span> <span class=\"pd-val\">")
-                      .append(displayVal).append("</span></div>");
                 }
                 break;
             case "weblinks":

@@ -276,7 +276,8 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
 
         optionAI.setOnClickListener(v -> {
             toggleMenu(false);
-            Toast.makeText(this, "AI Mode coming soon!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(HomeActivity.this, AIActivity.class);
+            startActivity(intent);
         });
 
         // Toggle View

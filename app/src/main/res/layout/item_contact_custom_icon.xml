@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp">
+
+    <FrameLayout android:layout_width="56dp" android:layout_height="56dp" android:background="@drawable/circular_button_background" android:backgroundTint="#F5F5F5">
+
+        <ImageView android:id="@+id/section_icon" android:layout_width="28dp" android:layout_height="28dp" android:layout_gravity="center" android:scaleType="centerInside" />
+
+        <!-- Placeholder/Indicator for custom icons -->
+        <ImageView android:id="@+id/btn_add_section" android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="bottom|end" android:src="@drawable/ic_add" android:background="@drawable/circular_button_background" android:backgroundTint="#4CAF50" android:padding="2dp" android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView android:id="@+id/section_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="10sp" android:textColor="#666666" android:visibility="gone" />
+
+</LinearLayout>

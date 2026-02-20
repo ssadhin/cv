@@ -123,6 +123,22 @@ public class SectionBgAdapter extends RecyclerView.Adapter<SectionBgAdapter.View
             holder.layoutName.setVisibility(View.GONE);
         }
 
+        // Header Background Image Logic
+        if (item.id.equals("mainHeader")) {
+            if (holder.layoutBgImage != null) {
+                holder.layoutBgImage.setVisibility(View.VISIBLE);
+                if (holder.btnBgImage != null) {
+                    holder.btnBgImage.setOnClickListener(v -> {
+                        if (activity != null) {
+                            activity.pickHeaderImage();
+                        }
+                    });
+                }
+            }
+        } else {
+            if (holder.layoutBgImage != null) holder.layoutBgImage.setVisibility(View.GONE);
+        }
+
         // Color and Logic Listeners (Apply to ALL items)
         try {
             holder.colorPreview.setBackgroundColor(Color.parseColor(item.color));
@@ -308,6 +324,9 @@ public class SectionBgAdapter extends RecyclerView.Adapter<SectionBgAdapter.View
         View layoutName;
         View colorPreview;
         TextView txtLabelFontSize;
+        
+        View layoutBgImage;
+        View btnBgImage;
 
         ViewHolder(View v) {
             super(v);
@@ -326,6 +345,9 @@ public class SectionBgAdapter extends RecyclerView.Adapter<SectionBgAdapter.View
             seekAlign = v.findViewById(R.id.seek_align);
             
             layoutName = v.findViewById(R.id.layout_name_controls);
+            
+            layoutBgImage = v.findViewById(R.id.layout_bg_image_control);
+            btnBgImage = v.findViewById(R.id.btn_bg_image);
         }
     }
 }

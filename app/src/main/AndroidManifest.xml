@@ -15,7 +15,7 @@
 
         <activity android:name=".MainActivity" android:exported="false" android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize">
         </activity>
-        <activity android:name=".StepByStepActivity" android:exported="false" android:screenOrientation="portrait" />
+        <activity android:name=".StepByStepActivity" android:exported="false" android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".AIActivity" android:exported="false" android:screenOrientation="portrait" />
         <activity android:name=".VitaeActivity" />
         <activity android:name=".SignatureActivity" />

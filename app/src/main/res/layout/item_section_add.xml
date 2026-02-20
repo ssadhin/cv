@@ -8,10 +8,10 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="4dp">
 
             <!-- Pill-shaped container (Visible part) -->
-            <LinearLayout android:id="@+id/section_container" android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="8dp" android:clickable="true" android:focusable="true">
+            <LinearLayout android:id="@+id/section_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp" android:clickable="true" android:focusable="true">
 
-                <!-- Icon (Left) -->
-                <FrameLayout android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="@drawable/circular_button_background" android:backgroundTint="#E3F2FD">
+                <!-- Icon (Left) - Hidden as requested -->
+                <FrameLayout android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="@drawable/circular_button_background" android:backgroundTint="#E3F2FD" android:visibility="gone">
 
                     <ImageView android:id="@+id/section_icon" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_add" app:tint="#1976D2" />
                 </FrameLayout>

@@ -443,10 +443,8 @@ public class AIActivity extends AppCompatActivity {
         "- **Output Structure:** You MUST output a SINGLE JSON object. Use a JSON code block.\n" +
         "- **Analyze Everything:** Read the entire resume text. Map every piece of information to the sections below.\n" +
         "- **ALWAYS Generate Summary:** YOU MUST create a `sum` section. If the resume has a summary, use it. If NOT, WRITE a 2-3 sentence professional summary.\n" +
-        "- **Contact Info (HEADER vs SECTION):** \n" +
-        "  - If you identify specific Header info, use `hdr`.\n" +
-        "  - If you identify general Contact info but NO specific header, use `cnt`.\n" +
-        "  - **RULE:** Email, phone, address, and links MUST go ONLY in `hdr` or `cnt`. DO NOT put them in `per`.\n" +
+        "- **Header (Identity):** Use `hdr` for Name, Professional Title, and all contact methods (email, phone, links, address).\n" +
+        "- **RULE:** Everything related to identity and contact info goes in `hdr`.\n" +
         "- **Personal Details (Demographics ONLY):** The `per` section is ONLY for: nationality, date of birth, gender, marital status, height. DO NOT put email or phone here.\n" +
         "- **Languages:** Look for languages and map to `lan`.\n" +
         "- **Remove Empty Sections:** If a section has no data, OMIT its key entirely.\n" +
@@ -454,8 +452,7 @@ public class AIActivity extends AppCompatActivity {
         "### 2. SHORTHAND JSON STRUCTURE\n\n" +
         "```json\n" +
         "{\n" +
-        "  \"hdr\": { \"name\": \"Full Name\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\", \"github\": \"git/user\", \"portfolio\": \"my.pf\", \"web\": \"site.com\" },\n" +
-        "  \"cnt\": { \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"website\": \"my.site\", \"facebook\": \"fb/user\" },\n" +
+        "  \"hdr\": { \"name\": \"Full Name\", \"role\": \"Professional Title\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\" },\n" +
         "  \"sum\": { \"desc\": \"2-3 sentence summary...\" },\n" +
         "  \"per\": { \"nat\": \"Nationality\", \"dob\": \"DD/MM/YYYY\", \"gen\": \"Gender\", \"mar\": \"Status\", \"height\": \"Height\" },\n" +
         "  \"pass\": { \"pno\": \"Passport No\", \"idate\": \"Issue Date\", \"edate\": \"Expiry Date\" },\n" +

@@ -28,10 +28,7 @@
         <ImageButton android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:background="@android:color/transparent" android:clickable="false" android:scaleType="fitCenter" android:src="@drawable/ic_unhide" />
     </FrameLayout>
 
-    <FrameLayout android:id="@+id/fab_restore_color" android:layout_width="44dp" android:layout_height="44dp" android:layout_marginStart="16dp" android:layout_marginBottom="8dp" android:visibility="visible" app:layout_constraintBottom_toTopOf="@+id/undo_redo_container" app:layout_constraintStart_toStartOf="parent">
-        <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
-        <ImageButton android:id="@+id/btn_restore_color" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="true" android:focusable="true" android:contentDescription="Restore Fav Colors" android:scaleType="fitCenter" android:src="@android:drawable/ic_menu_rotate" app:tint="#1a237e" />
-    </FrameLayout>
+
 
     <LinearLayout android:id="@+id/undo_redo_container" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginStart="16dp" android:layout_marginBottom="16dp" android:orientation="horizontal" app:layout_constraintWidth_percent="0.26" app:layout_constraintHeight_percent="0.053" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent">
 
@@ -56,7 +53,7 @@
 
         <FrameLayout android:id="@+id/fab_wizard" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginBottom="16dp">
             <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
-            <ImageButton android:id="@+id/btn_wizard" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="Step by Step Wizard" android:scaleType="fitCenter" android:src="@android:drawable/ic_menu_myplaces" app:tint="#1a237e" />
+            <ImageButton android:id="@+id/btn_wizard" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="Step-by-Step Wizard" android:scaleType="fitCenter" android:src="@drawable/ic_step_by_step_wizard" />
         </FrameLayout>
 
         <FrameLayout android:id="@+id/fab_edit" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginBottom="16dp">

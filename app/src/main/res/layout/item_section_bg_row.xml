@@ -46,6 +46,12 @@
             <SeekBar android:id="@+id/seek_title_size" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="200" android:progress="100" />
         </LinearLayout>
 
+        <!-- Header Background Image Control -->
+        <LinearLayout android:id="@+id/layout_bg_image_control" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="8dp" android:visibility="gone">
+            <Button android:id="@+id/btn_bg_image" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Set Header Background Image" android:backgroundTint="#2196F3" android:textColor="#FFFFFF" />
+            <TextView android:text="Recommended: High Resolution (e.g. 1920x1080), Landscape Ratio (16:9), JPG/PNG Format. This covers the entire header box." android:textSize="11sp" android:textColor="#666666" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" />
+        </LinearLayout>
+
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

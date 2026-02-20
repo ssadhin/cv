@@ -29,20 +29,28 @@ import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.EditText;
+import android.widget.CheckBox;
+import android.widget.RadioGroup;
+import android.widget.CompoundButton;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Collections;
 
 import android.content.res.ColorStateList;
 import android.widget.PopupMenu;
+import android.widget.PopupWindow;
+import android.util.Base64;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import android.content.SharedPreferences;
 
 import android.net.Uri;
-import org.json.JSONObject;
 import android.os.Bundle;
 import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
@@ -52,6 +60,8 @@ import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Gravity;
+import android.graphics.Typeface;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
@@ -63,6 +73,7 @@ import android.webkit.WebViewClient;
 import android.widget.SeekBar;
 import android.widget.ViewFlipper;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -88,7 +99,6 @@ import org.json.JSONException;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ColorDrawable;
-import org.json.JSONException;
 
 
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
@@ -115,19 +125,46 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private int currentSectionDesignIdx = 0; // Page index for Section
     private int currentProgressDesignIdx = 0; // Page index for Progress
     
-    private int currentHeaderIdx = 1; // Selected choice index
+    private int currentHeaderIdx = 0; // Selected choice index
     private int currentSectionIdx = 0;
     private int currentProgressIdx = 0;
 
     private final String[] sectionDesignIds = {"default", "timeline", "glass", "bento"};
-    private final String[] headerDesignIds = {"none", "d1", "d2", "d3"};
+    private final String[] headerDesignIds = {"d1", "d2", "d3"};
     private final String[] progressDesignIds = {"bar", "circle", "plain"};
     private boolean isPickingBgImage = false;
+    private boolean isPickingSectionIcon = false;
+    private String currentSectionIdForIcon = null;
     private boolean isPanelSwitching = false;
     private static final String TAG = "MainActivity";
     private static final int COLOR_PICKER_ID = 1;
     private static final int HIGHLIGHT_COLOR_PICKER_ID = 2;
     private static final int BACKGROUND_COLOR_ID = 3;
+    private static final int ICON_COLOR_SINGLE_ID = 4;
+    private static final int ICON_COLOR_SECTION_ID = 5;
+    
+    // Multi-Select
+    private Set<String> selectedItemIds = new HashSet<>();
+    private String currentSectionIdForMultiSelect = "";
+
+    private static final int PROFILE_FRAME_COLOR_ID = 6;
+    private static final int LEFT_FRAME_COLOR_ID = 1003;
+    private static final int HEADER_FRAME_COLOR_ID = 1004;
+    private static final int LEFT_FRAME_BG_COLOR_ID = 1005;
+    private static final int CURRENT_SECTION_BG_COLOR_ID = 7;
+    
+    private String currentEditingSectionId;
+    private static final int HEADER_FRAME_BG_COLOR_ID = 1006;
+    
+    private static final int LEFT_FRAME_COLOR_END_ID = 1007;
+    private static final int HEADER_FRAME_COLOR_END_ID = 1008;
+    private static final int LEFT_FRAME_BG_COLOR_END_ID = 1009;
+    private static final int HEADER_FRAME_BG_COLOR_END_ID = 1010;
+    private static final int HEADER_TEXT_COLOR_ID = 1013;
+    private static final int LEFT_COL_BG_ID = 1014;
+    private static final int ITEM_BG_COLOR_ID = 1015;
+
+    private String currentEditingItemId = null;
     private static final String PREFS_NAME = "ResumeBuilderPrefs";
     private static final String KEY_SELECTED_FONT = "SelectedFontName";
 
@@ -176,8 +213,17 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private String currentColorRequestType = "";
     private String currentHighlightColor = "#FFF176"; // Default yellow highlight color
     
+    private boolean isPickingIconImage = false;
+    private boolean isPickingContactIcon = false;
+    private String currentIconSectionId = "";
+    private int currentIconItemIndex = -1;
     
-
+    private String currentContactSectionId;
+    private int currentContactIconIndex;
+    private static final int CONTACT_COLOR_ID = 1001;
+    private static final int ITEM_TINT_COLOR_ID = 1002;
+    private boolean isPickingHeaderBg = false;
+    private boolean isPickingLeftBg = false;
 
 
     private TextView cvNameDisplay;
@@ -532,38 +578,39 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 btnDelete.setVisibility(View.VISIBLE);
                 
                 setupPanelButton(btnAdd, "Add", R.drawable.ic_add, v -> myWebView.evaluateJavascript("console.log('WEB_DEBUG: Native Add Button Clicked'); if(currentEditableElement) { console.log('WEB_DEBUG: Calling addItemToSection for ' + currentEditableElement.dataset.type); addItemToSection(currentEditableElement); removeToolbar(); triggerAutoSave(); } else { console.error('WEB_DEBUG: No currentEditableElement'); }", null));
-                setupPanelButton(btnCopy, "Copy", R.drawable.copy, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; let clone = section.cloneNode(true); let baseId = section.id.replace(/-\\d+$/, ''); let num = 1; while(document.getElementById(baseId + '-' + num)) num++; clone.id = baseId + '-' + num; section.parentNode.insertBefore(clone, section.nextSibling); triggerAutoSave(); const h2 = clone.querySelector('h2'); if(h2) h2.onclick = (e) => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }; if(typeof enableFreeDrag === 'function') enableFreeDrag(clone); clone.querySelectorAll('.data-table-item, .simple-list-item, .skill-group, .pd-row').forEach(item => { item.onclick = (e) => { e.stopPropagation(); currentEditableElement = item; if(window.Android) Android.showToolbar('default'); }; }); clone.querySelectorAll('li').forEach(li => { li.onclick = (e) => { e.stopPropagation(); currentEditableElement = li; if(window.Android) Android.showToolbar('item'); }; }); clone.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }, 200); }", null));
-                setupPanelButton(btnEdit, "Edit", R.drawable.edit, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const sec = currentEditableElement; if(sec.dataset.editing === 'true') { sec.removeAttribute('data-editing'); sec.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = false); const h2 = sec.querySelector('h2'); if(h2) { h2.querySelectorAll('.section-icon-upload-btn, .section-gear-btn').forEach(b => b.remove()); } sec.querySelectorAll('.section-icon-file-input').forEach(i => i.remove()); triggerAutoSave(); } else { sec.dataset.editing = 'true'; sec.querySelectorAll('.table-val, .table-label, .pd-val, .pd-label, .exp-role, .skill-header, .skill-sub, .proj-desc, span:not(.table-label):not(.pd-label), .simple-list-item').forEach(el => el.contentEditable = true); const h2 = sec.querySelector('h2'); if(h2) { h2.contentEditable = true; const icon = h2.querySelector('i'); if(icon && !h2.querySelector('.section-icon-upload-btn')) { " +
-                        "const uploadBtn = document.createElement('span'); uploadBtn.className = 'section-icon-upload-btn'; uploadBtn.innerHTML = '<i class=\"fas fa-cloud-upload-alt\"></i>'; uploadBtn.contentEditable = 'false'; " +
-                        "uploadBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); let input = h2.querySelector('.section-icon-file-input'); if(!input) { input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.className = 'section-icon-file-input'; input.style.display = 'none'; input.onchange = (ev) => { const file = ev.target.files[0]; if(file) { const reader = new FileReader(); reader.onload = (re) => { icon.style.backgroundImage = 'url(' + re.target.result + ')'; icon.style.backgroundSize = 'contain'; icon.style.backgroundRepeat = 'no-repeat'; icon.style.backgroundPosition = 'center'; icon.style.color = 'transparent'; icon.dataset.customIcon = 'true'; triggerAutoSave(); }; reader.readAsDataURL(file); } }; h2.appendChild(input); } input.click(); }; h2.insertBefore(uploadBtn, icon.nextSibling); " +
-                        "const gearBtn = document.createElement('span'); gearBtn.className = 'section-gear-btn'; gearBtn.innerHTML = '<i class=\"fas fa-cog\"></i>'; gearBtn.contentEditable = 'false'; " +
-                        "gearBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); if(window.Android && window.Android.openSectionBackgroundManager) { " +
-                        "const rgbToHex = (rgb) => { if(!rgb || rgb.startsWith(\"#\")) return rgb || \"#ffffff\"; const match = rgb.match(/^rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/); if(!match) return \"#ffffff\"; return \"#\" + [match[1], match[2], match[3]].map(x => parseInt(x).toString(16).padStart(2, \"0\")).join(\"\"); }; " +
-                        "const items = []; const secBg = rgbToHex(window.getComputedStyle(sec).backgroundColor); items.push({ id: sec.id, name: 'Entire Section', color: secBg, opacity: 100, isMaster: true }); " +
-                        "sec.querySelectorAll('.data-table-item, .skill-group, .simple-list-item, .pd-row, .declaration, .photo-card, .skill-sub, .objective, .resp-list li').forEach((el, idx) => { " +
-                        "if(!el.id) el.id = sec.id + '_item_' + idx; let name = el.innerText.split('\\n')[0].substring(0, 20) || 'Item ' + (idx + 1); if(el.querySelector('.job-title')) name = el.querySelector('.job-title').innerText; else if(el.querySelector('.school')) name = el.querySelector('.school').innerText; " +
-                        "let op = 100; const opVal = el.querySelector('.section-opacity-val'); if(opVal) op = parseInt(opVal.innerText) || 100; " +
-                        "const col = rgbToHex(getComputedStyle(el).getPropertyValue('--item-bg').trim()); items.push({ id: el.id, name: name, color: col, opacity: op, isMaster: false }); }); " +
-                        "window.Android.openSectionBackgroundManager(JSON.stringify(items)); } }; h2.insertBefore(gearBtn, uploadBtn.nextSibling); } } } const isEditing = sec.dataset.editing === 'true'; if(window.Android) Android.updateEditButton(isEditing); }", null));
+                setupPanelButton(btnCopy, "Copy", R.drawable.copy, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; let clone = section.cloneNode(true); let baseId = section.id.replace(/-\\d+$/, ''); let num = 1; while(document.getElementById(baseId + '-' + num)) num++; clone.id = baseId + '-' + num; section.parentNode.insertBefore(clone, section.nextSibling); triggerAutoSave(); const h2 = clone.querySelector('h2'); if(h2) { h2.onclick = (e) => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }; }; if(typeof enableFreeDrag === 'function') enableFreeDrag(clone); clone.querySelectorAll('.data-table-item, .simple-list-item, .skill-group, .pd-row').forEach(item => { item.onclick = (e) => { e.stopPropagation(); currentEditableElement = item; if(window.Android) Android.showToolbar('default'); }; }); clone.querySelectorAll('li').forEach(li => { li.onclick = (e) => { e.stopPropagation(); currentEditableElement = li; if(window.Android) Android.showToolbar('item'); }; }); clone.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }, 200); }", null));
+                setupPanelButton(btnEdit, "Edit", R.drawable.edit, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const sec = currentEditableElement; if(sec.dataset.editing === 'true') { sec.removeAttribute('data-editing'); sec.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = false); const h2 = sec.querySelector('h2'); if(h2) { h2.querySelectorAll('.section-icon-upload-btn, .section-gear-btn').forEach(b => b.remove()); } sec.querySelectorAll('.section-icon-file-input').forEach(i => i.remove()); triggerAutoSave(); } else { sec.dataset.editing = 'true'; sec.querySelectorAll('.table-val, .table-label, .pd-val, .pd-label, .exp-role, .skill-header, .skill-sub, .proj-desc, span:not(.table-label):not(.pd-label), .simple-list-item').forEach(el => el.contentEditable = true); const h2 = sec.querySelector('h2'); if(h2) { h2.contentEditable = true; } } const isEditing = sec.dataset.editing === 'true'; if(window.Android) Android.updateEditButton(isEditing, sec.id); }", null));
                 setupPanelButton(btnSwap, "Swap", R.drawable.swap, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; const p = section.closest('.left-column') ? document.getElementById('leftCol') : document.getElementById('rightCol'); const t = p.id === 'leftCol' ? document.getElementById('rightCol') : document.getElementById('leftCol'); t.appendChild(section); section.style.transform = 'translateY(0)'; removeToolbar(); triggerAutoSave(); }", null));
+                
+                // LONG PRESS SWAP for full width (Sections)
+                btnSwap.setOnLongClickListener(v -> {
+                    myWebView.evaluateJavascript("if(currentEditableElement) { makeSectionFullWidth(currentEditableElement); }", null);
+                    return true;
+                });
+
                 setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.style.marginTop = ''; currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
                 setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
                 setupPanelButton(btnDelete, "Delete", R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('Delete this section?')) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
                 break;
                 
-            case "header": // Swap, Up, Down, Copy, Upload, Delete
+            case "header": // Swap, Up, Down, Copy, Delete
                 btnSwap.setVisibility(View.VISIBLE);
                 btnUp.setVisibility(View.VISIBLE);
                 btnDown.setVisibility(View.VISIBLE);
                 btnCopy.setVisibility(View.VISIBLE);
-                btnUpload.setVisibility(View.VISIBLE);
                 btnDelete.setVisibility(View.VISIBLE);
                 
                 setupPanelButton(btnSwap, "Swap", R.drawable.swap, v -> myWebView.evaluateJavascript("if(currentEditableElement) { swapHeaderItemColumn(currentEditableElement); }", null));
+                
+                // LONG PRESS SWAP for full width (Header Items)
+                btnSwap.setOnLongClickListener(v -> {
+                    myWebView.evaluateJavascript("if(currentEditableElement) { makeHeaderItemFullWidth(currentEditableElement); }", null);
+                    return true;
+                });
+
                 setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.classList.contains('contact-item')) { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); triggerAutoSave(); }}", null));
                 setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.classList.contains('contact-item')) { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); triggerAutoSave(); }}", null));
                 setupPanelButton(btnCopy, "Copy", R.drawable.copy, v -> myWebView.evaluateJavascript("duplicateHeaderItem();", null));
-                setupPanelButton(btnUpload, "Upload", R.drawable.upload, v -> myWebView.evaluateJavascript("triggerHeaderItemUpload();", null));
                 setupPanelButton(btnDelete, "Delete", R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('Delete this item?')) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
                 break;
                 
@@ -604,6 +651,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 ? String.format("androidAddSection('%s', '%s');", type, columnOverride)
                 : String.format("androidAddSection('%s');", type);
             myWebView.evaluateJavascript(js, null);
+
+            // Usage Tracking
+            SharedPreferences prefs = getSharedPreferences("section_usage", MODE_PRIVATE);
+            int count = prefs.getInt("usage_" + type, 0);
+            prefs.edit()
+                .putInt("usage_" + type, count + 1)
+                .putLong("recent_" + type, System.currentTimeMillis())
+                .apply();
         }
     }
 
@@ -704,6 +759,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
 
     
+    private void onNativePanelOpened() {
+        hideActiveNativeToolbar();
+    }
+
     private void hideActiveNativeToolbar() {
          if (universalToolbarContainer != null && universalToolbarContainer.getVisibility() == View.VISIBLE) {
             runOnUiThread(() -> {
@@ -797,6 +856,80 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 pendingColorAdapter.updateColor(pendingColorItem, color);
                 pendingColorItem = null;
                 pendingColorAdapter = null;
+            }
+        } else if (dialogId == CURRENT_SECTION_BG_COLOR_ID) {
+            if (myWebView != null && currentEditingSectionId != null) {
+                myWebView.evaluateJavascript("if(window.updateSectionStyle) window.updateSectionStyle('" + currentEditingSectionId + "', 'background-color', '" + formattedColor + "');", null);
+            }
+        } else if (dialogId == ICON_COLOR_SINGLE_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.handleNativeIconColor) window.handleNativeIconColor('single', '" + formattedColor + "');", null);
+            }
+        } else if (dialogId == ICON_COLOR_SECTION_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.handleNativeIconColor) window.handleNativeIconColor('section', '" + formattedColor + "');", null);
+            }
+        } else if (dialogId == CONTACT_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.applyContactSetting) window.applyContactSetting('" + currentContactSectionId + "', 'color', '" + formattedColor + "');", null);
+            }
+        } else if (dialogId == ITEM_TINT_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.applyContactSetting) window.applyContactSetting('" + currentContactSectionId + "', 'itemTint', {index: " + currentContactIconIndex + ", color: '" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == PROFILE_FRAME_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateProfileConfig) window.updateProfileConfig({frameColor:'" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == LEFT_FRAME_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateLeftFrameColor) window.updateLeftFrameColor('" + formattedColor + "');", null);
+            }
+        } else if (dialogId == LEFT_FRAME_COLOR_END_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateLeftFrameConfig) window.updateLeftFrameConfig({colorEnd:'" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_FRAME_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateHeaderFrameConfig) window.updateHeaderFrameConfig({colorStart:'" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_FRAME_COLOR_END_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateHeaderFrameConfig) window.updateHeaderFrameConfig({colorEnd:'" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == LEFT_FRAME_BG_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateLeftFrameConfig) window.updateLeftFrameConfig({bgStart:'" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == LEFT_FRAME_BG_COLOR_END_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateLeftFrameConfig) window.updateLeftFrameConfig({bgEnd:'" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_FRAME_BG_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateHeaderFrameConfig) window.updateHeaderFrameConfig({bgStart:'" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_FRAME_BG_COLOR_END_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateHeaderFrameConfig) window.updateHeaderFrameConfig({bgEnd:'" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_TEXT_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateHeaderFrameConfig) window.updateHeaderFrameConfig({textColor:'" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == LEFT_COL_BG_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateLeftColBg) window.updateLeftColBg('" + formattedColor + "');", null);
+            }
+        } else if (dialogId == ITEM_BG_COLOR_ID) {
+            if (myWebView != null) {
+                if ("MULTI_SELECT".equals(currentEditingItemId)) {
+                    for (String id : selectedItemIds) {
+                        myWebView.evaluateJavascript("if(window.updateItemStyle) window.updateItemStyle('" + id + "', 'bg_color', '" + formattedColor + "');", null);
+                    }
+                } else if (currentEditingItemId != null) {
+                     myWebView.evaluateJavascript("if(window.updateItemStyle) window.updateItemStyle('" + currentEditingItemId + "', 'bg_color', '" + formattedColor + "');", null);
+                }
             }
         }
     }
@@ -1033,6 +1166,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
 
         public void showPanel(Runnable onShown) {
+            MainActivity.this.onNativePanelOpened();
             if (panel == null || panel.getVisibility() == View.VISIBLE) {
                 if (onShown != null) onShown.run();
                 return;
@@ -1181,12 +1315,31 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
-                        if (isPickingBgImage) {
+                        if (isPickingIconImage) {
+                            isPickingIconImage = false;
+                            handleIconImageSelection(uri);
+                        } else if (isPickingContactIcon) { // Added this block
+                            isPickingContactIcon = false;
+                            handleContactIconImageSelection(uri);
+                        } else if (isPickingHeaderBg) {
+                            isPickingHeaderBg = false;
+                            handleHeaderBgSelection(uri);
+                        } else if (isPickingLeftBg) {
+                            isPickingLeftBg = false;
+                            handleLeftBgSelection(uri);
+                        } else if (isPickingBgImage) {
                             isPickingBgImage = false;
                             updateBgImage(uri);
-                        } else if (mUploadMessage != null) {
+                        } else if (isPickingSectionIcon) {
+                            isPickingSectionIcon = false;
+                            handleSectionIconSelection(uri);
+                        }
+ else if (mUploadMessage != null) {
                             mUploadMessage.onReceiveValue(new Uri[]{uri});
                             mUploadMessage = null;
+                        } else {
+                            // Profile Picture Flow (mUploadMessage is null when called via launchImagePicker)
+                            handleProfileImageSelection(uri);
                         }
                     }
                 });
@@ -1361,6 +1514,20 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     Log.d(TAG, "No pending JSON state to load");
                 }
             }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("mailto:") || url.startsWith("tel:")) {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(intent);
+                        return true;
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error opening external URL: " + url, e);
+                    }
+                }
+                return false;
+            }
         });
 
         myWebView.setWebChromeClient(getChromeClient());
@@ -1429,15 +1596,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             });
         }
 
-        View restoreBtnView = findViewById(R.id.btn_restore_color);
-        if (restoreBtnView != null) {
-            restoreBtnView.setOnClickListener(v -> {
-                Log.d(TAG, "Native Restore Color Clicked");
-                if (myWebView != null) {
-                    myWebView.evaluateJavascript("if(window.restoreManualColors) { window.restoreManualColors(); } else { console.error('restoreManualColors not found'); }", null);
-                }
-            });
-        }
+
 
         editFab = findViewById(R.id.fab_edit);
         addEditContainer = findViewById(R.id.add_edit_container);
@@ -1472,6 +1631,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                             })
                             .start();
                     } else {
+                        onNativePanelOpened();
                         // Animate open - slide up from bottom and fade in
                         addFeaturePanel.setVisibility(View.VISIBLE);
                         addFeaturePanel.setAlpha(0f);
@@ -1643,6 +1803,120 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         mGetContent.launch("image/*");
     }
 
+    private void handleProfileImageSelection(Uri uri) {
+        if (uri == null) return;
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                byte[] bytes = outputStream.toByteArray();
+                String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                String dataUrl = "data:image/png;base64," + base64; 
+                
+                if (myWebView != null) {
+                    myWebView.post(() -> myWebView.evaluateJavascript("if(window.setProfileImage) window.setProfileImage('" + dataUrl + "');", null));
+                }
+                inputStream.close();
+            }
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error handling profile image selection", e);
+            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleHeaderBgSelection(Uri uri) {
+        if (uri == null) return;
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                byte[] bytes = outputStream.toByteArray();
+                String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                String dataUrl = "data:image/png;base64," + base64; 
+                
+                if (myWebView != null) {
+                    myWebView.post(() -> myWebView.evaluateJavascript("if(window.updateHeaderBgImage) window.updateHeaderBgImage('" + dataUrl + "');", null));
+                }
+                inputStream.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling header bg image selection", e);
+            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void handleSectionIconSelection(Uri uri) {
+        if (uri == null || currentSectionIdForIcon == null) return;
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                byte[] bytes = outputStream.toByteArray();
+                String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                String dataUrl = "data:image/png;base64," + base64;
+                
+                if (myWebView != null) {
+                    myWebView.post(() -> myWebView.evaluateJavascript("if(window.updateSectionIcon) window.updateSectionIcon('" + currentSectionIdForIcon + "', '" + dataUrl + "');", null));
+                }
+                inputStream.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling section icon selection", e);
+            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void pickHeaderImage() {
+        isPickingHeaderBg = true;
+        openFileChooser(null);
+    }
+
+    public void pickLeftImage() {
+        isPickingLeftBg = true;
+        openFileChooser(null);
+    }
+
+    private void handleLeftBgSelection(Uri uri) {
+        if (uri == null) return;
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                byte[] bytes = outputStream.toByteArray();
+                String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                String dataUrl = "data:image/png;base64," + base64;
+                
+                if (myWebView != null) {
+                     myWebView.post(() -> myWebView.evaluateJavascript("if(window.updateLeftBgImage) window.updateLeftBgImage('" + dataUrl + "');", null));
+                }
+                inputStream.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling left bg image selection", e);
+            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void updateTitleDisplay() {
         if (cvNameDisplay == null) return;
         
@@ -1721,12 +1995,19 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         @JavascriptInterface
         public void openPhotoRadiusSlider(int currentRadius) {
             // Deprecated - replaced by openProfileSettings
-            openProfileSettings("smooth", currentRadius, 100, 0, 0);
+            openProfileSettings("smooth", currentRadius, 100, 0, 0, 0, "#000000");
         }
 
         @JavascriptInterface
-        public void openProfileSettings(String mode, int radius, int scale, int x, int y) {
-            MainActivity.this.openProfileSettings(mode, radius, scale, x, y);
+        public void openProfileSettings(String mode, int radius, int scale, int x, int y, int thickness, String frameColor) {
+            MainActivity.this.openProfileSettings(mode, radius, scale, x, y, thickness, frameColor);
+        }
+
+        @JavascriptInterface
+        public void openFrameSettings(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale) {
+            runOnUiThread(() -> {
+                showFrameSettingsDialog(type, thickness, colorStart, colorEnd, radius, sides, bgStart, bgEnd, textColor, width, height, blur, scale);
+            });
         }
 
         @JavascriptInterface
@@ -2019,27 +2300,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
              }
 
         @JavascriptInterface
-        public void updateEditButton(boolean isEditing) {
+        public void updateEditButton(boolean isEditing, String sectionId) {
              runOnUiThread(() -> {
-                 if(atsBadge != null) {
-                     atsBadge.setVisibility(isEditing ? View.GONE : View.VISIBLE);
-                     if (!isEditing && atsBadgeScore != null) {
-                         // Instant Loading State
-                         atsBadgeScore.setText("...");
-                         android.graphics.drawable.GradientDrawable shape = (android.graphics.drawable.GradientDrawable) atsBadgeScore.getBackground();
-                         if (shape != null) shape.setColor(Color.parseColor("#999999"));
-                     }
-                 }
-                 
                  if (isEditing) {
-                     editFabIcon.setImageResource(R.drawable.ic_check); // Change to Checkmark
-                     isNativeEditing = true;
-                 } else {
-                     editFabIcon.setImageResource(R.drawable.edit); // Change back to Pencil
-                     isNativeEditing = false;
-                     
-                     // Trigger fresh analysis immediately
-                     myWebView.evaluateJavascript("if(window.atsAnalyzer) window.atsAnalyzer.analyze();", null);
+                     showSectionSettingsDialog(sectionId);
                  }
              });
         }
@@ -2177,6 +2441,34 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 showNameSettingsDialog(currentRotation, currentScale);
             });
         }
+
+        @JavascriptInterface
+        public void showIconSettingsMenu(String sectionId, int itemIndex, String currentColor) {
+            runOnUiThread(() -> {
+                showIconSettingsDialog(sectionId, itemIndex, currentColor);
+            });
+        }
+
+        @JavascriptInterface
+        public void openContactSettings(String sectionId, String settingsJson) {
+            runOnUiThread(() -> {
+                showContactDetailsSettingsDialog(sectionId, settingsJson);
+            });
+        }
+
+        @JavascriptInterface
+        public void onHeaderMenuClicked() {
+            runOnUiThread(() -> {
+                android.widget.Toast.makeText(mContext, "Menu clicked!", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        @JavascriptInterface
+        public void onHeaderResizeClicked() {
+            runOnUiThread(() -> {
+                android.widget.Toast.makeText(mContext, "Resize clicked!", android.widget.Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     public void openNativeColorPicker(String type, String currentColor) {
@@ -2199,70 +2491,91 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         });
     }
 
-    public void openProfileSettings(String shapeMode, int radius, int scale, int x, int y) {
+    public void openProfileSettings(String shapeMode, int radius, int scale, int x, int y, int thickness, String frameColor) {
         runOnUiThread(() -> {
             BottomSheetDialog dialog = new BottomSheetDialog(this);
             View view = getLayoutInflater().inflate(R.layout.dialog_profile_settings, null);
             dialog.setContentView(view);
 
-            // Limit height to 35% of screen
+            // Limit height to 45% of screen (increased slightly for more controls)
             DisplayMetrics displayMetrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            int maxHeight = (int) (displayMetrics.heightPixels * 0.35);
+            int maxHeight = (int) (displayMetrics.heightPixels * 0.45);
             view.getLayoutParams().height = maxHeight;
 
             com.google.android.material.button.MaterialButtonToggleGroup toggleGroup = view.findViewById(R.id.toggle_group_shape);
             SeekBar sliderRadius = view.findViewById(R.id.slider_radius);
             SeekBar sliderSize = view.findViewById(R.id.slider_size);
+            SeekBar sliderThickness = view.findViewById(R.id.slider_thickness);
             SeekBar sliderX = view.findViewById(R.id.slider_x);
             SeekBar sliderY = view.findViewById(R.id.slider_y);
 
             TextView txtSliderLabel = view.findViewById(R.id.txt_slider_label);
             TextView txtRadius = view.findViewById(R.id.txt_radius_val);
             TextView txtSize = view.findViewById(R.id.txt_size_val);
+            TextView txtThickness = view.findViewById(R.id.txt_thickness_val);
             TextView txtX = view.findViewById(R.id.txt_x_val);
             TextView txtY = view.findViewById(R.id.txt_y_val);
+
+            View colorIndicator = view.findViewById(R.id.view_frame_color_indicator);
+            Button btnChangeColor = view.findViewById(R.id.btn_change_frame_color);
+
+            final String[] currentFrameColor = {frameColor != null ? frameColor : ""};
+            final String[] currentMode = {shapeMode != null ? shapeMode : "smooth"};
 
             // Set initial state
             if ("polygon".equals(shapeMode)) {
                 toggleGroup.check(R.id.btn_mode_polygon);
                 txtSliderLabel.setText("Sides");
-                if (radius < 3) sliderRadius.setProgress(3); // Min 3 sides
-                else sliderRadius.setProgress(radius);
+                sliderRadius.setMax(20); // Limit to 20 sides
+                if (radius < 3) sliderRadius.setProgress(3);
+                else sliderRadius.setProgress(Math.min(radius, 20));
             } else {
                 toggleGroup.check(R.id.btn_mode_smooth);
                 txtSliderLabel.setText("Radius");
+                sliderRadius.setMax(100); // Back to radius max
                 sliderRadius.setProgress(radius);
             }
 
             sliderSize.setProgress(scale);
+            sliderThickness.setProgress(thickness);
             sliderX.setProgress(x + 100);
             sliderY.setProgress(y + 100);
 
             txtRadius.setText(String.valueOf(sliderRadius.getProgress()));
             txtSize.setText(String.valueOf(scale));
+            txtThickness.setText(String.valueOf(thickness));
             txtX.setText(String.valueOf(x));
             txtY.setText(String.valueOf(y));
 
-            final String[] currentMode = {shapeMode != null ? shapeMode : "smooth"};
+            if (currentFrameColor[0] != null && !currentFrameColor[0].isEmpty()) {
+                try {
+                    colorIndicator.setBackgroundColor(Color.parseColor(currentFrameColor[0]));
+                } catch (Exception e) {
+                    colorIndicator.setBackgroundColor(Color.BLACK);
+                }
+            } else {
+                colorIndicator.setBackgroundColor(Color.GRAY); // Placeholder
+            }
 
             SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     if (fromUser) {
                         int r = sliderRadius.getProgress();
-                        // Enforce min sides if in polygon mode
                         if ("polygon".equals(currentMode[0]) && r < 3) {
                             r = 3;
                             sliderRadius.setProgress(3);
                         }
                         
                         int s = sliderSize.getProgress();
+                        int t = sliderThickness.getProgress();
                         int posX = sliderX.getProgress() - 100;
                         int posY = sliderY.getProgress() - 100;
 
                         txtRadius.setText(String.valueOf(r));
                         txtSize.setText(String.valueOf(s));
+                        txtThickness.setText(String.valueOf(t));
                         txtX.setText(String.valueOf(posX));
                         txtY.setText(String.valueOf(posY));
 
@@ -2273,7 +2586,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         }
 
                         if (myWebView != null) {
-                            String js = String.format("if(window.updateProfileConfig) window.updateProfileConfig({shapeMode:'%s', radius:%d, scale:%d, x:%d, y:%d});", currentMode[0], r, s, posX, posY);
+                            String js = String.format("if(window.updateProfileConfig) window.updateProfileConfig({shapeMode:'%s', radius:%d, scale:%d, x:%d, y:%d, thickness:%d, frameColor:'%s'});", 
+                                currentMode[0], r, s, posX, posY, t, currentFrameColor[0]);
                             myWebView.evaluateJavascript(js, null);
                         }
                     }
@@ -2287,30 +2601,32 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     if (checkedId == R.id.btn_mode_smooth) {
                         currentMode[0] = "smooth";
                         txtSliderLabel.setText("Radius");
+                        sliderRadius.setMax(100);
                     } else if (checkedId == R.id.btn_mode_polygon) {
                         currentMode[0] = "polygon";
                         txtSliderLabel.setText("Sides");
+                        sliderRadius.setMax(20);
                         if (sliderRadius.getProgress() < 3) {
                             sliderRadius.setProgress(3);
                             txtRadius.setText("3");
+                        } else if (sliderRadius.getProgress() > 20) {
+                            sliderRadius.setProgress(20);
+                            txtRadius.setText("20");
                         }
                     }
-                    // Trigger update immediately when mode changes
                     listener.onProgressChanged(sliderRadius, sliderRadius.getProgress(), true);
                 }
             });
 
+            btnChangeColor.setOnClickListener(v -> {
+                MainActivity.this.openNativeColorPickerForProfileFrame(currentFrameColor[0]);
+            });
+
             sliderRadius.setOnSeekBarChangeListener(listener);
             sliderSize.setOnSeekBarChangeListener(listener);
+            sliderThickness.setOnSeekBarChangeListener(listener);
             sliderX.setOnSeekBarChangeListener(listener);
             sliderY.setOnSeekBarChangeListener(listener);
-
-            // Initial label update
-            if ("polygon".equals(currentMode[0])) {
-                TextView txtShape = view.findViewById(R.id.txt_shape_name);
-                txtShape.setVisibility(View.VISIBLE);
-                txtShape.setText(getShapeName(sliderRadius.getProgress()));
-            }
 
             dialog.show();
         });
@@ -2421,14 +2737,72 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
     }
 
+    private int currentAddPanelSort = 0; // 0: A-Z, 1: Usage, 2: Recent
+    private boolean isAddPanelGrouped = true;
+    private String addPanelSearchQuery = "";
+
     // --- Section Grid Logic ---
     private static class SectionItem {
         String id, name, desc, col, group;
         int iconRes;
         boolean isAdded;
+        int usageCount = 0;
+        long lastUsedTime = 0;
         SectionItem(String id, String name, String desc, int iconRes, boolean isAdded, String col, String group) {
             this.id = id; this.name = name; this.desc = desc; this.iconRes = iconRes; this.isAdded = isAdded;
             this.col = col; this.group = group;
+        }
+    }
+
+    private String getCategoryForSection(String sectionId) {
+        switch (sectionId) {
+            case "nameProfessionSection":
+            case "contactDetails":
+            case "summarySection":
+            case "personalDetails":
+            case "passportDetails":
+            case "visaStatus":
+            case "languages":
+            case "headerBoxSection":
+            case "profileSection":
+                return "Core Essentials";
+            case "education":
+            case "experience":
+            case "projects":
+            case "researchExp":
+            case "teachingExp":
+            case "internships":
+            case "training":
+                return "Professional Exp";
+            case "skills":
+            case "testScores":
+            case "awards":
+            case "certifications":
+            case "publications":
+            case "achievements":
+            case "affiliations":
+            case "grants":
+                return "Skills & Honors";
+            case "familyDetails":
+            case "partnerExpectations":
+            case "astrologySection":
+            case "lifestyleHabits":
+            case "physicalProfile":
+            case "visualRegistry":
+            case "activeLife":
+                return "Personal & Photos";
+            case "volunteer":
+            case "hobbies":
+            case "extra":
+            case "interests":
+            case "references":
+            case "weblinks":
+                return "Interests & More";
+            case "declarationSection":
+            case "spacerSection":
+                return "Documentation";
+            default:
+                return "Others";
         }
     }
 
@@ -2454,6 +2828,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private void loadSectionsFromWebView() {
         if (myWebView == null) return;
         
+        SharedPreferences prefs = getSharedPreferences("section_usage", MODE_PRIVATE);
+
         // 1. Get ALL available sections first
         myWebView.evaluateJavascript("window.getSectionsJSON()", allSectionsJson -> {
             if (allSectionsJson == null || allSectionsJson.equals("null") || allSectionsJson.isEmpty()) return;
@@ -2461,7 +2837,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             // 2. Get CURRENTLY added section IDs
             myWebView.evaluateJavascript("window.getCurrentSectionIds()", currentIdsJson -> {
                 try {
-                    // (Same parsing logic as before...)
                     String jsonStr = allSectionsJson;
                     if (jsonStr.startsWith("\"") && jsonStr.endsWith("\"")) {
                         jsonStr = jsonStr.substring(1, jsonStr.length() - 1);
@@ -2489,7 +2864,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         String type = obj.optString("type");
                         boolean isAdded = addedIds.contains(type);
                         
-                        list.add(new SectionItem(
+                        SectionItem item = new SectionItem(
                             id,
                             obj.optString("name"),
                             obj.optString("desc"),
@@ -2497,11 +2872,12 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                             isAdded,
                             obj.optString("col", "Flexible"),
                             obj.optString("group", "Standard")
-                        ));
+                        );
+                        item.usageCount = prefs.getInt("usage_" + id, 0);
+                        item.lastUsedTime = prefs.getLong("recent_" + id, 0);
+                        list.add(item);
                     }
                     
-                    Collections.sort(list, (o1, o2) -> Boolean.compare(o1.isAdded, o2.isAdded));
-
                     new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> populateSectionViews(list));
                 } catch (JSONException e) {
                     Log.e(TAG, "Error parsing sections JSON: " + e.getMessage());
@@ -2514,139 +2890,196 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
     private void populateSectionViews(java.util.List<SectionItem> items) {
         if (addFeaturePanel == null) return;
-        LinearLayout leftCol = addFeaturePanel.findViewById(R.id.column_left);
-        LinearLayout rightCol = addFeaturePanel.findViewById(R.id.column_right);
         
-        if (leftCol == null || rightCol == null) return;
-        
-        leftCol.removeAllViews();
-        rightCol.removeAllViews();
-
-        LayoutInflater inflater = LayoutInflater.from(this);
-
-        for (int i = 0; i < items.size(); i++) {
-            SectionItem item = items.get(i);
-            final String initialCol = item.col.toLowerCase().contains("left") ? "left" : "right";
-            final String[] currentTargetCol = { initialCol }; // Mutable state for this item instance
-
-            View v = inflater.inflate(R.layout.item_section_add, (i % 2 == 0) ? leftCol : rightCol, false);
-
-            View cardRoot = v.findViewById(R.id.card_root);
-            TextView title = v.findViewById(R.id.section_title);
-            TextView desc = v.findViewById(R.id.section_desc);
-            ImageView icon = v.findViewById(R.id.section_icon);
-            View iconContainer = v.findViewById(R.id.section_container); 
-            ImageButton btnAdd = v.findViewById(R.id.btn_add_section);
-            ImageView doneBadge = v.findViewById(R.id.done_badge);
-            
-            // Placement toggle UI
-            View placementContainer = v.findViewById(R.id.placement_container);
-            TextView tvIndicator = v.findViewById(R.id.tv_placement_indicator);
-            View btnToggle = v.findViewById(R.id.btn_toggle_placement);
-
-            title.setText(item.name);
-            desc.setText(item.desc);
-            icon.setImageResource(item.iconRes);
-            
-            // Handle Added/Done state
-            if (item.isAdded) {
-                btnAdd.setImageResource(R.drawable.ic_check);
-                btnAdd.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#E0E0E0")));
-                btnAdd.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#757575")));
-                btnAdd.setEnabled(false);
-                if (doneBadge != null) doneBadge.setVisibility(View.VISIBLE);
-                v.setAlpha(0.6f);
-            } else {
-                btnAdd.setImageResource(R.drawable.ic_add);
-                btnAdd.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
-                btnAdd.setImageTintList(android.content.res.ColorStateList.valueOf(Color.WHITE));
-                btnAdd.setEnabled(true);
-                if (doneBadge != null) doneBadge.setVisibility(View.GONE);
-                v.setAlpha(1.0f);
+        // --- 1. Filtering & Sorting ---
+        java.util.List<SectionItem> filtered = new ArrayList<>();
+        String query = addPanelSearchQuery.toLowerCase().trim();
+        for (SectionItem item : items) {
+            if (query.isEmpty() || item.name.toLowerCase().contains(query) || item.desc.toLowerCase().contains(query)) {
+                filtered.add(item);
             }
-
-            // Sync indicator text initially
-            if (tvIndicator != null) {
-                String loc = item.col.toLowerCase();
-                if (loc.contains("left")) currentTargetCol[0] = "left";
-                else if (loc.contains("right")) currentTargetCol[0] = "right";
-                else if (loc.contains("both")) currentTargetCol[0] = "both";
-                else if (loc.contains("header")) currentTargetCol[0] = "header";
-                
-                tvIndicator.setText("Add to: " + (currentTargetCol[0].substring(0, 1).toUpperCase() + currentTargetCol[0].substring(1)));
-            }
-            
-            // Toggle logic (Cycles 4 states)
-            if (btnToggle != null) {
-                btnToggle.setOnClickListener(view -> {
-                    switch (currentTargetCol[0]) {
-                        case "left": currentTargetCol[0] = "right"; break;
-                        case "right": currentTargetCol[0] = "both"; break;
-                        case "both": currentTargetCol[0] = "header"; break;
-                        case "header": currentTargetCol[0] = "left"; break;
-                        default: currentTargetCol[0] = "left";
-                    }
-                    tvIndicator.setText("Add to: " + (currentTargetCol[0].substring(0, 1).toUpperCase() + currentTargetCol[0].substring(1)));
-                });
-            }
-
-            // Click listener for Expansion & Morphing
-            if (iconContainer != null) {
-                iconContainer.setOnClickListener(view -> {
-                    if (item.isAdded) return;
-                    
-                    ViewGroup animRoot = (ViewGroup) addFeaturePanel.findViewById(R.id.panel_view_pager);
-                    if (animRoot == null) animRoot = addFeaturePanel; 
-                    
-                    TransitionManager.beginDelayedTransition(animRoot, new AutoTransition().setDuration(250));
-                    
-                    // Collapse others and revert their background
-                    if (expandedSectionView != null && expandedSectionView != v) {
-                        View otherPlacement = expandedSectionView.findViewById(R.id.placement_container);
-                        MaterialCardView otherCard = expandedSectionView.findViewById(R.id.card_root);
-                        if (otherPlacement != null) otherPlacement.setVisibility(View.GONE);
-                        if (otherCard != null) animateCornerRadius(otherCard, 12, 28);
-                    }
-                    
-                    if (placementContainer.getVisibility() == View.VISIBLE) {
-                        // COMPACT MODE
-                        placementContainer.setVisibility(View.GONE);
-                        animateCornerRadius((MaterialCardView)cardRoot, 12, 28);
-                        expandedSectionView = null;
-                        icon.animate().rotation(0).setDuration(200).start();
-                    } else {
-                        // EXPANDED MODE (Rounded Box)
-                        placementContainer.setVisibility(View.VISIBLE);
-                        animateCornerRadius((MaterialCardView)cardRoot, 28, 12);
-                        expandedSectionView = v;
-                        icon.animate().rotation(360).setDuration(300).start();
-                    }
-                });
-            }
-
-            // Add button logic
-            if (btnAdd != null) {
-                btnAdd.setOnClickListener(view -> {
-                    if (!item.isAdded) {
-                        addNativeSection(item.id, currentTargetCol[0]);
-                        // Immediate locally "Done" state for responsiveness
-                        btnAdd.setImageResource(R.drawable.ic_check);
-                        btnAdd.setEnabled(false);
-                        v.animate().alpha(0.6f).setDuration(300).start();
-                        if (doneBadge != null) doneBadge.setVisibility(View.VISIBLE);
-                        
-                        // Collapse
-                        placementContainer.setVisibility(View.GONE);
-                        animateCornerRadius((MaterialCardView)cardRoot, 12, 28);
-                        expandedSectionView = null;
-                    }
-                });
-            }
-
-            // Add to appropriate column (left/right display logic)
-            if (i % 2 == 0) leftCol.addView(v);
-            else rightCol.addView(v);
         }
+        
+        Collections.sort(filtered, (o1, o2) -> {
+            if (currentAddPanelSort == 1) { // Usage
+                int cmp = Integer.compare(o2.usageCount, o1.usageCount);
+                if (cmp != 0) return cmp;
+            } else if (currentAddPanelSort == 2) { // Recent
+                int cmp = Long.compare(o2.lastUsedTime, o1.lastUsedTime);
+                if (cmp != 0) return cmp;
+            }
+            return o1.name.compareToIgnoreCase(o2.name);
+        });
+
+        LinearLayout catContainer = addFeaturePanel.findViewById(R.id.sections_category_container);
+        if (catContainer == null) return;
+
+        catContainer.removeAllViews();
+        
+        if (!isAddPanelGrouped) {
+             // Show flat view (2 columns)
+             View flatGrid = LayoutInflater.from(this).inflate(R.layout.container_section_grid, catContainer, false);
+             catContainer.addView(flatGrid);
+             LinearLayout leftCol = flatGrid.findViewById(R.id.column_left);
+             LinearLayout rightCol = flatGrid.findViewById(R.id.column_right);
+             for (int i = 0; i < filtered.size(); i++) {
+                 View v = createSectionItemView(filtered.get(i));
+                 if (i % 2 == 0) leftCol.addView(v);
+                 else rightCol.addView(v);
+             }
+        } else {
+            // Group by Category
+            Map<String, List<SectionItem>> groups = new LinkedHashMap<>();
+            String[] catOrder = {"Core Essentials", "Professional Exp", "Skills & Honors", "Personal & Photos", "Interests & More", "Documentation", "Others"};
+            for (String cat : catOrder) groups.put(cat, new ArrayList<>());
+            
+            for (SectionItem item : filtered) {
+                String cat = getCategoryForSection(item.id);
+                groups.get(cat).add(item);
+            }
+            
+            LayoutInflater inflater = LayoutInflater.from(this);
+            java.util.List<View[]> allCats = new ArrayList<>();
+            
+            for (String catName : catOrder) {
+                List<SectionItem> groupItems = groups.get(catName);
+                if (groupItems.isEmpty()) continue;
+                
+                // Inflate Category Header
+                View header = inflater.inflate(R.layout.item_accordion_header, catContainer, false);
+                TextView txtTitle = header.findViewById(R.id.txt_header_title);
+                ImageView imgChevron = header.findViewById(R.id.img_chevron);
+                txtTitle.setText(catName);
+                
+                // Inflate Category Grid Container
+                View gridContainer = inflater.inflate(R.layout.container_section_grid, catContainer, false);
+                LinearLayout leftCol = gridContainer.findViewById(R.id.column_left);
+                LinearLayout rightCol = gridContainer.findViewById(R.id.column_right);
+                
+                for (int i = 0; i < groupItems.size(); i++) {
+                    View v = createSectionItemView(groupItems.get(i));
+                    if (i % 2 == 0) leftCol.addView(v);
+                    else rightCol.addView(v);
+                }
+                
+                catContainer.addView(header);
+                catContainer.addView(gridContainer);
+                
+                allCats.add(new View[]{header, gridContainer, imgChevron});
+                
+                gridContainer.setVisibility(View.VISIBLE);
+                imgChevron.setRotation(180);
+            }
+        }
+    }
+
+    private View createSectionItemView(SectionItem item) {
+        final String initialCol = item.col.toLowerCase().contains("left") ? "left" : "right";
+        final String[] currentTargetCol = { initialCol }; 
+
+        View v = LayoutInflater.from(this).inflate(R.layout.item_section_add, null);
+        // Ensure it has layout params for vertical stacking in columns
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        v.setLayoutParams(params);
+
+        View cardRoot = v.findViewById(R.id.card_root);
+        TextView title = v.findViewById(R.id.section_title);
+        TextView desc = v.findViewById(R.id.section_desc);
+        ImageView icon = v.findViewById(R.id.section_icon);
+        View iconContainer = v.findViewById(R.id.section_container); 
+        ImageButton btnAdd = v.findViewById(R.id.btn_add_section);
+        ImageView doneBadge = v.findViewById(R.id.done_badge);
+        
+        View placementContainer = v.findViewById(R.id.placement_container);
+        TextView tvIndicator = v.findViewById(R.id.tv_placement_indicator);
+        View btnToggle = v.findViewById(R.id.btn_toggle_placement);
+
+        title.setText(item.name);
+        desc.setText(item.desc);
+        icon.setImageResource(item.iconRes);
+        
+        if (item.isAdded) {
+            btnAdd.setImageResource(R.drawable.ic_check);
+            btnAdd.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#E0E0E0")));
+            btnAdd.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#757575")));
+            btnAdd.setEnabled(false);
+            if (doneBadge != null) doneBadge.setVisibility(View.VISIBLE);
+            v.setAlpha(0.6f);
+        } else {
+            btnAdd.setImageResource(R.drawable.ic_add);
+            btnAdd.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50")));
+            btnAdd.setImageTintList(android.content.res.ColorStateList.valueOf(Color.WHITE));
+            btnAdd.setEnabled(true);
+            if (doneBadge != null) doneBadge.setVisibility(View.GONE);
+            v.setAlpha(1.0f);
+        }
+
+        if (tvIndicator != null) {
+            String loc = item.col.toLowerCase();
+            if (loc.contains("left")) currentTargetCol[0] = "left";
+            else if (loc.contains("right")) currentTargetCol[0] = "right";
+            else if (loc.contains("both")) currentTargetCol[0] = "both";
+            else if (loc.contains("header")) currentTargetCol[0] = "header";
+            
+            tvIndicator.setText("Add to: " + (currentTargetCol[0].substring(0, 1).toUpperCase() + currentTargetCol[0].substring(1)));
+        }
+        
+        if (btnToggle != null) {
+            btnToggle.setOnClickListener(view -> {
+                switch (currentTargetCol[0]) {
+                    case "left": currentTargetCol[0] = "right"; break;
+                    case "right": currentTargetCol[0] = "both"; break;
+                    case "both": currentTargetCol[0] = "header"; break;
+                    case "header": currentTargetCol[0] = "left"; break;
+                    default: currentTargetCol[0] = "left";
+                }
+                tvIndicator.setText("Add to: " + (currentTargetCol[0].substring(0, 1).toUpperCase() + currentTargetCol[0].substring(1)));
+            });
+        }
+
+        if (iconContainer != null) {
+            iconContainer.setOnClickListener(view -> {
+                if (item.isAdded) return;
+                ViewGroup animRoot = (ViewGroup) addFeaturePanel.findViewById(R.id.panel_view_pager);
+                if (animRoot == null) animRoot = addFeaturePanel; 
+                TransitionManager.beginDelayedTransition(animRoot, new AutoTransition().setDuration(250));
+                
+                if (expandedSectionView != null && expandedSectionView != v) {
+                    View otherPlacement = expandedSectionView.findViewById(R.id.placement_container);
+                    MaterialCardView otherCard = expandedSectionView.findViewById(R.id.card_root);
+                    if (otherPlacement != null) otherPlacement.setVisibility(View.GONE);
+                    if (otherCard != null) animateCornerRadius(otherCard, 12, 28);
+                }
+                
+                if (placementContainer.getVisibility() == View.VISIBLE) {
+                    placementContainer.setVisibility(View.GONE);
+                    animateCornerRadius((MaterialCardView)cardRoot, 12, 28);
+                    expandedSectionView = null;
+                } else {
+                    placementContainer.setVisibility(View.VISIBLE);
+                    animateCornerRadius((MaterialCardView)cardRoot, 28, 12);
+                    expandedSectionView = v;
+                }
+            });
+        }
+
+        if (btnAdd != null) {
+            btnAdd.setOnClickListener(view -> {
+                if (!item.isAdded) {
+                    addNativeSection(item.id, currentTargetCol[0]);
+                    btnAdd.setImageResource(R.drawable.ic_check);
+                    btnAdd.setEnabled(false);
+                    v.animate().alpha(0.6f).setDuration(300).start();
+                    if (doneBadge != null) doneBadge.setVisibility(View.VISIBLE);
+                    
+                    placementContainer.setVisibility(View.GONE);
+                    animateCornerRadius((MaterialCardView)cardRoot, 12, 28);
+                    expandedSectionView = null;
+                }
+            });
+        }
+        return v;
     }
 
     private void animateCornerRadius(MaterialCardView card, int fromDp, int toDp) {
@@ -2660,6 +3093,18 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
 
     // --- Inner Adapter Class ---
+    private void updateSortUI(TextView az, TextView usage, TextView recent) {
+        if (az == null || usage == null || recent == null) return;
+        az.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor(currentAddPanelSort == 0 ? "#EEF2FF" : "#F5F5F5")));
+        az.setTextColor(Color.parseColor(currentAddPanelSort == 0 ? "#1E3C72" : "#888888"));
+        
+        usage.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor(currentAddPanelSort == 1 ? "#EEF2FF" : "#F5F5F5")));
+        usage.setTextColor(Color.parseColor(currentAddPanelSort == 1 ? "#1E3C72" : "#888888"));
+        
+        recent.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor(currentAddPanelSort == 2 ? "#EEF2FF" : "#F5F5F5")));
+        recent.setTextColor(Color.parseColor(currentAddPanelSort == 2 ? "#1E3C72" : "#888888"));
+    }
+
     private class AddPanelAdapter extends RecyclerView.Adapter<AddPanelAdapter.ViewHolder> {
         @Override
         public int getItemViewType(int position) { return position; }
@@ -2693,6 +3138,48 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 if (type == 0) { // Sections Grid
                     loadSectionsFromWebView();
                     
+                    // Search
+                    EditText searchBox = itemView.findViewById(R.id.search_sections);
+                    if (searchBox != null) {
+                        searchBox.addTextChangedListener(new android.text.TextWatcher() {
+                            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                                addPanelSearchQuery = s.toString();
+                                loadSectionsFromWebView();
+                            }
+                            @Override public void afterTextChanged(android.text.Editable s) {}
+                        });
+                    }
+
+                    // Sort Buttons
+                    TextView btnAZ = itemView.findViewById(R.id.btn_sort_az);
+                    TextView btnUsage = itemView.findViewById(R.id.btn_sort_usage);
+                    TextView btnRecent = itemView.findViewById(R.id.btn_sort_recent);
+                    CheckBox chkGroup = itemView.findViewById(R.id.chk_group_by);
+
+                    if (btnAZ != null) btnAZ.setOnClickListener(v -> {
+                        currentAddPanelSort = 0;
+                        updateSortUI(btnAZ, btnUsage, btnRecent);
+                        loadSectionsFromWebView();
+                    });
+                    if (btnUsage != null) btnUsage.setOnClickListener(v -> {
+                        currentAddPanelSort = 1;
+                        updateSortUI(btnAZ, btnUsage, btnRecent);
+                        loadSectionsFromWebView();
+                    });
+                    if (btnRecent != null) btnRecent.setOnClickListener(v -> {
+                        currentAddPanelSort = 2;
+                        updateSortUI(btnAZ, btnUsage, btnRecent);
+                        loadSectionsFromWebView();
+                    });
+                    if (chkGroup != null) {
+                        chkGroup.setChecked(isAddPanelGrouped);
+                        chkGroup.setOnCheckedChangeListener((cb, checked) -> {
+                            isAddPanelGrouped = checked;
+                            loadSectionsFromWebView();
+                        });
+                    }
+                    
                     View btnReset = itemView.findViewById(R.id.btn_reset_all);
                     if (btnReset != null) btnReset.setOnClickListener(v -> {
                         new AlertDialog.Builder(itemView.getContext())
@@ -2723,7 +3210,59 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     setupPagedExplorer(itemView, "progress", progressDesignIds);
                     
                     bindBackgroundControls(itemView);
+                    bindDesignerColumnControls(itemView);
                 }
+            }
+
+            void bindDesignerColumnControls(View root) {
+                 // Layout Mode (Default vs Mirror)
+                 ViewFlipper flipper = root.findViewById(R.id.flipper_layout);
+                 View btnPrev = root.findViewById(R.id.btn_layout_prev);
+                 View btnNext = root.findViewById(R.id.btn_layout_next);
+                 
+                 if (flipper != null && btnPrev != null && btnNext != null) {
+                     View.OnClickListener toggleLayout = v -> {
+                         if (flipper.getDisplayedChild() == 0) {
+                             flipper.showNext();
+                             if (myWebView != null) myWebView.evaluateJavascript("if(window.updateDesignerColumnLayout) window.updateDesignerColumnLayout('mirror');", null);
+                         } else {
+                             flipper.showPrevious();
+                             if (myWebView != null) myWebView.evaluateJavascript("if(window.updateDesignerColumnLayout) window.updateDesignerColumnLayout('default');", null);
+                         }
+                     };
+                     btnPrev.setOnClickListener(toggleLayout);
+                     btnNext.setOnClickListener(toggleLayout);
+                 }
+
+                 // Colors
+                 View btnBg = root.findViewById(R.id.btn_left_col_bg);
+                 View btnFrame = root.findViewById(R.id.btn_left_frame_color);
+                 if (btnBg != null) btnBg.setOnClickListener(v -> openColorPicker(LEFT_COL_BG_ID));
+                 if (btnFrame != null) btnFrame.setOnClickListener(v -> openColorPicker(LEFT_FRAME_COLOR_ID));
+
+                 // SeekBars
+                 SeekBar seekThick = root.findViewById(R.id.seek_left_frame_thickness);
+                 SeekBar seekRadius = root.findViewById(R.id.seek_left_col_radius);
+                 
+                 if (seekThick != null) {
+                     seekThick.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                         @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                             if (myWebView != null) myWebView.evaluateJavascript("if(window.updateLeftFrameThickness) window.updateLeftFrameThickness(" + progress + ");", null);
+                         }
+                         @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                         @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                     });
+                 }
+
+                 if (seekRadius != null) {
+                     seekRadius.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                         @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                             if (myWebView != null) myWebView.evaluateJavascript("if(window.updateLeftColRadius) window.updateLeftColRadius(" + progress + ");", null);
+                         }
+                         @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                         @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                     });
+                 }
             }
 
             void bindBackgroundControls(View root) {
@@ -2811,68 +3350,70 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                  });
              }
 
-            void setupPagedExplorer(View root, String category, String[] ids) {
-                int flipperId = root.getResources().getIdentifier("flipper_" + category, "id", root.getContext().getPackageName());
-                int prevId = root.getResources().getIdentifier("btn_" + category + "_prev", "id", root.getContext().getPackageName());
-                int nextId = root.getResources().getIdentifier("btn_" + category + "_next", "id", root.getContext().getPackageName());
-                
-                ViewFlipper flipper = root.findViewById(flipperId);
-                View btnPrev = root.findViewById(prevId);
-                View btnNext = root.findViewById(nextId);
-                
-                if (flipper != null) {
-                    if (btnPrev != null) btnPrev.setOnClickListener(v -> { flipper.setInAnimation(root.getContext(), android.R.anim.slide_in_left); flipper.setOutAnimation(root.getContext(), android.R.anim.slide_out_right); flipper.showPrevious(); });
-                    if (btnNext != null) btnNext.setOnClickListener(v -> { flipper.setInAnimation(root.getContext(), R.anim.slide_in_right); flipper.setOutAnimation(root.getContext(), R.anim.slide_out_left); flipper.showNext(); });
-                    
-                    for (int i = 0; i < ids.length; i++) {
-                        int choiceId = root.getResources().getIdentifier("txt_" + category + "_choice_" + i, "id", root.getContext().getPackageName());
-                        TextView txtChoice = root.findViewById(choiceId);
-                        if (txtChoice != null) {
-                            final int idx = i;
-                            final String typeId = ids[i];
-                            txtChoice.setOnClickListener(v -> {
-                                if (myWebView != null) {
-                                    String jsFunc = "apply" + category.substring(0, 1).toUpperCase() + category.substring(1) + "Design";
-                                    myWebView.evaluateJavascript("if(window."+jsFunc+") window."+jsFunc+"('" + typeId + "');", null);
-                                }
-                                if (category.equals("header")) currentHeaderIdx = idx;
-                                else if (category.equals("section")) currentSectionIdx = idx;
-                                else if (category.equals("progress")) currentProgressIdx = idx;
-                                updateChoiceHighlights(root, category, ids.length);
-                            });
+        }
+    }
+
+    private void setupPagedExplorer(View root, String category, String[] ids) {
+        int flipperId = root.getResources().getIdentifier("flipper_" + category, "id", root.getContext().getPackageName());
+        int prevId = root.getResources().getIdentifier("btn_" + category + "_prev", "id", root.getContext().getPackageName());
+        int nextId = root.getResources().getIdentifier("btn_" + category + "_next", "id", root.getContext().getPackageName());
+
+        ViewFlipper flipper = root.findViewById(flipperId);
+        View btnPrev = root.findViewById(prevId);
+        View btnNext = root.findViewById(nextId);
+
+        if (flipper != null) {
+            if (btnPrev != null) btnPrev.setOnClickListener(v -> { flipper.setInAnimation(root.getContext(), android.R.anim.slide_in_left); flipper.setOutAnimation(root.getContext(), android.R.anim.slide_out_right); flipper.showPrevious(); });
+            if (btnNext != null) btnNext.setOnClickListener(v -> { flipper.setInAnimation(root.getContext(), R.anim.slide_in_right); flipper.setOutAnimation(root.getContext(), R.anim.slide_out_left); flipper.showNext(); });
+
+            for (int i = 0; i < ids.length; i++) {
+                int choiceId = root.getResources().getIdentifier("txt_" + category + "_choice_" + i, "id", root.getContext().getPackageName());
+                TextView txtChoice = root.findViewById(choiceId);
+                if (txtChoice != null) {
+                    final int idx = i;
+                    final String typeId = ids[i];
+                    txtChoice.setOnClickListener(v -> {
+                        if (myWebView != null) {
+                            String jsFunc = "apply" + category.substring(0, 1).toUpperCase() + category.substring(1) + "Design";
+                            myWebView.evaluateJavascript("if(window."+jsFunc+") window."+jsFunc+"('" + typeId + "');", null);
                         }
-                    }
-                    
-                    // Auto-slide to the page containing the active choice
-                    int activeIdx = (category.equals("header")) ? currentHeaderIdx : (category.equals("section") ? currentSectionIdx : currentProgressIdx);
-                    flipper.setDisplayedChild(activeIdx / 2);
-                    
-                    updateChoiceHighlights(root, category, ids.length);
+                        if (category.equals("header")) currentHeaderIdx = idx;
+                        else if (category.equals("section")) currentSectionIdx = idx;
+                        else if (category.equals("progress")) currentProgressIdx = idx;
+                        updateChoiceHighlights(root, category, ids.length);
+                    });
                 }
             }
 
-            void updateChoiceHighlights(View root, String category, int count) {
-                int activeIdx = (category.equals("header")) ? currentHeaderIdx : (category.equals("section") ? currentSectionIdx : currentProgressIdx);
-                
-                for (int i = 0; i < count; i++) {
-                    int choiceId = root.getResources().getIdentifier("txt_" + category + "_choice_" + i, "id", root.getContext().getPackageName());
-                    TextView txt = root.findViewById(choiceId);
-                    if (txt != null) {
-                        if (i == activeIdx) {
-                            txt.setBackgroundResource(R.drawable.shape_active_choice);
-                            txt.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_active_dot, 0);
-                            txt.setCompoundDrawablePadding(4);
-                        } else {
-                            txt.setBackgroundResource(0);
-                            txt.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-                        }
-                    }
+            // Auto-slide to the page containing the active choice
+            int activeIdx = (category.equals("header")) ? currentHeaderIdx : (category.equals("section") ? currentSectionIdx : currentProgressIdx);
+            flipper.setDisplayedChild(activeIdx / 2);
+
+            updateChoiceHighlights(root, category, ids.length);
+        }
+    }
+
+    private void updateChoiceHighlights(View root, String category, int count) {
+        int activeIdx = (category.equals("header")) ? currentHeaderIdx : (category.equals("section") ? currentSectionIdx : currentProgressIdx);
+
+        for (int i = 0; i < count; i++) {
+            int choiceId = root.getResources().getIdentifier("txt_" + category + "_choice_" + i, "id", root.getContext().getPackageName());
+            TextView txt = root.findViewById(choiceId);
+            if (txt != null) {
+                if (i == activeIdx) {
+                    txt.setBackgroundResource(R.drawable.shape_active_choice);
+                    txt.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_active_dot, 0);
+                    txt.setCompoundDrawablePadding(4);
+                } else {
+                    txt.setBackgroundResource(0);
+                    txt.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
                 }
             }
         }
     }
 
     private void openColorPicker(int requestId) {
+        onNativePanelOpened();
         ColorPickerDialog.newBuilder()
             .setDialogId(requestId)
             .setAllowPresets(true)
@@ -2934,6 +3475,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     }
 
     private void showATSHub(int score) {
+        onNativePanelOpened();
         if (currentATSReport == null || atsHubOverlay == null || atsHubPanel == null) return;
 
         View view = atsHubPanel;
@@ -3212,6 +3754,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         View wizardFab = findViewById(R.id.fab_wizard);
         if (wizardFab != null) {
             wizardFab.setOnClickListener(v -> {
+                onNativePanelOpened();
                 if (myWebView != null) {
                     myWebView.evaluateJavascript("window.exportStructuredData()", value -> {
                         // value is a JSON string (with surrounding quotes from JS)
@@ -3741,6 +4284,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     public SectionBgAdapter pendingColorAdapter;
 
     private void showSectionBackgroundDialog(String jsonItems) {
+        onNativePanelOpened();
         try {
             JSONArray arr = new JSONArray(jsonItems);
             List<SectionBgItem> items = new ArrayList<>();
@@ -3778,10 +4322,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             SectionBgAdapter adapter = new SectionBgAdapter(items, dialog, this);
             recycler.setAdapter(adapter);
             
-            // Limit height to 35% of screen
+            // Limit height to 55% of screen
             DisplayMetrics displayMetrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            int maxHeight = (int) (displayMetrics.heightPixels * 0.35);
+            int maxHeight = (int) (displayMetrics.heightPixels * 0.55);
             view.getLayoutParams().height = maxHeight;
             
             view.findViewById(R.id.btn_close).setOnClickListener(v -> dialog.dismiss());
@@ -3799,6 +4343,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
     }
     private void showNameSettingsDialog(int currentRotation, int currentScale) {
+        onNativePanelOpened();
         BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
         View view = getLayoutInflater().inflate(R.layout.dialog_name_settings, null);
         dialog.setContentView(view);
@@ -3887,6 +4432,1530 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     public void updateNameSettings(String targetId, int rotation, int nameSize, int titleSize, int alignment) {
         if (myWebView != null) {
             myWebView.evaluateJavascript("if(window.updateNameSettings) window.updateNameSettings('" + targetId + "', " + rotation + ", " + nameSize + ", " + titleSize + ", " + alignment + ");", null);
+        }
+    }
+
+    private void handleIconImageSelection(Uri uri) {
+        if (uri == null) return;
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                byte[] bytes = outputStream.toByteArray();
+                String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                String dataUrl = "data:image/png;base64," + base64; 
+                
+                if (myWebView != null) {
+                    myWebView.post(() -> myWebView.evaluateJavascript("if(window.handleNativeIconImage) window.handleNativeIconImage('" + currentIconSectionId + "', " + currentIconItemIndex + ", '" + dataUrl + "');", null));
+                }
+                inputStream.close();
+            }
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error handling icon image selection", e);
+            Toast.makeText(this, "Failed to load icon image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showIconSettingsDialog(String sectionId, int itemIndex, String currentColor) {
+        onNativePanelOpened();
+        currentIconSectionId = sectionId;
+        currentIconItemIndex = itemIndex;
+
+        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
+        View view = getLayoutInflater().inflate(R.layout.dialog_icon_settings, null);
+        dialog.setContentView(view);
+
+        // Limit height to 35% of screen
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int maxHeight = (int) (displayMetrics.heightPixels * 0.35);
+        view.getLayoutParams().height = maxHeight;
+
+        View btnPickImage = view.findViewById(R.id.btn_change_icon_image);
+        View btnRotate = view.findViewById(R.id.btn_rotate_icon_native);
+        View colorPreviewSingle = view.findViewById(R.id.color_preview_single);
+        View colorPreviewSection = view.findViewById(R.id.color_preview_section);
+        SeekBar sliderSize = view.findViewById(R.id.slider_icon_size);
+        TextView txtSizeVal = view.findViewById(R.id.txt_icon_size_val);
+
+        if (currentColor != null && !currentColor.isEmpty()) {
+            try {
+                int c = Color.parseColor(currentColor);
+                colorPreviewSingle.setBackgroundColor(c);
+                colorPreviewSection.setBackgroundColor(c);
+            } catch (Exception e) {
+                Log.e(TAG, "Invalid color passed to icon settings: " + currentColor);
+            }
+        }
+
+        btnPickImage.setOnClickListener(v -> {
+            isPickingIconImage = true;
+            mGetContent.launch("image/*");
+            dialog.dismiss();
+        });
+
+        btnRotate.setOnClickListener(v -> {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.handleNativeIconRotate) window.handleNativeIconRotate('" + sectionId + "', " + itemIndex + ");", null);
+            }
+            dialog.dismiss();
+        });
+
+        colorPreviewSingle.setOnClickListener(v -> {
+            currentColorRequestType = "icon_single";
+            openNativeColorPickerForIcon(ICON_COLOR_SINGLE_ID, currentColor);
+            dialog.dismiss();
+        });
+
+        colorPreviewSection.setOnClickListener(v -> {
+            currentColorRequestType = "icon_section";
+            openNativeColorPickerForIcon(ICON_COLOR_SECTION_ID, currentColor);
+            dialog.dismiss();
+        });
+
+        sliderSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int size = 10 + (progress / 2); // 10px to 60px range approx
+                txtSizeVal.setText(size + "px");
+                if (fromUser && myWebView != null) {
+                    myWebView.evaluateJavascript("if(window.handleNativeIconSize) window.handleNativeIconSize('" + sectionId + "', " + size + ");", null);
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        dialog.show();
+    }
+
+    private void openNativeColorPickerForIcon(int dialogId, String currentColor) {
+        onNativePanelOpened();
+        int color = Color.BLACK;
+        try {
+            if (currentColor != null && !currentColor.isEmpty()) {
+                color = Color.parseColor(currentColor);
+            }
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Invalid color format: " + currentColor);
+        }
+        
+        ColorPickerDialog.newBuilder()
+                .setDialogId(dialogId)
+                .setColor(color)
+                .setShowAlphaSlider(true)
+                .show(MainActivity.this);
+    }
+
+    private void handleContactIconImageSelection(Uri uri) {
+        if (uri == null) return;
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                byte[] bytes = outputStream.toByteArray();
+                String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                String dataUrl = "data:image/png;base64," + base64; 
+                
+                if (myWebView != null) {
+                    myWebView.post(() -> myWebView.evaluateJavascript("if(window.handleNativeIconImage) window.handleNativeIconImage('" + currentContactSectionId + "', " + currentContactIconIndex + ", '" + dataUrl + "');", null));
+                }
+                inputStream.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling contact icon image selection", e);
+            Toast.makeText(this, "Failed to load icon image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private static final int CONTACT_COLOR_ID_LEGACY = 1001; // Keep for reference if needed
+
+    private void showContactDetailsSettingsDialog(String sectionId, String settingsJson) {
+        onNativePanelOpened();
+        currentContactSectionId = sectionId;
+        try {
+            JSONObject settings = new JSONObject(settingsJson);
+            BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
+            View view = getLayoutInflater().inflate(R.layout.dialog_contact_settings, null);
+            dialog.setContentView(view);
+
+            // Limit height to 60% of screen since we have a vertical list now
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int maxHeight = (int) (displayMetrics.heightPixels * 0.60);
+            view.getLayoutParams().height = maxHeight;
+
+            CheckBox checkIcons = view.findViewById(R.id.check_show_icons);
+            CheckBox checkText = view.findViewById(R.id.check_show_text);
+            SeekBar sliderSize = view.findViewById(R.id.slider_contact_icon_size);
+            TextView txtSizeVal = view.findViewById(R.id.txt_contact_icon_size_val);
+            View colorPreview = view.findViewById(R.id.color_preview_contact);
+            SeekBar sliderSpacing = view.findViewById(R.id.slider_contact_spacing);
+            TextView txtSpacingVal = view.findViewById(R.id.txt_contact_spacing_val);
+            LinearLayout iconContainer = view.findViewById(R.id.container_contact_icons);
+            Button btnDone = view.findViewById(R.id.btn_close_contact_settings);
+
+            // Initial State
+            boolean showIcons = settings.optBoolean("showIcons", true);
+            boolean showText = settings.optBoolean("showText", false);
+            int size = settings.optInt("size", 14);
+            String color = settings.optString("color", "#333333");
+            int spacing = settings.optInt("spacing", 8);
+            JSONArray icons = settings.optJSONArray("icons");
+
+            if (checkIcons != null) checkIcons.setChecked(showIcons);
+            if (checkText != null) checkText.setChecked(showText);
+            if (sliderSize != null) {
+                sliderSize.setProgress(size);
+                txtSizeVal.setText(size + "px");
+            }
+            if (sliderSpacing != null) {
+                sliderSpacing.setProgress(spacing);
+                txtSpacingVal.setText(spacing + "px");
+            }
+            try { if (colorPreview != null) colorPreview.setBackgroundColor(Color.parseColor(color)); } catch (Exception e) {}
+
+            // Listeners
+            if (checkIcons != null) {
+                checkIcons.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    updateContactSetting(sectionId, "showIcons", isChecked);
+                });
+            }
+            if (checkText != null) {
+                checkText.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    updateContactSetting(sectionId, "showText", isChecked);
+                });
+            }
+
+            if (sliderSize != null) {
+                sliderSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        txtSizeVal.setText(progress + "px");
+                        if (fromUser) updateContactSetting(sectionId, "size", progress);
+                    }
+                    @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                    @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                });
+            }
+
+            if (sliderSpacing != null) {
+                sliderSpacing.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        txtSpacingVal.setText(progress + "px");
+                        if (fromUser) updateContactSetting(sectionId, "spacing", progress);
+                    }
+                    @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                    @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                });
+            }
+
+            if (colorPreview != null) {
+                colorPreview.setOnClickListener(v -> {
+                    currentColorRequestType = "contact_icon_global";
+                    openNativeColorPickerForContact(color, CONTACT_COLOR_ID);
+                    dialog.dismiss();
+                });
+            }
+
+            // Icons Manager (Vertical List)
+            if (icons != null && iconContainer != null) {
+                iconContainer.removeAllViews();
+                for (int i = 0; i < icons.length(); i++) {
+                    JSONObject iconObj = icons.getJSONObject(i);
+                    int idx = iconObj.getInt("index");
+                    String iconClass = iconObj.optString("class", "fa-link");
+                    String iconUrl = iconObj.optString("url", "");
+                    String itemText = iconObj.optString("text", "Item " + (i + 1));
+                    String itemTint = iconObj.optString("tint", "");
+                    int itemSize = iconObj.optInt("customSize", size);
+
+                    View row = getLayoutInflater().inflate(R.layout.item_contact_icon_row, iconContainer, false);
+                    ImageView ivPreview = row.findViewById(R.id.iv_icon_preview);
+                    TextView tvText = row.findViewById(R.id.tv_contact_text);
+                    View customIndicator = row.findViewById(R.id.custom_image_indicator);
+                    ImageButton btnTint = row.findViewById(R.id.btn_item_tint);
+                    ImageButton btnSize = row.findViewById(R.id.btn_item_size);
+
+                    if (tvText != null) tvText.setText(itemText);
+
+                    if (ivPreview != null) {
+                        if (!iconUrl.isEmpty()) {
+                            try {
+                                String base64 = iconUrl.substring(iconUrl.indexOf(",") + 1);
+                                byte[] decodedString = Base64.decode(base64, Base64.DEFAULT);
+                                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                ivPreview.setImageBitmap(decodedByte);
+                                if (customIndicator != null) customIndicator.setVisibility(View.VISIBLE);
+                            } catch (Exception e) {
+                                ivPreview.setImageResource(getIconResForFontAwesome(iconClass));
+                            }
+                        } else {
+                            ivPreview.setImageResource(getIconResForFontAwesome(iconClass));
+                        }
+                        
+                        // Apply tint to preview if set
+                        if (!itemTint.isEmpty()) {
+                            try { ivPreview.setColorFilter(Color.parseColor(itemTint)); } catch (Exception e) {}
+                        }
+                        
+                        ivPreview.setOnClickListener(v -> {
+                            currentContactIconIndex = idx;
+                            isPickingContactIcon = true;
+                            mGetContent.launch("image/*");
+                            dialog.dismiss();
+                        });
+                    }
+
+                    if (btnTint != null) {
+                        btnTint.setOnClickListener(v -> {
+                            currentContactIconIndex = idx;
+                            currentColorRequestType = "contact_item_tint";
+                            openNativeColorPickerForContact(itemTint.isEmpty() ? color : itemTint, ITEM_TINT_COLOR_ID);
+                            dialog.dismiss();
+                        });
+                    }
+
+                    if (btnSize != null) {
+                        btnSize.setOnClickListener(v -> {
+                            showItemSizeDialog(sectionId, idx, itemSize);
+                        });
+                    }
+
+                    iconContainer.addView(row);
+                }
+            }
+
+            if (btnDone != null) btnDone.setOnClickListener(v -> dialog.dismiss());
+            dialog.show();
+
+        } catch (JSONException e) {
+            Log.e(TAG, "Error parsing contact settings", e);
+        }
+    }
+
+    private void showItemSizeDialog(String sectionId, int itemIndex, int currentSize) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(60, 40, 60, 40);
+
+        TextView title = new TextView(this);
+        title.setText("Custom Icon Size");
+        title.setTextSize(18f);
+        title.setTypeface(null, Typeface.BOLD);
+        title.setPadding(0, 0, 0, 20);
+        layout.addView(title);
+
+        SeekBar seekBar = new SeekBar(this);
+        seekBar.setMax(100);
+        seekBar.setProgress(currentSize);
+        layout.addView(seekBar);
+
+        TextView valText = new TextView(this);
+        valText.setText(currentSize + "px");
+        valText.setGravity(Gravity.CENTER);
+        valText.setPadding(0, 20, 0, 0);
+        layout.addView(valText);
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                valText.setText(progress + "px");
+                if (fromUser) {
+                    try {
+                        JSONObject sizeObj = new JSONObject();
+                        sizeObj.put("index", itemIndex);
+                        sizeObj.put("size", progress);
+                        updateContactSetting(sectionId, "itemSize", sizeObj);
+                    } catch (JSONException e) {}
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        builder.setView(layout);
+        builder.setPositiveButton("DONE", null);
+        builder.show();
+    }
+
+    private void openNativeColorPickerForProfileFrame(String currentColor) {
+        onNativePanelOpened();
+        int color = Color.BLACK;
+        try {
+            if (currentColor != null && !currentColor.isEmpty()) {
+                color = Color.parseColor(currentColor);
+            }
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Invalid color format: " + currentColor);
+        }
+        
+        ColorPickerDialog.newBuilder()
+                .setDialogId(PROFILE_FRAME_COLOR_ID)
+                .setColor(color)
+                .setShowAlphaSlider(true)
+                .show(MainActivity.this);
+    }
+
+    private void openNativeColorPickerForContact(String currentColor, int dialogId) {
+        onNativePanelOpened();
+        int color = Color.BLACK;
+        try {
+            if (currentColor != null && !currentColor.isEmpty()) {
+                color = Color.parseColor(currentColor);
+            }
+        } catch (IllegalArgumentException e) {
+            color = Color.BLACK;
+        }
+
+        ColorPickerDialog.newBuilder()
+                .setDialogId(dialogId)
+                .setColor(color)
+                .setShowAlphaSlider(true)
+                .show(this);
+    }
+
+    private void showSectionSettingsDialog(String sectionId) {
+        onNativePanelOpened();
+        if (myWebView == null) return;
+        
+        myWebView.evaluateJavascript("if(window.getSectionStructure) window.getSectionStructure('" + sectionId + "');", value -> {
+            if (value == null || value.equals("null")) return;
+            
+            // Unescape JSON string if doubly encoded
+            String jsonStr = value;
+            if (jsonStr.startsWith("\"") && jsonStr.endsWith("\"")) {
+                jsonStr = jsonStr.substring(1, jsonStr.length() - 1).replace("\\\"", "\"");
+            }
+            
+            final String finalJson = jsonStr;
+            runOnUiThread(() -> {
+                try {
+                    JSONObject data = new JSONObject(finalJson);
+                    String title = data.optString("title", "Section");
+                    // String iconClass = data.optString("icon", ""); // Use if needed for icon changer
+                    JSONArray items = data.optJSONArray("items");
+                    
+                    selectedItemIds.clear();
+                    
+                    BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
+                    View view = getLayoutInflater().inflate(R.layout.dialog_section_settings, null);
+                    dialog.setContentView(view);
+
+                    
+                    // Setup Header
+                    EditText titleView = view.findViewById(R.id.headerTitle);
+                    if (titleView != null) {
+                        titleView.setText(title);
+                        titleView.addTextChangedListener(new android.text.TextWatcher() {
+                            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                            @Override public void afterTextChanged(android.text.Editable s) {
+                                if (myWebView != null) {
+                                    // Debounce could be good, but direct update is fine for local title
+                                    myWebView.evaluateJavascript("window.updateSectionTitle('" + sectionId + "', '" + s.toString().replace("'", "\\'") + "');", null);
+                                }
+                            }
+                        });
+                    }
+
+                    // Setup Icon Picker
+                    View iconContainer = view.findViewById(R.id.headerIconContainer);
+                    if(iconContainer != null) {
+                        iconContainer.setOnClickListener(v -> {
+                            currentSectionIdForIcon = sectionId;
+                            isPickingSectionIcon = true;
+                            openFileChooser(null);
+                        });
+                    }
+
+
+
+
+
+                    // Setup Buttons & Containers
+                    LinearLayout btnHeaderStyle = view.findViewById(R.id.btnHeaderStyle);
+                    LinearLayout btnSectionColor = view.findViewById(R.id.btnSectionColor);
+                    LinearLayout btnAlignment = view.findViewById(R.id.btnAlignment);
+                    LinearLayout btnGrid = view.findViewById(R.id.btnGrid);
+                    LinearLayout btnApplyToAll = view.findViewById(R.id.btnApplyToAll);
+
+                    // These are now inside the main layout, initially GONE
+                    LinearLayout containerAlignmentSlider = view.findViewById(R.id.containerAlignmentSlider);
+                    SeekBar sliderAlignment = view.findViewById(R.id.sliderAlignment);
+                    TextView txtAlignmentVal = view.findViewById(R.id.txtAlignmentVal);
+                    LinearLayout containerGridSpacing = view.findViewById(R.id.containerGridSpacing);
+                    
+                    CheckBox chkAlignHeader = view.findViewById(R.id.chkAlignHeader);
+                    CheckBox chkAlignItems = view.findViewById(R.id.chkAlignItems);
+
+                    View.OnTouchListener sliderTouchListener = (v, event) -> {
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        if ((event.getAction() & android.view.MotionEvent.ACTION_MASK) == android.view.MotionEvent.ACTION_UP) {
+                            v.getParent().requestDisallowInterceptTouchEvent(false);
+                        }
+                        return false;
+                    };
+
+                    if (btnAlignment != null && containerAlignmentSlider != null) {
+                        btnAlignment.setOnClickListener(v -> {
+                            TransitionManager.beginDelayedTransition((ViewGroup) view.findViewById(R.id.container_row2));
+                            if (containerAlignmentSlider.getVisibility() == View.VISIBLE) {
+                                containerAlignmentSlider.setVisibility(View.GONE);
+                            } else {
+                                if (containerGridSpacing != null) containerGridSpacing.setVisibility(View.GONE);
+                                containerAlignmentSlider.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+
+                    if (btnGrid != null && containerGridSpacing != null) {
+                        btnGrid.setOnClickListener(v -> {
+                            TransitionManager.beginDelayedTransition((ViewGroup) view.findViewById(R.id.container_row2));
+                            if (containerGridSpacing.getVisibility() == View.VISIBLE) {
+                                containerGridSpacing.setVisibility(View.GONE);
+                            } else {
+                                if (containerAlignmentSlider != null) containerAlignmentSlider.setVisibility(View.GONE);
+                                containerGridSpacing.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+
+
+                    if (btnHeaderStyle != null) {
+                        btnHeaderStyle.setOnClickListener(v -> {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                            builder.setTitle("Header Style");
+                            String[] styles = {"Default", "Hidden Line"};
+                            builder.setItems(styles, (dialog1, which) -> {
+                                String selectedStyle = styles[which];
+                                if (myWebView != null) {
+                                    myWebView.evaluateJavascript("window.updateSectionHeaderStyle('" + sectionId + "', '" + selectedStyle + "');", null);
+                                }
+                            });
+                            builder.show();
+                        });
+                    }
+
+                    if (btnSectionColor != null) {
+                        btnSectionColor.setOnClickListener(v -> {
+                             currentEditingSectionId = sectionId;
+                             String sectionBg = data.optString("bgColor", "#FFFFFF");
+                             // Using generic picker logic
+                             openNativeColorPickerForContact(sectionBg, CURRENT_SECTION_BG_COLOR_ID); 
+                        });
+                    }
+
+                    if (btnApplyToAll != null) {
+                        btnApplyToAll.setOnClickListener(v -> {
+                             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                             builder.setTitle("Apply to All Sections");
+                             String[] options = {
+                                 "Header Style", "Grid Spacing", "Alignment", "Background Color",
+                                 "Subsection Background", "Subsection Line Height", "Subsection Roundness"
+                             };
+                             boolean[] checkedItems = {true, true, true, true, true, true, true};
+                             builder.setMultiChoiceItems(options, checkedItems, (dialog1, which, isChecked) -> {
+                                 checkedItems[which] = isChecked;
+                             });
+                             builder.setPositiveButton("Apply", (dialog1, which) -> {
+                                 try {
+                                     JSONObject opts = new JSONObject();
+                                     opts.put("style", checkedItems[0]);
+                                     opts.put("grid", checkedItems[1]);
+                                     opts.put("align", checkedItems[2]);
+                                     opts.put("color", checkedItems[3]);
+                                     opts.put("subBg", checkedItems[4]);
+                                     opts.put("subLine", checkedItems[5]);
+                                     opts.put("subRound", checkedItems[6]);
+                                     if(myWebView != null) {
+                                         myWebView.evaluateJavascript("window.applySettingsToAllSections('" + sectionId + "', " + opts.toString() + ");", null);
+                                     }
+                                 } catch(JSONException e) { Log.e(TAG, "ApplyAll JSON error", e); }
+                             });
+                             builder.setNegativeButton("Cancel", null);
+                             builder.show();
+                        });
+                    }
+
+                    if (sliderAlignment != null) {
+                        sliderAlignment.setOnTouchListener(sliderTouchListener);
+                        
+                        SeekBar.OnSeekBarChangeListener alignListener = new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                String alignStr = "Center";
+                                if(progress == 0) alignStr = "Left";
+                                if(progress == 2) alignStr = "Right";
+                                if(txtAlignmentVal != null) txtAlignmentVal.setText(alignStr);
+                                
+                                // Only trigger if from user OR if explicitly called by checkbox
+                                if (myWebView != null) {
+                                    boolean applyHeader = chkAlignHeader != null && chkAlignHeader.isChecked();
+                                    boolean applyItems = chkAlignItems != null && chkAlignItems.isChecked();
+                                    myWebView.evaluateJavascript("window.updateSectionAlignment('" + sectionId + "', '" + alignStr.toLowerCase() + "', " + applyHeader + ", " + applyItems + ");", null);
+                                }
+                            }
+                            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                        };
+                        
+                        sliderAlignment.setOnSeekBarChangeListener(alignListener);
+                        
+                        // Checkbox listeners to re-trigger alignment
+                        if (chkAlignHeader != null) {
+                            chkAlignHeader.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                                alignListener.onProgressChanged(sliderAlignment, sliderAlignment.getProgress(), true);
+                            });
+                        }
+                        if (chkAlignItems != null) {
+                            chkAlignItems.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                                alignListener.onProgressChanged(sliderAlignment, sliderAlignment.getProgress(), true);
+                            });
+                        }
+                    }
+
+                    // Setup Grid Spacing
+                    SeekBar gridSlider = view.findViewById(R.id.sliderGridSpacing);
+                    TextView gridVal = view.findViewById(R.id.txtGridSpacingVal);
+                    if (gridSlider != null) {
+                        gridSlider.setOnTouchListener(sliderTouchListener);
+                        // Default check? Or maybe we can pass it in JSON later. defaulting to 10 for now.
+                        gridSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                if (fromUser) {
+                                    if(gridVal != null) gridVal.setText(progress + "px");
+                                    if(myWebView != null) {
+                                        myWebView.evaluateJavascript("window.updateSectionGridSpacing('" + sectionId + "', " + progress + ");", null);
+                                    }
+                                }
+                            }
+                            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                        });
+                    }
+                    
+                    // Setup Select All
+                    TextView btnSelectAll = view.findViewById(R.id.btnSelectAll);
+                    if (btnSelectAll != null) {
+                        btnSelectAll.setOnClickListener(v -> {
+                            boolean allSelected = selectedItemIds.size() == items.length();
+                            if (allSelected) {
+                                selectedItemIds.clear();
+                                btnSelectAll.setText("Select All");
+                            } else {
+                                selectedItemIds.clear();
+                                for (int i = 0; i < items.length(); i++) {
+                                    try { selectedItemIds.add(items.getJSONObject(i).getString("id")); } catch (JSONException e) {}
+                                }
+                                btnSelectAll.setText("Deselect All");
+                            }
+                            
+                            // Update all checkboxes and background states
+                            LinearLayout subsectionContainer = view.findViewById(R.id.subsectionContainer);
+                            if (subsectionContainer != null) {
+                                for (int i = 0; i < subsectionContainer.getChildCount(); i++) {
+                                    View itemView = subsectionContainer.getChildAt(i);
+                                    CheckBox cb = itemView.findViewById(R.id.itemSelectCb);
+                                    if (cb != null) cb.setChecked(!allSelected);
+                                }
+                            }
+                            updateMultiSelectUIVisibility(view, items);
+                        });
+                    }
+
+                    // Setup Items
+                    LinearLayout container = view.findViewById(R.id.subsectionContainer);
+                    if (container != null) {
+                        container.removeAllViews();
+                        
+                        if (items != null) {
+                            for (int i = 0; i < items.length(); i++) {
+                                JSONObject item = items.getJSONObject(i);
+                                String itemId = item.getString("id");
+                                String itemText = item.getString("text");
+                                String currentBg = item.optString("bgColor", "");
+                                
+                                View itemView = getLayoutInflater().inflate(R.layout.item_subsection, container, false);
+                                TextView nameView = itemView.findViewById(R.id.itemName);
+                                nameView.setText(itemText);
+                                
+                                // Selection Logic
+                                CheckBox itemSelectCb = itemView.findViewById(R.id.itemSelectCb);
+                                itemSelectCb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                                    if (isChecked) selectedItemIds.add(itemId);
+                                    else selectedItemIds.remove(itemId);
+                                    updateMultiSelectUIVisibility(view, items);
+                                });
+                                
+                                // Color Logic
+                                View colorView = itemView.findViewById(R.id.viewBgColor);
+                                colorView.setOnClickListener(v -> {
+                                    currentEditingItemId = itemId;
+                                    openNativeColorPickerForFrame(currentBg, ITEM_BG_COLOR_ID);
+                                });
+                                
+                                // Line Space Slider Logic
+                                View btnLineSpace = itemView.findViewById(R.id.btnLineSpace);
+                                SeekBar sliderLineSpace = itemView.findViewById(R.id.sliderLineSpace);
+                                TextView lblLineSpace = itemView.findViewById(R.id.lblLineSpace);
+
+                                // Roundness Slider Logic
+                                View btnRoundness = itemView.findViewById(R.id.btnRoundness);
+                                SeekBar sliderRoundness = itemView.findViewById(R.id.sliderRoundness);
+                                TextView lblRoundness = itemView.findViewById(R.id.lblRoundness);
+                                
+                                ViewGroup actionsContainer = itemView.findViewById(R.id.actionsContainer);
+
+                                // Helper to toggle single slider mode
+                                View.OnClickListener toggleSlider = v -> {
+                                    TransitionManager.beginDelayedTransition(actionsContainer);
+                                    
+                                    boolean showingLineSpace = (v == btnLineSpace && sliderLineSpace.getVisibility() != View.VISIBLE);
+                                    boolean showingRoundness = (v == btnRoundness && sliderRoundness.getVisibility() != View.VISIBLE);
+
+                                    // Reset all first
+                                    btnLineSpace.setVisibility(View.VISIBLE);
+                                    sliderLineSpace.setVisibility(View.GONE);
+                                    if(lblLineSpace != null) lblLineSpace.setVisibility(View.GONE);
+
+                                    if(colorView != null) colorView.setVisibility(View.VISIBLE);
+                                    
+                                    btnRoundness.setVisibility(View.VISIBLE);
+                                    sliderRoundness.setVisibility(View.GONE);
+                                    if(lblRoundness != null) lblRoundness.setVisibility(View.GONE);
+
+                                    if (showingLineSpace) {
+                                        // Show Line Space Slider, Hide others
+                                        if(colorView != null) colorView.setVisibility(View.GONE);
+                                        btnRoundness.setVisibility(View.GONE);
+                                        sliderLineSpace.setVisibility(View.VISIBLE);
+                                        if(lblLineSpace != null) lblLineSpace.setVisibility(View.VISIBLE);
+                                    } else if (showingRoundness) {
+                                        // Show Roundness Slider, Hide others
+                                        btnLineSpace.setVisibility(View.GONE);
+                                        if(colorView != null) colorView.setVisibility(View.GONE);
+                                        sliderRoundness.setVisibility(View.VISIBLE);
+                                        if(lblRoundness != null) lblRoundness.setVisibility(View.VISIBLE);
+                                    }
+                                };
+
+                                btnLineSpace.setOnClickListener(toggleSlider);
+                                btnRoundness.setOnClickListener(toggleSlider);
+                                
+                                // Slider Listeners
+                                sliderLineSpace.setOnTouchListener(sliderTouchListener);
+                                sliderLineSpace.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                    @Override
+                                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                        if (fromUser && myWebView != null) {
+                                            myWebView.evaluateJavascript("window.updateItemStyle('" + itemId + "', 'line_space', " + progress + ");", null);
+                                        }
+                                    }
+                                    @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                                    @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                                });
+
+                                sliderRoundness.setOnTouchListener(sliderTouchListener);
+                                sliderRoundness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                    @Override
+                                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                        if (fromUser && myWebView != null) {
+                                             myWebView.evaluateJavascript("window.updateItemStyle('" + itemId + "', 'roundness', " + progress + ");", null);
+                                        }
+                                    }
+                                    @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                                    @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                                });
+
+                                container.addView(itemView);
+                            }
+                        }
+                    } 
+                    
+                    // Setup Multi-Select Panel Controls
+                    LinearLayout multiActionsContainer = view.findViewById(R.id.multiActionsContainer);
+                    LinearLayout multiSlidersContainer = view.findViewById(R.id.multiSlidersContainer);
+                    TextView lblMultiSlider = view.findViewById(R.id.lblMultiSlider);
+                    SeekBar sliderMulti = view.findViewById(R.id.sliderMulti);
+                    
+                    ImageView btnMultiLineSpace = view.findViewById(R.id.btnMultiLineSpace);
+                    ImageView btnMultiRoundness = view.findViewById(R.id.btnMultiRoundness);
+                    View btnMultiColor = view.findViewById(R.id.btnMultiColor);
+
+                    if (multiActionsContainer != null) {
+                        View.OnClickListener toggleMultiSlider = v -> {
+                            TransitionManager.beginDelayedTransition((ViewGroup) view); 
+                            
+                            String currentMode = (String) sliderMulti.getTag();
+                            String targetMode = "";
+                            int maxVal = 100;
+                            
+                            if (v == btnMultiLineSpace) {
+                                targetMode = "line_space";
+                                maxVal = 50;
+                                lblMultiSlider.setText("Line Height");
+                            } else if (v == btnMultiRoundness) {
+                                targetMode = "roundness";
+                                maxVal = 30;
+                                lblMultiSlider.setText("Roundness");
+                            }
+                            
+                            if (targetMode.equals(currentMode) && multiSlidersContainer.getVisibility() == View.VISIBLE) {
+                                multiSlidersContainer.setVisibility(View.GONE);
+                                sliderMulti.setTag(null);
+                            } else {
+                                multiSlidersContainer.setVisibility(View.VISIBLE);
+                                sliderMulti.setTag(targetMode);
+                                sliderMulti.setMax(maxVal);
+                                sliderMulti.setProgress(10); 
+                            }
+                        };
+                        
+                        btnMultiLineSpace.setOnClickListener(toggleMultiSlider);
+                        btnMultiRoundness.setOnClickListener(toggleMultiSlider);
+                        
+                        btnMultiColor.setOnClickListener(v -> {
+                             currentEditingItemId = "MULTI_SELECT"; 
+                             openNativeColorPickerForFrame("", ITEM_BG_COLOR_ID); 
+                        });
+                        
+                        sliderMulti.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                if (fromUser && myWebView != null) {
+                                    String mode = (String) seekBar.getTag();
+                                    if (mode != null) {
+                                        for (String id : selectedItemIds) {
+                                            myWebView.evaluateJavascript("window.updateItemStyle('" + id + "', '" + mode + "', " + progress + ");", null);
+                                        }
+                                    }
+                                }
+                            }
+                             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                        });
+                    }
+                    
+                    dialog.show();
+                    
+                } catch (JSONException e) {
+                    Log.e(TAG, "Error parsing section data", e);
+                }
+            });
+        });
+    }
+
+    interface SimpleSliderCallback {
+        void onChanged(int value);
+    }
+
+    private void showSimpleSlider(View anchor, String title, int min, int max, int current, SimpleSliderCallback callback) {
+         LinearLayout layout = new LinearLayout(this);
+         layout.setOrientation(LinearLayout.VERTICAL);
+         layout.setPadding(30, 30, 30, 30);
+         layout.setBackgroundColor(Color.WHITE);
+         
+         TextView lbl = new TextView(this);
+         lbl.setText(title);
+         lbl.setTextColor(Color.BLACK);
+         lbl.setTextSize(14);
+         layout.addView(lbl);
+         
+         SeekBar sb = new SeekBar(this);
+         sb.setMax(max - min);
+         sb.setProgress(current - min);
+         layout.addView(sb);
+         
+         TextView val = new TextView(this);
+         val.setText(String.valueOf(current));
+         val.setGravity(Gravity.CENTER);
+         layout.addView(val);
+         
+         PopupWindow popup = new PopupWindow(layout, 600, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+         popup.setElevation(20);
+         popup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.WHITE)); 
+         
+         sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+             public void onProgressChanged(SeekBar s, int p, boolean u) {
+                 int value = p + min;
+                 val.setText(String.valueOf(value));
+                 if(u) callback.onChanged(value);
+             }
+             public void onStartTrackingTouch(SeekBar s) {}
+             public void onStopTrackingTouch(SeekBar s) {}
+         });
+         
+         popup.showAsDropDown(anchor);
+    }
+
+    private void showFrameSettingsDialog(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale) {
+        onNativePanelOpened();
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        View view = getLayoutInflater().inflate(R.layout.dialog_frame_settings, null);
+        dialog.setContentView(view);
+
+        // Max Height 40%
+        dialog.setOnShowListener(dialogInterface -> {
+            BottomSheetDialog d = (BottomSheetDialog) dialogInterface;
+            View bottomSheet = d.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior behavior = BottomSheetBehavior.from(bottomSheet);
+                int screenHeight = getResources().getDisplayMetrics().heightPixels;
+                int maxHeight = (int) (screenHeight * 0.45);
+                behavior.setMaxHeight(maxHeight);
+                behavior.setPeekHeight(maxHeight);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+
+        TabLayout tabLayout = view.findViewById(R.id.tab_layout_settings);
+        View layoutStyles = view.findViewById(R.id.layout_styles);
+        View layoutCustomize = view.findViewById(R.id.layout_customize);
+
+        tabLayout.addTab(tabLayout.newTab().setText("Styles"));
+        tabLayout.addTab(tabLayout.newTab().setText("Customize"));
+
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    layoutStyles.setVisibility(View.VISIBLE);
+                    layoutCustomize.setVisibility(View.GONE);
+                } else {
+                    layoutStyles.setVisibility(View.GONE);
+                    layoutCustomize.setVisibility(View.VISIBLE);
+                }
+            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
+        // Default to Customize tab
+        tabLayout.getTabAt(1).select();
+        layoutCustomize.setVisibility(View.VISIBLE);
+        layoutStyles.setVisibility(View.GONE);
+
+        if (type.equals("header")) {
+            ViewPager2 pager = view.findViewById(R.id.pager_styles);
+            TabLayout indicator = view.findViewById(R.id.indicator_styles);
+            
+            String[] styleNames = {"Minimal", "Bold", "Glass"};
+            String[] styleIds = {"d1", "d2", "d3"};
+            
+            StyleCarouselAdapter adapter = new StyleCarouselAdapter(styleNames, styleIds);
+            pager.setAdapter(adapter);
+            
+            new com.google.android.material.tabs.TabLayoutMediator(indicator, pager, (tab, position) -> {}).attach();
+            
+            // Set initial page
+            pager.setCurrentItem(currentHeaderIdx, false);
+            
+            pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    currentHeaderIdx = position;
+                    String typeId = styleIds[position];
+                    if (myWebView != null) {
+                        myWebView.evaluateJavascript("if(window.applyHeaderDesign) window.applyHeaderDesign('"+ typeId +"');", null);
+                    }
+                }
+            });
+        }
+
+        // Collapsible Sections
+        View headerFrame = view.findViewById(R.id.header_frame);
+        View containerFrame = view.findViewById(R.id.container_frame);
+        ImageView imgFrameChevron = view.findViewById(R.id.img_frame_chevron);
+        
+        View headerMain = view.findViewById(R.id.header_main);
+        View containerMain = view.findViewById(R.id.container_main);
+        ImageView imgMainChevron = view.findViewById(R.id.img_main_chevron);
+        
+        View headerText = view.findViewById(R.id.header_text);
+        View containerText = view.findViewById(R.id.container_text);
+        ImageView imgTextChevron = view.findViewById(R.id.img_text_chevron);
+
+        View headerImage = view.findViewById(R.id.header_image);
+        View containerImage = view.findViewById(R.id.container_image);
+        ImageView imgImageChevron = view.findViewById(R.id.img_image_chevron);
+
+        // Create a list of all sections to manage accordion behavior
+        List<View[]> allSectionsHeaders = new ArrayList<>();
+        allSectionsHeaders.add(new View[]{headerFrame, containerFrame, imgFrameChevron});
+        allSectionsHeaders.add(new View[]{headerMain, containerMain, imgMainChevron});
+        allSectionsHeaders.add(new View[]{headerText, containerText, imgTextChevron});
+        allSectionsHeaders.add(new View[]{headerImage, containerImage, imgImageChevron});
+
+        setupFrameAccordion(headerFrame, containerFrame, imgFrameChevron, allSectionsHeaders);
+        setupFrameAccordion(headerMain, containerMain, imgMainChevron, allSectionsHeaders);
+        setupFrameAccordion(headerText, containerText, imgTextChevron, allSectionsHeaders);
+        setupFrameAccordion(headerImage, containerImage, imgImageChevron, allSectionsHeaders);
+
+        // Collapse all by default
+        containerFrame.setVisibility(View.GONE);
+        imgFrameChevron.setRotation(0);
+        containerMain.setVisibility(View.GONE);
+        imgMainChevron.setRotation(0);
+        containerText.setVisibility(View.GONE);
+        imgTextChevron.setRotation(0);
+        containerImage.setVisibility(View.GONE);
+        imgImageChevron.setRotation(0);
+
+        if (type.equals("header")) {
+            headerText.setVisibility(View.VISIBLE);
+            headerImage.setVisibility(View.VISIBLE);
+            // Show Header Background Image button
+            View layoutHeaderBgImage = view.findViewById(R.id.layout_header_bg_image);
+            if (layoutHeaderBgImage != null) {
+                layoutHeaderBgImage.setVisibility(View.VISIBLE);
+                View btnHeaderBgImage = view.findViewById(R.id.btn_header_bg_image);
+                if (btnHeaderBgImage != null) {
+                    btnHeaderBgImage.setOnClickListener(v -> pickHeaderImage());
+                }
+                // Update Resolution Text
+                if (layoutHeaderBgImage instanceof LinearLayout) {
+                    TextView txtRes = (TextView) ((LinearLayout) layoutHeaderBgImage).getChildAt(1); // Assuming 2nd child is TextView
+                    if (txtRes != null) {
+                        txtRes.setText(getResString(width, height));
+                    }
+                }
+            }
+        } else if (type.equals("left")) {
+             headerText.setVisibility(View.GONE);
+             headerImage.setVisibility(View.VISIBLE);
+             // Show Left Background Image button
+             View layoutLeftBgImage = view.findViewById(R.id.layout_left_bg_image);
+             if (layoutLeftBgImage != null) {
+                 layoutLeftBgImage.setVisibility(View.VISIBLE);
+                 View btnLeftBgImage = view.findViewById(R.id.btn_left_bg_image);
+                 if (btnLeftBgImage != null) {
+                     btnLeftBgImage.setOnClickListener(v -> pickLeftImage());
+                 }
+                 // Update Resolution Text
+                 if (layoutLeftBgImage instanceof LinearLayout) {
+                     TextView txtRes = (TextView) ((LinearLayout) layoutLeftBgImage).getChildAt(1); // Assuming 2nd child is TextView
+                     if (txtRes != null) {
+                         txtRes.setText(getResString(width, height));
+                     }
+                 }
+             }
+        } else {
+            headerText.setVisibility(View.GONE);
+            headerImage.setVisibility(View.GONE);
+        }
+
+        // Swap Button (Only for Left)
+        if (type.equals("left")) {
+            View btnSwap = view.findViewById(R.id.btn_swap_columns);
+            if (btnSwap != null) {
+                btnSwap.setVisibility(View.VISIBLE);
+                btnSwap.setOnClickListener(v -> {
+                    if (myWebView != null) {
+                         myWebView.evaluateJavascript("if(window.updateDesignerColumnLayout) window.updateDesignerColumnLayout();", null);
+                    }
+                });
+            }
+        }
+
+        // Initial rotation for text if it's closed (it is GONE in XML)
+        if (containerText.getVisibility() == View.GONE) {
+            imgTextChevron.setRotation(0);
+        } else {
+            imgTextChevron.setRotation(180);
+        }
+        // Frame and Main are visible by default, so set them to 180
+        imgFrameChevron.setRotation(180);
+        imgMainChevron.setRotation(180);
+
+        TextView txtTitle = view.findViewById(R.id.txt_dialog_title);
+        SeekBar sliderThickness = view.findViewById(R.id.slider_thickness);
+        SeekBar sliderRadius = view.findViewById(R.id.slider_radius);
+        TextView txtThickness = view.findViewById(R.id.txt_thickness_val);
+        TextView txtRadius = view.findViewById(R.id.txt_radius_val);
+
+        // Frame Gradient Indicators
+        View frameStartIndicator = view.findViewById(R.id.view_frame_color_start_indicator);
+        View frameEndIndicator = view.findViewById(R.id.view_frame_color_end_indicator);
+        Button btnFrameStart = view.findViewById(R.id.btn_change_frame_color_start);
+        Button btnFrameEnd = view.findViewById(R.id.btn_change_frame_color_end);
+
+        // Fill Gradient Indicators
+        View fillStartIndicator = view.findViewById(R.id.view_column_bg_color_start_indicator);
+        View fillEndIndicator = view.findViewById(R.id.view_column_bg_color_end_indicator);
+        Button btnFillStart = view.findViewById(R.id.btn_change_column_bg_color_start);
+        Button btnFillEnd = view.findViewById(R.id.btn_change_column_bg_color_end);
+
+        CheckBox checkTop = view.findViewById(R.id.check_top);
+        CheckBox checkBottom = view.findViewById(R.id.check_bottom);
+        CheckBox checkLeft = view.findViewById(R.id.check_left);
+        CheckBox checkRight = view.findViewById(R.id.check_right);
+
+        // Header Text Color
+        View layoutTextColor = view.findViewById(R.id.layout_text_color_container);
+        View textColorIndicator = view.findViewById(R.id.view_text_color_indicator);
+        Button btnTextColor = view.findViewById(R.id.btn_change_text_color);
+
+        SeekBar sliderHeaderBlur = view.findViewById(R.id.slider_header_blur);
+        SeekBar sliderLeftBlur = view.findViewById(R.id.slider_left_blur);
+
+        RadioGroup rgHeaderScale = view.findViewById(R.id.rg_header_scale);
+        RadioGroup rgLeftScale = view.findViewById(R.id.rg_left_scale);
+
+        String title = type.substring(0, 1).toUpperCase() + type.substring(1) + " Settings";
+        if (type.equals("left")) title = "Designer Column Settings";
+        txtTitle.setText(title);
+
+        sliderThickness.setProgress(thickness);
+        sliderRadius.setProgress(radius);
+        txtThickness.setText(String.valueOf(thickness));
+        txtRadius.setText(String.valueOf(radius));
+
+        if (sides != null && sides.length() == 4) {
+            checkTop.setChecked(sides.charAt(0) == '1');
+            checkBottom.setChecked(sides.charAt(1) == '1');
+            checkLeft.setChecked(sides.charAt(2) == '1');
+            checkRight.setChecked(sides.charAt(3) == '1');
+        }
+
+        final String[] fStart = {colorStart != null ? colorStart : "#ffffff"};
+        final String[] fEnd = {colorEnd != null ? colorEnd : "#ffffff"};
+        final String[] bStart = {bgStart != null ? bgStart : "#ffffff"};
+        final String[] bEnd = {bgEnd != null ? bgEnd : "#ffffff"};
+        final String[] tColor = {textColor != null ? textColor : "#333333"};
+
+        if (type.equals("header")) {
+            layoutTextColor.setVisibility(View.VISIBLE);
+            if (sliderHeaderBlur != null) sliderHeaderBlur.setProgress(blur);
+            if (rgHeaderScale != null && scale != null) {
+                if (scale.equals("cover")) rgHeaderScale.check(R.id.rb_header_fill);
+                else if (scale.equals("contain")) rgHeaderScale.check(R.id.rb_header_fit);
+                else rgHeaderScale.check(R.id.rb_header_center);
+            }
+        } else if (type.equals("left")) {
+            if (sliderLeftBlur != null) sliderLeftBlur.setProgress(blur);
+            if (rgLeftScale != null && scale != null) {
+                if (scale.equals("cover")) rgLeftScale.check(R.id.rb_left_fill);
+                else if (scale.equals("contain")) rgLeftScale.check(R.id.rb_left_fit);
+                else rgLeftScale.check(R.id.rb_left_center);
+            }
+        }
+
+        autoSetViewColor(frameStartIndicator, fStart[0]);
+        autoSetViewColor(frameEndIndicator, fEnd[0]);
+        autoSetViewColor(fillStartIndicator, bStart[0]);
+        autoSetViewColor(fillEndIndicator, bEnd[0]);
+        autoSetViewColor(textColorIndicator, tColor[0]);
+
+        if (type.equals("header")) {
+            layoutTextColor.setVisibility(View.VISIBLE);
+        }
+
+        Runnable triggerUpdate = () -> {
+            int t = sliderThickness.getProgress();
+            int r = sliderRadius.getProgress();
+            txtThickness.setText(String.valueOf(t));
+            txtRadius.setText(String.valueOf(r));
+
+            String s = (checkTop.isChecked() ? "1" : "0") +
+                       (checkBottom.isChecked() ? "1" : "0") +
+                       (checkLeft.isChecked() ? "1" : "0") +
+                       (checkRight.isChecked() ? "1" : "0");
+
+            if (myWebView != null) {
+                int bVal = 0;
+                String sVal = "cover";
+
+                if (type.equals("left")) {
+                     if (sliderLeftBlur != null) bVal = sliderLeftBlur.getProgress();
+                     if (rgLeftScale != null) {
+                         int id = rgLeftScale.getCheckedRadioButtonId();
+                         if (id == R.id.rb_left_fit) sVal = "contain";
+                         else if (id == R.id.rb_left_center) sVal = "auto";
+                     }
+                } else if (type.equals("header")) {
+                    if (sliderHeaderBlur != null) bVal = sliderHeaderBlur.getProgress();
+                     if (rgHeaderScale != null) {
+                         int id = rgHeaderScale.getCheckedRadioButtonId();
+                         if (id == R.id.rb_header_fit) sVal = "contain";
+                         else if (id == R.id.rb_header_center) sVal = "auto";
+                     }
+                }
+
+                String jsFunc = type.equals("left") ? "window.updateLeftFrameConfig" : "window.updateHeaderFrameConfig";
+                String js = String.format("if(%s) %s({thickness:%d, radius:%d, colorStart:'%s', colorEnd:'%s', sides:'%s', bgStart:'%s', bgEnd:'%s', textColor:'%s', blur:%d, scale:'%s'});",
+                    jsFunc, jsFunc, t, r, fStart[0], fEnd[0], s, bStart[0], bEnd[0], tColor[0], bVal, sVal);
+                myWebView.evaluateJavascript(js, null);
+            }
+        };
+
+        SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { if (fromUser) triggerUpdate.run(); }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        };
+        sliderThickness.setOnSeekBarChangeListener(listener);
+        sliderRadius.setOnSeekBarChangeListener(listener);
+        if (sliderHeaderBlur != null) sliderHeaderBlur.setOnSeekBarChangeListener(listener);
+        if (sliderLeftBlur != null) sliderLeftBlur.setOnSeekBarChangeListener(listener);
+
+        // Header Height Logic
+        View layoutHeaderHeight = view.findViewById(R.id.layout_header_height_settings);
+        if (type.equals("left") && layoutHeaderHeight != null) {
+            layoutHeaderHeight.setVisibility(View.GONE);
+        }
+
+        SeekBar sliderHeaderHeight = view.findViewById(R.id.sliderHeaderHeight);
+        TextView txtHeaderHeightVal = view.findViewById(R.id.txtHeaderHeightVal);
+        TextView btnHeaderHeightAuto = view.findViewById(R.id.btnHeaderHeightAuto);
+        
+        if (sliderHeaderHeight != null && txtHeaderHeightVal != null && btnHeaderHeightAuto != null) {
+            // Default to 0? Or maybe we can't easily read current. Let's start at 0 (meaning small) or just leave it.
+            // Better: if "Auto", set progress to 0?
+            // Let's assume user starts interacting.
+
+            sliderHeaderHeight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                         if (progress < 20) progress = 20; // Min 20px
+                         txtHeaderHeightVal.setText(progress + "px");
+                         if (myWebView != null) {
+                             myWebView.evaluateJavascript("if(window.updateHeaderHeight) window.updateHeaderHeight(" + progress + ");", null);
+                         }
+                    }
+                }
+                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+
+            btnHeaderHeightAuto.setOnClickListener(v -> {
+                if (myWebView != null) {
+                    myWebView.evaluateJavascript("if(window.updateHeaderHeight) window.updateHeaderHeight(-1);", null);
+                }
+                txtHeaderHeightVal.setText("Auto");
+                sliderHeaderHeight.setProgress(0);
+            });
+        }
+        
+        RadioGroup.OnCheckedChangeListener rgListener = (group, checkedId) -> triggerUpdate.run();
+        if (rgHeaderScale != null) rgHeaderScale.setOnCheckedChangeListener(rgListener);
+        if (rgLeftScale != null) rgLeftScale.setOnCheckedChangeListener(rgListener);
+
+        CompoundButton.OnCheckedChangeListener checkListener = (buttonView, isChecked) -> triggerUpdate.run();
+        checkTop.setOnCheckedChangeListener(checkListener);
+        checkBottom.setOnCheckedChangeListener(checkListener);
+        checkLeft.setOnCheckedChangeListener(checkListener);
+        checkRight.setOnCheckedChangeListener(checkListener);
+
+        btnFrameStart.setOnClickListener(v -> openNativeColorPickerForFrame(fStart[0], type.equals("left") ? LEFT_FRAME_COLOR_ID : HEADER_FRAME_COLOR_ID));
+        btnFrameEnd.setOnClickListener(v -> openNativeColorPickerForFrame(fEnd[0], type.equals("left") ? LEFT_FRAME_COLOR_END_ID : HEADER_FRAME_COLOR_END_ID));
+        btnFillStart.setOnClickListener(v -> openNativeColorPickerForFrame(bStart[0], type.equals("left") ? LEFT_FRAME_BG_COLOR_ID : HEADER_FRAME_BG_COLOR_ID));
+        btnFillEnd.setOnClickListener(v -> openNativeColorPickerForFrame(bEnd[0], type.equals("left") ? LEFT_FRAME_BG_COLOR_END_ID : HEADER_FRAME_BG_COLOR_END_ID));
+        btnTextColor.setOnClickListener(v -> openNativeColorPickerForFrame(tColor[0], HEADER_TEXT_COLOR_ID));
+
+        dialog.show();
+    }
+
+    private void autoSetViewColor(View v, String c) {
+        try { v.setBackgroundColor(Color.parseColor(c)); } catch (Exception e) { v.setBackgroundColor(Color.WHITE); }
+    }
+
+    private void openNativeColorPickerForFrame(String currentColor, int dialogId) {
+        onNativePanelOpened();
+        int color = Color.WHITE;
+        try {
+            if (currentColor != null && !currentColor.isEmpty()) {
+                color = Color.parseColor(currentColor);
+            }
+        } catch (IllegalArgumentException e) {
+            color = Color.WHITE;
+        }
+
+        ColorPickerDialog.newBuilder()
+                .setDialogId(dialogId)
+                .setColor(color)
+                .setShowAlphaSlider(true)
+                .show(this);
+    }
+
+    private void updateContactSetting(String sectionId, String key, Object value) {
+        if (myWebView != null) {
+            String valStr = (value instanceof String) ? "'" + value + "'" : value.toString();
+            myWebView.evaluateJavascript("if(window.applyContactSetting) window.applyContactSetting('" + sectionId + "', '" + key + "', " + valStr + ");", null);
+        }
+    }
+
+    private String getResString(int width, int height) {
+        if (width <= 0 || height <= 0) return "Resolution: N/A";
+        int gcd = getGCD(width, height);
+        return String.format("Format: JPG/PNG • Ratio: %d:%d • Res: %dx%dpx", width/gcd, height/gcd, width, height);
+    }
+
+    private void setupFrameAccordion(View header, View content, ImageView chevron, List<View[]> allSections) {
+        header.setOnClickListener(v -> {
+            boolean expanded = content.getVisibility() == View.VISIBLE;
+            TransitionManager.beginDelayedTransition((ViewGroup) content.getParent(), new AutoTransition());
+            
+            if (expanded) {
+                content.setVisibility(View.GONE);
+                chevron.animate().rotation(0).setDuration(200).start();
+            } else {
+                // Close others first
+                for (View[] section : allSections) {
+                    View c = section[1];
+                    ImageView i = (ImageView) section[2]; 
+                    if (c != content && c.getVisibility() == View.VISIBLE) {
+                        c.setVisibility(View.GONE);
+                        i.animate().rotation(0).setDuration(200).start();
+                    }
+                }
+                // Open this one
+                content.setVisibility(View.VISIBLE);
+                chevron.animate().rotation(180).setDuration(200).start();
+            }
+        });
+    }
+
+    private int getGCD(int a, int b) {
+        return b == 0 ? a : getGCD(b, a % b);
+    }
+
+
+    private class StyleCarouselAdapter extends RecyclerView.Adapter<StyleCarouselAdapter.ViewHolder> {
+        private String[] names;
+        private String[] ids;
+        private int[] colors = {0xFFEEEEEE, 0xFFE0E0E0, 0xFFF5F5F5}; // Light placeholders
+
+        public StyleCarouselAdapter(String[] names, String[] ids) {
+            this.names = names;
+            this.ids = ids;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_style_carousel, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            holder.txtName.setText(names[position]);
+            // Use placeholder color for thumbnails
+            holder.imgThumbnail.setBackgroundColor(colors[position % colors.length]);
+            
+            // If assets existed, we would use holder.imgThumbnail.setImageResource(...)
+            // For now, let's add a subtle icon or text inside the placeholder to make it look "wow"
+            if (names[position].equals("Minimal")) {
+                holder.imgThumbnail.setImageResource(android.R.drawable.ic_menu_edit);
+            } else if (names[position].equals("Bold")) {
+                holder.imgThumbnail.setImageResource(android.R.drawable.ic_menu_add);
+            } else { // Glass
+                holder.imgThumbnail.setImageResource(android.R.drawable.ic_menu_view);
+            }
+            holder.imgThumbnail.setImageAlpha(128); // Semi-transparent icon
+        }
+
+        @Override
+        public int getItemCount() {
+            return names.length;
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ImageView imgThumbnail;
+            TextView txtName;
+
+            public ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                imgThumbnail = itemView.findViewById(R.id.img_style_thumbnail);
+                txtName = itemView.findViewById(R.id.txt_style_name);
+
+
+}
+        }
+    }
+
+    private void updateMultiSelectUIVisibility(View rootView, JSONArray items) {
+        View multiSelectPanel = rootView.findViewById(R.id.multiSelectPanel);
+        LinearLayout subsectionContainer = rootView.findViewById(R.id.subsectionContainer);
+
+        if (multiSelectPanel == null || subsectionContainer == null) return;
+
+        int selectedCount = selectedItemIds.size();
+
+        // 1. Calculate Positioning for Dynamic "Merge" Look
+        if (selectedCount > 1) {
+            float minY = Float.MAX_VALUE;
+            float maxY = 0;
+            boolean anyVisible = false;
+
+            for (int i = 0; i < subsectionContainer.getChildCount(); i++) {
+                View child = subsectionContainer.getChildAt(i);
+                try {
+                    String id = items.getJSONObject(i).getString("id");
+                    if (selectedItemIds.contains(id)) {
+                        float centerY = child.getY() + (child.getHeight() / 2f);
+                        minY = Math.min(minY, centerY);
+                        maxY = Math.max(maxY, centerY);
+                        anyVisible = true;
+                    }
+                } catch (Exception e) {}
+            }
+
+            if (anyVisible) {
+                float targetY = (minY + maxY) / 2f - (multiSelectPanel.getHeight() / 2f);
+                
+                if (multiSelectPanel.getVisibility() != View.VISIBLE) {
+                    multiSelectPanel.setVisibility(View.VISIBLE);
+                    multiSelectPanel.setAlpha(0f);
+                    multiSelectPanel.setTranslationX(100f);
+                    multiSelectPanel.setY(targetY);
+                    multiSelectPanel.animate().alpha(1f).translationX(0f).setDuration(400).setInterpolator(new android.view.animation.OvershootInterpolator()).start();
+                } else {
+                    // Smoothly animate to new center
+                    multiSelectPanel.animate().y(targetY).setDuration(300).setInterpolator(new android.view.animation.DecelerateInterpolator()).start();
+                }
+            }
+        } else {
+             if (multiSelectPanel.getVisibility() == View.VISIBLE) {
+                multiSelectPanel.animate().alpha(0f).translationX(100f).setDuration(250).withEndAction(() -> multiSelectPanel.setVisibility(View.GONE)).start();
+            }
+        }
+
+        // 2. Loop through Items for Visual Merge & inline control visibility
+        if (items != null) {
+            for (int i = 0; i < items.length(); i++) {
+                try {
+                     JSONObject item = items.getJSONObject(i);
+                     String itemId = item.getString("id");
+                     
+                     // Find view by traversing children (assuming order matches)
+                     View itemView = subsectionContainer.getChildAt(i); 
+                     if (itemView == null) continue;
+
+                     boolean isSelected = selectedItemIds.contains(itemId);
+                     
+                     // Inline Controls Visibility with "Gathering" Animation
+                     View actionsContainer = itemView.findViewById(R.id.actionsContainer);
+                     if (actionsContainer != null) {
+                         if (selectedCount > 1 && isSelected) {
+                             if (actionsContainer.getVisibility() == View.VISIBLE) {
+                                 // Calculate relative center target
+                                 float gatherX = multiSelectPanel.getX() - (itemView.getX() + actionsContainer.getX());
+                                 float gatherY = multiSelectPanel.getY() - (itemView.getY() + actionsContainer.getY());
+                                 
+                                 actionsContainer.animate()
+                                     .translationX(gatherX)
+                                     .translationY(gatherY)
+                                     .alpha(0f)
+                                     .scaleX(0.5f)
+                                     .scaleY(0.5f)
+                                     .setDuration(400)
+                                     .withEndAction(() -> {
+                                         actionsContainer.setVisibility(View.GONE);
+                                         actionsContainer.setTranslationX(0f);
+                                         actionsContainer.setTranslationY(0f);
+                                         actionsContainer.setAlpha(1f);
+                                         actionsContainer.setScaleX(1f);
+                                         actionsContainer.setScaleY(1f);
+                                     }).start();
+                             }
+                         } else {
+                             if (actionsContainer.getVisibility() != View.VISIBLE) {
+                                 actionsContainer.setVisibility(View.VISIBLE);
+                                 actionsContainer.setAlpha(0f);
+                                 actionsContainer.setScaleX(0.5f);
+                                 actionsContainer.setScaleY(0.5f);
+                                 actionsContainer.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(300).start();
+                             }
+                         }
+                     }
+                     
+                     // MERGE ANIMATION Logic
+                     LinearLayout rootLayout = (LinearLayout) itemView;
+                     
+                     // Determine Merge State
+                     boolean prevSelected = false;
+                     boolean nextSelected = false;
+                     
+                     if (i > 0) {
+                         String prevId = items.getJSONObject(i-1).getString("id");
+                         prevSelected = selectedItemIds.contains(prevId);
+                     }
+                     if (i < items.length() - 1) {
+                         String nextId = items.getJSONObject(i+1).getString("id");
+                         nextSelected = selectedItemIds.contains(nextId);
+                     }
+
+                     boolean shouldMergeUp = isSelected && prevSelected;
+                     boolean shouldMergeDown = isSelected && nextSelected;
+
+                     // Animate Margins
+                     LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) rootLayout.getLayoutParams();
+                     int defaultMargin = (int) (8 * getResources().getDisplayMetrics().density);
+                     int targetMarginBottom = shouldMergeDown ? 0 : defaultMargin;
+                     
+                     if (params.bottomMargin != targetMarginBottom) {
+                        ValueAnimator anim = ValueAnimator.ofInt(params.bottomMargin, targetMarginBottom);
+                        anim.addUpdateListener(val -> {
+                            params.bottomMargin = (int) val.getAnimatedValue();
+                            rootLayout.setLayoutParams(params);
+                        });
+                        anim.setDuration(300);
+                        anim.start();
+                     }
+
+                     // Update Background (Corner Radius)
+                     // Use a new Drawable to avoid sharing state (mutate)
+                     // Replicating rounded_box_bg props
+                     GradientDrawable bg = new GradientDrawable();
+                     bg.setColor(Color.parseColor("#F5F5F5")); 
+                     bg.setStroke((int)(1 * getResources().getDisplayMetrics().density), Color.parseColor("#E0E0E0"));
+                     
+                     float r = 8 * getResources().getDisplayMetrics().density; 
+                     float[] radii = {r, r, r, r, r, r, r, r};
+                     
+                     if (shouldMergeUp) { radii[0]=0; radii[1]=0; radii[2]=0; radii[3]=0; } 
+                     if (shouldMergeDown) { radii[4]=0; radii[5]=0; radii[6]=0; radii[7]=0; }
+                     
+                     bg.setCornerRadii(radii);
+                     rootLayout.setBackground(bg);
+                     
+                     // WOBBLE EFFECT (Spring-like)
+                     // Trigger if newly selected and count > 1? 
+                     // Or just trigger when selectedCount > 1 and isSelected
+                     if (isSelected && selectedCount > 1) {
+                         if (rootLayout.getScaleX() == 1f) { 
+                             ObjectAnimator scaleX = ObjectAnimator.ofFloat(rootLayout, "scaleX", 1f, 1.05f, 0.95f, 1.02f, 1f);
+                             ObjectAnimator scaleY = ObjectAnimator.ofFloat(rootLayout, "scaleY", 1f, 0.95f, 1.05f, 0.98f, 1f);
+                             AnimatorSet set = new AnimatorSet();
+                             set.playTogether(scaleX, scaleY);
+                             set.setDuration(400); 
+                             set.start();
+                         }
+                     } else {
+                         rootLayout.setScaleX(1f);
+                         rootLayout.setScaleY(1f);
+                     }
+                     
+                     
+                } catch (Exception e) {
+                    Log.e("MultiSelect", "Error updating item ui", e);
+                }
+            }
         }
     }
 }

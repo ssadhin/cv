@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingVertical="4dp">
 
     <!-- Pill-shaped collapsed view -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/pill_background" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="8dp" android:elevation="1dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:background="@drawable/pill_background" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="16dp" android:paddingEnd="8dp" android:elevation="1dp">
 
-        <!-- Delete button (circular) - LEFT SIDE -->
-        <ImageButton android:id="@+id/btnRemove" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/circular_button_background" android:src="@drawable/ic_close" android:padding="8dp" android:backgroundTint="#f44336" app:tint="#FFFFFF" />
+        <!-- Section Name (center-left) -->
+        <TextView android:id="@+id/tvSectionName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="8dp" android:text="Section Name" android:textColor="#1a237e" android:textSize="15sp" android:textStyle="bold" />
 
-        <!-- Section Name (center) -->
-        <TextView android:id="@+id/tvSectionName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:layout_marginEnd="12dp" android:text="Section Name" android:textColor="#1a237e" android:textSize="15sp" android:textStyle="bold" />
+        <!-- Delete button (circular) - NOW ON THE RIGHT -->
+        <ImageButton android:id="@+id/btnRemove" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/circular_button_background" android:src="@drawable/ic_close" android:padding="8dp" android:backgroundTint="#f44336" app:tint="#FFFFFF" android:layout_marginEnd="8dp" />
 
         <!-- Expand button (clickable) - RIGHT SIDE -->
         <ImageButton android:id="@+id/ivExpand" android:layout_width="36dp" android:layout_height="36dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_expand_more" android:padding="8dp" app:tint="#1a237e" />

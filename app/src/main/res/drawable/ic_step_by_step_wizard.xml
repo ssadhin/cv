@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+
+    <!-- Material Style PLUS (Shifted Down) -->
+    <!-- y=5..17, x=6..18. Center (12, 11) -->
+    <path android:fillColor="#333333" android:pathData="M13,5 h-2 v5 H6 v2 h5 v5 h2 v-5 h5 V10 h-5 z" />
+
+    <!-- STAIRS (Bottom Half) -->
+    <!-- y=16..22, x=6..18 -->
+    <path android:fillColor="#777777" android:fillAlpha="0.6" android:pathData="M6,22 h4 v-2 h4 v-2 h4 v-2 h-4 v2 h-4 v2 h-4 z" />
+
+    <!-- STAIRS Outline for better visibility -->
+    <path android:strokeColor="#777777" android:strokeWidth="1" android:pathData="M6,22 h4 v-2 h4 v-2 h4 v-2"/>
+</vector>

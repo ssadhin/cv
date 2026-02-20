@@ -87,7 +87,6 @@ class ATSAnalyzer {
         const hasExp = sectionTypes.some(h => h.includes('experience') || h.includes('work'));
         const hasEdu = sectionTypes.some(h => h.includes('education'));
         const hasSkills = sectionTypes.some(h => h.includes('skill'));
-        const hasContact = !!document.querySelector('.contact-info, #mainHeader');
 
         if (hasExp) { this.breakdown.experience = 20; this.successes.push({ title: "Core: Work Experience Found" }); }
         else this.issues.push({ title: "Missing Career History", msg: "ATS cannot find your 'Work Experience'." });
@@ -132,16 +131,7 @@ class ATSAnalyzer {
             this.successes.push({ title: "Strong Quantified Impact", msg: "Plenty of data to prove your results." });
         }
 
-        // 4. Contact & Online Presence (Bonus Pts integrated into sections)
-        if (hasContact) {
-            const contactText = document.querySelector('.contact-info, #mainHeader').innerText.toLowerCase();
-            if (!contactText.includes('@')) this.issues.push({ title: "Ghost Candidate", msg: "No email address found." });
-            if (contactText.includes('linkedin.com') || contactText.includes('github.com')) {
-                this.successes.push({ title: "Professional Links Found", msg: "Social proof is excellent." });
-            } else {
-                this.warnings.push({ title: "Missing Social Proof", msg: "Add LinkedIn to verify your profile." });
-            }
-        }
+
 
         this.checkSkillEvidence();
 

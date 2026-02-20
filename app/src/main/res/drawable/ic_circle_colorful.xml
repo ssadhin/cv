@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24.0" android:viewportHeight="24.0">
+
+    <!-- Red Sector (Light Bright) -->
+    <path android:fillColor="#FF8A80" android:strokeColor="#FFFFFF" android:strokeWidth="1" android:pathData="M12,12 L22,12 A10,10 0 0,1 7,20.66 Z"/>
+
+    <!-- Green Sector (Light Bright) -->
+    <path android:fillColor="#B9F6CA" android:strokeColor="#FFFFFF" android:strokeWidth="1" android:pathData="M12,12 L7,20.66 A10,10 0 0,1 7,3.34 Z"/>
+
+    <!-- Blue Sector (Light Bright) -->
+    <path android:fillColor="#80D8FF" android:strokeColor="#FFFFFF" android:strokeWidth="1" android:pathData="M12,12 L7,3.34 A10,10 0 0,1 22,12 Z"/>
+
+    <!-- Optional: Outer Ring for sharpness if needed, but segments allow shape definition -->
+</vector>

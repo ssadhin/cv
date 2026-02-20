@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools" android:id="@+id/homeRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#f5f5f5" tools:context=".HomeActivity">
 
     <!-- Drop Zone for Share (Overlay) -->
-    <LinearLayout android:id="@+id/shareDropZone" android:layout_width="0dp" android:layout_height="120dp" android:background="#E3F2FD" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:elevation="20dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
-        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_share" app:tint="#1976D2" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Drop here to Share" android:textSize="18sp" android:textStyle="bold" android:textColor="#1976D2" android:layout_marginTop="8dp"/>
+    <LinearLayout android:id="@+id/shareDropZone" android:layout_width="0dp" android:layout_height="120dp" android:background="#F5F5F5" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:elevation="20dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_share" app:tint="#333333" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Drop here to Share" android:textSize="18sp" android:textStyle="bold" android:textColor="#333333" android:layout_marginTop="8dp"/>
     </LinearLayout>
 
 
@@ -16,7 +16,7 @@
 
         <ImageView android:id="@+id/ivAppLogo" android:layout_width="90dp" android:layout_height="90dp" android:src="@drawable/cv" android:contentDescription="App Logo" />
 
-        <TextView android:id="@+id/tvAppTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vitae" android:textColor="#1a237e" android:textSize="34sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
+        <TextView android:id="@+id/tvAppTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vitae" android:textColor="#333333" android:textSize="34sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
 
     </LinearLayout>
 
@@ -48,14 +48,14 @@
 
             <!-- Option 4: AI Mode -->
             <LinearLayout android:id="@+id/optionAI" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI Mode (Coming Soon)" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@android:drawable/ic_menu_view" app:tint="#757575" app:backgroundTint="#F5F5F5" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI Mode" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@drawable/ic_ai_custom" app:tint="#757575" app:backgroundTint="#F5F5F5" />
             </LinearLayout>
 
             <!-- Option 3: Step by Step -->
             <LinearLayout android:id="@+id/optionStepByStep" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Step by Step (Demo)" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@android:drawable/ic_menu_directions" app:tint="#757575" app:backgroundTint="#F5F5F5" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@drawable/ic_step_by_step_wizard" app:tint="#757575" app:backgroundTint="#F5F5F5" />
             </LinearLayout>
 
             <!-- Option 2: Export/Import -->
@@ -79,7 +79,7 @@
         <!-- Step by Step Wizard Button -->
         <FrameLayout android:id="@+id/btnHomeStepByStep" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginBottom="16dp" app:layout_constraintDimensionRatio="1:1" app:layout_constraintWidth_percent="0.135" app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toTopOf="@id/btnHomeNewCV">
             <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
-            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="Step by Step Wizard" android:scaleType="fitCenter" android:src="@drawable/ic_steps_plus_centered" app:tint="#1a237e" />
+            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="Step by Step Wizard" android:scaleType="fitCenter" android:src="@drawable/ic_step_by_step_wizard" app:tint="#777777" />
         </FrameLayout>
 
         <!-- New CV Button (+) -->
@@ -90,8 +90,8 @@
 
         <!-- AI Assistant Button (Left of Plus) -->
         <FrameLayout android:id="@+id/btnHomeAI" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginEnd="16dp" app:layout_constraintDimensionRatio="1:1" app:layout_constraintWidth_percent="0.135" app:layout_constraintBottom_toBottomOf="@id/btnHomeNewCV" app:layout_constraintEnd_toStartOf="@id/btnHomeNewCV" app:layout_constraintTop_toTopOf="@id/btnHomeNewCV">
-            <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
-            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="AI Assistant" android:scaleType="fitCenter" android:src="@android:drawable/ic_menu_view" app:tint="#1a237e" />
+            <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/pill_background" />
+            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="AI Assistant" android:scaleType="fitCenter" android:src="@drawable/ic_ai_custom" />
         </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -102,14 +102,14 @@
     <!-- Advanced Drag Zones (Right Side) -->
     <LinearLayout android:id="@+id/advancedDragZones" android:layout_width="120dp" android:layout_height="match_parent" android:orientation="vertical" android:visibility="gone" android:elevation="15dp" app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout android:id="@+id/zoneMoveToHome" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="#E3F2FD" android:gravity="center" android:orientation="vertical" android:padding="16dp">
-            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_keyboard_return" app:tint="#1976D2" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Move to Home" android:textSize="12sp" android:textStyle="bold" android:textColor="#1976D2" android:gravity="center" android:layout_marginTop="8dp"/>
+        <LinearLayout android:id="@+id/zoneMoveToHome" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="#F5F5F5" android:gravity="center" android:orientation="vertical" android:padding="16dp">
+            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_keyboard_return" app:tint="#333333" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Move to Home" android:textSize="12sp" android:textStyle="bold" android:textColor="#333333" android:gravity="center" android:layout_marginTop="8dp"/>
         </LinearLayout>
 
-        <LinearLayout android:id="@+id/zoneMoveToOtherGroup" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="#BBDEFB" android:gravity="center" android:orientation="vertical" android:padding="16dp">
-            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_description" app:tint="#1565C0" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Move to Other Group" android:textSize="12sp" android:textStyle="bold" android:textColor="#1565C0" android:gravity="center" android:layout_marginTop="8dp"/>
+        <LinearLayout android:id="@+id/zoneMoveToOtherGroup" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="#EEEEEE" android:gravity="center" android:orientation="vertical" android:padding="16dp">
+            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_description" app:tint="#555555" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Move to Other Group" android:textSize="12sp" android:textStyle="bold" android:textColor="#555555" android:gravity="center" android:layout_marginTop="8dp"/>
         </LinearLayout>
 
     </LinearLayout>

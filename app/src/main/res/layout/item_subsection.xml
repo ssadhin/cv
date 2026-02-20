@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:padding="8dp" android:background="@drawable/rounded_box_bg" android:layout_marginBottom="8dp">
+
+    <!-- Selection Checkbox -->
+    <CheckBox android:id="@+id/itemSelectCb" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginRight="8dp" android:button="@drawable/selector_checkbox_circular" android:buttonTint="@null" app:buttonTint="@null" app:useMaterialThemeColors="false"/>
+
+    <!-- Item Name -->
+    <TextView android:id="@+id/itemName" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Job Title" android:ellipsize="end" android:maxLines="1" android:textSize="14sp" android:textColor="#333333"/>
+
+    <!-- Actions Container -->
+    <LinearLayout android:id="@+id/actionsContainer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+
+        <!-- Line Space Label (Hidden) -->
+        <TextView android:id="@+id/lblLineSpace" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Line Height" android:textSize="12sp" android:textColor="#666666" android:layout_marginEnd="4dp" android:visibility="gone"/>
+
+        <!-- Line Space Button -->
+        <ImageView android:id="@+id/btnLineSpace" android:layout_width="32dp" android:layout_height="32dp" android:padding="6dp" android:src="@drawable/ic_line_spacing" android:background="?attr/selectableItemBackgroundBorderless" android:layout_marginEnd="4dp" android:tooltipText="Line Spacing"/>
+
+        <!-- Line Space Slider (Hidden) -->
+        <SeekBar android:id="@+id/sliderLineSpace" android:layout_width="120dp" android:layout_height="wrap_content" android:visibility="gone" android:max="50" android:progress="10" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+
+        <!-- Background Color Circle -->
+        <ImageView android:id="@+id/viewBgColor" android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_circle_colorful" android:layout_marginEnd="8dp" android:layout_marginStart="4dp"/>
+
+        <!-- Roundness Label (Hidden) -->
+        <TextView android:id="@+id/lblRoundness" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Roundness" android:textSize="12sp" android:textColor="#666666" android:layout_marginEnd="4dp" android:visibility="gone"/>
+
+        <!-- Roundness Button -->
+        <ImageView android:id="@+id/btnRoundness" android:layout_width="32dp" android:layout_height="32dp" android:padding="6dp" android:src="@drawable/ic_circle_half_filled" android:background="?attr/selectableItemBackgroundBorderless" android:tooltipText="Roundness"/>
+
+        <!-- Roundness Slider (Hidden) -->
+        <SeekBar android:id="@+id/sliderRoundness" android:layout_width="120dp" android:layout_height="wrap_content" android:visibility="gone" android:max="30" android:progress="0" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+
+    </LinearLayout>
+
+</LinearLayout>
