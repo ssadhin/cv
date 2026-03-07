@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#FFFFFF">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#B3FFFFFF">
 
-    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+    <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
 
             <View android:layout_width="40dp" android:layout_height="4dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" android:background="#DDDDDD" />
@@ -25,22 +25,49 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Size/Scale Slider -->
+            <!-- Corner Selection -->
+            <LinearLayout android:id="@+id/layout_corners_selection" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="16dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Round Corners:" android:textColor="#666666" android:textSize="12sp" android:layout_marginBottom="8dp" />
+                <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="2" android:rowCount="2">
+                    <CheckBox android:id="@+id/chk_round_tl" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="Top-Left" android:textSize="12sp" android:buttonTint="#1e3c72" />
+                    <CheckBox android:id="@+id/chk_round_tr" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="Top-Right" android:textSize="12sp" android:buttonTint="#1e3c72" />
+                    <CheckBox android:id="@+id/chk_round_bl" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="Bottom-Left" android:textSize="12sp" android:buttonTint="#1e3c72" />
+                    <CheckBox android:id="@+id/chk_round_br" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="Bottom-Right" android:textSize="12sp" android:buttonTint="#1e3c72" />
+                </GridLayout>
+            </LinearLayout>
+
+            <!-- Width Slider + Editable Value -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Size" android:textColor="#666666" />
-                <SeekBar android:id="@+id/slider_size" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="200" android:progress="100" />
-                <TextView android:id="@+id/txt_size_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="100" android:gravity="end" android:textColor="#333333" android:textStyle="bold" />
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Width" android:textColor="#666666" />
+                <SeekBar android:id="@+id/slider_width" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="700" android:progress="120" />
+                <FrameLayout android:layout_width="48dp" android:layout_height="wrap_content" android:layout_marginStart="8dp">
+                    <TextView android:id="@+id/txt_width_val" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="120" android:gravity="center" android:textColor="#333333" android:textStyle="bold" android:padding="4dp" />
+                    <EditText android:id="@+id/input_width_edit" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:text="120" android:gravity="center" android:textColor="#333333" android:textStyle="bold" android:padding="4dp" android:background="@android:drawable/editbox_background" android:visibility="gone" android:maxLength="3" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Height Slider + Editable Value -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Height" android:textColor="#666666" />
+                <SeekBar android:id="@+id/slider_height" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="700" android:progress="120" />
+                <FrameLayout android:layout_width="48dp" android:layout_height="wrap_content" android:layout_marginStart="8dp">
+                    <TextView android:id="@+id/txt_height_val" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="120" android:gravity="center" android:textColor="#333333" android:textStyle="bold" android:padding="4dp" />
+                    <EditText android:id="@+id/input_height_edit" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:text="120" android:gravity="center" android:textColor="#333333" android:textStyle="bold" android:padding="4dp" android:background="@android:drawable/editbox_background" android:visibility="gone" android:maxLength="3" />
+                </FrameLayout>
             </LinearLayout>
 
             <!-- Thickness Slider -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
+            <LinearLayout android:id="@+id/layout_thickness" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
                 <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Thickness" android:textColor="#666666" />
                 <SeekBar android:id="@+id/slider_thickness" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="20" android:progress="2" />
                 <TextView android:id="@+id/txt_thickness_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="2" android:gravity="end" android:textColor="#333333" android:textStyle="bold" />
             </LinearLayout>
 
+            <!-- No Frame Toggle -->
+            <CheckBox android:id="@+id/chk_no_frame" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No Frame (image only)" android:textColor="#666666" android:layout_marginBottom="16dp" android:buttonTint="#1e3c72" />
+
             <!-- Frame Color -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
+            <LinearLayout android:id="@+id/layout_frame_color" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
                 <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Frame Color" android:textColor="#666666" />
                 <View android:id="@+id/view_frame_color_indicator" android:layout_width="24dp" android:layout_height="24dp" android:background="#000000" android:layout_marginEnd="12dp" />
                 <Button android:id="@+id/btn_change_frame_color" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Change" style="?attr/materialButtonOutlinedStyle" />
@@ -61,5 +88,5 @@
             </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </androidx.cardview.widget.CardView>

@@ -1,51 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".SignatureActivity">
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" tools:context=".SignatureActivity">
 
-    <FrameLayout
-        android:id="@+id/drawing_container"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <FrameLayout android:id="@+id/drawing_container" android:layout_width="0dp" android:layout_height="0dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_save"
-        app:backgroundTint="#123B5D"
-        app:tint="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fab_save" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16dp" android:src="@drawable/ic_save" app:backgroundTint="#123B5D" app:tint="@android:color/white" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_erase"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:src="@android:drawable/ic_menu_crop"
-        app:backgroundTint="#123B5D"
-        app:tint="@android:color/white"
-        app:layout_constraintStart_toEndOf="@id/fab_save"
-        app:layout_constraintTop_toTopOf="@id/fab_save" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fab_export" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:src="@drawable/ic_export_custom" app:backgroundTint="#123B5D" app:tint="@android:color/white" app:layout_constraintStart_toEndOf="@id/fab_save" app:layout_constraintTop_toTopOf="@id/fab_save" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_clear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_delete"
-        app:backgroundTint="#ff4d4d"
-        app:tint="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fab_pen" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:src="@drawable/ic_pen_custom" app:backgroundTint="#123B5D" app:tint="@android:color/white" app:layout_constraintStart_toEndOf="@id/fab_export" app:layout_constraintTop_toTopOf="@id/fab_save" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fab_erase" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:src="@drawable/ic_eraser_custom" app:backgroundTint="#123B5D" app:tint="@android:color/white" app:layout_constraintStart_toEndOf="@id/fab_pen" app:layout_constraintTop_toTopOf="@id/fab_save" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fab_clear" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16dp" android:src="@drawable/ic_reset_custom" app:backgroundTint="#ff4d4d" app:tint="@android:color/white" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+
+    <LinearLayout android:id="@+id/width_control_layout" android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="16dp" android:background="@drawable/bg_white_rounded" android:elevation="8dp" android:gravity="center_vertical" android:visibility="gone" app:layout_constraintBottom_toTopOf="@id/fab_save" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" android:layout_margin="16dp">
+
+        <View android:id="@+id/size_preview_min" android:layout_width="4dp" android:layout_height="4dp" android:background="@drawable/circle_shape" android:backgroundTint="#123B5D" />
+
+        <SeekBar android:id="@+id/sb_width" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="100" android:progress="20" android:theme="@style/Widget.AppCompat.SeekBar" android:progressDrawable="@drawable/seekbar_width_track_custom" android:thumb="@drawable/seekbar_width_thumb_custom" android:layout_marginHorizontal="8dp" />
+
+        <View android:id="@+id/size_preview_max" android:layout_width="24dp" android:layout_height="24dp" android:background="@drawable/circle_shape" android:backgroundTint="#123B5D" />
+
+        <TextView android:id="@+id/tv_width_value" android:layout_width="40dp" android:layout_height="wrap_content" android:text="20" android:textColor="#123B5D" android:textStyle="bold" android:gravity="center" android:layout_marginStart="8dp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

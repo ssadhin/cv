@@ -28,9 +28,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.EditText;
 import android.widget.CheckBox;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.CompoundButton;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
@@ -70,6 +72,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.HorizontalScrollView;
 import android.widget.SeekBar;
 import android.widget.ViewFlipper;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -99,6 +102,11 @@ import org.json.JSONException;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Vibrator;
+import android.os.VibrationEffect;
+import android.os.Handler;
+import android.os.Build;
+import android.view.ViewAnimationUtils;
 
 
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
@@ -106,8 +114,12 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
 public class MainActivity extends AppCompatActivity implements ColorPickerDialogListener {
 
+    private View currentFrameSettingsView;
     private WebView myWebView;
     private boolean isNativeEditing = false;
+
+    // Slide Mode State
+    private final Handler nativeSlideHandler = new Handler(android.os.Looper.getMainLooper());
 
     // Original Buttons
     private View addFab, undoFab, redoFab, editFab, printFab;
@@ -154,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private static final int CURRENT_SECTION_BG_COLOR_ID = 7;
     
     private String currentEditingSectionId;
+    private BottomSheetDialog currentSectionSettingsDialog;
     private static final int HEADER_FRAME_BG_COLOR_ID = 1006;
     
     private static final int LEFT_FRAME_COLOR_END_ID = 1007;
@@ -163,6 +176,29 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private static final int HEADER_TEXT_COLOR_ID = 1013;
     private static final int LEFT_COL_BG_ID = 1014;
     private static final int ITEM_BG_COLOR_ID = 1015;
+    private static final int HEADER_ICON_BG_COLOR_ID = 1016;
+    private static final int HEADER_TITLE_BG_COLOR_ID = 1017;
+    private static final int HEADER_ICON_FRAME_COLOR_ID = 1018;
+    private static final int HEADER_TITLE_FRAME_COLOR_ID = 1019;
+    private static final int SPLIT_TOP_FRAME_COLOR_ID = 1026;
+    private static final int SPLIT_BOTTOM_FRAME_COLOR_ID = 1027;
+    private static final int HEADER_LEFT_SHAPE_COLOR_ID = 1020;
+    private static final int HEADER_RIGHT_SHAPE_COLOR_ID = 1021;
+    private static final int HEADER_CONNECTOR_COLOR_ID = 1022;
+    private static final int HEADER_TITLE_FONT_COLOR_ID = 1023;
+    private static final int LEFT_SPLIT_COLOR_ID = 1024;
+    private static final int LEFT_SPLIT_TOP_COLOR_ID = 1025;
+    private static final int DROP_SHAPE_COLOR_PICKER_ID = 1030;
+    private static final int DROP_SHAPE_FRAME_START_COLOR_ID = 1031;
+    private static final int DROP_SHAPE_FRAME_END_COLOR_ID = 1032;
+
+    private String pendingShapeColorId = null;
+    private String pendingShapeFrameStartColorId = null;
+    private String pendingShapeFrameEndColorId = null;
+    private View pendingShapeFrameStartColorView = null;
+    private View pendingShapeFrameEndColorView = null;
+    private String pendingShapeFrameStartHex = null;
+    private String pendingShapeFrameEndHex = null;
 
     private String currentEditingItemId = null;
     private static final String PREFS_NAME = "ResumeBuilderPrefs";
@@ -224,6 +260,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private static final int ITEM_TINT_COLOR_ID = 1002;
     private boolean isPickingHeaderBg = false;
     private boolean isPickingLeftBg = false;
+    private boolean isPickingSectionBg = false;
+    private String currentSectionIdForBg = null;
 
 
     private TextView cvNameDisplay;
@@ -241,6 +279,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private View infoContent;
     private View btnTemplateInfoMinimized;
     
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -511,6 +551,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         btnDown.setVisibility(View.GONE);
         btnDelete.setVisibility(View.GONE);
 
+        btnUp.setOnTouchListener(null);
+        btnDown.setOnTouchListener(null);
+
         switch (type) {
             case "text_selection": // Text Formatting selection
             groupFormatting.setVisibility(View.VISIBLE);
@@ -563,6 +606,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 btnDown.setVisibility(View.VISIBLE);
                 btnDelete.setVisibility(View.VISIBLE);
                 
+                setupNativeSlideMode(btnUp, "up");
+                setupNativeSlideMode(btnDown, "down");
+                
                 setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.classList && (prev.classList.contains('data-table-item') || prev.classList.contains('skill-group') || prev.classList.contains('simple-list-item') || prev.classList.contains('pd-row'))) { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
                 setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.classList && (next.classList.contains('data-table-item') || next.classList.contains('skill-group') || next.classList.contains('simple-list-item') || next.classList.contains('pd-row'))) { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
                 setupPanelButton(btnDelete, "Delete", R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('Delete this item?')) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
@@ -577,6 +623,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 btnDown.setVisibility(View.VISIBLE);
                 btnDelete.setVisibility(View.VISIBLE);
                 
+                setupNativeSlideMode(btnUp, "up");
+                setupNativeSlideMode(btnDown, "down");
+                
                 setupPanelButton(btnAdd, "Add", R.drawable.ic_add, v -> myWebView.evaluateJavascript("console.log('WEB_DEBUG: Native Add Button Clicked'); if(currentEditableElement) { console.log('WEB_DEBUG: Calling addItemToSection for ' + currentEditableElement.dataset.type); addItemToSection(currentEditableElement); removeToolbar(); triggerAutoSave(); } else { console.error('WEB_DEBUG: No currentEditableElement'); }", null));
                 setupPanelButton(btnCopy, "Copy", R.drawable.copy, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; let clone = section.cloneNode(true); let baseId = section.id.replace(/-\\d+$/, ''); let num = 1; while(document.getElementById(baseId + '-' + num)) num++; clone.id = baseId + '-' + num; section.parentNode.insertBefore(clone, section.nextSibling); triggerAutoSave(); const h2 = clone.querySelector('h2'); if(h2) { h2.onclick = (e) => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }; }; if(typeof enableFreeDrag === 'function') enableFreeDrag(clone); clone.querySelectorAll('.data-table-item, .simple-list-item, .skill-group, .pd-row').forEach(item => { item.onclick = (e) => { e.stopPropagation(); currentEditableElement = item; if(window.Android) Android.showToolbar('default'); }; }); clone.querySelectorAll('li').forEach(li => { li.onclick = (e) => { e.stopPropagation(); currentEditableElement = li; if(window.Android) Android.showToolbar('item'); }; }); clone.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }, 200); }", null));
                 setupPanelButton(btnEdit, "Edit", R.drawable.edit, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const sec = currentEditableElement; if(sec.dataset.editing === 'true') { sec.removeAttribute('data-editing'); sec.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = false); const h2 = sec.querySelector('h2'); if(h2) { h2.querySelectorAll('.section-icon-upload-btn, .section-gear-btn').forEach(b => b.remove()); } sec.querySelectorAll('.section-icon-file-input').forEach(i => i.remove()); triggerAutoSave(); } else { sec.dataset.editing = 'true'; sec.querySelectorAll('.table-val, .table-label, .pd-val, .pd-label, .exp-role, .skill-header, .skill-sub, .proj-desc, span:not(.table-label):not(.pd-label), .simple-list-item').forEach(el => el.contentEditable = true); const h2 = sec.querySelector('h2'); if(h2) { h2.contentEditable = true; } } const isEditing = sec.dataset.editing === 'true'; if(window.Android) Android.updateEditButton(isEditing, sec.id); }", null));
@@ -588,9 +637,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     return true;
                 });
 
-                setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.style.marginTop = ''; currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
-                setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
-                setupPanelButton(btnDelete, "Delete", R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('Delete this section?')) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
+                setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { let prev = currentEditableElement.previousElementSibling; while(prev && prev.tagName === 'SECTION' && prev.dataset.layer) { prev = prev.previousElementSibling; } if(prev && prev.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.style.marginTop = ''; currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
+                setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { let next = currentEditableElement.nextElementSibling; while(next && next.tagName === 'SECTION' && next.dataset.layer) { next = next.nextElementSibling; } if(next && next.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
+                setupPanelButton(btnDelete, "Delete", R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('Delete this section?')) { const targetId = currentEditableElement.id; currentEditableElement.remove(); document.querySelectorAll('#global-ui-overlay [data-target-id=\"' + targetId + '\"]').forEach(el => el.remove()); triggerAutoSave(); removeToolbar(); }", null));
                 break;
                 
             case "header": // Swap, Up, Down, Copy, Delete
@@ -616,6 +665,87 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 
 
         }
+    }
+
+    private void setupNativeSlideMode(View btn, final String direction) {
+        btn.setOnTouchListener(new View.OnTouchListener() {
+            private boolean longPressTriggered = false;
+            private float startRawY = 0;
+            private boolean hasMovedSignificant = false;
+            private Runnable longPressRunnable;
+            private long lastUpdateTime = 0; // PERFORMANCE: Throttle bridge calls
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        longPressTriggered = false;
+                        hasMovedSignificant = false;
+                        startRawY = event.getRawY();
+                        lastUpdateTime = 0;
+                        
+                        // Local Runnable for this specific hold
+                        longPressRunnable = () -> {
+                            if (myWebView != null) {
+                                myWebView.evaluateJavascript("if(window.isSectionLayered) window.isSectionLayered(); else false;", value -> {
+                                    if ("true".equals(value)) {
+                                        longPressTriggered = true;
+                                        hapticFeedback();
+                                        playWaterDropAnimation();
+                                        myWebView.evaluateJavascript("if(window.startNativeSlide) window.startNativeSlide();", null);
+                                    }
+                                });
+                            }
+                        };
+                        nativeSlideHandler.postDelayed(longPressRunnable, 500);
+                        // RETURN TRUE to ensure we get subsequent MOVE and UP events
+                        return true; 
+
+                    case MotionEvent.ACTION_MOVE:
+                        float deltaY = event.getRawY() - startRawY;
+                        if (!hasMovedSignificant && Math.abs(deltaY) > 10) {
+                            hasMovedSignificant = true;
+                            if (longPressRunnable != null) {
+                                nativeSlideHandler.removeCallbacks(longPressRunnable);
+                                longPressRunnable = null;
+                            }
+                        }
+
+                        if (longPressTriggered) {
+                            long currentTime = System.currentTimeMillis();
+                            // ~60fps Throttling (16ms)
+                            if (currentTime - lastUpdateTime > 16) {
+                                if (myWebView != null) {
+                                    myWebView.evaluateJavascript("if(window.updateNativeSlide) window.updateNativeSlide(" + deltaY + ");", null);
+                                }
+                                lastUpdateTime = currentTime;
+                            }
+                        }
+                        return true; 
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        if (longPressRunnable != null) {
+                            nativeSlideHandler.removeCallbacks(longPressRunnable);
+                            longPressRunnable = null;
+                        }
+                        
+                        if (longPressTriggered) {
+                            if (myWebView != null) {
+                                myWebView.evaluateJavascript("if(window.endNativeSlide) window.endNativeSlide();", null);
+                            }
+                            longPressTriggered = false;
+                        } else {
+                            // If it wasn't a long-press hold, manually trigger the click
+                            if (!hasMovedSignificant && event.getAction() == MotionEvent.ACTION_UP) {
+                                v.performClick();
+                            }
+                        }
+                        return true; 
+                }
+                return false;
+            }
+        });
     }
 
     private void setupAddFeaturePanel() {
@@ -823,12 +953,12 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
     @Override
     public void onColorSelected(int dialogId, int color) {
-        // Default to opaque hex for standard CSS compatibility
-        String formattedColor = String.format("#%06X", (0xFFFFFF & color));
+        // CSS expects #RRGGBBAA, but Android uses #AARRGGBB. Swap them.
+        String formattedColor = String.format("#%06X%02X", (0xFFFFFF & color), (color >>> 24));
         
         // Security: Check if color is fully transparent (alpha == 0)
         // This often happens if the picker returns an invalid state or if 'no color' is selected.
-        // We prevent this from defaulting to Opaque Black (#000000) for critical elements.
+        // We prevent this from defaulting to completely transparent for critical backgrounds if needed.
         boolean isTransparent = (color >>> 24) == 0;
 
         if (dialogId == COLOR_PICKER_ID) {
@@ -853,9 +983,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             }
         } else if (dialogId == SECTION_BG_COLOR_ID) {
              if (pendingColorItem != null && pendingColorAdapter != null) {
-                pendingColorAdapter.updateColor(pendingColorItem, color);
+                if (pendingColorTarget != null && !pendingColorTarget.isEmpty()) {
+                    pendingColorAdapter.updateStickColor(pendingColorItem, color, pendingColorTarget);
+                } else {
+                    pendingColorAdapter.updateColor(pendingColorItem, color);
+                }
                 pendingColorItem = null;
                 pendingColorAdapter = null;
+                pendingColorTarget = "";
             }
         } else if (dialogId == CURRENT_SECTION_BG_COLOR_ID) {
             if (myWebView != null && currentEditingSectionId != null) {
@@ -930,6 +1065,82 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 } else if (currentEditingItemId != null) {
                      myWebView.evaluateJavascript("if(window.updateItemStyle) window.updateItemStyle('" + currentEditingItemId + "', 'bg_color', '" + formattedColor + "');", null);
                 }
+            }
+        } else if (dialogId == HEADER_ICON_BG_COLOR_ID) {
+            if (myWebView != null && currentEditingSectionId != null) {
+                myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + currentEditingSectionId + "', {iconBg: '" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_TITLE_BG_COLOR_ID) {
+            if (myWebView != null && currentEditingSectionId != null) {
+                myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + currentEditingSectionId + "', {textBg: '" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_ICON_FRAME_COLOR_ID) {
+            if (myWebView != null && currentEditingSectionId != null) {
+                myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + currentEditingSectionId + "', {iconFrameColor: '" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_TITLE_FRAME_COLOR_ID) {
+            if (myWebView != null && currentEditingSectionId != null) {
+                myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + currentEditingSectionId + "', {textFrameColor: '" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_LEFT_SHAPE_COLOR_ID) {
+            if (myWebView != null && currentEditingSectionId != null) {
+                myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + currentEditingSectionId + "', {textLeftColor: '" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_RIGHT_SHAPE_COLOR_ID) {
+            if (myWebView != null && currentEditingSectionId != null) {
+                myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + currentEditingSectionId + "', {textRightColor: '" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_CONNECTOR_COLOR_ID) {
+            if (myWebView != null && currentEditingSectionId != null) {
+                myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + currentEditingSectionId + "', {connectorColor: '" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == HEADER_TITLE_FONT_COLOR_ID) {
+            if (myWebView != null && currentEditingSectionId != null) {
+                myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + currentEditingSectionId + "', {titleFontColor: '" + formattedColor + "'});", null);
+            }
+        } else if (dialogId == LEFT_SPLIT_TOP_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("document.documentElement.style.setProperty('--left-col-bg', '" + formattedColor + "');", null);
+                myWebView.evaluateJavascript("document.documentElement.style.setProperty('--left-col-bg-end', '" + formattedColor + "');", null);
+                myWebView.evaluateJavascript("triggerAutoSave();", null);
+            }
+        } else if (dialogId == LEFT_SPLIT_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("document.documentElement.style.setProperty('--left-split-color', '" + formattedColor + "');", null);
+                myWebView.evaluateJavascript("var col = document.getElementById('leftCol'); if(col) col.classList.add('is-split');", null);
+                myWebView.evaluateJavascript("document.documentElement.style.setProperty('--left-split-angle', '180deg');", null);
+                myWebView.evaluateJavascript("triggerAutoSave();", null);
+            }
+        } else if (dialogId == SPLIT_TOP_FRAME_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("window.updateSplitFrameConfig('top', { color: '" + formattedColor + "' });", null);
+            }
+        } else if (dialogId == SPLIT_BOTTOM_FRAME_COLOR_ID) {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("window.updateSplitFrameConfig('bottom', { color: '" + formattedColor + "' });", null);
+            }
+        } else if (dialogId == DROP_SHAPE_COLOR_PICKER_ID) {
+            if (myWebView != null && pendingShapeColorId != null) {
+                myWebView.evaluateJavascript("if(window.updateDropShapeColor) window.updateDropShapeColor('" + pendingShapeColorId + "', '" + formattedColor + "');", null);
+                pendingShapeColorId = null;
+            }
+        } else if (dialogId == DROP_SHAPE_FRAME_START_COLOR_ID) {
+            if (pendingShapeFrameStartColorView != null) {
+                pendingShapeFrameStartColorView.setBackgroundColor(color);
+            }
+            pendingShapeFrameStartHex = formattedColor;
+            if (myWebView != null && pendingShapeFrameStartColorId != null && pendingShapeFrameEndHex != null) {
+                // Apply immediately to WebView if we know the shape and both colors
+                myWebView.evaluateJavascript("if(window.updateDropShapeFrameColors) window.updateDropShapeFrameColors('" + pendingShapeFrameStartColorId + "', '" + pendingShapeFrameStartHex + "', '" + pendingShapeFrameEndHex + "');", null);
+            }
+        } else if (dialogId == DROP_SHAPE_FRAME_END_COLOR_ID) {
+            if (pendingShapeFrameEndColorView != null) {
+                pendingShapeFrameEndColorView.setBackgroundColor(color);
+            }
+            pendingShapeFrameEndHex = formattedColor;
+            if (myWebView != null && pendingShapeFrameEndColorId != null && pendingShapeFrameStartHex != null) {
+                // Apply immediately to WebView
+                myWebView.evaluateJavascript("if(window.updateDropShapeFrameColors) window.updateDropShapeFrameColors('" + pendingShapeFrameEndColorId + "', '" + pendingShapeFrameStartHex + "', '" + pendingShapeFrameEndHex + "');", null);
             }
         }
     }
@@ -1195,10 +1406,21 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
 
         private void openColorPicker() {
-            // Get current text color from variable if possible
-            String currentColor = "#333333";
-            // For sidebar, we might want to get the actual computed style, but 'text' is safe for now
-            openNativeColorPicker("text", currentColor);
+            BottomSheetDialog categoryDialog = new BottomSheetDialog(MainActivity.this);
+            View view = getLayoutInflater().inflate(R.layout.dialog_color_type_selector, null);
+            categoryDialog.setContentView(view);
+
+            view.findViewById(R.id.btn_select_label).setOnClickListener(v -> {
+                categoryDialog.dismiss();
+                openNativeColorPicker("text_label", "#1a1a1a");
+            });
+
+            view.findViewById(R.id.btn_select_general).setOnClickListener(v -> {
+                categoryDialog.dismiss();
+                openNativeColorPicker("text", "#333333");
+            });
+
+            categoryDialog.show();
         }
 
         private void setupSeekBarListeners() {
@@ -1327,6 +1549,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         } else if (isPickingLeftBg) {
                             isPickingLeftBg = false;
                             handleLeftBgSelection(uri);
+                        } else if (isPickingSectionBg) {
+                            isPickingSectionBg = false;
+                            handleSectionBgSelection(uri);
                         } else if (isPickingBgImage) {
                             isPickingBgImage = false;
                             updateBgImage(uri);
@@ -1422,10 +1647,41 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 int savedZoom = prefs.getInt("zoom_level", 15);
                 float zoomValue = 30 + savedZoom;
                 view.evaluateJavascript("document.getElementById('fontSizeSlider').value = " + zoomValue + "; document.getElementById('fontSizeSlider').dispatchEvent(new Event('input'));", null);
+                // Clear localStorage for any CVs that were deleted from HomeActivity
+                android.content.SharedPreferences builderPrefs = getSharedPreferences("ResumeBuilderPrefs", MODE_PRIVATE);
+                java.util.Set<String> deletedPaths = builderPrefs.getStringSet("deleted_cv_paths", null);
+                if (deletedPaths != null && !deletedPaths.isEmpty()) {
+                    StringBuilder clearJs = new StringBuilder();
+                    for (String dPath : deletedPaths) {
+                        String sPath = dPath.replace("\\", "\\\\").replace("'", "\\'");
+                        clearJs.append("(() => {")
+                               .append("const pfx = 'cv_' + '").append(sPath).append("' + '_';")
+                               .append("const keys = ['html', 'colors', 'metrics', 'flags', 'designs', 'background', 'sig', 'last_saved'];")
+                               .append("keys.forEach(k => localStorage.removeItem(pfx + k));")
+                               .append("})();");
+                    }
+                    view.evaluateJavascript(clearJs.toString() + "console.log('✓ Cleared localStorage for ' + " + deletedPaths.size() + " + ' deleted CVs');", null);
+                    builderPrefs.edit().remove("deleted_cv_paths").apply();
+                }
                 
                 // Inject current file path so JavaScript knows which CV file to save to
                 if (currentFilePath != null) {
                     String safePath = currentFilePath.replace("\\", "\\\\").replace("'", "\\'");
+
+                    // IMPORTANT: Clear stale localStorage BEFORE setting CURRENT_FILE_PATH
+                    // because deferredReload polls for CURRENT_FILE_PATH and immediately
+                    // reads localStorage once it finds it. Data must be gone first.
+
+                    // If this is a NEW CV, clear any stale per-CV localStorage for this path
+                    if (isNewFile) {
+                        String clearJs = "const pfx = 'cv_' + '" + safePath + "' + '_';" +
+                                       "const perCvKeys = ['html', 'colors', 'metrics', 'flags', 'designs', 'background', 'sig', 'last_saved'];" +
+                                       "perCvKeys.forEach(k => localStorage.removeItem(pfx + k));" +
+                                       "console.log('✓ Cleared stale localStorage for brand new CV path');";
+                        view.evaluateJavascript(clearJs, null);
+                    }
+
+                    // NOW set the file path (this triggers deferredReload to find the path)
                     view.evaluateJavascript("window.CURRENT_FILE_PATH = '" + safePath + "';", null);
                     Log.d(TAG, "✓ Injected file path into WebView: " + currentFilePath);
 
@@ -1532,7 +1788,20 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
         myWebView.setWebChromeClient(getChromeClient());
         myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
-        myWebView.loadUrl("file:///android_asset/index.html");
+        // Build URL with query params so JS can read them immediately on page load
+        // (evaluateJavascript from onPageFinished arrives too late - deferredReload has already run)
+        StringBuilder urlBuilder = new StringBuilder("file:///android_asset/index.html");
+        boolean hasParam = false;
+        if (isNewFile) {
+            urlBuilder.append("?isNew=true");
+            hasParam = true;
+        }
+        if (currentFilePath != null) {
+            urlBuilder.append(hasParam ? "&" : "?");
+            urlBuilder.append("filePath=");
+            urlBuilder.append(android.net.Uri.encode(currentFilePath));
+        }
+        myWebView.loadUrl(urlBuilder.toString());
     }
 
     private void injectJavaScript(WebView view) {
@@ -1891,6 +2160,38 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         openFileChooser(null);
     }
 
+    public void pickSectionBg(String sectionId) {
+        isPickingSectionBg = true;
+        currentSectionIdForBg = sectionId;
+        openFileChooser(null);
+    }
+
+    private void handleSectionBgSelection(Uri uri) {
+        if (uri == null || currentSectionIdForBg == null) return;
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
+                byte[] bytes = outputStream.toByteArray();
+                String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                String dataUrl = "data:image/png;base64," + base64;
+                
+                if (myWebView != null) {
+                    myWebView.post(() -> myWebView.evaluateJavascript("if(window.updateSectionBgImage) window.updateSectionBgImage('" + currentSectionIdForBg + "', '" + dataUrl + "');", null));
+                }
+                inputStream.close();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling section bg image selection", e);
+            Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void handleLeftBgSelection(Uri uri) {
         if (uri == null) return;
         try {
@@ -1969,6 +2270,34 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         };
     }
 
+    public void hapticFeedback() {
+        runOnUiThread(() -> {
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if (v != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    v.vibrate(50);
+                }
+            }
+        });
+    }
+
+    public void playWaterDropAnimation() {
+        runOnUiThread(() -> {
+            if (myWebView != null) {
+                int cx = myWebView.getWidth() / 2;
+                int cy = myWebView.getHeight() / 2;
+                float finalRadius = (float) Math.hypot(cx, cy);
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    Animator anim = ViewAnimationUtils.createCircularReveal(myWebView, cx, cy, 0, finalRadius);
+                    anim.setDuration(600);
+                    anim.start();
+                }
+            }
+        });
+    }
+
     public class WebAppInterface {
         Context mContext;
 
@@ -1977,10 +2306,82 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
 
         @JavascriptInterface
+        public void saveCustomStyle(String styleName, String styleJson) {
+            runOnUiThread(() -> {
+                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                String currentStyles = prefs.getString("SavedCustomStyles", "[]");
+                try {
+                    JSONArray stylesArray = new JSONArray(currentStyles);
+                    JSONObject newStyle = new JSONObject();
+                    newStyle.put("id", "CustomStyle_" + System.currentTimeMillis());
+                    newStyle.put("name", styleName);
+                    newStyle.put("props", new JSONObject(styleJson));
+                    stylesArray.put(newStyle);
+                    
+                    prefs.edit().putString("SavedCustomStyles", stylesArray.toString()).apply();
+                    Toast.makeText(MainActivity.this, "Style '" + styleName + "' saved!", Toast.LENGTH_SHORT).show();
+                    
+                    refreshStyleCarousel();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(MainActivity.this, "Error saving style", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        private void refreshStyleCarousel() {
+            runOnUiThread(() -> {
+                // If the section settings dialog is currently open for the current section, just reopen it to refresh the list
+                if (currentEditingSectionId != null) {
+                    if (currentSectionSettingsDialog != null && currentSectionSettingsDialog.isShowing()) {
+                        currentSectionSettingsDialog.dismiss();
+                    }
+                    // This will recreate the dialog, thus fetching the new saved styles from SharedPreferences
+                    showSectionSettingsDialog(currentEditingSectionId);
+                }
+            });
+        }
+
+        @JavascriptInterface
         public void onColorCorruption() {
             runOnUiThread(() -> {
                 Toast.makeText(mContext, "⚠️ Color corruption detected! Auto-reverting to safe colors.", Toast.LENGTH_LONG).show();
             });
+        }
+
+        @JavascriptInterface
+        public void openShapePicker(String sectionId) {
+            runOnUiThread(() -> showShapePickerDialog());
+        }
+
+        @JavascriptInterface
+        public void openColorPickerForShape(String shapeId, String currentColor) {
+            runOnUiThread(() -> {
+                pendingShapeColorId = shapeId;
+                int initialColor;
+                try {
+                    initialColor = android.graphics.Color.parseColor(currentColor.startsWith("#") ? currentColor : "#1e3c72");
+                } catch (Exception e) {
+                    initialColor = android.graphics.Color.parseColor("#1e3c72");
+                }
+                ColorPickerDialog.newBuilder()
+                        .setColor(initialColor)
+                        .setDialogType(ColorPickerDialog.TYPE_CUSTOM)
+                        .setAllowPresets(true)
+                        .setDialogId(DROP_SHAPE_COLOR_PICKER_ID)
+                        .setShowAlphaSlider(false)
+                        .show(MainActivity.this);
+            });
+        }
+
+        @JavascriptInterface
+        public void openShapeTransformDialog(String shapeId, int currentWidth, int currentHeight, int currentRotation, int currentRadius) {
+            runOnUiThread(() -> showShapeTransformDialog(shapeId, currentWidth, currentHeight, currentRotation, currentRadius));
+        }
+
+        @JavascriptInterface
+        public void openShapeFrameDialog(String shapeId, int currentThickness, String startColor, String endColor, int sidesCount, String activeSidesJson) {
+            runOnUiThread(() -> showShapeFrameDialog(shapeId, currentThickness, startColor, endColor, sidesCount, activeSidesJson));
         }
 
         @JavascriptInterface
@@ -1995,21 +2396,19 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         @JavascriptInterface
         public void openPhotoRadiusSlider(int currentRadius) {
             // Deprecated - replaced by openProfileSettings
-            openProfileSettings("smooth", currentRadius, 100, 0, 0, 0, "#000000");
+            openProfileSettings("smooth", currentRadius, 120, 120, 0, 0, 0, "#000000", false, true, true, true, true);
         }
 
         @JavascriptInterface
-        public void openProfileSettings(String mode, int radius, int scale, int x, int y, int thickness, String frameColor) {
-            MainActivity.this.openProfileSettings(mode, radius, scale, x, y, thickness, frameColor);
+        public void openProfileSettings(String mode, int radius, int width, int height, int x, int y, int thickness, String frameColor, boolean noFrame, boolean roundTL, boolean roundTR, boolean roundBL, boolean roundBR) {
+            MainActivity.this.openProfileSettings(mode, radius, width, height, x, y, thickness, frameColor, noFrame, roundTL, roundTR, roundBL, roundBR);
         }
 
         @JavascriptInterface
-        public void openFrameSettings(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale) {
-            runOnUiThread(() -> {
-                showFrameSettingsDialog(type, thickness, colorStart, colorEnd, radius, sides, bgStart, bgEnd, textColor, width, height, blur, scale);
-            });
+        public void openFrameSettings(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale, boolean isSplit, String splitColor, int splitPos, String splitDir) {
+            runOnUiThread(() -> showFrameSettingsDialog(type, thickness, colorStart, colorEnd, radius, sides, bgStart, bgEnd, textColor, width, height, blur, scale, isSplit, splitColor, splitPos, splitDir));
         }
-
+        
         @JavascriptInterface
         public void toggleNativeFab(boolean visible) {
             runOnUiThread(() -> {
@@ -2197,7 +2596,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 
                 try (FileOutputStream fos = new FileOutputStream(currentFilePath)) {
                     fos.write(jsonState.getBytes());
-                    Toast.makeText(MainActivity.this, "Saved", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Resume JSON saved to: " + currentFilePath);
                     
                     updateTitleDisplay();
@@ -2469,6 +2867,16 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 android.widget.Toast.makeText(mContext, "Resize clicked!", android.widget.Toast.LENGTH_SHORT).show();
             });
         }
+
+        @JavascriptInterface
+        public void hapticFeedback() {
+            MainActivity.this.hapticFeedback();
+        }
+
+        @JavascriptInterface
+        public void playWaterDropAnimation() {
+            MainActivity.this.playWaterDropAnimation();
+        }
     }
 
     public void openNativeColorPicker(String type, String currentColor) {
@@ -2491,9 +2899,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         });
     }
 
-    public void openProfileSettings(String shapeMode, int radius, int scale, int x, int y, int thickness, String frameColor) {
+    public void openProfileSettings(String shapeMode, int radius, int width, int height, int x, int y, int thickness, String frameColor, boolean noFrame, boolean roundTL, boolean roundTR, boolean roundBL, boolean roundBR) {
         runOnUiThread(() -> {
-            BottomSheetDialog dialog = new BottomSheetDialog(this);
+            BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
             View view = getLayoutInflater().inflate(R.layout.dialog_profile_settings, null);
             dialog.setContentView(view);
 
@@ -2505,14 +2913,20 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
             com.google.android.material.button.MaterialButtonToggleGroup toggleGroup = view.findViewById(R.id.toggle_group_shape);
             SeekBar sliderRadius = view.findViewById(R.id.slider_radius);
-            SeekBar sliderSize = view.findViewById(R.id.slider_size);
+            SeekBar sliderWidth = view.findViewById(R.id.slider_width);
+            SeekBar sliderHeight = view.findViewById(R.id.slider_height);
             SeekBar sliderThickness = view.findViewById(R.id.slider_thickness);
             SeekBar sliderX = view.findViewById(R.id.slider_x);
             SeekBar sliderY = view.findViewById(R.id.slider_y);
 
             TextView txtSliderLabel = view.findViewById(R.id.txt_slider_label);
             TextView txtRadius = view.findViewById(R.id.txt_radius_val);
-            TextView txtSize = view.findViewById(R.id.txt_size_val);
+            
+            TextView txtWidthVal = view.findViewById(R.id.txt_width_val);
+            EditText inputWidthEdit = view.findViewById(R.id.input_width_edit);
+            TextView txtHeightVal = view.findViewById(R.id.txt_height_val);
+            EditText inputHeightEdit = view.findViewById(R.id.input_height_edit);
+            
             TextView txtThickness = view.findViewById(R.id.txt_thickness_val);
             TextView txtX = view.findViewById(R.id.txt_x_val);
             TextView txtY = view.findViewById(R.id.txt_y_val);
@@ -2520,8 +2934,31 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             View colorIndicator = view.findViewById(R.id.view_frame_color_indicator);
             Button btnChangeColor = view.findViewById(R.id.btn_change_frame_color);
 
+            // No Frame checkbox and related layouts
+            CheckBox chkNoFrame = view.findViewById(R.id.chk_no_frame);
+            View layoutThickness = view.findViewById(R.id.layout_thickness);
+            View layoutFrameColor = view.findViewById(R.id.layout_frame_color);
+            View layoutCorners = view.findViewById(R.id.layout_corners_selection);
+
+            // Corner Checkboxes
+            CheckBox chkRoundTL = view.findViewById(R.id.chk_round_tl);
+            CheckBox chkRoundTR = view.findViewById(R.id.chk_round_tr);
+            CheckBox chkRoundBL = view.findViewById(R.id.chk_round_bl);
+            CheckBox chkRoundBR = view.findViewById(R.id.chk_round_br);
+
             final String[] currentFrameColor = {frameColor != null ? frameColor : ""};
             final String[] currentMode = {shapeMode != null ? shapeMode : "smooth"};
+            final boolean[] currentNoFrame = {noFrame};
+            final boolean[] currentRoundTL = {roundTL};
+            final boolean[] currentRoundTR = {roundTR};
+            final boolean[] currentRoundBL = {roundBL};
+            final boolean[] currentRoundBR = {roundBR};
+
+            // Set initial state for corners
+            chkRoundTL.setChecked(roundTL);
+            chkRoundTR.setChecked(roundTR);
+            chkRoundBL.setChecked(roundBL);
+            chkRoundBR.setChecked(roundBR);
 
             // Set initial state
             if ("polygon".equals(shapeMode)) {
@@ -2537,13 +2974,17 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 sliderRadius.setProgress(radius);
             }
 
-            sliderSize.setProgress(scale);
+            sliderWidth.setProgress(Math.min(width, 700));
+            sliderHeight.setProgress(Math.min(height, 700));
             sliderThickness.setProgress(thickness);
             sliderX.setProgress(x + 100);
             sliderY.setProgress(y + 100);
 
             txtRadius.setText(String.valueOf(sliderRadius.getProgress()));
-            txtSize.setText(String.valueOf(scale));
+            txtWidthVal.setText(String.valueOf(width));
+            inputWidthEdit.setText(String.valueOf(width));
+            txtHeightVal.setText(String.valueOf(height));
+            inputHeightEdit.setText(String.valueOf(height));
             txtThickness.setText(String.valueOf(thickness));
             txtX.setText(String.valueOf(x));
             txtY.setText(String.valueOf(y));
@@ -2558,6 +2999,111 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 colorIndicator.setBackgroundColor(Color.GRAY); // Placeholder
             }
 
+            // --- Clickable size value: tap to switch to editable mode ---
+            txtWidthVal.setOnClickListener(v -> {
+                txtWidthVal.setVisibility(View.GONE);
+                inputWidthEdit.setVisibility(View.VISIBLE);
+                inputWidthEdit.setText(txtWidthVal.getText());
+                inputWidthEdit.requestFocus();
+                inputWidthEdit.selectAll();
+                android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) imm.showSoftInput(inputWidthEdit, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+            });
+
+            inputWidthEdit.setOnFocusChangeListener((v2, hasFocus) -> {
+                if (!hasFocus) {
+                    int val = 120;
+                    try { val = Integer.parseInt(inputWidthEdit.getText().toString().trim()); } catch (Exception e2) {}
+                    if (val < 1) val = 1;
+                    if (val > 700) val = 700;
+                    txtWidthVal.setText(String.valueOf(val));
+                    sliderWidth.setProgress(val);
+                    inputWidthEdit.setVisibility(View.GONE);
+                    txtWidthVal.setVisibility(View.VISIBLE);
+                    
+                    if (myWebView != null) {
+                        int r = sliderRadius.getProgress();
+                        int h = sliderHeight.getProgress();
+                        int t = sliderThickness.getProgress();
+                        int posX = sliderX.getProgress() - 100;
+                        int posY = sliderY.getProgress() - 100;
+                        String js = String.format("if(window.updateProfileConfig) window.updateProfileConfig({shapeMode:'%s', radius:%d, width:%d, height:%d, x:%d, y:%d, thickness:%d, frameColor:'%s', noFrame:%s, roundTL:%s, roundTR:%s, roundBL:%s, roundBR:%s});",
+                            currentMode[0], r, val, h, posX, posY, t, currentFrameColor[0], currentNoFrame[0] ? "true" : "false", 
+                            currentRoundTL[0] ? "true" : "false", currentRoundTR[0] ? "true" : "false", currentRoundBL[0] ? "true" : "false", currentRoundBR[0] ? "true" : "false");
+                        myWebView.evaluateJavascript(js, null);
+                    }
+                }
+            });
+
+            txtHeightVal.setOnClickListener(v -> {
+                txtHeightVal.setVisibility(View.GONE);
+                inputHeightEdit.setVisibility(View.VISIBLE);
+                inputHeightEdit.setText(txtHeightVal.getText());
+                inputHeightEdit.requestFocus();
+                inputHeightEdit.selectAll();
+                android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) imm.showSoftInput(inputHeightEdit, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+            });
+
+            inputHeightEdit.setOnFocusChangeListener((v2, hasFocus) -> {
+                if (!hasFocus) {
+                    int val = 120;
+                    try { val = Integer.parseInt(inputHeightEdit.getText().toString().trim()); } catch (Exception e2) {}
+                    if (val < 1) val = 1;
+                    if (val > 700) val = 700;
+                    txtHeightVal.setText(String.valueOf(val));
+                    sliderHeight.setProgress(val);
+                    inputHeightEdit.setVisibility(View.GONE);
+                    txtHeightVal.setVisibility(View.VISIBLE);
+                    
+                    if (myWebView != null) {
+                        int r = sliderRadius.getProgress();
+                        int w = sliderWidth.getProgress();
+                        int t = sliderThickness.getProgress();
+                        int posX = sliderX.getProgress() - 100;
+                        int posY = sliderY.getProgress() - 100;
+                        String js = String.format("if(window.updateProfileConfig) window.updateProfileConfig({shapeMode:'%s', radius:%d, width:%d, height:%d, x:%d, y:%d, thickness:%d, frameColor:'%s', noFrame:%s, roundTL:%s, roundTR:%s, roundBL:%s, roundBR:%s});",
+                            currentMode[0], r, w, val, posX, posY, t, currentFrameColor[0], currentNoFrame[0] ? "true" : "false", 
+                            currentRoundTL[0] ? "true" : "false", currentRoundTR[0] ? "true" : "false", currentRoundBL[0] ? "true" : "false", currentRoundBR[0] ? "true" : "false");
+                        myWebView.evaluateJavascript(js, null);
+                    }
+                }
+            });
+
+            inputWidthEdit.setOnEditorActionListener((tv, actionId, event) -> { inputWidthEdit.clearFocus(); return true; });
+            inputHeightEdit.setOnEditorActionListener((tv, actionId, event) -> { inputHeightEdit.clearFocus(); return true; });
+
+            chkNoFrame.setChecked(noFrame);
+            float disabledAlpha = 0.4f;
+            if (noFrame) {
+                layoutThickness.setAlpha(disabledAlpha);
+                layoutFrameColor.setAlpha(disabledAlpha);
+                sliderThickness.setEnabled(false);
+                btnChangeColor.setEnabled(false);
+            }
+
+            chkNoFrame.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                currentNoFrame[0] = isChecked;
+                layoutThickness.setAlpha(isChecked ? disabledAlpha : 1f);
+                layoutFrameColor.setAlpha(isChecked ? disabledAlpha : 1f);
+                sliderThickness.setEnabled(!isChecked);
+                btnChangeColor.setEnabled(!isChecked);
+
+                if (myWebView != null) {
+                    int r = sliderRadius.getProgress();
+                    int w = sliderWidth.getProgress();
+                    int h = sliderHeight.getProgress();
+                    int t = isChecked ? 0 : sliderThickness.getProgress();
+                    int posX = sliderX.getProgress() - 100;
+                    int posY = sliderY.getProgress() - 100;
+                    String fc = isChecked ? "" : currentFrameColor[0];
+                    String js = String.format("if(window.updateProfileConfig) window.updateProfileConfig({shapeMode:'%s', radius:%d, width:%d, height:%d, x:%d, y:%d, thickness:%d, frameColor:'%s', noFrame:%s, roundTL:%s, roundTR:%s, roundBL:%s, roundBR:%s});",
+                        currentMode[0], r, w, h, posX, posY, t, fc, isChecked ? "true" : "false",
+                        currentRoundTL[0] ? "true" : "false", currentRoundTR[0] ? "true" : "false", currentRoundBL[0] ? "true" : "false", currentRoundBR[0] ? "true" : "false");
+                    myWebView.evaluateJavascript(js, null);
+                }
+            });
+
             SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -2568,13 +3114,15 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                             sliderRadius.setProgress(3);
                         }
                         
-                        int s = sliderSize.getProgress();
+                        int w = sliderWidth.getProgress();
+                        int h = sliderHeight.getProgress();
                         int t = sliderThickness.getProgress();
                         int posX = sliderX.getProgress() - 100;
                         int posY = sliderY.getProgress() - 100;
 
                         txtRadius.setText(String.valueOf(r));
-                        txtSize.setText(String.valueOf(s));
+                        txtWidthVal.setText(String.valueOf(w));
+                        txtHeightVal.setText(String.valueOf(h));
                         txtThickness.setText(String.valueOf(t));
                         txtX.setText(String.valueOf(posX));
                         txtY.setText(String.valueOf(posY));
@@ -2586,8 +3134,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         }
 
                         if (myWebView != null) {
-                            String js = String.format("if(window.updateProfileConfig) window.updateProfileConfig({shapeMode:'%s', radius:%d, scale:%d, x:%d, y:%d, thickness:%d, frameColor:'%s'});", 
-                                currentMode[0], r, s, posX, posY, t, currentFrameColor[0]);
+                            String js = String.format("if(window.updateProfileConfig) window.updateProfileConfig({shapeMode:'%s', radius:%d, width:%d, height:%d, x:%d, y:%d, thickness:%d, frameColor:'%s', noFrame:%s, roundTL:%s, roundTR:%s, roundBL:%s, roundBR:%s});", 
+                                currentMode[0], r, w, h, posX, posY, t, currentFrameColor[0], currentNoFrame[0] ? "true" : "false",
+                                currentRoundTL[0] ? "true" : "false", currentRoundTR[0] ? "true" : "false", currentRoundBL[0] ? "true" : "false", currentRoundBR[0] ? "true" : "false");
                             myWebView.evaluateJavascript(js, null);
                         }
                     }
@@ -2618,12 +3167,38 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 }
             });
 
+            CompoundButton.OnCheckedChangeListener cornerListener = (buttonView, isChecked) -> {
+                if (buttonView.getId() == R.id.chk_round_tl) currentRoundTL[0] = isChecked;
+                else if (buttonView.getId() == R.id.chk_round_tr) currentRoundTR[0] = isChecked;
+                else if (buttonView.getId() == R.id.chk_round_bl) currentRoundBL[0] = isChecked;
+                else if (buttonView.getId() == R.id.chk_round_br) currentRoundBR[0] = isChecked;
+
+                if (myWebView != null) {
+                    int r = sliderRadius.getProgress();
+                    int w = sliderWidth.getProgress();
+                    int h = sliderHeight.getProgress();
+                    int t = sliderThickness.getProgress();
+                    int posX = sliderX.getProgress() - 100;
+                    int posY = sliderY.getProgress() - 100;
+                    String js = String.format("if(window.updateProfileConfig) window.updateProfileConfig({shapeMode:'%s', radius:%d, width:%d, height:%d, x:%d, y:%d, thickness:%d, frameColor:'%s', noFrame:%s, roundTL:%s, roundTR:%s, roundBL:%s, roundBR:%s});",
+                        currentMode[0], r, w, h, posX, posY, t, currentFrameColor[0], currentNoFrame[0] ? "true" : "false",
+                        currentRoundTL[0] ? "true" : "false", currentRoundTR[0] ? "true" : "false", currentRoundBL[0] ? "true" : "false", currentRoundBR[0] ? "true" : "false");
+                    myWebView.evaluateJavascript(js, null);
+                }
+            };
+
+            chkRoundTL.setOnCheckedChangeListener(cornerListener);
+            chkRoundTR.setOnCheckedChangeListener(cornerListener);
+            chkRoundBL.setOnCheckedChangeListener(cornerListener);
+            chkRoundBR.setOnCheckedChangeListener(cornerListener);
+
             btnChangeColor.setOnClickListener(v -> {
                 MainActivity.this.openNativeColorPickerForProfileFrame(currentFrameColor[0]);
             });
 
             sliderRadius.setOnSeekBarChangeListener(listener);
-            sliderSize.setOnSeekBarChangeListener(listener);
+            sliderWidth.setOnSeekBarChangeListener(listener);
+            sliderHeight.setOnSeekBarChangeListener(listener);
             sliderThickness.setOnSeekBarChangeListener(listener);
             sliderX.setOnSeekBarChangeListener(listener);
             sliderY.setOnSeekBarChangeListener(listener);
@@ -2799,7 +3374,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             case "weblinks":
                 return "Interests & More";
             case "declarationSection":
-            case "spacerSection":
                 return "Documentation";
             default:
                 return "Others";
@@ -2862,7 +3436,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         JSONObject obj = allArray.getJSONObject(i);
                         String id = obj.optString("id");
                         String type = obj.optString("type");
-                        boolean isAdded = addedIds.contains(type);
+                        boolean isAdded = addedIds.contains(type) && !"blank_section".equals(type) && !"stick_section".equals(type);
                         
                         SectionItem item = new SectionItem(
                             id,
@@ -3068,10 +3642,15 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             btnAdd.setOnClickListener(view -> {
                 if (!item.isAdded) {
                     addNativeSection(item.id, currentTargetCol[0]);
-                    btnAdd.setImageResource(R.drawable.ic_check);
-                    btnAdd.setEnabled(false);
-                    v.animate().alpha(0.6f).setDuration(300).start();
-                    if (doneBadge != null) doneBadge.setVisibility(View.VISIBLE);
+                    
+                    // Blank and Stick sections can be added multiple times — don't disable
+                    if (!"blank_section".equals(item.id) && !item.id.startsWith("blank_section") && 
+                        !"stickSection".equals(item.id) && !item.id.startsWith("stickSection")) {
+                        btnAdd.setImageResource(R.drawable.ic_check);
+                        btnAdd.setEnabled(false);
+                        v.animate().alpha(0.6f).setDuration(300).start();
+                        if (doneBadge != null) doneBadge.setVisibility(View.VISIBLE);
+                    }
                     
                     placementContainer.setVisibility(View.GONE);
                     animateCornerRadius((MaterialCardView)cardRoot, 12, 28);
@@ -4282,6 +4861,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     public static final int SECTION_BG_COLOR_ID = 999;
     public SectionBgItem pendingColorItem;
     public SectionBgAdapter pendingColorAdapter;
+    public String pendingColorTarget = ""; // "left", "mid", "right", or ""
 
     private void showSectionBackgroundDialog(String jsonItems) {
         onNativePanelOpened();
@@ -4310,7 +4890,38 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     obj.optInt("alignment", 1),
                     obj.optInt("fontSize", 14),
                     isNameProf
-                ));
+                ).setBlur(obj.optInt("blur", 0))
+                 .setZIndex(obj.optInt("zIndex", 1))
+                 .setX(obj.optInt("x", 50))
+                 .setY(obj.optInt("y", 50))
+                 .setIsBlank(obj.optBoolean("isBlank", false))
+                 .setIsStick(obj.optBoolean("isStick", false))
+                 .setImageMode(obj.optString("imageMode", "cover"))
+                 .setLeftShape(obj.optInt("leftShape", 0))
+                 .setRightShape(obj.optInt("rightShape", 0))
+                 .setMarginTop(obj.optInt("marginTop", 20))
+                 .setMarginBottom(obj.optInt("marginBottom", 20))
+                 .setXAxis(obj.optInt("xAxis", 100))
+                 .setStickLeftShape(obj.optInt("stickLeftShape", 0))
+                 .setStickLeftW(obj.optInt("stickLeftW", 20))
+                 .setStickLeftH(obj.optInt("stickLeftH", 20))
+                 .setStickLeftProp(obj.optBoolean("stickLeftProp", true))
+                 .setStickLeftRot(obj.optInt("stickLeftRot", 0))
+                 .setStickLeftColor(obj.optString("stickLeftColor", "#000000"))
+                 .setStickMidShape(obj.optInt("stickMidShape", 0))
+                 .setStickMidW(obj.optInt("stickMidW", 20))
+                 .setStickMidH(obj.optInt("stickMidH", 20))
+                 .setStickMidProp(obj.optBoolean("stickMidProp", false))
+                 .setStickMidRot(obj.optInt("stickMidRot", 0))
+                 .setStickMidColor(obj.optString("stickMidColor", "#000000"))
+                 .setStickRightShape(obj.optInt("stickRightShape", 0))
+                 .setStickRightW(obj.optInt("stickRightW", 20))
+                 .setStickRightH(obj.optInt("stickRightH", 20))
+                 .setStickRightProp(obj.optBoolean("stickRightProp", true))
+                 .setStickRightRot(obj.optInt("stickRightRot", 0))
+                 .setStickRightColor(obj.optString("stickRightColor", "#000000"))
+                 .setStickLineColor(obj.optString("stickLineColor", "#000000"))
+                 .setStickLineThickness(obj.optInt("stickLineThickness", 2)));
             }
 
             BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
@@ -4827,8 +5438,248 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 .show(this);
     }
 
+    // ===== DROP SHAPE PICKER DIALOG =====
+    private void showShapePickerDialog() {
+        com.google.android.material.bottomsheet.BottomSheetDialog shapeDialog = 
+            new com.google.android.material.bottomsheet.BottomSheetDialog(this);
+        View shapeView = getLayoutInflater().inflate(R.layout.dialog_shape_picker, null);
+        shapeDialog.setContentView(shapeView);
+
+        String[][] shapes = {
+            {"btnShapeCircle", "circle"},
+            {"btnShapeSquare", "square"},
+            {"btnShapeTriangle", "triangle"},
+            {"btnShapeHexagon", "hexagon"},
+            {"btnShapeHalfCircle", "halfcircle"},
+            {"btnShapeStar", "star"},
+            {"btnShapeDiamond", "diamond"},
+            {"btnShapeSlantBottom", "slant-bottom"},
+            {"btnShapeWaveBottom", "wave-bottom"},
+            {"btnShapeWaveTop", "wave-top"},
+            {"btnShapeSlantTop", "slant-top"},
+            {"btnShapeVBottom", "v-bottom"},
+            {"btnShapeCurvedSlant", "curved-slant"},
+            {"btnShapeRibbonBanner", "ribbon-banner"},
+            {"btnShapeUBottom", "u-bottom"}
+        };
+
+        for (String[] entry : shapes) {
+            int resId = getResources().getIdentifier(entry[0], "id", getPackageName());
+            View btn = shapeView.findViewById(resId);
+            if (btn != null) {
+                String shapeType = entry[1];
+                btn.setOnClickListener(v -> {
+                    if (myWebView != null) {
+                        myWebView.evaluateJavascript("if(window.addDropShape) window.addDropShape('" + shapeType + "');", null);
+                    }
+                    shapeDialog.dismiss();
+                });
+            }
+        }
+
+        shapeDialog.show();
+    }
+
+    // ===== DROP SHAPE TRANSFORM DIALOG =====
+    private void showShapeTransformDialog(String shapeId, int currentWidth, int currentHeight, int currentRotation, int currentRadius) {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+        builder.setTitle("Transform Shape");
+
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(48, 24, 48, 24);
+        scroll.addView(layout);
+
+        // State holder array so listeners can read/write the live values
+        final int[] state = {currentWidth, currentHeight, currentRotation, currentRadius};
+
+        // Helper function to update JS
+        Runnable updateJS = () -> {
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("if(window.updateDropShapeTransform) window.updateDropShapeTransform('" + shapeId + "', " + state[0] + ", " + state[1] + ", " + state[2] + ", " + state[3] + ");", null);
+            }
+        };
+
+        // Width slider
+        TextView widthLabel = new TextView(this);
+        widthLabel.setText("Width: " + currentWidth + "px");
+        layout.addView(widthLabel);
+        SeekBar widthSeek = new SeekBar(this);
+        widthSeek.setMax(1600);
+        widthSeek.setProgress(currentWidth);
+        widthSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {
+                state[0] = Math.max(10, progress);
+                widthLabel.setText("Width: " + state[0] + "px");
+                if (fromUser) updateJS.run();
+            }
+            @Override public void onStartTrackingTouch(SeekBar sb) {}
+            @Override public void onStopTrackingTouch(SeekBar sb) {
+                if (myWebView != null) myWebView.evaluateJavascript("if(typeof triggerAutoSave==='function') triggerAutoSave();", null);
+            }
+        });
+        layout.addView(widthSeek);
+
+        // Height slider
+        TextView heightLabel = new TextView(this);
+        heightLabel.setText("Height: " + currentHeight + "px");
+        layout.addView(heightLabel);
+        SeekBar heightSeek = new SeekBar(this);
+        heightSeek.setMax(1600);
+        heightSeek.setProgress(currentHeight);
+        heightSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {
+                state[1] = Math.max(10, progress);
+                heightLabel.setText("Height: " + state[1] + "px");
+                if (fromUser) updateJS.run();
+            }
+            @Override public void onStartTrackingTouch(SeekBar sb) {}
+            @Override public void onStopTrackingTouch(SeekBar sb) {
+                if (myWebView != null) myWebView.evaluateJavascript("if(typeof triggerAutoSave==='function') triggerAutoSave();", null);
+            }
+        });
+        layout.addView(heightSeek);
+
+        // Rotation slider
+        TextView rotateLabel = new TextView(this);
+        rotateLabel.setText("Rotation: " + currentRotation + "°");
+        layout.addView(rotateLabel);
+        SeekBar rotateSeek = new SeekBar(this);
+        rotateSeek.setMax(360);
+        rotateSeek.setProgress(currentRotation);
+        rotateSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {
+                state[2] = progress;
+                rotateLabel.setText("Rotation: " + state[2] + "°");
+                if (fromUser) updateJS.run();
+            }
+            @Override public void onStartTrackingTouch(SeekBar sb) {}
+            @Override public void onStopTrackingTouch(SeekBar sb) {
+                if (myWebView != null) myWebView.evaluateJavascript("if(typeof triggerAutoSave==='function') triggerAutoSave();", null);
+            }
+        });
+        layout.addView(rotateSeek);
+
+        // Corner Radius slider
+        TextView radiusLabel = new TextView(this);
+        radiusLabel.setText("Corner Radius: " + currentRadius + "px");
+        layout.addView(radiusLabel);
+        SeekBar radiusSeek = new SeekBar(this);
+        radiusSeek.setMax(500);
+        radiusSeek.setProgress(currentRadius);
+        radiusSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {
+                state[3] = progress;
+                radiusLabel.setText("Corner Radius: " + state[3] + "px");
+                if (fromUser) updateJS.run();
+            }
+            @Override public void onStartTrackingTouch(SeekBar sb) {}
+            @Override public void onStopTrackingTouch(SeekBar sb) {
+                if (myWebView != null) myWebView.evaluateJavascript("if(typeof triggerAutoSave==='function') triggerAutoSave();", null);
+            }
+        });
+        layout.addView(radiusSeek);
+
+        builder.setView(scroll)
+               .setPositiveButton("Done", null)
+               .show();
+    }
+
+    private void showShapeFrameDialog(String shapeId, int currentThickness, String startColor, String endColor, int sidesCount, String activeSidesJson) {
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog = new com.google.android.material.bottomsheet.BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
+        View view = getLayoutInflater().inflate(R.layout.dialog_shape_frame, null);
+        dialog.setContentView(view);
+
+        SeekBar seekThickness = view.findViewById(R.id.seek_frame_thickness);
+        TextView txtThicknessVal = view.findViewById(R.id.txt_frame_thickness_val);
+        View viewStartColor = view.findViewById(R.id.view_start_color);
+        View viewEndColor = view.findViewById(R.id.view_end_color);
+        Button btnStartColor = view.findViewById(R.id.btn_start_color);
+        Button btnEndColor = view.findViewById(R.id.btn_end_color);
+
+        // Store globals for color picker
+        pendingShapeFrameStartColorId = shapeId;
+        pendingShapeFrameEndColorId = shapeId;
+        pendingShapeFrameStartColorView = viewStartColor;
+        pendingShapeFrameEndColorView = viewEndColor;
+        pendingShapeFrameStartHex = startColor;
+        pendingShapeFrameEndHex = endColor;
+
+        seekThickness.setProgress(currentThickness);
+        txtThicknessVal.setText(String.valueOf(currentThickness));
+
+        try { viewStartColor.setBackgroundColor(Color.parseColor(startColor)); } catch (Exception e) {}
+        try { viewEndColor.setBackgroundColor(Color.parseColor(endColor)); } catch (Exception e) {}
+
+        android.widget.GridLayout containerSides = view.findViewById(R.id.container_frame_sides);
+        if (containerSides != null && sidesCount > 0) {
+            containerSides.removeAllViews();
+            try {
+                org.json.JSONArray json = new org.json.JSONArray(activeSidesJson);
+                for (int i = 0; i < sidesCount; i++) {
+                    android.widget.CheckBox cb = new android.widget.CheckBox(this);
+                    cb.setText("Side " + (i + 1));
+                    cb.setChecked(json.optBoolean(i, true));
+                    cb.setTextColor(Color.parseColor("#333333"));
+                    int finalI = i;
+                    cb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        if (myWebView != null) {
+                            myWebView.evaluateJavascript("if(window.updateDropShapeFrameSide) window.updateDropShapeFrameSide('" + shapeId + "', " + finalI + ", " + isChecked + ");", null);
+                        }
+                    });
+                    containerSides.addView(cb);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        seekThickness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                txtThicknessVal.setText(String.valueOf(progress));
+                if (myWebView != null && fromUser) {
+                    myWebView.evaluateJavascript("if(window.updateDropShapeFrameThickness) window.updateDropShapeFrameThickness('" + shapeId + "', " + progress + ");", null);
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {
+                if (myWebView != null) myWebView.evaluateJavascript("if(typeof triggerAutoSave==='function') triggerAutoSave();", null);
+            }
+        });
+
+        btnStartColor.setOnClickListener(v -> {
+            int initColor = Color.parseColor("#e53935");
+            try { initColor = Color.parseColor(pendingShapeFrameStartHex); } catch (Exception e) {}
+            ColorPickerDialog.newBuilder()
+                .setColor(initColor)
+                .setDialogType(ColorPickerDialog.TYPE_CUSTOM)
+                .setAllowPresets(true)
+                .setDialogId(DROP_SHAPE_FRAME_START_COLOR_ID)
+                .setShowAlphaSlider(false)
+                .show(MainActivity.this);
+        });
+
+        btnEndColor.setOnClickListener(v -> {
+            int initColor = Color.parseColor("#1e3c72");
+            try { initColor = Color.parseColor(pendingShapeFrameEndHex); } catch (Exception e) {}
+            ColorPickerDialog.newBuilder()
+                .setColor(initColor)
+                .setDialogType(ColorPickerDialog.TYPE_CUSTOM)
+                .setAllowPresets(true)
+                .setDialogId(DROP_SHAPE_FRAME_END_COLOR_ID)
+                .setShowAlphaSlider(false)
+                .show(MainActivity.this);
+        });
+
+        dialog.show();
+    }
+
+    // --- Bottom Sheet Setup ---
     private void showSectionSettingsDialog(String sectionId) {
         onNativePanelOpened();
+        currentEditingSectionId = sectionId;
         if (myWebView == null) return;
         
         myWebView.evaluateJavascript("if(window.getSectionStructure) window.getSectionStructure('" + sectionId + "');", value -> {
@@ -4845,17 +5696,337 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 try {
                     JSONObject data = new JSONObject(finalJson);
                     String title = data.optString("title", "Section");
-                    // String iconClass = data.optString("icon", ""); // Use if needed for icon changer
                     JSONArray items = data.optJSONArray("items");
                     
                     selectedItemIds.clear();
                     
                     BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
+                    currentSectionSettingsDialog = dialog;
+                    dialog.setOnDismissListener(d -> {
+                        if (currentSectionSettingsDialog == d) {
+                            currentSectionSettingsDialog = null;
+                        }
+                    });
+                    
                     View view = getLayoutInflater().inflate(R.layout.dialog_section_settings, null);
                     dialog.setContentView(view);
 
+                    // Setup Tabs (REMOVED: Using Button Toggle Instead)
+                    // ...
+
+                    // References for Toggle
+                    View layoutStyles = view.findViewById(R.id.layout_styles);
+                    View layoutItems = view.findViewById(R.id.layout_items);
                     
-                    // Setup Header
+                    // Setup Style Carousel
+                    ViewPager2 pager = view.findViewById(R.id.pager_styles);
+                    TabLayout indicator = view.findViewById(R.id.indicator_styles);
+                    
+                    String[] baseNames = {"Default", "Hidden Line", "No Headings", "Custom Style"};
+                    String[] baseIds = {"Default", "Hidden Line", "no-headings", "Custom Style"}; // Matching JS logic
+                    
+                    // --- Load Saved Custom Styles ---
+                    SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                    String savedStylesStr = prefs.getString("SavedCustomStyles", "[]");
+                    ArrayList<String> fullNames = new ArrayList<>(java.util.Arrays.asList(baseNames));
+                    ArrayList<String> fullIds = new ArrayList<>(java.util.Arrays.asList(baseIds));
+                    JSONArray parsedStyles = new JSONArray();
+                    try {
+                        parsedStyles = new JSONArray(savedStylesStr);
+                        for (int i = 0; i < parsedStyles.length(); i++) {
+                            JSONObject styleObj = parsedStyles.getJSONObject(i);
+                            fullNames.add(styleObj.getString("name"));
+                            fullIds.add(styleObj.getString("id"));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    final JSONArray savedStyles = parsedStyles;
+
+                    String[] finalNames = fullNames.toArray(new String[0]);
+                    String[] finalIds = fullIds.toArray(new String[0]);
+                    
+                    StyleCarouselAdapter adapter = new StyleCarouselAdapter(finalNames, finalIds);
+                    pager.setAdapter(adapter);
+                    
+                    new com.google.android.material.tabs.TabLayoutMediator(indicator, pager, (tab, position) -> {}).attach();
+                    
+                    View btnCustomHeaderSettings = view.findViewById(R.id.btnCustomHeaderSettings);
+                    View customHeaderPanel = view.findViewById(R.id.layout_custom_header_panel);
+                    View layoutSaveStyle = view.findViewById(R.id.layout_save_style);
+                    TextView btnSaveNewStyle = view.findViewById(R.id.btnSaveNewStyle);
+                    EditText inputNewStyleName = view.findViewById(R.id.inputNewStyleName);
+
+                    // Handle Save custom style
+                    if (btnSaveNewStyle != null && inputNewStyleName != null) {
+                        btnSaveNewStyle.setOnClickListener(v -> {
+                            String name = inputNewStyleName.getText().toString().trim();
+                            if (name.isEmpty()) {
+                                Toast.makeText(MainActivity.this, "Enter a style name", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (myWebView != null) {
+                                myWebView.evaluateJavascript("if(window.saveCurrentCustomStyle) window.saveCurrentCustomStyle('" + sectionId + "', '" + name + "');", null);
+                            }
+                        });
+                    }
+
+                    pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                        @Override
+                        public void onPageSelected(int position) {
+                            String selectedStyle = finalIds[position];
+                            // Show settings and save UI only for "Custom Style" specifically
+                            boolean isBaseCustom = selectedStyle.equals("Custom Style");
+                            
+                            if (btnCustomHeaderSettings != null) {
+                                btnCustomHeaderSettings.setVisibility(isBaseCustom ? View.VISIBLE : View.GONE);
+                            }
+                            if (layoutSaveStyle != null) {
+                                layoutSaveStyle.setVisibility(isBaseCustom ? View.VISIBLE : View.GONE);
+                            }
+                            if (!isBaseCustom && customHeaderPanel != null) {
+                                customHeaderPanel.setVisibility(View.GONE);
+                            }
+                            if (myWebView != null) {
+                                if (selectedStyle.startsWith("CustomStyle_")) {
+                                    // It's a saved custom style. Look up properties and pass them to JS.
+                                    String propsJson = "{}";
+                                    try {
+                                        for (int i = 0; i < savedStyles.length(); i++) {
+                                            if (savedStyles.getJSONObject(i).getString("id").equals(selectedStyle)) {
+                                                propsJson = savedStyles.getJSONObject(i).getJSONObject("props").toString();
+                                                break;
+                                            }
+                                        }
+                                    } catch (Exception e) {}
+                                    myWebView.evaluateJavascript("if(window.applySavedCustomStyle) window.applySavedCustomStyle('" + sectionId + "', '" + propsJson + "');", null);
+                                } else {
+                                    // Base styles (Default, Hidden Line, Custom Style)
+                                    myWebView.evaluateJavascript("if(window.updateSectionHeaderStyle) window.updateSectionHeaderStyle('" + sectionId + "', '" + selectedStyle + "');", null);
+                                }
+                            }
+                        }
+                    });
+
+                    // Setup Custom Header Panel Listeners
+                    if (btnCustomHeaderSettings != null && customHeaderPanel != null) {
+                        btnCustomHeaderSettings.setOnClickListener(v -> {
+                            TransitionManager.beginDelayedTransition((ViewGroup) view);
+                            customHeaderPanel.setVisibility(customHeaderPanel.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+                        });
+
+                        // Swap Icon Position
+                        View btnSwap = view.findViewById(R.id.btnSwapIconPosition);
+                        if (btnSwap != null) {
+                            btnSwap.setOnClickListener(v -> {
+                                if (myWebView != null) {
+                                    myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {swapIcon: true});", null);
+                                }
+                            });
+                        }
+
+                        // Connect Icon + Title
+                        View btnConnect = view.findViewById(R.id.btnConnectIconTitle);
+                        if (btnConnect != null) {
+                            btnConnect.setOnClickListener(v -> {
+                                if (myWebView != null) {
+                                    myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {connectToggle: true});", null);
+                                }
+                                // Toggle button appearance
+                                boolean isActive = v.getTag() != null && (boolean) v.getTag();
+                                isActive = !isActive;
+                                v.setTag(isActive);
+                                if (v instanceof TextView) {
+                                    ((TextView) v).setBackgroundTintList(android.content.res.ColorStateList.valueOf(isActive ? 0xFFE8EAF6 : 0xFFF0F0F0));
+                                    ((TextView) v).setTextColor(isActive ? 0xFF1E3C72 : 0xFF444444);
+                                }
+                            });
+                        }
+
+                        // Color Buttons
+                        view.findViewById(R.id.btnHeaderIconBgColor).setOnClickListener(v -> {
+                            openNativeColorPickerForContact("#FFFFFF", HEADER_ICON_BG_COLOR_ID);
+                        });
+                        view.findViewById(R.id.btnHeaderTextBgColor).setOnClickListener(v -> {
+                            openNativeColorPickerForContact("#FFFFFF", HEADER_TITLE_BG_COLOR_ID);
+                        });
+
+                        // Sliders
+                        SeekBar sliderIconRadius = view.findViewById(R.id.sliderHeaderIconRadius);
+                        SeekBar sliderTextRadius = view.findViewById(R.id.sliderHeaderTextRadius);
+
+                        sliderIconRadius.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                if (fromUser && myWebView != null) {
+                                    myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {iconRadius: " + progress + "});", null);
+                                }
+                            }
+                            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                        });
+
+                        sliderTextRadius.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                if (fromUser && myWebView != null) {
+                                    myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {textRadius: " + progress + "});", null);
+                                }
+                            }
+                            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                        });
+
+                        // Icon Size slider
+                        SeekBar sliderIconSize = view.findViewById(R.id.sliderHeaderIconSize);
+                        if (sliderIconSize != null) {
+                            sliderIconSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                @Override
+                                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                    if (fromUser && myWebView != null) {
+                                        myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {iconSize: " + progress + "});", null);
+                                    }
+                                }
+                                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                            });
+                        }
+
+                        // Title Font Size slider
+                        SeekBar sliderTitleFontSize = view.findViewById(R.id.sliderHeaderTitleFontSize);
+                        if (sliderTitleFontSize != null) {
+                            sliderTitleFontSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                @Override
+                                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                    if (fromUser && myWebView != null) {
+                                        int size = Math.max(8, progress);
+                                        myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {titleFontSize: " + size + "});", null);
+                                    }
+                                }
+                                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                            });
+                        }
+
+                        // --- Shape Dimension & Color Controls ---
+                        // Helper for simple seekbar->JS property binding
+                        int[][] dimSliders = {
+                            {R.id.sliderLeftShapeW}, {R.id.sliderLeftShapeH},
+                            {R.id.sliderRightShapeW}, {R.id.sliderRightShapeH},
+                            {R.id.sliderConnectorW}, {R.id.sliderConnectorH}
+                        };
+                        String[] dimProps = {"textLeftW", "textLeftH", "textRightW", "textRightH", "connectorW", "connectorH"};
+                        for (int d = 0; d < dimSliders.length; d++) {
+                            SeekBar sb = view.findViewById(dimSliders[d][0]);
+                            if (sb == null) continue;
+                            final String prop = dimProps[d];
+                            sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                @Override
+                                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                    if (fromUser && myWebView != null) {
+                                        myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {" + prop + ": " + progress + "});", null);
+                                    }
+                                }
+                                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                            });
+                        }
+
+                        // Shape color pickers
+                        View btnLeftColor = view.findViewById(R.id.btnLeftShapeColor);
+                        if (btnLeftColor != null) btnLeftColor.setOnClickListener(v -> openNativeColorPickerForContact("#AAAAAA", HEADER_LEFT_SHAPE_COLOR_ID));
+
+                        View btnRightColor = view.findViewById(R.id.btnRightShapeColor);
+                        if (btnRightColor != null) btnRightColor.setOnClickListener(v -> openNativeColorPickerForContact("#AAAAAA", HEADER_RIGHT_SHAPE_COLOR_ID));
+
+                        View btnConnColor = view.findViewById(R.id.btnConnectorColor);
+                        if (btnConnColor != null) btnConnColor.setOnClickListener(v -> openNativeColorPickerForContact("#AAAAAA", HEADER_CONNECTOR_COLOR_ID));
+
+                        View btnFontColor = view.findViewById(R.id.btnTitleFontColor);
+                        if (btnFontColor != null) btnFontColor.setOnClickListener(v -> openNativeColorPickerForContact("#333333", HEADER_TITLE_FONT_COLOR_ID));
+
+                        // --- Frame System ---
+                        // Icon Frame
+                        SeekBar sliderIconFrame = view.findViewById(R.id.sliderIconFrameWidth);
+                        if (sliderIconFrame != null) {
+                            sliderIconFrame.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                @Override
+                                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                    if (fromUser && myWebView != null) {
+                                        myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {iconFrameWidth: " + progress + "});", null);
+                                    }
+                                }
+                                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                            });
+                        }
+                        View btnIconFrameColor = view.findViewById(R.id.btnIconFrameColor);
+                        if (btnIconFrameColor != null) {
+                            btnIconFrameColor.setOnClickListener(v -> openNativeColorPickerForContact("#333333", HEADER_ICON_FRAME_COLOR_ID));
+                        }
+
+                        // Title Frame
+                        SeekBar sliderTitleFrame = view.findViewById(R.id.sliderTitleFrameWidth);
+                        if (sliderTitleFrame != null) {
+                            sliderTitleFrame.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                @Override
+                                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                    if (fromUser && myWebView != null) {
+                                        myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {textFrameWidth: " + progress + "});", null);
+                                    }
+                                }
+                                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                            });
+                        }
+                        View btnTitleFrameColor = view.findViewById(R.id.btnTitleFrameColor);
+                        if (btnTitleFrameColor != null) {
+                            btnTitleFrameColor.setOnClickListener(v -> openNativeColorPickerForContact("#333333", HEADER_TITLE_FRAME_COLOR_ID));
+                        }
+
+                        // --- Shape Extension Buttons ---
+
+                        // Inline helper: sets up a row of shape buttons
+                        // Each button gets tag=shapeId, click resets row tints and calls JS
+                        int[][] shapeGroups = {
+                            {R.id.btnShapeTitleLeftNone, R.id.btnShapeTitleLeftTriangle, R.id.btnShapeTitleLeftHalfCircle, R.id.btnShapeTitleLeftArrow},
+                            {R.id.btnShapeTitleRightNone, R.id.btnShapeTitleRightTriangle, R.id.btnShapeTitleRightHalfCircle, R.id.btnShapeTitleRightArrow},
+                            {R.id.btnShapeIconNone, R.id.btnShapeIconTriangle, R.id.btnShapeIconCircle, R.id.btnShapeIconHexagon},
+                            {R.id.btnConnectorNone, R.id.btnConnectorLine, R.id.btnConnectorDot, R.id.btnConnectorDiamond, R.id.btnConnectorHexagon}
+                        };
+                        String[] shapeProps = {"textLeftShape", "textRightShape", "iconShape", "connectorShape"};
+
+                        for (int g = 0; g < shapeGroups.length; g++) {
+                            final String propName = shapeProps[g];
+                            final int[] btnIds = shapeGroups[g];
+                            for (int si = 0; si < btnIds.length; si++) {
+                                View btn = view.findViewById(btnIds[si]);
+                                if (btn == null) continue;
+                                final int shapeId = si;
+                                final int[] allBtnIds = btnIds;
+                                btn.setOnClickListener(v -> {
+                                    // Reset all in row
+                                    for (int id : allBtnIds) {
+                                        View sibling = view.findViewById(id);
+                                        if (sibling != null) {
+                                            sibling.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFF5F5F5));
+                                            if (sibling instanceof TextView) ((TextView) sibling).setTextColor(0xFF666666);
+                                        }
+                                    }
+                                    // Highlight selected
+                                    v.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFE8EAF6));
+                                    if (v instanceof TextView) ((TextView) v).setTextColor(0xFF1E3C72);
+
+                                    if (myWebView != null) {
+                                        myWebView.evaluateJavascript("if(window.updateSectionHeaderCustomStyle) window.updateSectionHeaderCustomStyle('" + sectionId + "', {" + propName + ": " + shapeId + "});", null);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    
+                    // Setup Header Title
                     EditText titleView = view.findViewById(R.id.headerTitle);
                     if (titleView != null) {
                         titleView.setText(title);
@@ -4864,7 +6035,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
                             @Override public void afterTextChanged(android.text.Editable s) {
                                 if (myWebView != null) {
-                                    // Debounce could be good, but direct update is fine for local title
                                     myWebView.evaluateJavascript("window.updateSectionTitle('" + sectionId + "', '" + s.toString().replace("'", "\\'") + "');", null);
                                 }
                             }
@@ -4881,10 +6051,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         });
                     }
 
-
-
-
-
                     // Setup Buttons & Containers
                     LinearLayout btnHeaderStyle = view.findViewById(R.id.btnHeaderStyle);
                     LinearLayout btnSectionColor = view.findViewById(R.id.btnSectionColor);
@@ -4892,7 +6058,28 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     LinearLayout btnGrid = view.findViewById(R.id.btnGrid);
                     LinearLayout btnApplyToAll = view.findViewById(R.id.btnApplyToAll);
 
-                    // These are now inside the main layout, initially GONE
+                    if (btnHeaderStyle != null) {
+                        btnHeaderStyle.setOnClickListener(v -> {
+                             // Toggle Logic
+                             TransitionManager.beginDelayedTransition((ViewGroup) view);
+                             if (layoutStyles.getVisibility() == View.VISIBLE) {
+                                 // Close Styles, Show Items
+                                 layoutStyles.setVisibility(View.GONE);
+                                 layoutItems.setVisibility(View.VISIBLE);
+                                 // Optional: Update Button Tint to inactive?
+                                 ((TextView)view.findViewById(R.id.txtStyleBtn)).setTextColor(0xFF666666);
+                                 ((ImageView)view.findViewById(R.id.iconStyleBtn)).setColorFilter(0xFF666666);
+                             } else {
+                                 // Show Styles, Hide Items
+                                 layoutItems.setVisibility(View.GONE);
+                                 layoutStyles.setVisibility(View.VISIBLE);
+                                 // Optional: Update Button Tint to active
+                                 ((TextView)view.findViewById(R.id.txtStyleBtn)).setTextColor(0xFF1E3C72);
+                                 ((ImageView)view.findViewById(R.id.iconStyleBtn)).setColorFilter(0xFF1E3C72);
+                             }
+                        });
+                    }
+
                     LinearLayout containerAlignmentSlider = view.findViewById(R.id.containerAlignmentSlider);
                     SeekBar sliderAlignment = view.findViewById(R.id.sliderAlignment);
                     TextView txtAlignmentVal = view.findViewById(R.id.txtAlignmentVal);
@@ -4921,31 +6108,95 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         });
                     }
 
-                    if (btnGrid != null && containerGridSpacing != null) {
-                        btnGrid.setOnClickListener(v -> {
-                            TransitionManager.beginDelayedTransition((ViewGroup) view.findViewById(R.id.container_row2));
-                            if (containerGridSpacing.getVisibility() == View.VISIBLE) {
-                                containerGridSpacing.setVisibility(View.GONE);
-                            } else {
-                                if (containerAlignmentSlider != null) containerAlignmentSlider.setVisibility(View.GONE);
-                                containerGridSpacing.setVisibility(View.VISIBLE);
+                    // --- Grid Layout Spinners ---
+                    Spinner spinnerGridCols = view.findViewById(R.id.spinnerGridCols);
+                    Spinner spinnerGridRows = view.findViewById(R.id.spinnerGridRows);
+
+                    String[] gridOptions = {"1", "2", "3", "4", "5", "Unlimited"};
+                    android.widget.ArrayAdapter<String> colsAdapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_item, gridOptions);
+                    colsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    android.widget.ArrayAdapter<String> rowsAdapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_item, gridOptions);
+                    rowsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                    if (spinnerGridCols != null) spinnerGridCols.setAdapter(colsAdapter);
+                    if (spinnerGridRows != null) {
+                        rowsAdapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_spinner_item, gridOptions);
+                        rowsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerGridRows.setAdapter(rowsAdapter);
+                        spinnerGridRows.setSelection(5); // Default: Unlimited rows
+                    }
+
+                    // Read current grid state from section data
+                    int currentCols = data.optInt("gridCols", 1);
+                    int currentRows = data.optInt("gridRows", 0); // 0 = unlimited
+                    if (spinnerGridCols != null) {
+                        if (currentCols >= 1 && currentCols <= 5) spinnerGridCols.setSelection(currentCols - 1);
+                        else spinnerGridCols.setSelection(0); // default 1
+                    }
+                    if (spinnerGridRows != null) {
+                        if (currentRows >= 1 && currentRows <= 5) spinnerGridRows.setSelection(currentRows - 1);
+                        else spinnerGridRows.setSelection(5); // Unlimited
+                    }
+
+                    // Spinner change listeners
+                    final boolean[] spinnerInitialized = {false, false};
+                    if (spinnerGridCols != null) {
+                        spinnerGridCols.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(android.widget.AdapterView<?> parent, View v2, int position, long id) {
+                                if (!spinnerInitialized[0]) { spinnerInitialized[0] = true; return; }
+                                int cols = (position < 5) ? (position + 1) : 0; // 0 = unlimited
+                                int rows = 0;
+                                if (spinnerGridRows != null) {
+                                    int rPos = spinnerGridRows.getSelectedItemPosition();
+                                    rows = (rPos < 5) ? (rPos + 1) : 0;
+                                }
+                                if (myWebView != null) {
+                                    myWebView.evaluateJavascript("window.updateSectionGridLayout('" + sectionId + "', " + cols + ", " + rows + ");", null);
+                                }
                             }
+                            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+                        });
+                    }
+                    if (spinnerGridRows != null) {
+                        spinnerGridRows.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(android.widget.AdapterView<?> parent, View v2, int position, long id) {
+                                if (!spinnerInitialized[1]) { spinnerInitialized[1] = true; return; }
+                                int rows = (position < 5) ? (position + 1) : 0;
+                                int cols = 0;
+                                if (spinnerGridCols != null) {
+                                    int cPos = spinnerGridCols.getSelectedItemPosition();
+                                    cols = (cPos < 5) ? (cPos + 1) : 0;
+                                }
+                                if (myWebView != null) {
+                                    myWebView.evaluateJavascript("window.updateSectionGridLayout('" + sectionId + "', " + cols + ", " + rows + ");", null);
+                                }
+                            }
+                            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
                         });
                     }
 
-
-                    if (btnHeaderStyle != null) {
-                        btnHeaderStyle.setOnClickListener(v -> {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                            builder.setTitle("Header Style");
-                            String[] styles = {"Default", "Hidden Line"};
-                            builder.setItems(styles, (dialog1, which) -> {
-                                String selectedStyle = styles[which];
-                                if (myWebView != null) {
-                                    myWebView.evaluateJavascript("window.updateSectionHeaderStyle('" + sectionId + "', '" + selectedStyle + "');", null);
+                    if (btnGrid != null && containerGridSpacing != null) {
+                        btnGrid.setOnClickListener(v -> {
+                            TransitionManager.beginDelayedTransition((ViewGroup) view);
+                            if (containerGridSpacing.getVisibility() == View.VISIBLE) {
+                                containerGridSpacing.setVisibility(View.GONE);
+                                ((TextView)view.findViewById(R.id.txtGridBtn)).setTextColor(0xFF666666);
+                                ((ImageView)view.findViewById(R.id.iconGridBtn)).setColorFilter(0xFF666666);
+                            } else {
+                                if (containerAlignmentSlider != null) containerAlignmentSlider.setVisibility(View.GONE);
+                                // Also hide styles and show items when opening grid
+                                if (layoutStyles.getVisibility() == View.VISIBLE) {
+                                    layoutStyles.setVisibility(View.GONE);
+                                    layoutItems.setVisibility(View.VISIBLE);
+                                    ((TextView)view.findViewById(R.id.txtStyleBtn)).setTextColor(0xFF666666);
+                                    ((ImageView)view.findViewById(R.id.iconStyleBtn)).setColorFilter(0xFF666666);
                                 }
-                            });
-                            builder.show();
+                                containerGridSpacing.setVisibility(View.VISIBLE);
+                                ((TextView)view.findViewById(R.id.txtGridBtn)).setTextColor(0xFF1E3C72);
+                                ((ImageView)view.findViewById(R.id.iconGridBtn)).setColorFilter(0xFF1E3C72);
+                            }
                         });
                     }
 
@@ -4953,7 +6204,6 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         btnSectionColor.setOnClickListener(v -> {
                              currentEditingSectionId = sectionId;
                              String sectionBg = data.optString("bgColor", "#FFFFFF");
-                             // Using generic picker logic
                              openNativeColorPickerForContact(sectionBg, CURRENT_SECTION_BG_COLOR_ID); 
                         });
                     }
@@ -4963,10 +6213,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                              AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                              builder.setTitle("Apply to All Sections");
                              String[] options = {
-                                 "Header Style", "Grid Spacing", "Alignment", "Background Color",
+                                 "Header Style", "Grid Spacing", "Grid Layout", "Item Width", "Alignment", "Background Color",
                                  "Subsection Background", "Subsection Line Height", "Subsection Roundness"
                              };
-                             boolean[] checkedItems = {true, true, true, true, true, true, true};
+                             boolean[] checkedItems = {true, true, true, true, true, true, true, true, true};
                              builder.setMultiChoiceItems(options, checkedItems, (dialog1, which, isChecked) -> {
                                  checkedItems[which] = isChecked;
                              });
@@ -4975,11 +6225,13 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                                      JSONObject opts = new JSONObject();
                                      opts.put("style", checkedItems[0]);
                                      opts.put("grid", checkedItems[1]);
-                                     opts.put("align", checkedItems[2]);
-                                     opts.put("color", checkedItems[3]);
-                                     opts.put("subBg", checkedItems[4]);
-                                     opts.put("subLine", checkedItems[5]);
-                                     opts.put("subRound", checkedItems[6]);
+                                     opts.put("gridLayout", checkedItems[2]);
+                                     opts.put("itemWidth", checkedItems[3]);
+                                     opts.put("align", checkedItems[4]);
+                                     opts.put("color", checkedItems[5]);
+                                     opts.put("subBg", checkedItems[6]);
+                                     opts.put("subLine", checkedItems[7]);
+                                     opts.put("subRound", checkedItems[8]);
                                      if(myWebView != null) {
                                          myWebView.evaluateJavascript("window.applySettingsToAllSections('" + sectionId + "', " + opts.toString() + ");", null);
                                      }
@@ -5048,6 +6300,30 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         });
                     }
                     
+                    // Setup Item Width
+                    SeekBar itemWidthSlider = view.findViewById(R.id.sliderItemWidth);
+                    TextView itemWidthVal = view.findViewById(R.id.txtItemWidthVal);
+                    if (itemWidthSlider != null) {
+                        itemWidthSlider.setOnTouchListener(sliderTouchListener);
+                        // Read current value from section data
+                        int currentItemWidth = data.optInt("itemWidth", 0);
+                        itemWidthSlider.setProgress(currentItemWidth);
+                        if (itemWidthVal != null) itemWidthVal.setText(currentItemWidth == 0 ? "Auto" : currentItemWidth + "px");
+
+                        itemWidthSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                            @Override
+                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                                if (fromUser) {
+                                    if (itemWidthVal != null) itemWidthVal.setText(progress == 0 ? "Auto" : progress + "px");
+                                    if (myWebView != null) {
+                                        myWebView.evaluateJavascript("window.updateSectionItemWidth('" + sectionId + "', " + progress + ");", null);
+                                    }
+                                }
+                            }
+                            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                        });
+                    }
                     // Setup Select All
                     TextView btnSelectAll = view.findViewById(R.id.btnSelectAll);
                     if (btnSelectAll != null) {
@@ -5302,10 +6578,11 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
          popup.showAsDropDown(anchor);
     }
 
-    private void showFrameSettingsDialog(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale) {
+    private void showFrameSettingsDialog(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale, boolean isSplit, String splitColor, int splitPos, String splitDir) {
         onNativePanelOpened();
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
         View view = getLayoutInflater().inflate(R.layout.dialog_frame_settings, null);
+        currentFrameSettingsView = view;
         dialog.setContentView(view);
 
         // Max Height 40%
@@ -5348,13 +6625,12 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         tabLayout.getTabAt(1).select();
         layoutCustomize.setVisibility(View.VISIBLE);
         layoutStyles.setVisibility(View.GONE);
-
         if (type.equals("header")) {
             ViewPager2 pager = view.findViewById(R.id.pager_styles);
             TabLayout indicator = view.findViewById(R.id.indicator_styles);
             
-            String[] styleNames = {"Minimal", "Bold", "Glass"};
-            String[] styleIds = {"d1", "d2", "d3"};
+            String[] styleNames = {"Minimal", "Drop Shape"};
+            String[] styleIds = {"d1", "drop-shape"};
             
             StyleCarouselAdapter adapter = new StyleCarouselAdapter(styleNames, styleIds);
             pager.setAdapter(adapter);
@@ -5369,8 +6645,42 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 public void onPageSelected(int position) {
                     currentHeaderIdx = position;
                     String typeId = styleIds[position];
+                    if (typeId.equals("drop-shape")) {
+                        // Activate Drop Shape mode on the header box
+                        if (myWebView != null) {
+                            myWebView.evaluateJavascript("if(window.activateDropShapeMode) window.activateDropShapeMode();", null);
+                        }
+                    } else {
+                        // Deactivate Drop Shape mode if switching away
+                        if (myWebView != null) {
+                            myWebView.evaluateJavascript("if(window.deactivateDropShapeMode) window.deactivateDropShapeMode();", null);
+                            myWebView.evaluateJavascript("if(window.applyHeaderDesign) window.applyHeaderDesign('"+ typeId +"');", null);
+                        }
+                    }
+                }
+            });
+        } else if (type.equals("left")) {
+            ViewPager2 pager = view.findViewById(R.id.pager_styles);
+            TabLayout indicator = view.findViewById(R.id.indicator_styles);
+            
+            String[] styleNames = {"Default", "Split"};
+            String[] styleIds = {"default", "stack"};
+            
+            StyleCarouselAdapter adapter = new StyleCarouselAdapter(styleNames, styleIds);
+            pager.setAdapter(adapter);
+            
+            new com.google.android.material.tabs.TabLayoutMediator(indicator, pager, (tab, position) -> {}).attach();
+            
+            // Set current selection
+            // We need to determine the current layout mode from the JS state or variables
+            // For now, let's just default or try to match 'stack' if it's active
+            
+            pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    String mode = styleIds[position];
                     if (myWebView != null) {
-                        myWebView.evaluateJavascript("if(window.applyHeaderDesign) window.applyHeaderDesign('"+ typeId +"');", null);
+                        myWebView.evaluateJavascript("if(window.updateDesignerColumnLayout) window.updateDesignerColumnLayout('"+ mode +"');", null);
                     }
                 }
             });
@@ -5426,6 +6736,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 if (btnHeaderBgImage != null) {
                     btnHeaderBgImage.setOnClickListener(v -> pickHeaderImage());
                 }
+                View btnRemoveHeaderBg = view.findViewById(R.id.btn_remove_header_bg_image);
+                if (btnRemoveHeaderBg != null) {
+                    btnRemoveHeaderBg.setOnClickListener(v -> {
+                        if (myWebView != null) {
+                            myWebView.evaluateJavascript("if(window.updateHeaderBgImage) window.updateHeaderBgImage('', false);", null);
+                        }
+                    });
+                }
                 // Update Resolution Text
                 if (layoutHeaderBgImage instanceof LinearLayout) {
                     TextView txtRes = (TextView) ((LinearLayout) layoutHeaderBgImage).getChildAt(1); // Assuming 2nd child is TextView
@@ -5444,6 +6762,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                  View btnLeftBgImage = view.findViewById(R.id.btn_left_bg_image);
                  if (btnLeftBgImage != null) {
                      btnLeftBgImage.setOnClickListener(v -> pickLeftImage());
+                 }
+                 View btnRemoveLeftBg = view.findViewById(R.id.btn_remove_left_bg_image);
+                 if (btnRemoveLeftBg != null) {
+                     btnRemoveLeftBg.setOnClickListener(v -> {
+                         if (myWebView != null) {
+                             myWebView.evaluateJavascript("if(window.updateLeftBgImage) window.updateLeftBgImage('');", null);
+                         }
+                     });
                  }
                  // Update Resolution Text
                  if (layoutLeftBgImage instanceof LinearLayout) {
@@ -5666,6 +6992,70 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         btnFillEnd.setOnClickListener(v -> openNativeColorPickerForFrame(bEnd[0], type.equals("left") ? LEFT_FRAME_BG_COLOR_END_ID : HEADER_FRAME_BG_COLOR_END_ID));
         btnTextColor.setOnClickListener(v -> openNativeColorPickerForFrame(tColor[0], HEADER_TEXT_COLOR_ID));
 
+        // Split background controls
+        if (type.equals("left")) {
+            View layoutSplitSettings = view.findViewById(R.id.layout_split_settings);
+            CheckBox checkSplitMode = view.findViewById(R.id.check_split_mode);
+            View containerSplitControls = view.findViewById(R.id.container_split_controls);
+            View viewSplitTopIndicator = view.findViewById(R.id.view_split_top_color_indicator);
+            Button btnChangeSplitTopColor = view.findViewById(R.id.btn_change_split_top_color);
+            View viewSplitIndicator = view.findViewById(R.id.view_split_color_indicator);
+            Button btnChangeSplitColor = view.findViewById(R.id.btn_change_split_color);
+            SeekBar sliderSplitPos = view.findViewById(R.id.slider_split_pos);
+            TextView txtSplitPos = view.findViewById(R.id.txt_split_pos_val);
+            RadioGroup rgSplitDir = view.findViewById(R.id.rg_split_direction);
+
+            if (layoutSplitSettings != null) {
+                layoutSplitSettings.setVisibility(View.VISIBLE);
+                checkSplitMode.setChecked(isSplit);
+                containerSplitControls.setVisibility(isSplit ? View.VISIBLE : View.GONE);
+                
+                final String[] sColor = {splitColor != null ? splitColor : "#ffffff"};
+                autoSetViewColor(viewSplitIndicator, sColor[0]);
+                
+                sliderSplitPos.setProgress(splitPos);
+                txtSplitPos.setText(String.valueOf(splitPos));
+
+                if ("horizontal".equals(splitDir)) {
+                    rgSplitDir.check(R.id.rb_split_horizontal);
+                } else {
+                    rgSplitDir.check(R.id.rb_split_vertical);
+                }
+
+                checkSplitMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    containerSplitControls.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                    if (myWebView != null) {
+                        myWebView.evaluateJavascript("if(window.updateLeftFrameConfig) window.updateLeftFrameConfig({isSplit:" + isChecked + "});", null);
+                    }
+                });
+
+                if (bgStart != null) viewSplitTopIndicator.setBackgroundColor(Color.parseColor(bgStart));
+                if (splitColor != null) viewSplitIndicator.setBackgroundColor(Color.parseColor(splitColor));
+
+                btnChangeSplitTopColor.setOnClickListener(v -> openNativeColorPickerForFrame(bgStart != null ? bgStart : "#f7f9fc", LEFT_SPLIT_TOP_COLOR_ID));
+                btnChangeSplitColor.setOnClickListener(v -> openNativeColorPickerForFrame(splitColor != null ? splitColor : "#ffffff", LEFT_SPLIT_COLOR_ID));
+
+                sliderSplitPos.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                        txtSplitPos.setText(String.valueOf(progress));
+                        if (fromUser && myWebView != null) {
+                            myWebView.evaluateJavascript("if(window.updateLeftFrameConfig) window.updateLeftFrameConfig({splitPos:" + progress + "});", null);
+                        }
+                    }
+                    @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+                    @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+                });
+
+                rgSplitDir.setOnCheckedChangeListener((group, checkedId) -> {
+                    String dir = (checkedId == R.id.rb_split_horizontal) ? "horizontal" : "vertical";
+                    if (myWebView != null) {
+                        myWebView.evaluateJavascript("if(window.updateLeftFrameConfig) window.updateLeftFrameConfig({splitDir:'" + dir + "'});", null);
+                    }
+                });
+            }
+        }
+
         dialog.show();
     }
 
@@ -5759,14 +7149,47 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             
             // If assets existed, we would use holder.imgThumbnail.setImageResource(...)
             // For now, let's add a subtle icon or text inside the placeholder to make it look "wow"
-            if (names[position].equals("Minimal")) {
+            if (names[position].equals("Minimal") || names[position].equals("Default")) {
                 holder.imgThumbnail.setImageResource(android.R.drawable.ic_menu_edit);
-            } else if (names[position].equals("Bold")) {
+            } else if (names[position].equals("Bold") || names[position].equals("Mirror")) {
                 holder.imgThumbnail.setImageResource(android.R.drawable.ic_menu_add);
-            } else { // Glass
+            } else if (names[position].equals("Custom Style") || names[position].equals("Split")) {
+                holder.imgThumbnail.setImageResource(R.drawable.ic_star); // Use a star or similar icon
+            } else { // Glass or Hidden Line
                 holder.imgThumbnail.setImageResource(android.R.drawable.ic_menu_view);
             }
             holder.imgThumbnail.setImageAlpha(128); // Semi-transparent icon
+
+            // Show delete button only for user-created custom styles
+            if (ids[position].startsWith("CustomStyle_")) {
+                holder.btnDelete.setVisibility(View.VISIBLE);
+                holder.btnDelete.setOnClickListener(v -> {
+                    new android.app.AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Delete Style")
+                        .setMessage("Remove \"" + names[position] + "\"?")
+                        .setPositiveButton("Delete", (d, w) -> {
+                            deleteCustomStyle(ids[position]);
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+                });
+            } else {
+                holder.btnDelete.setVisibility(View.GONE);
+            }
+
+            // Show settings button for "Custom Style" or "Split"
+            if (ids[position].equals("Custom Style") || ids[position].equals("stack")) {
+                holder.btnSettings.setVisibility(View.VISIBLE);
+                holder.btnSettings.setOnClickListener(v -> {
+                    if (ids[position].equals("stack")) {
+                        openLayoutSettings("stack");
+                    } else {
+                        Toast.makeText(MainActivity.this, "Settings for " + names[position] + " coming soon!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                holder.btnSettings.setVisibility(View.GONE);
+            }
         }
 
         @Override
@@ -5777,14 +7200,434 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         class ViewHolder extends RecyclerView.ViewHolder {
             ImageView imgThumbnail;
             TextView txtName;
+            ImageView btnDelete;
+            ImageView btnSettings;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 imgThumbnail = itemView.findViewById(R.id.img_style_thumbnail);
                 txtName = itemView.findViewById(R.id.txt_style_name);
+                btnDelete = itemView.findViewById(R.id.btn_delete_style);
+                btnSettings = itemView.findViewById(R.id.btn_style_settings);
+            }
+        }
+    }
 
+    private void openLayoutSettings(String mode) {
+        if (!mode.equals("stack")) return;
 
-}
+        // Build a small dedicated dialog for Split style settings
+        BottomSheetDialog splitDialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(64, 48, 64, 48);
+        root.setBackgroundColor(Color.parseColor("#F5F5F5"));
+
+        // Title
+        TextView title = new TextView(this);
+        title.setText("Split Style Settings");
+        title.setTextSize(18);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setTextColor(Color.parseColor("#424242"));
+        title.setPadding(0, 0, 0, 32);
+        root.addView(title);
+
+        // --- Main content: colors on left, slider on right ---
+        LinearLayout mainRow = new LinearLayout(this);
+        mainRow.setOrientation(LinearLayout.HORIZONTAL);
+        mainRow.setGravity(android.view.Gravity.TOP);
+
+        // == Left side: Color pickers ==
+        LinearLayout colColors = new LinearLayout(this);
+        colColors.setOrientation(LinearLayout.VERTICAL);
+        colColors.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+        // Top Color
+        TextView labelTop = new TextView(this);
+        labelTop.setText("Top Color");
+        labelTop.setTextSize(14);
+        labelTop.setTextColor(Color.parseColor("#757575"));
+        labelTop.setPadding(0, 0, 0, 8);
+        colColors.addView(labelTop);
+
+        LinearLayout rowTop = new LinearLayout(this);
+        rowTop.setOrientation(LinearLayout.HORIZONTAL);
+        rowTop.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        rowTop.setPadding(0, 0, 0, 24);
+
+        View indicatorTop = new View(this);
+        indicatorTop.setLayoutParams(new LinearLayout.LayoutParams(56, 56));
+        indicatorTop.setBackgroundColor(Color.parseColor("#f7f9fc"));
+        if (myWebView != null) {
+            myWebView.evaluateJavascript(
+                "getComputedStyle(document.documentElement).getPropertyValue('--left-col-bg').trim()",
+                value -> {
+                    String c = value != null ? value.replace("\"", "").trim() : "";
+                    if (!c.isEmpty() && c.startsWith("#")) {
+                        runOnUiThread(() -> { try { indicatorTop.setBackgroundColor(Color.parseColor(c)); } catch(Exception e){} });
+                    }
+                });
+        }
+        rowTop.addView(indicatorTop);
+
+        View spacer1 = new View(this);
+        spacer1.setLayoutParams(new LinearLayout.LayoutParams(16, 1));
+        rowTop.addView(spacer1);
+
+        Button btnTop = new Button(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+        btnTop.setText("Pick");
+        btnTop.setTextSize(11);
+        btnTop.setOnClickListener(v -> openNativeColorPickerForFrame("#f7f9fc", LEFT_SPLIT_TOP_COLOR_ID));
+        rowTop.addView(btnTop);
+        colColors.addView(rowTop);
+
+        // Bottom Color
+        TextView labelBottom = new TextView(this);
+        labelBottom.setText("Bottom Color");
+        labelBottom.setTextSize(14);
+        labelBottom.setTextColor(Color.parseColor("#757575"));
+        labelBottom.setPadding(0, 0, 0, 8);
+        colColors.addView(labelBottom);
+
+        LinearLayout rowBottom = new LinearLayout(this);
+        rowBottom.setOrientation(LinearLayout.HORIZONTAL);
+        rowBottom.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+        View indicatorBottom = new View(this);
+        indicatorBottom.setLayoutParams(new LinearLayout.LayoutParams(56, 56));
+        indicatorBottom.setBackgroundColor(Color.parseColor("#ffffff"));
+        if (myWebView != null) {
+            myWebView.evaluateJavascript(
+                "getComputedStyle(document.documentElement).getPropertyValue('--left-split-color').trim()",
+                value -> {
+                    String c = value != null ? value.replace("\"", "").trim() : "";
+                    if (!c.isEmpty() && c.startsWith("#")) {
+                        runOnUiThread(() -> { try { indicatorBottom.setBackgroundColor(Color.parseColor(c)); } catch(Exception e){} });
+                    }
+                });
+        }
+        rowBottom.addView(indicatorBottom);
+
+        View spacer2 = new View(this);
+        spacer2.setLayoutParams(new LinearLayout.LayoutParams(16, 1));
+        rowBottom.addView(spacer2);
+
+        Button btnBottom = new Button(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+        btnBottom.setText("Pick");
+        btnBottom.setTextSize(11);
+        btnBottom.setOnClickListener(v -> openNativeColorPickerForFrame("#ffffff", LEFT_SPLIT_COLOR_ID));
+        rowBottom.addView(btnBottom);
+        colColors.addView(rowBottom);
+
+        mainRow.addView(colColors);
+
+        // == Right side: Vertical slider ==
+        LinearLayout colSlider = new LinearLayout(this);
+        colSlider.setOrientation(LinearLayout.VERTICAL);
+        colSlider.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+        colSlider.setPadding(24, 0, 0, 0);
+
+        TextView txtTop = new TextView(this);
+        txtTop.setText("\u2191");
+        txtTop.setTextSize(14);
+        txtTop.setTextColor(Color.parseColor("#9E9E9E"));
+        txtTop.setGravity(android.view.Gravity.CENTER);
+        colSlider.addView(txtTop);
+
+        SeekBar sliderPos = new SeekBar(this);
+        int sliderSz = (int) (150 * getResources().getDisplayMetrics().density);
+        LinearLayout.LayoutParams sliderParams = new LinearLayout.LayoutParams(sliderSz, sliderSz);
+        sliderPos.setLayoutParams(sliderParams);
+        sliderPos.setMax(100);
+        sliderPos.setProgress(50);
+        sliderPos.setRotation(-90f);
+        colSlider.addView(sliderPos);
+
+        TextView txtBottom2 = new TextView(this);
+        txtBottom2.setText("\u2193");
+        txtBottom2.setTextSize(14);
+        txtBottom2.setTextColor(Color.parseColor("#9E9E9E"));
+        txtBottom2.setGravity(android.view.Gravity.CENTER);
+        colSlider.addView(txtBottom2);
+
+        TextView txtPosVal = new TextView(this);
+        txtPosVal.setText("50%");
+        txtPosVal.setTextSize(14);
+        txtPosVal.setTextColor(Color.parseColor("#424242"));
+        txtPosVal.setTypeface(null, android.graphics.Typeface.BOLD);
+        txtPosVal.setGravity(android.view.Gravity.CENTER);
+        txtPosVal.setPadding(0, 8, 0, 0);
+        colSlider.addView(txtPosVal);
+
+        mainRow.addView(colSlider);
+        root.addView(mainRow);
+
+        // --- Shape Selectors ---
+        String[] shapeTypes = {"none", "rect", "triangle", "semicircle", "hexagon", "arrow"};
+        String[] shapeLabels = {"None", "Rect", "Tri", "Circ", "Hex", "Arr"};
+
+        // Top Shape
+        TextView labelTopShape = new TextView(this);
+        labelTopShape.setText("Top Shape");
+        labelTopShape.setTextSize(13);
+        labelTopShape.setTextColor(Color.parseColor("#757575"));
+        labelTopShape.setPadding(0, 16, 0, 8);
+        root.addView(labelTopShape);
+
+        HorizontalScrollView scrollTop = new HorizontalScrollView(this);
+        LinearLayout rowTopShape = new LinearLayout(this);
+        rowTopShape.setOrientation(LinearLayout.HORIZONTAL);
+        for (int i = 0; i < shapeTypes.length; i++) {
+            final String type = shapeTypes[i];
+            Button btn = new Button(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+            btn.setText(shapeLabels[i]);
+            btn.setTextSize(10);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (int)(40 * getResources().getDisplayMetrics().density));
+            lp.setMargins(0, 0, 8, 0);
+            btn.setLayoutParams(lp);
+            btn.setPadding(4, 0, 4, 0);
+            btn.setOnClickListener(v -> {
+                if (myWebView != null) myWebView.evaluateJavascript("window.updateSplitShape('top', '" + type + "');", null);
+            });
+            rowTopShape.addView(btn);
+        }
+        scrollTop.addView(rowTopShape);
+        root.addView(scrollTop);
+
+        // Bottom Shape
+        TextView labelBottomShape = new TextView(this);
+        labelBottomShape.setText("Bottom Shape");
+        labelBottomShape.setTextSize(13);
+        labelBottomShape.setTextColor(Color.parseColor("#757575"));
+        labelBottomShape.setPadding(0, 16, 0, 8);
+        root.addView(labelBottomShape);
+
+        HorizontalScrollView scrollBottom = new HorizontalScrollView(this);
+        LinearLayout rowBottomShape = new LinearLayout(this);
+        rowBottomShape.setOrientation(LinearLayout.HORIZONTAL);
+        for (int i = 0; i < shapeTypes.length; i++) {
+            final String type = shapeTypes[i];
+            Button btn = new Button(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+            btn.setText(shapeLabels[i]);
+            btn.setTextSize(10);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (int)(40 * getResources().getDisplayMetrics().density));
+            lp.setMargins(0, 0, 8, 0);
+            btn.setLayoutParams(lp);
+            btn.setPadding(4, 0, 4, 0);
+            btn.setOnClickListener(v -> {
+                if (myWebView != null) myWebView.evaluateJavascript("window.updateSplitShape('bottom', '" + type + "');", null);
+            });
+            rowBottomShape.addView(btn);
+        }
+        scrollBottom.addView(rowBottomShape);
+        root.addView(scrollBottom);
+
+        // --- Shape Dimensions ---
+        CheckBox checkLink = new CheckBox(this);
+        checkLink.setText("Link width & height");
+        checkLink.setTextSize(13);
+        checkLink.setTextColor(Color.parseColor("#757575"));
+        checkLink.setPadding(0, 16, 0, 8);
+        root.addView(checkLink);
+
+        // Width Slider
+        TextView labelWidth = new TextView(this);
+        labelWidth.setText("Shape Width");
+        labelWidth.setTextSize(13);
+        labelWidth.setTextColor(Color.parseColor("#757575"));
+        labelWidth.setPadding(0, 8, 0, 8);
+        root.addView(labelWidth);
+
+        LinearLayout rowWidth = new LinearLayout(this);
+        rowWidth.setOrientation(LinearLayout.HORIZONTAL);
+        rowWidth.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+        SeekBar sliderWidth = new SeekBar(this);
+        sliderWidth.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        sliderWidth.setMax(300);
+        sliderWidth.setMin(10);
+        sliderWidth.setProgress(60);
+        rowWidth.addView(sliderWidth);
+
+        TextView txtWidthVal = new TextView(this);
+        txtWidthVal.setText("60px");
+        txtWidthVal.setTextSize(13);
+        txtWidthVal.setTextColor(Color.parseColor("#424242"));
+        txtWidthVal.setPadding(16, 0, 0, 0);
+        rowWidth.addView(txtWidthVal);
+        root.addView(rowWidth);
+
+        // Height Slider
+        TextView labelHeight2 = new TextView(this);
+        labelHeight2.setText("Shape Height");
+        labelHeight2.setTextSize(13);
+        labelHeight2.setTextColor(Color.parseColor("#757575"));
+        labelHeight2.setPadding(0, 16, 0, 8);
+        root.addView(labelHeight2);
+
+        LinearLayout rowHeight = new LinearLayout(this);
+        rowHeight.setOrientation(LinearLayout.HORIZONTAL);
+        rowHeight.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+        SeekBar sliderHeight = new SeekBar(this);
+        sliderHeight.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        sliderHeight.setMax(300);
+        sliderHeight.setMin(10);
+        sliderHeight.setProgress(60);
+        rowHeight.addView(sliderHeight);
+
+        TextView txtHeightVal = new TextView(this);
+        txtHeightVal.setText("60px");
+        txtHeightVal.setTextSize(13);
+        txtHeightVal.setTextColor(Color.parseColor("#424242"));
+        txtHeightVal.setPadding(16, 0, 0, 0);
+        rowHeight.addView(txtHeightVal);
+        root.addView(rowHeight);
+
+        // --- WebView Interaction ---
+        if (myWebView != null) {
+            myWebView.evaluateJavascript(
+                "getComputedStyle(document.documentElement).getPropertyValue('--left-split-pos').trim()",
+                value -> {
+                    String v = value != null ? value.replace("\"", "").replace("%", "").trim() : "50";
+                    try {
+                        int pos = Integer.parseInt(v);
+                        runOnUiThread(() -> {
+                            sliderPos.setProgress(pos);
+                            txtPosVal.setText(pos + "%");
+                        });
+                    } catch (Exception e) {}
+                });
+
+            myWebView.evaluateJavascript(
+                "getComputedStyle(document.documentElement).getPropertyValue('--split-shape-width').trim()",
+                value -> {
+                    String v = value != null ? value.replace("\"", "").replace("px", "").trim() : "60";
+                    try {
+                        int sz = Integer.parseInt(v);
+                        runOnUiThread(() -> {
+                            sliderWidth.setProgress(sz);
+                            txtWidthVal.setText(sz + "px");
+                        });
+                    } catch (Exception e) {}
+                });
+
+            myWebView.evaluateJavascript(
+                "getComputedStyle(document.documentElement).getPropertyValue('--split-shape-height').trim()",
+                value -> {
+                    String v = value != null ? value.replace("\"", "").replace("px", "").trim() : "60";
+                    try {
+                        int sz = Integer.parseInt(v);
+                        runOnUiThread(() -> {
+                            sliderHeight.setProgress(sz);
+                            txtHeightVal.setText(sz + "px");
+                        });
+                    } catch (Exception e) {}
+                });
+
+            myWebView.evaluateJavascript(
+                "document.documentElement.dataset.splitShapeLinked",
+                value -> {
+                    boolean linked = value != null && value.replace("\"", "").trim().equals("true");
+                    runOnUiThread(() -> checkLink.setChecked(linked));
+                });
+        }
+
+        checkLink.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (myWebView != null) myWebView.evaluateJavascript("window.setSplitShapeLinked(" + isChecked + ");", null);
+        });
+
+        SeekBar.OnSeekBarChangeListener dimensionListener = new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (!fromUser) return;
+                if (seekBar == sliderWidth) {
+                    txtWidthVal.setText(progress + "px");
+                    if (myWebView != null) myWebView.evaluateJavascript("window.updateSplitShapeWidth(" + progress + ");", null);
+                    if (checkLink.isChecked()) {
+                        sliderHeight.setProgress(progress);
+                        txtHeightVal.setText(progress + "px");
+                        if (myWebView != null) myWebView.evaluateJavascript("window.updateSplitShapeHeight(" + progress + ");", null);
+                    }
+                } else if (seekBar == sliderHeight) {
+                    txtHeightVal.setText(progress + "px");
+                    if (myWebView != null) myWebView.evaluateJavascript("window.updateSplitShapeHeight(" + progress + ");", null);
+                    if (checkLink.isChecked()) {
+                        sliderWidth.setProgress(progress);
+                        txtWidthVal.setText(progress + "px");
+                        if (myWebView != null) myWebView.evaluateJavascript("window.updateSplitShapeWidth(" + progress + ");", null);
+                    }
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {
+                if (myWebView != null) myWebView.evaluateJavascript("triggerAutoSave();", null);
+            }
+        };
+
+        sliderWidth.setOnSeekBarChangeListener(dimensionListener);
+        sliderHeight.setOnSeekBarChangeListener(dimensionListener);
+
+        // --- Split Frames ---
+        TextView labelSplitFrames = new TextView(this);
+        labelSplitFrames.setText("Split Frames");
+        labelSplitFrames.setTextSize(16);
+        labelSplitFrames.setTextColor(Color.parseColor("#1e3c72"));
+        labelSplitFrames.setTypeface(null, Typeface.BOLD);
+        labelSplitFrames.setPadding(0, 32, 0, 16);
+        root.addView(labelSplitFrames);
+
+        // --- Top Frame ---
+        addSplitFrameControls(root, "Top Frame", "top", SPLIT_TOP_FRAME_COLOR_ID, "--split-top-frame-");
+        
+        // --- Bottom Frame ---
+        addSplitFrameControls(root, "Bottom Frame", "bottom", SPLIT_BOTTOM_FRAME_COLOR_ID, "--split-bottom-frame-");
+
+        sliderPos.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                txtPosVal.setText(progress + "%");
+                if (fromUser && myWebView != null) {
+                    myWebView.evaluateJavascript("document.documentElement.style.setProperty('--left-split-pos', '" + progress + "%');", null);
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (myWebView != null) {
+                    myWebView.evaluateJavascript("triggerAutoSave();", null);
+                }
+            }
+        });
+
+        splitDialog.setContentView(root);
+        splitDialog.show();
+    }
+
+    private void deleteCustomStyle(String styleId) {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String currentStyles = prefs.getString("SavedCustomStyles", "[]");
+        try {
+            JSONArray stylesArray = new JSONArray(currentStyles);
+            JSONArray newArray = new JSONArray();
+            for (int i = 0; i < stylesArray.length(); i++) {
+                JSONObject obj = stylesArray.getJSONObject(i);
+                if (!obj.getString("id").equals(styleId)) {
+                    newArray.put(obj);
+                }
+            }
+            prefs.edit().putString("SavedCustomStyles", newArray.toString()).apply();
+            Toast.makeText(this, "Style deleted", Toast.LENGTH_SHORT).show();
+
+            // Refresh the dialog to update the carousel
+            if (currentEditingSectionId != null && currentSectionSettingsDialog != null && currentSectionSettingsDialog.isShowing()) {
+                currentSectionSettingsDialog.dismiss();
+                showSectionSettingsDialog(currentEditingSectionId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error deleting style", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -5957,6 +7800,126 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 }
             }
         }
+    }
+
+    private void addSplitFrameControls(LinearLayout root, String label, String target, int colorPickerId, String cssPrefix) {
+        TextView txtLabel = new TextView(this);
+        txtLabel.setText(label);
+        txtLabel.setTextSize(14);
+        txtLabel.setTextColor(Color.parseColor("#757575"));
+        txtLabel.setPadding(0, 16, 0, 8);
+        root.addView(txtLabel);
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+
+        Button btnColor = new Button(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+        btnColor.setText("Color");
+        btnColor.setTextSize(10);
+        LinearLayout.LayoutParams btnLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (int)(40 * getResources().getDisplayMetrics().density));
+        btnLp.setMargins(0,0,16,0);
+        btnColor.setLayoutParams(btnLp);
+        btnColor.setOnClickListener(v -> openNativeColorPickerForFrame("#ffffff", colorPickerId));
+        row.addView(btnColor);
+
+        SeekBar slider = new SeekBar(this);
+        slider.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        slider.setMax(20);
+        row.addView(slider);
+
+        TextView txtVal = new TextView(this);
+        txtVal.setText("0px");
+        txtVal.setTextSize(13);
+        txtVal.setTextColor(Color.parseColor("#424242"));
+        txtVal.setPadding(16,0,0,0);
+        row.addView(txtVal);
+        root.addView(row);
+
+        // Sides Toggles
+        LinearLayout rowSides = new LinearLayout(this);
+        rowSides.setOrientation(LinearLayout.HORIZONTAL);
+        rowSides.setPadding(0, 8, 0, 16);
+        String[] sides = {"Top", "Bottom", "Left", "Right"};
+        for (int i = 0; i < 4; i++) {
+            final int sideIdx = i;
+            final String sideName = sides[i].toLowerCase();
+            com.google.android.material.button.MaterialButton btnSide = new com.google.android.material.button.MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
+            btnSide.setText(sides[i]);
+            btnSide.setTextSize(10);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, (int)(36 * getResources().getDisplayMetrics().density), 1f);
+            if (i < 3) lp.setMargins(0,0,4,0);
+            btnSide.setLayoutParams(lp);
+            btnSide.setPadding(0,0,0,0);
+            btnSide.setTag(0); // 0 = off, 1 = on
+            
+            btnSide.setOnClickListener(v -> {
+                int state = (int) v.getTag() == 0 ? 1 : 0;
+                v.setTag(state);
+                ((com.google.android.material.button.MaterialButton)v).setStrokeColor(android.content.res.ColorStateList.valueOf(state == 1 ? Color.parseColor("#1e3c72") : Color.parseColor("#E0E0E0")));
+                ((com.google.android.material.button.MaterialButton)v).setTextColor(state == 1 ? Color.parseColor("#1e3c72") : Color.parseColor("#757575"));
+                
+                if (myWebView != null) {
+                    myWebView.evaluateJavascript("document.documentElement.style.getPropertyValue('" + cssPrefix + "top').trim()", s0 -> {
+                    myWebView.evaluateJavascript("document.documentElement.style.getPropertyValue('" + cssPrefix + "bottom').trim()", s1 -> {
+                    myWebView.evaluateJavascript("document.documentElement.style.getPropertyValue('" + cssPrefix + "left').trim()", s2 -> {
+                    myWebView.evaluateJavascript("document.documentElement.style.getPropertyValue('" + cssPrefix + "right').trim()", s3 -> {
+                        String[] currentSides = {
+                            s0 != null ? s0.replace("\"","").trim() : "0", 
+                            s1 != null ? s1.replace("\"","").trim() : "0", 
+                            s2 != null ? s2.replace("\"","").trim() : "0", 
+                            s3 != null ? s3.replace("\"","").trim() : "0"
+                        };
+                        currentSides[sideIdx] = String.valueOf(state);
+                        String jsSides = "[" + currentSides[0] + "," + currentSides[1] + "," + currentSides[2] + "," + currentSides[3] + "]";
+                        myWebView.evaluateJavascript("window.updateSplitFrameConfig('" + target + "', { sides: " + jsSides + " });", null);
+                    });});});});
+                }
+            });
+            rowSides.addView(btnSide);
+
+            // Initial Side States from WebView
+            if (myWebView != null) {
+                myWebView.evaluateJavascript("getComputedStyle(document.documentElement).getPropertyValue('" + cssPrefix + sideName + "').trim()", val -> {
+                    String vVal = val != null ? val.replace("\"", "").trim() : "0";
+                    runOnUiThread(() -> {
+                        int state = vVal.equals("1") ? 1 : 0;
+                        btnSide.setTag(state);
+                        btnSide.setStrokeColor(android.content.res.ColorStateList.valueOf(state == 1 ? Color.parseColor("#1e3c72") : Color.parseColor("#E0E0E0")));
+                        btnSide.setTextColor(state == 1 ? Color.parseColor("#1e3c72") : Color.parseColor("#757575"));
+                    });
+                });
+            }
+        }
+        root.addView(rowSides);
+
+        // Initial Progress and Change Listener
+        if (myWebView != null) {
+            myWebView.evaluateJavascript("getComputedStyle(document.documentElement).getPropertyValue('" + cssPrefix + "thickness').trim()", val -> {
+                String vVal = val != null ? val.replace("\"", "").replace("px", "").trim() : "0";
+                try {
+                    int p = (int)Float.parseFloat(vVal);
+                    runOnUiThread(() -> {
+                        slider.setProgress(p);
+                        txtVal.setText(p + "px");
+                    });
+                } catch (Exception e) {}
+            });
+        }
+
+        slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                txtVal.setText(progress + "px");
+                if (fromUser && myWebView != null) {
+                    myWebView.evaluateJavascript("window.updateSplitFrameConfig('" + target + "', { thickness: " + progress + " });", null);
+                }
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {
+                if (myWebView != null) myWebView.evaluateJavascript("triggerAutoSave();", null);
+            }
+        });
     }
 }
 

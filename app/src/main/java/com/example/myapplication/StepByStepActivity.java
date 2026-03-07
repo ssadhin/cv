@@ -1444,8 +1444,7 @@ public class StepByStepActivity extends AppCompatActivity {
         TextView titleTv = (TextView) ((android.view.ViewGroup)dialogView).getChildAt(0);
         if (titleTv != null) titleTv.setText("Add Section");
 
-        LinearLayout leftCol = dialogView.findViewById(R.id.column_left);
-        LinearLayout rightCol = dialogView.findViewById(R.id.column_right);
+        LinearLayout categoryContainer = dialogView.findViewById(R.id.sections_category_container);
         
         AlertDialog dialog = new AlertDialog.Builder(this)
             .setView(dialogView)
@@ -1470,66 +1469,200 @@ public class StepByStepActivity extends AppCompatActivity {
             return;
         }
 
-        for (int i = 0; i < available.size(); i++) {
-            SectionModel s = available.get(i);
-            View v = LayoutInflater.from(this).inflate(R.layout.item_section_add, (i % 2 == 0) ? leftCol : rightCol, false);
+        // --- NEW LOGIC: Grouping Sections by Category ---
+        // Predefined bucket names corresponding to valid `group` values in ALL_SECTIONS
+        String[] groupKeys = {"gridEssentials", "gridExp", "gridAdd"};
+        String[] groupTitles = {"Essentials", "Experience", "Additional"};
 
-            TextView title = v.findViewById(R.id.section_title);
-            TextView desc = v.findViewById(R.id.section_desc);
-            View iconFrame = v.findViewById(R.id.section_icon).getParent() instanceof FrameLayout ? (View)v.findViewById(R.id.section_icon).getParent() : null;
-            View iconContainer = v.findViewById(R.id.section_container); 
-            ImageButton btnAdd = v.findViewById(R.id.btn_add_section);
+        // Create a map to hold lists of available sections per group
+        java.util.LinkedHashMap<String, List<SectionModel>> groupedSections = new java.util.LinkedHashMap<>();
+        for (String key : groupKeys) {
+            groupedSections.put(key, new ArrayList<>());
+        }
+        
+        // Bucket available sections into their respective groups
+        for (SectionModel s : available) {
+            List<SectionModel> bucket = groupedSections.get(s.group);
+            if (bucket != null) {
+                bucket.add(s);
+            } else {
+                // Fallback for missing/unknown groups
+                List<SectionModel> additionalBucket = groupedSections.get("gridAdd");
+                if (additionalBucket != null) additionalBucket.add(s);
+            }
+        }
+
+        // Build UI for each group
+        for (int groupIdx = 0; groupIdx < groupKeys.length; groupIdx++) {
+            String groupKey = groupKeys[groupIdx];
+            String groupTitle = groupTitles[groupIdx];
+            List<SectionModel> groupItems = groupedSections.get(groupKey);
+
+            if (groupItems == null || groupItems.isEmpty()) continue; // Skip empty categories
+
+            // 1. Create Category Header
+            LinearLayout headerLayout = new LinearLayout(this);
+            headerLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+            headerLayout.setOrientation(LinearLayout.HORIZONTAL);
+            headerLayout.setPadding(0, 24, 0, 16); // Padding around header
+            headerLayout.setGravity(android.view.Gravity.CENTER_VERTICAL);
             
-            // Placement logic
-            LinearLayout placementContainer = v.findViewById(R.id.placement_container);
-            TextView placementIndicator = v.findViewById(R.id.tv_placement_indicator);
-            ImageButton btnSwap = v.findViewById(R.id.btn_toggle_placement);
-            final String[] placement = {"auto"}; // mutable ref
+            // Toggle Icon
+            TextView toggleIcon = new TextView(this);
+            toggleIcon.setText("▾"); // Default Expanded State
+            toggleIcon.setTextSize(18);
+            toggleIcon.setTextColor(android.graphics.Color.parseColor("#1E3C72"));
+            toggleIcon.setPadding(0, 0, 16, 0);
 
-            title.setText(s.name);
-            // Description is now hidden by default in XML for "Pill" style
-            if (desc != null) desc.setVisibility(View.GONE);
+            // Title
+            TextView title = new TextView(this);
+            title.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+            title.setText(groupTitle);
+            title.setTextSize(16);
+            title.setTypeface(null, android.graphics.Typeface.BOLD);
+            title.setTextColor(android.graphics.Color.parseColor("#333333"));
             
-            // Function to update indicator text
-            Runnable updateIndicatorText = () -> {
-                String cap = placement[0].substring(0, 1).toUpperCase() + placement[0].substring(1);
-                placementIndicator.setText("Add to: " + cap);
-            };
-            updateIndicatorText.run();
+            headerLayout.addView(toggleIcon);
+            headerLayout.addView(title);
 
-            // Toggle expansion on text click
-            iconContainer.setOnClickListener(view -> {
-                if (placementContainer.getVisibility() == View.VISIBLE) {
-                    placementContainer.setVisibility(View.GONE);
+            // 2. Create Items Container (Maintains 2-column structure via two inner LinearLayouts)
+            LinearLayout itemsContainerWrapper = new LinearLayout(this);
+            itemsContainerWrapper.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+            itemsContainerWrapper.setOrientation(LinearLayout.HORIZONTAL);
+            itemsContainerWrapper.setWeightSum(2);
+            
+            LinearLayout leftColBuffer = new LinearLayout(this);
+            leftColBuffer.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+            leftColBuffer.setOrientation(LinearLayout.VERTICAL);
+            leftColBuffer.setPadding(0, 0, 4, 0);
+            
+            LinearLayout rightColBuffer = new LinearLayout(this);
+            rightColBuffer.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+            rightColBuffer.setOrientation(LinearLayout.VERTICAL);
+            rightColBuffer.setPadding(4, 0, 0, 0);
+
+            itemsContainerWrapper.addView(leftColBuffer);
+            itemsContainerWrapper.addView(rightColBuffer);
+
+            // Populate inner items into columns
+            for (int i = 0; i < groupItems.size(); i++) {
+                SectionModel s = groupItems.get(i);
+                View v = LayoutInflater.from(this).inflate(R.layout.item_section_add, (i % 2 == 0) ? leftColBuffer : rightColBuffer, false);
+
+                TextView itemTitle = v.findViewById(R.id.section_title);
+                TextView desc = v.findViewById(R.id.section_desc);
+                View iconFrame = v.findViewById(R.id.section_icon).getParent() instanceof FrameLayout ? (View)v.findViewById(R.id.section_icon).getParent() : null;
+                View iconContainer = v.findViewById(R.id.section_container); 
+                ImageButton btnAdd = v.findViewById(R.id.btn_add_section);
+                
+                // Placement logic
+                LinearLayout placementContainer = v.findViewById(R.id.placement_container);
+                TextView placementIndicator = v.findViewById(R.id.tv_placement_indicator);
+                ImageButton btnSwap = v.findViewById(R.id.btn_toggle_placement);
+                final String[] placement = {"auto"}; // mutable ref
+
+                itemTitle.setText(s.name);
+                // Description is now hidden by default in XML for "Pill" style
+                if (desc != null) desc.setVisibility(View.GONE);
+                
+                // Function to update indicator text
+                Runnable updateIndicatorText = () -> {
+                    String cap = placement[0].substring(0, 1).toUpperCase() + placement[0].substring(1);
+                    placementIndicator.setText("Add to: " + cap);
+                };
+                updateIndicatorText.run();
+
+                // Toggle expansion on text click
+                iconContainer.setOnClickListener(view -> {
+                    if (placementContainer.getVisibility() == View.VISIBLE) {
+                        placementContainer.setVisibility(View.GONE);
+                    } else {
+                        placementContainer.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                // Cycle placement options
+                if (btnSwap != null) {
+                    btnSwap.setOnClickListener(vSwap -> {
+                        switch (placement[0]) {
+                            case "auto":   placement[0] = "left"; break;
+                            case "left":   placement[0] = "right"; break;
+                            case "right":  placement[0] = "header"; break;
+                            case "header": placement[0] = "auto"; break;
+                        }
+                        updateIndicatorText.run();
+                    });
+                }
+
+                btnAdd.setOnClickListener(view -> {
+                    // Logic to handle duplicate constraints on adding special items like Declaration, Summary, etc.
+                    SectionModel instance = new SectionModel(s.id, s.name, s.icon, s.type, s.group, placement[0]);
+                    
+                    // Specific duplicate check for identical items with type constraints (though we filtered available earlier, re-verify).
+                    boolean canAdd = true;
+                    if (s.id.equals("declarationSection") || s.id.equals("summarySection")) {
+                         for (SectionModel current : currentSections) {
+                             if (current.id.equals(s.id)) { canAdd = false; break; }
+                         }
+                    } else if (s.type.equals("blank_section") || s.type.equals("stick_section")) {
+                        // Blanket allow multiple for Blank / Stick sections by modifying IDs slightly
+                        int count = 1;
+                        String baseId = s.id;
+                        while(true) {
+                            boolean existsLocally = false;
+                            for (SectionModel current : currentSections) {
+                                 if (current.id.equals(instance.id)) { existsLocally = true; break; }
+                            }
+                            if(!existsLocally) break;
+                            instance.id = baseId + "_" + count;
+                            count++;
+                        }
+                    }
+
+                    if (canAdd) {
+                        currentSections.add(instance);
+                        adapter.notifyItemInserted(currentSections.size() - 1);
+                        updateWebViewPreview();
+                        dialog.dismiss();
+                        Toast.makeText(this, instance.name + " Added", Toast.LENGTH_SHORT).show();
+                    } else {
+                         Toast.makeText(this, "Item already exists.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                if (i % 2 == 0) leftColBuffer.addView(v);
+                else rightColBuffer.addView(v);
+            }
+
+            // Bind native Category Toggle Interaction
+            headerLayout.setOnClickListener(v -> {
+                if (itemsContainerWrapper.getVisibility() == View.VISIBLE) {
+                    itemsContainerWrapper.setVisibility(View.GONE);
+                    toggleIcon.setText("▸");
                 } else {
-                    placementContainer.setVisibility(View.VISIBLE);
+                    itemsContainerWrapper.setVisibility(View.VISIBLE);
+                    toggleIcon.setText("▾");
                 }
             });
 
-            // Cycle placement options
-            if (btnSwap != null) {
-                btnSwap.setOnClickListener(vSwap -> {
-                    switch (placement[0]) {
-                        case "auto":   placement[0] = "left"; break;
-                        case "left":   placement[0] = "right"; break;
-                        case "right":  placement[0] = "header"; break;
-                        case "header": placement[0] = "auto"; break;
-                    }
-                    updateIndicatorText.run();
-                });
+            // Add Category to Main Container
+            if (categoryContainer != null) {
+                categoryContainer.addView(headerLayout);
+                // Separator Line
+                View sepLine = new View(this);
+                sepLine.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 1));
+                sepLine.setBackgroundColor(android.graphics.Color.parseColor("#E0E0E0"));
+                categoryContainer.addView(sepLine);
+                categoryContainer.addView(itemsContainerWrapper);
             }
-
-            btnAdd.setOnClickListener(view -> {
-                SectionModel instance = new SectionModel(s.id, s.name, s.icon, s.type, s.group, placement[0]);
-                currentSections.add(instance);
-                adapter.notifyItemInserted(currentSections.size() - 1);
-                updateWebViewPreview();
-                dialog.dismiss();
-                Toast.makeText(this, s.name + " Added", Toast.LENGTH_SHORT).show();
-            });
-
-            if (i % 2 == 0) leftCol.addView(v);
-            else rightCol.addView(v);
         }
         
         dialog.show();

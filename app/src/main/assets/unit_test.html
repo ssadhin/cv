@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bridge Function Unit Tests</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #e94560;
+            margin-bottom: 20px;
+        }
+
+        .suite {
+            margin-bottom: 24px;
+        }
+
+        .suite-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #0f3460;
+            background: #e94560;
+            padding: 6px 12px;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .test {
+            padding: 8px 14px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pass {
+            background: #0d2b0d;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .fail {
+            background: #2b0d0d;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .icon {
+            font-size: 1.2em;
+        }
+
+        .label {
+            flex: 1;
+        }
+
+        .detail {
+            font-size: 0.85em;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        .summary {
+            background: #0f3460;
+            padding: 14px 20px;
+            border-radius: 6px;
+            margin-top: 24px;
+            font-size: 1.2em;
+            letter-spacing: 1px;
+        }
+
+        .summary.all-pass {
+            background: #0d3a2a;
+            color: #2ecc71;
+        }
+
+        .summary.has-fail {
+            background: #3a0d0d;
+            color: #e74c3c;
+        }
+
+        #hidden-dom {
+            display: none;
+        }
+
+        /* Mirror the REAL CSS from index.html */
+        .skill-group,
+        .pd-row,
+        .data-table-item,
+        .simple-list-item {
+            position: relative;
+            z-index: 1;
+            background: transparent !important;
+            /* THIS IS THE ROOT CAUSE */
+        }
+
+        .skill-group::before,
+        .pd-row::before,
+        .data-table-item::before,
+        .simple-list-item::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--item-bg, #fff) !important;
+            opacity: var(--item-opa, 1.0) !important;
+            z-index: -1;
+            pointer-events: none;
+            border-radius: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧪 Resume Editor Bridge Function Unit Tests</h1>
+    <p style="color:#aaa; margin-bottom:24px;">
+        Tests verify JS functions called from Android MainActivity work correctly against
+        the actual DOM structure of index.html. Items use CSS variables (--item-bg) via
+        ::before pseudo-elements, NOT direct el.style.backgroundColor.
+    </p>
+
+    <!-- Minimal DOM mirroring real index.html -->
+    <div id="hidden-dom">
+        <header id="mainHeader" style="background: #1e3c72;"></header>
+        <div class="left-column" id="leftCol" style="background: #f7f9fc;"></div>
+        <section data-type="skills" id="skills">
+            <h2><i class="fas fa-tools"></i> SKILLS</h2>
+            <div class="content-area">
+                <div class="skill-group" id="skill-item-0">
+                    <span class="skill-header">Frontend</span>
+                    <div class="skill-sub">React, Vue</div>
+                </div>
+            </div>
+        </section>
+        <section data-type="personal" id="personalDetails">
+            <h2>PERSONAL DETAILS</h2>
+            <div class="content-area">
+                <div class="pd-row" id="pd-item-0">
+                    <span class="pd-label">Nationality:</span>
+                    <span class="pd-val">American</span>
+                </div>
+            </div>
+        </section>
+        <section data-type="simple-list" id="certificates">
+            <h2>CERTIFICATES</h2>
+            <div class="content-area">
+                <div class="simple-list-item" id="cert-item-0">Google UX</div>
+            </div>
+        </section>
+    </div>
+
+    <div id="results"></div>
+    <div id="summary"></div>
+
+    <script>
+        // Stub
+        window.triggerAutoSave = function () { };
+
+        // ===================== FIXED IMPLEMENTATION =====================
+
+        function applyFrameConfig(el, cfg) {
+            if (!el) return;
+            if (typeof cfg.radius === 'number') el.style.borderRadius = cfg.radius + 'px';
+            if (typeof cfg.thickness === 'number') {
+                let s = cfg.sides || '1111';
+                el.style.borderStyle = 'solid';
+                el.style.borderWidth =
+                    (s[0] === '1' ? cfg.thickness : 0) + 'px ' +
+                    (s[3] === '1' ? cfg.thickness : 0) + 'px ' +
+                    (s[1] === '1' ? cfg.thickness : 0) + 'px ' +
+                    (s[2] === '1' ? cfg.thickness : 0) + 'px';
+            }
+            if (cfg.colorStart) el.style.borderColor = cfg.colorStart;
+            if (cfg.bgStart) {
+                if (cfg.bgEnd && cfg.bgEnd !== cfg.bgStart)
+                    el.style.background = `linear-gradient(135deg, ${cfg.bgStart}, ${cfg.bgEnd})`;
+                else el.style.background = cfg.bgStart;
+            }
+            if (typeof cfg.blur === 'number') {
+                el.style.backdropFilter = cfg.blur > 0 ? `blur(${cfg.blur}px)` : 'none';
+                el.style.webkitBackdropFilter = cfg.blur > 0 ? `blur(${cfg.blur}px)` : 'none';
+            }
+            if (cfg.scale) {
+                el.style.backgroundSize = cfg.scale;
+                if (cfg.scale === 'auto') el.style.backgroundSize = 'initial';
+            }
+            triggerAutoSave();
+        }
+
+        window.updateLeftFrameConfig = function (cfg) {
+            const el = document.querySelector('.left-column');
+            if (!el) return;
+            applyFrameConfig(el, cfg);
+        };
+
+        window.updateHeaderFrameConfig = function (cfg) {
+            const el = document.getElementById('mainHeader');
+            if (!el) return;
+            applyFrameConfig(el, cfg);
+        };
+
+        // FIXED: Uses --item-bg CSS variable instead of el.style.backgroundColor
+        window.updateItemStyle = function (itemId, property, value) {
+            const el = document.getElementById(itemId);
+            if (!el) return;
+            if (property === 'roundness') {
+                el.style.borderRadius = value + 'px';
+                el.style.overflow = 'hidden';
+            } else if (property === 'line_space') {
+                el.style.lineHeight = (1 + value * 0.05) + '';
+                el.style.marginBottom = value + 'px';
+            } else if (property === 'bgColor') {
+                el.style.setProperty('--item-bg', value);
+                el.style.padding = value ? '8px' : '';
+            }
+            triggerAutoSave();
+        };
+
+        window.getSectionStructure = function (sectionId) {
+            const sec = document.getElementById(sectionId);
+            if (!sec) return null;
+            const h2 = sec.querySelector('h2');
+            const title = h2 ? h2.innerText.trim() : '';
+            const bgColor = sec.style.backgroundColor || sec.style.background || '';
+            const items = [];
+            sec.querySelectorAll('.data-table-item, .simple-list-item, .skill-group, .pd-row, .exp-block')
+                .forEach(function (el, idx) {
+                    const label = el.querySelector('.table-label, .pd-label, .skill-header, .exp-role');
+                    const text = label ? label.innerText.trim() : (el.innerText.trim().slice(0, 40));
+                    const id = el.id || (sectionId + '-item-' + idx);
+                    if (!el.id) el.id = id;
+                    items.push({ id: id, text: text, bgColor: el.style.getPropertyValue('--item-bg') || '' });
+                });
+            return JSON.stringify({ title: title, bgColor: bgColor, items: items });
+        };
+
+        window.updateSectionTitle = function (sectionId, newTitle) {
+            const sec = document.getElementById(sectionId);
+            if (!sec) return;
+            const h2 = sec.querySelector('h2');
+            if (h2) {
+                const textNode = Array.from(h2.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+                if (textNode) textNode.textContent = newTitle;
+                else h2.prepend(document.createTextNode(newTitle));
+            }
+            triggerAutoSave();
+        };
+
+        window.applyHeaderDesign = function (designId) {
+            const header = document.getElementById('mainHeader');
+            if (!header) return;
+            header.classList.remove('header-d1', 'header-d2', 'header-d3');
+            header.classList.add('header-' + designId);
+            triggerAutoSave();
+        };
+
+        // ===================== TEST FRAMEWORK =====================
+        const results = [];
+
+        function test(suiteName, testName, fn) {
+            try { fn(); results.push({ suite: suiteName, name: testName, pass: true }); }
+            catch (e) { results.push({ suite: suiteName, name: testName, pass: false, error: e.message }); }
+        }
+        function assert(cond, msg) { if (!cond) throw new Error(msg || 'Assertion failed'); }
+        function assertEqual(a, b, l) { if (a !== b) throw new Error(`${l || ''}: expected "${b}" but got "${a}"`); }
+        function assertContains(s, sub, l) { if (!s || !s.includes(sub)) throw new Error(`${l || ''}: expected "${s}" to contain "${sub}"`); }
+
+        // ===================== TESTS =====================
+
+        // Suite: updateLeftFrameConfig
+        test('updateLeftFrameConfig', 'finds the left column (.left-column#leftCol)', function () {
+            const el = document.querySelector('.left-column');
+            assert(el !== null, '.left-column not found');
+            assertEqual(el.id, 'leftCol', 'id mismatch');
+        });
+        test('updateLeftFrameConfig', 'sets border-radius', function () {
+            const el = document.querySelector('.left-column');
+            el.style.cssText = '';
+            window.updateLeftFrameConfig({ radius: 20 });
+            assertEqual(el.style.borderRadius, '20px', 'borderRadius');
+        });
+        test('updateLeftFrameConfig', 'sets border width + color', function () {
+            const el = document.querySelector('.left-column');
+            el.style.cssText = '';
+            window.updateLeftFrameConfig({ thickness: 3, colorStart: '#ff0000', sides: '1111' });
+            assert(el.style.borderWidth.length > 0, 'borderWidth');
+            assertEqual(el.style.borderColor, 'rgb(255, 0, 0)', 'borderColor');
+        });
+        test('updateLeftFrameConfig', 'sets fill background', function () {
+            const el = document.querySelector('.left-column');
+            el.style.cssText = '';
+            window.updateLeftFrameConfig({ bgStart: '#aabbcc' });
+            assert(el.style.background.length > 0, 'background not set');
+        });
+        test('updateLeftFrameConfig', 'sets gradient for bgStart != bgEnd', function () {
+            const el = document.querySelector('.left-column');
+            el.style.cssText = '';
+            window.updateLeftFrameConfig({ bgStart: '#000', bgEnd: '#fff' });
+            assertContains(el.style.background, 'linear-gradient', 'gradient');
+        });
+
+        // Suite: updateHeaderFrameConfig
+        test('updateHeaderFrameConfig', 'finds <header id="mainHeader">', function () {
+            const el = document.getElementById('mainHeader');
+            assert(el !== null, '#mainHeader not found');
+            assertEqual(el.tagName.toLowerCase(), 'header', 'tag');
+        });
+        test('updateHeaderFrameConfig', 'applies radius', function () {
+            const el = document.getElementById('mainHeader');
+            el.style.cssText = '';
+            window.updateHeaderFrameConfig({ radius: 12 });
+            assertEqual(el.style.borderRadius, '12px', 'borderRadius');
+        });
+
+        // Suite: updateItemStyle — THE CRITICAL TEST
+        test('updateItemStyle', 'applies roundness', function () {
+            const el = document.getElementById('skill-item-0');
+            el.style.cssText = '';
+            window.updateItemStyle('skill-item-0', 'roundness', 15);
+            assertEqual(el.style.borderRadius, '15px', 'borderRadius');
+        });
+        test('updateItemStyle', 'applies line_space', function () {
+            const el = document.getElementById('skill-item-0');
+            el.style.cssText = '';
+            window.updateItemStyle('skill-item-0', 'line_space', 10);
+            assert(el.style.lineHeight.length > 0, 'lineHeight');
+            assert(el.style.marginBottom.length > 0, 'marginBottom');
+        });
+        test('updateItemStyle', 'bgColor uses --item-bg CSS variable (NOT el.style.backgroundColor)', function () {
+            const el = document.getElementById('skill-item-0');
+            el.style.cssText = '';
+            window.updateItemStyle('skill-item-0', 'bgColor', '#ff5500');
+            const itemBg = el.style.getPropertyValue('--item-bg');
+            assertEqual(itemBg, '#ff5500',
+                'CRITICAL: bgColor must set --item-bg CSS variable. Items have background:transparent !important; ' +
+                'their background is via ::before pseudo-element reading --item-bg.');
+        });
+
+        // Suite: getSectionStructure
+        test('getSectionStructure', 'returns JSON with title and items', function () {
+            const r = window.getSectionStructure('skills');
+            assert(r !== null, 'returned null');
+            const d = JSON.parse(r);
+            assertContains(d.title, 'SKILLS', 'title');
+            assert(Array.isArray(d.items), 'items array');
+            assert(d.items.length > 0, 'items empty');
+        });
+        test('getSectionStructure', 'items have id/text/bgColor', function () {
+            const d = JSON.parse(window.getSectionStructure('personalDetails'));
+            assert(d.items.length > 0, 'no pd-row items');
+            assert('id' in d.items[0], 'id');
+            assert('text' in d.items[0], 'text');
+            assert('bgColor' in d.items[0], 'bgColor');
+        });
+        test('getSectionStructure', 'returns null for missing section', function () {
+            assertEqual(window.getSectionStructure('nonExistent999'), null, 'should be null');
+        });
+
+        // Suite: updateSectionTitle
+        test('updateSectionTitle', 'updates h2 text preserving child elements', function () {
+            window.updateSectionTitle('skills', 'MY SKILLS');
+            const h2 = document.querySelector('#skills h2');
+            const tn = Array.from(h2.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+            assert(tn !== null, 'no text node after update');
+            assertContains(tn.textContent, 'MY SKILLS', 'title');
+            tn.textContent = ' SKILLS'; // restore
+        });
+
+        // Suite: applyHeaderDesign
+        test('applyHeaderDesign', 'adds class, removes others', function () {
+            const el = document.getElementById('mainHeader');
+            el.className = 'header-d1';
+            window.applyHeaderDesign('d2');
+            assert(!el.classList.contains('header-d1'), 'd1 not removed');
+            assert(el.classList.contains('header-d2'), 'd2 not added');
+        });
+
+        // ===================== RENDER =====================
+        const container = document.getElementById('results');
+        const suiteMap = {};
+        results.forEach(r => { if (!suiteMap[r.suite]) suiteMap[r.suite] = []; suiteMap[r.suite].push(r); });
+
+        for (const [sn, ts] of Object.entries(suiteMap)) {
+            const sd = document.createElement('div'); sd.className = 'suite';
+            const td = document.createElement('div'); td.className = 'suite-title'; td.textContent = '📦 ' + sn;
+            sd.appendChild(td);
+            ts.forEach(t => {
+                const d = document.createElement('div');
+                d.className = 'test ' + (t.pass ? 'pass' : 'fail');
+                d.innerHTML = `<span class="icon">${t.pass ? '✅' : '❌'}</span>
+            <div class="label">${t.name}${t.error ? `<div class="detail">💥 ${t.error}</div>` : ''}</div>`;
+                sd.appendChild(d);
+            });
+            container.appendChild(sd);
+        }
+        const p = results.filter(r => r.pass).length, f = results.filter(r => !r.pass).length;
+        const sm = document.getElementById('summary');
+        sm.className = 'summary ' + (f === 0 ? 'all-pass' : 'has-fail');
+        sm.textContent = `${f === 0 ? '🎉 ALL TESTS PASS' : '🔴 TESTS FAILING'} — ${p} passed, ${f} failed out of ${results.length} total`;
+    </script>
+</body>
+
+</html>

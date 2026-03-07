@@ -23,16 +23,10 @@
         </LinearLayout>
     </HorizontalScrollView>
 
-    <!-- 2 Column Scrollable Grid -->
-    <!-- 2 Column Manual Scroll Layout -->
+    <!-- Scrollable Grid for Dynamic Categories -->
     <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:scrollbars="vertical" android:paddingBottom="8dp">
         <LinearLayout android:id="@+id/sections_category_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:id="@+id/sections_container">
-                <!-- Left Column -->
-                <LinearLayout android:id="@+id/column_left" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:paddingRight="4dp"/>
-                <!-- Right Column -->
-                <LinearLayout android:id="@+id/column_right" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:paddingLeft="4dp"/>
-            </LinearLayout>
+            <!-- Categories will be inflated here dynamically -->
         </LinearLayout>
     </ScrollView>
 

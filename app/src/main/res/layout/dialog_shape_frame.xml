@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#FFFFFF">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+
+        <View android:layout_width="40dp" android:layout_height="4dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" android:background="#DDDDDD" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Shape Frame" android:textSize="20sp" android:textStyle="bold" android:textColor="#333333" android:layout_marginBottom="24dp" />
+
+        <!-- Thickness Slider -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="24dp">
+            <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Thickness" android:textColor="#333333" />
+            <SeekBar android:id="@+id/seek_frame_thickness" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="40" android:progress="0" />
+            <TextView android:id="@+id/txt_frame_thickness_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="0" android:gravity="end" android:textColor="#333333" android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Start Color -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
+            <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Start Color" android:textColor="#333333" />
+            <View android:id="@+id/view_start_color" android:layout_width="24dp" android:layout_height="24dp" android:background="#e53935" android:layout_marginEnd="12dp" />
+            <Button android:id="@+id/btn_start_color" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Change" style="?attr/materialButtonOutlinedStyle" />
+        </LinearLayout>
+
+        <!-- End Color -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
+            <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="End Color" android:textColor="#333333" />
+            <View android:id="@+id/view_end_color" android:layout_width="24dp" android:layout_height="24dp" android:background="#1e3c72" android:layout_marginEnd="12dp" />
+            <Button android:id="@+id/btn_end_color" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Change" style="?attr/materialButtonOutlinedStyle" />
+        </LinearLayout>
+
+        <!-- Active Borders Container -->
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Active Borders" android:textColor="#333333" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="8dp" />
+        <GridLayout android:id="@+id/container_frame_sides" android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="3" android:layout_marginBottom="8dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

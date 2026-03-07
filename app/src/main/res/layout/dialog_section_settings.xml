@@ -1,121 +1,296 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="#FFFFFF" android:padding="16dp">
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#B3FFFFFF">
 
-    <!-- Title / Drag Handle Area -->
-    <View android:layout_width="40dp" android:layout_height="4dp" android:background="#E0E0E0" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" android:backgroundTint="#CCCCCC"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
 
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Section Settings" android:textSize="18sp" android:textStyle="bold" android:layout_marginBottom="16dp" android:gravity="center" android:textColor="#000000"/>
+        <!-- Title / Drag Handle Area -->
+        <View android:layout_width="40dp" android:layout_height="4dp" android:background="#E0E0E0" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" android:backgroundTint="#CCCCCC"/>
 
-    <!-- BOX 1: SETTINGS -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/rounded_box_bg" android:padding="12dp" android:layout_marginBottom="16dp" android:elevation="2dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Section Settings" android:textSize="18sp" android:textStyle="bold" android:layout_marginBottom="16dp" android:gravity="center" android:textColor="#616161"/>
 
-        <!-- Identity -->
-        <LinearLayout android:id="@+id/container_identity" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="12dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                <!-- Icon Changer -->
-                <FrameLayout android:id="@+id/headerIconContainer" android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/circle_shape" android:backgroundTint="#EEF2FF" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground">
-                    <ImageView android:id="@+id/headerIcon" android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_star" android:scaleType="centerCrop" app:tint="#1E3C72"/>
-                    <ImageView android:layout_width="12dp" android:layout_height="12dp" android:src="@android:drawable/ic_menu_edit" android:layout_gravity="bottom|end" android:layout_margin="4dp" app:tint="#666666"/>
-                </FrameLayout>
-                <View android:layout_width="16dp" android:layout_height="1dp"/>
-                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Section Title" android:textSize="12sp" android:textColor="#888888"/>
-                    <EditText android:id="@+id/headerTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Section Name" android:textSize="18sp" android:textStyle="bold" android:background="@null" android:inputType="textCapWords" android:imeOptions="actionDone" android:textColor="#000000"/>
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD" android:layout_marginTop="4dp"/>
+        <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+
+                <!-- BOX 1: MAIN SETTINGS -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/rounded_box_bg" android:padding="12dp" android:layout_marginBottom="16dp" android:elevation="2dp">
+
+                    <!-- Identity -->
+                    <LinearLayout android:id="@+id/container_identity" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="12dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                            <!-- Icon Changer -->
+                            <FrameLayout android:id="@+id/headerIconContainer" android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/circle_shape" android:backgroundTint="#EEF2FF" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground">
+                                <ImageView android:id="@+id/headerIcon" android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_star" android:scaleType="centerCrop" app:tint="#1E3C72"/>
+                                <ImageView android:layout_width="12dp" android:layout_height="12dp" android:src="@android:drawable/ic_menu_edit" android:layout_gravity="bottom|end" android:layout_margin="4dp" app:tint="#666666"/>
+                            </FrameLayout>
+                            <View android:layout_width="16dp" android:layout_height="1dp"/>
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Section Title" android:textSize="12sp" android:textColor="#888888"/>
+                                <EditText android:id="@+id/headerTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Section Name" android:textSize="18sp" android:textStyle="bold" android:background="@null" android:inputType="textCapWords" android:imeOptions="actionDone" android:textColor="#000000"/>
+                                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDDDDD" android:layout_marginTop="4dp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginBottom="12dp"/>
+
+                    <!-- ROW 1: Style, Background & Grid -->
+                    <LinearLayout android:id="@+id/container_row1" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="end|center_vertical" android:paddingBottom="12dp">
+                        <!-- Restored btnHeaderStyle -->
+                        <LinearLayout android:id="@+id/btnHeaderStyle" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp">
+                            <ImageView android:id="@+id/iconStyleBtn" android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_star" app:tint="#666666" android:layout_marginEnd="6dp"/>
+                            <TextView android:id="@+id/txtStyleBtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Style" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
+                        </LinearLayout>
+
+                        <LinearLayout android:id="@+id/btnSectionColor" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp">
+                            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_circle_colorful" android:layout_marginEnd="6dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Background" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
+                        </LinearLayout>
+
+                        <LinearLayout android:id="@+id/btnGrid" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground">
+                            <ImageView android:id="@+id/iconGridBtn" android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_grid" app:tint="#666666" android:layout_marginEnd="6dp"/>
+                            <TextView android:id="@+id/txtGridBtn" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Grid" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- ROW 2: Align, Apply to All -->
+                    <LinearLayout android:id="@+id/container_row2" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="end|center_vertical" android:paddingBottom="12dp">
+                        <LinearLayout android:id="@+id/btnAlignment" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp">
+                            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_swap" app:tint="#666666" android:layout_marginEnd="6dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Align" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
+                        </LinearLayout>
+                        <LinearLayout android:id="@+id/btnApplyToAll" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Apply to All" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/containerAlignmentSlider" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:layout_marginTop="12dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Alignment" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888888"/>
+                            <TextView android:id="@+id/txtAlignmentVal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Center" android:textSize="10sp" android:textColor="#333333"/>
+                        </LinearLayout>
+                        <SeekBar android:id="@+id/sliderAlignment" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:max="2" android:progress="1" android:thumbTint="#1E3C72" android:progressTint="#1E3C72" android:paddingStart="0dp" android:paddingEnd="0dp"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="end" android:layout_marginTop="4dp">
+                            <CheckBox android:id="@+id/chkAlignHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Header" android:textSize="10sp" android:textColor="#666666" android:checked="true" android:button="@drawable/selector_checkbox_circular" android:buttonTint="@null" app:buttonTint="@null" app:useMaterialThemeColors="false" android:layout_marginEnd="12dp" android:paddingStart="4dp"/>
+                            <CheckBox android:id="@+id/chkAlignItems" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Items" android:textSize="10sp" android:textColor="#666666" android:checked="false" android:button="@drawable/selector_checkbox_circular" android:buttonTint="@null" app:buttonTint="@null" app:useMaterialThemeColors="false" android:paddingStart="4dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout android:id="@+id/containerGridSpacing" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:layout_marginTop="12dp">
+
+                        <!-- Row & Column Dropdowns -->
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginEnd="8dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="COLUMNS" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888888" android:layout_marginBottom="4dp"/>
+                                <Spinner android:id="@+id/spinnerGridCols" android:layout_width="match_parent" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F0F0F0" android:popupBackground="#FFFFFF" android:paddingHorizontal="8dp"/>
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ROWS" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888888" android:layout_marginBottom="4dp"/>
+                                <Spinner android:id="@+id/spinnerGridRows" android:layout_width="match_parent" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F0F0F0" android:popupBackground="#FFFFFF" android:paddingHorizontal="8dp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Grid Spacing Slider -->
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Grid Spacing" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888888"/>
+                            <TextView android:id="@+id/txtGridSpacingVal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0px" android:textSize="10sp" android:textColor="#333333"/>
+                        </LinearLayout>
+                        <SeekBar android:id="@+id/sliderGridSpacing" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:max="60" android:progress="10" android:thumbTint="#1E3C72" android:progressTint="#1E3C72" android:paddingStart="0dp" android:paddingEnd="0dp"/>
+
+                        <!-- Item Width Slider -->
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="8dp">
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Item Width" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888888"/>
+                            <TextView android:id="@+id/txtItemWidthVal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Auto" android:textSize="10sp" android:textColor="#333333"/>
+                        </LinearLayout>
+                        <SeekBar android:id="@+id/sliderItemWidth" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:max="500" android:progress="0" android:thumbTint="#1E3C72" android:progressTint="#1E3C72" android:paddingStart="0dp" android:paddingEnd="0dp"/>
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginBottom="12dp"/>
+                <!-- SWITCHABLE CONTENT AREA -->
+                <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content">
 
-        <!-- ROW 1: Style & Background (Right Aligned) -->
-        <LinearLayout android:id="@+id/container_row1" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="end|center_vertical" android:paddingBottom="12dp">
-            <LinearLayout android:id="@+id/btnHeaderStyle" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp">
-                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_star" app:tint="#666666" android:layout_marginEnd="6dp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Style" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
-            </LinearLayout>
-            <LinearLayout android:id="@+id/btnSectionColor" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground">
-                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_circle_colorful" android:layout_marginEnd="6dp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Background" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
-            </LinearLayout>
-        </LinearLayout>
+                    <!-- 1. STYLES CAROUSEL (Initially GONE) -->
+                    <LinearLayout android:id="@+id/layout_styles" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:paddingTop="8dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Choose a Header Style" android:textSize="14sp" android:textStyle="bold" android:textColor="#666" android:gravity="center_horizontal"/>
+                            <!-- Save Style UI (Visible when Custom Style active) -->
+                            <LinearLayout android:id="@+id/layout_save_style" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:visibility="gone" android:layout_marginEnd="8dp">
+                                <EditText android:id="@+id/inputNewStyleName" android:layout_width="120dp" android:layout_height="32dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F0F0F0" android:hint="Style Name" android:textSize="12sp" android:paddingHorizontal="8dp" android:singleLine="true" android:imeOptions="actionDone" android:layout_marginEnd="4dp"/>
+                                <TextView android:id="@+id/btnSaveNewStyle" android:layout_width="wrap_content" android:layout_height="32dp" android:text="Save" android:textSize="12sp" android:textColor="#FFFFFF" android:background="@drawable/rounded_box_bg" android:backgroundTint="#1E3C72" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                            </LinearLayout>
+                            <ImageView android:id="@+id/btnCustomHeaderSettings" android:layout_width="32dp" android:layout_height="32dp" android:src="@android:drawable/ic_menu_preferences" android:padding="6dp" android:background="@drawable/circle_shape" android:backgroundTint="#F5F5F5" app:tint="#666666" android:visibility="gone" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                        </LinearLayout>
 
-        <!-- ROW 2: Align, Grid, Apply to All (Right Aligned) -->
-        <LinearLayout android:id="@+id/container_row2" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="end|center_vertical" android:paddingBottom="12dp">
-            <LinearLayout android:id="@+id/btnAlignment" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp">
-                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_swap" app:tint="#666666" android:layout_marginEnd="6dp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Align" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
-            </LinearLayout>
-            <LinearLayout android:id="@+id/btnGrid" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp">
-                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_grid" app:tint="#666666" android:layout_marginEnd="6dp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Grid" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
-            </LinearLayout>
-            <LinearLayout android:id="@+id/btnApplyToAll" android:layout_width="wrap_content" android:layout_height="36dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:gravity="center" android:paddingHorizontal="12dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Apply to All" android:textSize="12sp" android:textStyle="bold" android:textColor="#666666"/>
-            </LinearLayout>
-        </LinearLayout>
+                        <!-- Customization Panel (Initially GONE) -->
+                        <LinearLayout android:id="@+id/layout_custom_header_panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:background="@drawable/rounded_box_bg" android:backgroundTint="#FAFAFA" android:padding="12dp" android:layout_marginBottom="12dp">
+                            <!-- Colors -->
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                                <LinearLayout android:id="@+id/btnHeaderIconBgColor" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true">
+                                    <View android:id="@+id/headerIconBgIndicator" android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/circle_shape" android:backgroundTint="#EEEEEE" android:layout_marginEnd="8dp"/>
+                                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Icon BG" android:textSize="11sp"/>
+                                </LinearLayout>
+                                <LinearLayout android:id="@+id/btnHeaderTextBgColor" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true">
+                                    <View android:id="@+id/headerTextBgIndicator" android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/circle_shape" android:backgroundTint="#EEEEEE" android:layout_marginEnd="8dp"/>
+                                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Title BG" android:textSize="11sp"/>
+                                </LinearLayout>
+                            </LinearLayout>
 
-        <LinearLayout android:id="@+id/containerAlignmentSlider" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:layout_marginTop="12dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Alignment" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888888"/>
-                <TextView android:id="@+id/txtAlignmentVal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Center" android:textSize="10sp" android:textColor="#333333"/>
-            </LinearLayout>
-            <SeekBar android:id="@+id/sliderAlignment" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:max="2" android:progress="1" android:thumbTint="#1E3C72" android:progressTint="#1E3C72" android:paddingStart="0dp" android:paddingEnd="0dp"/>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="end" android:layout_marginTop="4dp">
-                <CheckBox android:id="@+id/chkAlignHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Header" android:textSize="10sp" android:textColor="#666666" android:checked="true" android:button="@drawable/selector_checkbox_circular" android:buttonTint="@null" app:buttonTint="@null" app:useMaterialThemeColors="false" android:layout_marginEnd="12dp" android:paddingStart="4dp"/>
-                <CheckBox android:id="@+id/chkAlignItems" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Items" android:textSize="10sp" android:textColor="#666666" android:checked="false" android:button="@drawable/selector_checkbox_circular" android:buttonTint="@null" app:buttonTint="@null" app:useMaterialThemeColors="false" android:paddingStart="4dp"/>
-            </LinearLayout>
-        </LinearLayout>
+                            <!-- Swap Icon Position / Connect -->
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="12dp">
+                                <TextView android:id="@+id/btnSwapIconPosition" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="⇄ Swap" android:textSize="12sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F0F0F0" android:textColor="#444" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnConnectIconTitle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="⊞ Connect" android:textSize="12sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F0F0F0" android:textColor="#444" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                            </LinearLayout>
 
-        <LinearLayout android:id="@+id/containerGridSpacing" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:layout_marginTop="12dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Grid Spacing" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888888"/>
-                <TextView android:id="@+id/txtGridSpacingVal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0px" android:textSize="10sp" android:textColor="#333333"/>
-            </LinearLayout>
-            <SeekBar android:id="@+id/sliderGridSpacing" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:max="60" android:progress="10" android:thumbTint="#1E3C72" android:progressTint="#1E3C72" android:paddingStart="0dp" android:paddingEnd="0dp"/>
-        </LinearLayout>
-    </LinearLayout>
+                            <!-- Connector Shape -->
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Connector Shape" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888"/>
+                            <LinearLayout android:id="@+id/rowConnectorShape" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="4dp" android:layout_marginBottom="12dp">
+                                <TextView android:id="@+id/btnConnectorNone" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="✕" android:textSize="14sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#E8EAF6" android:textColor="#1E3C72" android:layout_marginEnd="4dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnConnectorLine" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="━" android:textSize="14sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:layout_marginEnd="4dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnConnectorDot" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="●" android:textSize="14sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:layout_marginEnd="4dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnConnectorDiamond" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="◆" android:textSize="14sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:layout_marginEnd="4dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnConnectorHexagon" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="⬡" android:textSize="14sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="4dp" android:layout_marginBottom="10dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="W" android:textSize="9sp" android:textColor="#999" android:layout_marginEnd="2dp"/>
+                                <SeekBar android:id="@+id/sliderConnectorW" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:max="40" android:progress="20" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="H" android:textSize="9sp" android:textColor="#999" android:layout_marginStart="4dp" android:layout_marginEnd="2dp"/>
+                                <SeekBar android:id="@+id/sliderConnectorH" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:max="20" android:progress="3" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+                                <LinearLayout android:id="@+id/btnConnectorColor" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true" android:paddingHorizontal="6dp">
+                                    <View android:id="@+id/connectorColorIndicator" android:layout_width="18dp" android:layout_height="18dp" android:background="@drawable/circle_shape" android:backgroundTint="#AAAAAA"/>
+                                </LinearLayout>
+                            </LinearLayout>
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp" android:layout_marginHorizontal="4dp">
-        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Item Customization" android:textSize="14sp" android:textColor="#666"/>
-        <TextView android:id="@+id/btnSelectAll" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Select All" android:textSize="12sp" android:textStyle="bold" android:textColor="#1E3C72" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#EEF2FF" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
-    </LinearLayout>
+                            <!-- Title Font Color -->
+                            <LinearLayout android:id="@+id/btnTitleFontColor" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true" android:layout_marginBottom="12dp">
+                                <View android:id="@+id/titleFontColorIndicator" android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/circle_shape" android:backgroundTint="#333333" android:layout_marginEnd="8dp"/>
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Title Font Color" android:textSize="11sp"/>
+                            </LinearLayout>
 
-    <!-- BOX 2: SUB-SECTION LIST with Floating Actions -->
-    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+                            <!-- Rounding sliders -->
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Icon Rounding" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888"/>
+                            <SeekBar android:id="@+id/sliderHeaderIconRadius" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="50" android:progress="50" android:paddingVertical="8dp" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
 
-        <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true">
-            <LinearLayout android:id="@+id/subsectionContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="40dp">
-                <!-- Items added programmatically here -->
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Icon Size" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888" android:layout_marginTop="8dp"/>
+                            <SeekBar android:id="@+id/sliderHeaderIconSize" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="60" android:progress="16" android:paddingVertical="8dp" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Title Rounding" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888" android:layout_marginTop="8dp"/>
+                            <SeekBar android:id="@+id/sliderHeaderTextRadius" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="50" android:progress="8" android:paddingVertical="8dp" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Title Font Size" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888" android:layout_marginTop="8dp"/>
+                            <SeekBar android:id="@+id/sliderHeaderTitleFontSize" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="40" android:progress="14" android:paddingVertical="8dp" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+
+                            <!-- Frame System -->
+                            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginVertical="10dp"/>
+
+                            <!-- Icon Frame -->
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Icon Frame" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888"/>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="4dp">
+                                <SeekBar android:id="@+id/sliderIconFrameWidth" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:max="10" android:progress="0" android:paddingVertical="8dp" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+                                <LinearLayout android:id="@+id/btnIconFrameColor" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true" android:paddingHorizontal="8dp">
+                                    <View android:id="@+id/iconFrameColorIndicator" android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/circle_shape" android:backgroundTint="#333333" android:layout_marginEnd="4dp"/>
+                                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Color" android:textSize="10sp"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <!-- Title Frame -->
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Title Frame" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888" android:layout_marginTop="8dp"/>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="4dp">
+                                <SeekBar android:id="@+id/sliderTitleFrameWidth" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:max="10" android:progress="0" android:paddingVertical="8dp" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+                                <LinearLayout android:id="@+id/btnTitleFrameColor" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true" android:paddingHorizontal="8dp">
+                                    <View android:id="@+id/titleFrameColorIndicator" android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/circle_shape" android:backgroundTint="#333333" android:layout_marginEnd="4dp"/>
+                                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Color" android:textSize="10sp"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <!-- Shape Extensions -->
+                            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginVertical="10dp"/>
+
+                            <!-- Title Left Shape -->
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Title Left Shape" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888"/>
+                            <LinearLayout android:id="@+id/rowTitleLeftShape" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="6dp">
+                                <TextView android:id="@+id/btnShapeTitleLeftNone" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="▬" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#E8EAF6" android:textColor="#1E3C72" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnShapeTitleLeftTriangle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="◁" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnShapeTitleLeftHalfCircle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="◖" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnShapeTitleLeftArrow" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="⟨" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="4dp" android:layout_marginBottom="10dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="W" android:textSize="9sp" android:textColor="#999" android:layout_marginEnd="2dp"/>
+                                <SeekBar android:id="@+id/sliderLeftShapeW" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:max="30" android:progress="10" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="H" android:textSize="9sp" android:textColor="#999" android:layout_marginStart="4dp" android:layout_marginEnd="2dp"/>
+                                <SeekBar android:id="@+id/sliderLeftShapeH" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:max="40" android:progress="0" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+                                <LinearLayout android:id="@+id/btnLeftShapeColor" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true" android:paddingHorizontal="6dp">
+                                    <View android:id="@+id/leftShapeColorIndicator" android:layout_width="18dp" android:layout_height="18dp" android:background="@drawable/circle_shape" android:backgroundTint="#AAAAAA"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <!-- Title Right Shape -->
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Title Right Shape" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888"/>
+                            <LinearLayout android:id="@+id/rowTitleRightShape" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="6dp">
+                                <TextView android:id="@+id/btnShapeTitleRightNone" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="▬" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#E8EAF6" android:textColor="#1E3C72" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnShapeTitleRightTriangle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="▷" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnShapeTitleRightHalfCircle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="◗" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnShapeTitleRightArrow" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="⟩" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="4dp" android:layout_marginBottom="10dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="W" android:textSize="9sp" android:textColor="#999" android:layout_marginEnd="2dp"/>
+                                <SeekBar android:id="@+id/sliderRightShapeW" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:max="30" android:progress="10" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="H" android:textSize="9sp" android:textColor="#999" android:layout_marginStart="4dp" android:layout_marginEnd="2dp"/>
+                                <SeekBar android:id="@+id/sliderRightShapeH" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:max="40" android:progress="0" android:thumbTint="#1E3C72" android:progressTint="#1E3C72"/>
+                                <LinearLayout android:id="@+id/btnRightShapeColor" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true" android:paddingHorizontal="6dp">
+                                    <View android:id="@+id/rightShapeColorIndicator" android:layout_width="18dp" android:layout_height="18dp" android:background="@drawable/circle_shape" android:backgroundTint="#AAAAAA"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <!-- Icon BG Shape -->
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Icon BG Shape" android:textSize="10sp" android:textAllCaps="true" android:textColor="#888"/>
+                            <LinearLayout android:id="@+id/rowIconBgShape" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="6dp" android:layout_marginBottom="4dp">
+                                <TextView android:id="@+id/btnShapeIconNone" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="▬" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#E8EAF6" android:textColor="#1E3C72" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnShapeIconTriangle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="△" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnShapeIconCircle" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="●" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:layout_marginEnd="6dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                                <TextView android:id="@+id/btnShapeIconHexagon" android:layout_width="0dp" android:layout_weight="1" android:layout_height="36dp" android:text="⬡" android:textSize="16sp" android:gravity="center" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F5" android:textColor="#666" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <androidx.viewpager2.widget.ViewPager2 android:id="@+id/pager_styles" android:layout_width="match_parent" android:layout_height="260dp" android:layout_marginBottom="16dp" />
+                        <!-- Dot Indicator -->
+                        <com.google.android.material.tabs.TabLayout android:id="@+id/indicator_styles" android:layout_width="wrap_content" android:layout_height="12dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" app:tabBackground="@drawable/selector_carousel_dot" app:tabIndicatorHeight="0dp" app:tabRippleColor="@android:color/transparent" app:tabMaxWidth="12dp" app:tabPaddingStart="4dp" app:tabPaddingEnd="4dp" app:tabMode="fixed" />
+                    </LinearLayout>
+
+                    <!-- 2. ITEM CUSTOMIZATION LIST (Default Visible) -->
+                    <LinearLayout android:id="@+id/layout_items" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="8dp" android:layout_marginHorizontal="4dp">
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Item Customization" android:textSize="14sp" android:textColor="#666"/>
+                            <TextView android:id="@+id/btnSelectAll" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Select All" android:textSize="12sp" android:textStyle="bold" android:textColor="#1E3C72" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#EEF2FF" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground"/>
+                        </LinearLayout>
+
+                        <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                            <LinearLayout android:id="@+id/subsectionContainer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="40dp">
+                                <!-- Items added programmatically here -->
+                            </LinearLayout>
+
+                            <!-- Multi-Select Floating Panel (Integrated look) -->
+                            <LinearLayout android:id="@+id/multiSelectPanel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:background="@drawable/pill_background" android:backgroundTint="#FFFFFF" android:padding="8dp" android:visibility="gone" android:elevation="12dp" android:layout_gravity="center_vertical|end" android:layout_marginEnd="16dp" android:gravity="center_vertical">
+                                <!-- Multi-Select Controls Container -->
+                                <LinearLayout android:id="@+id/multiActionsContainer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                                    <!-- Shared Line Space -->
+                                    <ImageView android:id="@+id/btnMultiLineSpace" android:layout_width="36dp" android:layout_height="36dp" android:padding="8dp" android:src="@drawable/ic_line_spacing" android:background="@drawable/circle_shape" android:backgroundTint="#F0F4FF" app:tint="#1E3C72" android:layout_marginEnd="12dp" android:clickable="true" android:focusable="true"/>
+                                    <!-- Shared Roundness -->
+                                    <ImageView android:id="@+id/btnMultiRoundness" android:layout_width="36dp" android:layout_height="36dp" android:padding="8dp" android:src="@drawable/ic_circle_half_filled" android:background="@drawable/circle_shape" android:backgroundTint="#F0F4FF" app:tint="#1E3C72" android:layout_marginEnd="12dp" android:clickable="true" android:focusable="true"/>
+                                    <!-- Shared Color -->
+                                    <FrameLayout android:id="@+id/btnMultiColor" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/circle_shape" android:backgroundTint="#F0F4FF" android:clickable="true" android:focusable="true">
+                                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_circle_colorful"/>
+                                    </FrameLayout>
+                                </LinearLayout>
+                                <!-- Shared Sliders (Hidden) -->
+                                <LinearLayout android:id="@+id/multiSlidersContainer" android:layout_width="120dp" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:layout_marginStart="8dp">
+                                    <TextView android:id="@+id/lblMultiSlider" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Value" android:textSize="10sp" android:textColor="#666"/>
+                                    <SeekBar android:id="@+id/sliderMulti" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:thumbTint="#1E3C72" android:progressTint="#1E3C72" android:paddingStart="0dp" android:paddingEnd="0dp"/>
+                                </LinearLayout>
+                            </LinearLayout>
+                        </FrameLayout>
+                    </LinearLayout>
+                </FrameLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
-
-        <!-- Multi-Select Floating Panel (Integrated look) -->
-        <LinearLayout android:id="@+id/multiSelectPanel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:background="@drawable/pill_background" android:backgroundTint="#FFFFFF" android:padding="8dp" android:visibility="gone" android:elevation="12dp" android:layout_gravity="center_vertical|end" android:layout_marginEnd="16dp" android:gravity="center_vertical">
-
-            <!-- Multi-Select Controls Container -->
-            <LinearLayout android:id="@+id/multiActionsContainer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                <!-- Shared Line Space -->
-                <ImageView android:id="@+id/btnMultiLineSpace" android:layout_width="36dp" android:layout_height="36dp" android:padding="8dp" android:src="@drawable/ic_line_spacing" android:background="@drawable/circle_shape" android:backgroundTint="#F0F4FF" app:tint="#1E3C72" android:layout_marginEnd="12dp" android:clickable="true" android:focusable="true"/>
-
-                <!-- Shared Roundness -->
-                <ImageView android:id="@+id/btnMultiRoundness" android:layout_width="36dp" android:layout_height="36dp" android:padding="8dp" android:src="@drawable/ic_circle_half_filled" android:background="@drawable/circle_shape" android:backgroundTint="#F0F4FF" app:tint="#1E3C72" android:layout_marginEnd="12dp" android:clickable="true" android:focusable="true"/>
-
-                <!-- Shared Color -->
-                <FrameLayout android:id="@+id/btnMultiColor" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/circle_shape" android:backgroundTint="#F0F4FF" android:clickable="true" android:focusable="true">
-                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_circle_colorful"/>
-                </FrameLayout>
-            </LinearLayout>
-
-            <!-- Shared Sliders (Hidden) -->
-            <LinearLayout android:id="@+id/multiSlidersContainer" android:layout_width="120dp" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" android:layout_marginStart="8dp">
-                <TextView android:id="@+id/lblMultiSlider" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Value" android:textSize="10sp" android:textColor="#666"/>
-                <SeekBar android:id="@+id/sliderMulti" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:thumbTint="#1E3C72" android:progressTint="#1E3C72" android:paddingStart="0dp" android:paddingEnd="0dp"/>
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </FrameLayout>
-
-</LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

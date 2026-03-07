@@ -568,6 +568,9 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                 if (file.isDirectory()) {
                     deleted = deleteRecursive(file);
                 } else {
+                    if (file.getName().endsWith(".json")) {
+                        markPathForLocalStorageCleanup(file.getAbsolutePath());
+                    }
                     deleted = file.delete();
                 }
                 
@@ -587,8 +590,18 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             for (File child : fileOrDirectory.listFiles()) {
                 deleteRecursive(child);
             }
+        } else if (fileOrDirectory.getName().endsWith(".json")) {
+            markPathForLocalStorageCleanup(fileOrDirectory.getAbsolutePath());
         }
         return fileOrDirectory.delete();
+    }
+
+    private void markPathForLocalStorageCleanup(String path) {
+        android.content.SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        java.util.Set<String> deletedPaths = prefs.getStringSet("deleted_cv_paths", new java.util.HashSet<>());
+        java.util.Set<String> newPaths = new java.util.HashSet<>(deletedPaths);
+        newPaths.add(path);
+        prefs.edit().putStringSet("deleted_cv_paths", newPaths).apply();
     }
 
     @Override

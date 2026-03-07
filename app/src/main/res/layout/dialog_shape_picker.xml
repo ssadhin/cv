@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/rounded_bottom_sheet" android:padding="16dp">
+
+    <!-- Title -->
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Add Shape" android:textSize="16sp" android:textColor="#333333" android:textStyle="bold" android:gravity="center" android:paddingBottom="12dp" />
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Simple Shapes" android:textSize="14sp" android:textColor="#666666" android:textStyle="bold" android:layout_marginBottom="8dp" />
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:scrollbars="none" android:overScrollMode="never" android:layout_marginBottom="16dp">
+
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center">
+
+            <!-- Circle -->
+            <LinearLayout android:id="@+id/btnShapeCircle" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <View android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/shape_circle_preview" android:backgroundTint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Circle" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Square -->
+            <LinearLayout android:id="@+id/btnShapeSquare" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <View android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/shape_square_preview" android:backgroundTint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Square" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Triangle -->
+            <LinearLayout android:id="@+id/btnShapeTriangle" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <View android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/shape_triangle_preview" android:backgroundTint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Triangle" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Hexagon -->
+            <LinearLayout android:id="@+id/btnShapeHexagon" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <View android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/shape_hexagon_preview" android:backgroundTint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hexagon" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Half Circle -->
+            <LinearLayout android:id="@+id/btnShapeHalfCircle" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <View android:layout_width="40dp" android:layout_height="24dp" android:background="@drawable/shape_halfcircle_preview" android:backgroundTint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Half Circle" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Star -->
+            <LinearLayout android:id="@+id/btnShapeStar" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <View android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/shape_star_preview" android:backgroundTint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Star" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Diamond -->
+            <LinearLayout android:id="@+id/btnShapeDiamond" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <View android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/shape_diamond_preview" android:backgroundTint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Diamond" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Complex Shapes" android:textSize="14sp" android:textColor="#666666" android:textStyle="bold" android:layout_marginBottom="8dp" />
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:scrollbars="none" android:overScrollMode="never">
+
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center">
+
+            <!-- Slant Bottom -->
+            <LinearLayout android:id="@+id/btnShapeSlantBottom" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_shape_slant_bottom" app:tint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Slant Bm" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Wave Bottom -->
+            <LinearLayout android:id="@+id/btnShapeWaveBottom" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_shape_wave_bottom" app:tint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wave Bm" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Wave Top -->
+            <LinearLayout android:id="@+id/btnShapeWaveTop" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_shape_wave_top" app:tint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wave Top" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Slant Top -->
+            <LinearLayout android:id="@+id/btnShapeSlantTop" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_shape_slant_top" app:tint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Slant Top" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- V Bottom -->
+            <LinearLayout android:id="@+id/btnShapeVBottom" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_shape_v_bottom" app:tint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V Bottom" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Curved Slant -->
+            <LinearLayout android:id="@+id/btnShapeCurvedSlant" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_shape_curved_slant" app:tint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Crv Slant" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- Ribbon Banner -->
+            <LinearLayout android:id="@+id/btnShapeRibbonBanner" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_shape_ribbon_banner" app:tint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ribbon" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <!-- U Bottom -->
+            <LinearLayout android:id="@+id/btnShapeUBottom" android:layout_width="72dp" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="8dp" android:background="?attr/selectableItemBackgroundBorderless">
+                <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_shape_u_bottom" app:tint="#888888" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="U Bottom" android:textSize="11sp" android:textColor="#666666" android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+</LinearLayout>
