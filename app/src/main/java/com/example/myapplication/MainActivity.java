@@ -2405,8 +2405,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
 
         @JavascriptInterface
-        public void openFrameSettings(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale, boolean isSplit, String splitColor, int splitPos, String splitDir) {
-            runOnUiThread(() -> showFrameSettingsDialog(type, thickness, colorStart, colorEnd, radius, sides, bgStart, bgEnd, textColor, width, height, blur, scale, isSplit, splitColor, splitPos, splitDir));
+        public void openFrameSettings(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale, boolean isSplit, String splitColor, int splitPos, String splitDir, int zIndex) {
+            runOnUiThread(() -> showFrameSettingsDialog(type, thickness, colorStart, colorEnd, radius, sides, bgStart, bgEnd, textColor, width, height, blur, scale, isSplit, splitColor, splitPos, splitDir, zIndex));
         }
         
         @JavascriptInterface
@@ -6578,7 +6578,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
          popup.showAsDropDown(anchor);
     }
 
-    private void showFrameSettingsDialog(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale, boolean isSplit, String splitColor, int splitPos, String splitDir) {
+    private void showFrameSettingsDialog(String type, int thickness, String colorStart, String colorEnd, int radius, String sides, String bgStart, String bgEnd, String textColor, int width, int height, int blur, String scale, boolean isSplit, String splitColor, int splitPos, String splitDir, int zIndex) {
         onNativePanelOpened();
         BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.TransparentBottomSheetDialog);
         View view = getLayoutInflater().inflate(R.layout.dialog_frame_settings, null);
@@ -6979,6 +6979,56 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         RadioGroup.OnCheckedChangeListener rgListener = (group, checkedId) -> triggerUpdate.run();
         if (rgHeaderScale != null) rgHeaderScale.setOnCheckedChangeListener(rgListener);
         if (rgLeftScale != null) rgLeftScale.setOnCheckedChangeListener(rgListener);
+
+        // Z-Index Logic
+        View layoutZIndex = view.findViewById(R.id.layout_z_index_settings);
+        RadioGroup rgZIndex = view.findViewById(R.id.rg_z_index);
+        
+        // Log to both logcat and debug panel
+        String initInfo = "layoutZIndex=" + (layoutZIndex != null ? "FOUND" : "NULL") + " rgZIndex=" + (rgZIndex != null ? "FOUND" : "NULL") + " type=" + type + " zIndex=" + zIndex;
+        android.util.Log.d("ZINDEX_DEBUG", initInfo);
+        if (myWebView != null) {
+            myWebView.post(() -> myWebView.evaluateJavascript("if(window._zDbg) window._zDbg('JAVA_INIT', '" + initInfo + "');", null));
+        }
+        
+        if (type.equals("header") && layoutZIndex != null && rgZIndex != null) {
+            layoutZIndex.setVisibility(View.VISIBLE);
+            
+            String checkMsg = "Setting initial check for zIndex=" + zIndex;
+            android.util.Log.d("ZINDEX_DEBUG", checkMsg);
+            if (myWebView != null) {
+                myWebView.post(() -> myWebView.evaluateJavascript("if(window._zDbg) window._zDbg('JAVA_CHECK', '" + checkMsg + "');", null));
+            }
+            
+            if (zIndex == -1) rgZIndex.check(R.id.rb_z_below);
+            else if (zIndex == 1) rgZIndex.check(R.id.rb_z_over);
+            else rgZIndex.check(R.id.rb_z_collide);
+            
+            rgZIndex.setOnCheckedChangeListener((group, checkedId) -> {
+                int zVal = 0;
+                if (checkedId == R.id.rb_z_below) zVal = -1;
+                else if (checkedId == R.id.rb_z_over) zVal = 1;
+                
+                String changeMsg = "RadioGroup changed! checkedId=" + checkedId + " zVal=" + zVal;
+                android.util.Log.d("ZINDEX_DEBUG", changeMsg);
+                
+                if (myWebView != null) {
+                    final int fzVal = zVal;
+                    myWebView.post(() -> {
+                        String js = "try { " +
+                                    "  if(window._zDbg) window._zDbg('JAVA_RADIO', 'zVal=" + fzVal + "'); " +
+                                    "  if(window.updateHeaderFrameConfig) window.updateHeaderFrameConfig({zIndex: " + fzVal + "}); " +
+                                    "} catch(e) { " +
+                                    "  if(window._zDbg) window._zDbg('JAVA_RADIO_ERROR', e.message); " +
+                                    "}";
+                        myWebView.evaluateJavascript(js, null);
+                    });
+                } else {
+                    android.util.Log.d("ZINDEX_DEBUG", "myWebView is NULL!");
+                }
+            });
+        }
+
 
         CompoundButton.OnCheckedChangeListener checkListener = (buttonView, isChecked) -> triggerUpdate.run();
         checkTop.setOnCheckedChangeListener(checkListener);

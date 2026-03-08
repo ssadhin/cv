@@ -180,6 +180,7 @@
             --primary-color: #1a73e8;
             --text-color: #333333;
             --text-main: #333333;
+            --header-z-index: 1;
 
             /* Contact Details Settings */
             --contact-icon-size: 14px;
@@ -319,8 +320,9 @@
             position: relative;
             padding: 0;
             overflow: visible;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: var(--left-width) 1fr;
+            grid-template-rows: auto 1fr;
             font-size: var(--global-font-size);
             z-index: 1;
         }
@@ -630,10 +632,12 @@
             font-weight: 400 !important;
         }
 
-        /* Force inner transparency on the pseudo-element but keep the frame border gradient */
+        /* Allow color customization on Drop Shape pseudo-element but default to transparent if none is picked.
+           Note: We use the primary/secondary colors that the user selects via the palette, 
+           falling back to transparent if they haven't explicitly set one for the header. */
         header[data-header-style="Drop Shape"]::before {
             background:
-                linear-gradient(135deg, transparent, transparent) padding-box,
+                linear-gradient(135deg, var(--primary-color, transparent), var(--secondary-color, transparent)) padding-box,
                 linear-gradient(135deg, var(--header-frame-color, transparent), var(--header-frame-color-end, transparent)) border-box !important;
         }
 
@@ -867,9 +871,12 @@
             border-radius: var(--section-radius);
             overflow: visible;
             transition: min-height 0.3s ease, height 0.3s ease;
-            z-index: 100;
+            z-index: var(--header-z-index, 2);
             /* Shaper Clip Path (Shared with pseudo) */
             clip-path: var(--header-clip, none);
+            /* Grid placement for overlapping support */
+            grid-column: 1 / -1;
+            grid-row: 1;
         }
 
         header::before {
@@ -913,37 +920,38 @@
 
 
         .main-content {
-            /* SWITCHED TO GRID FOR BETTER PRINT STABILITY */
-            display: grid;
-            grid-template-columns: var(--left-width) 1fr;
-            grid-template-areas: "left_col right_col";
-            gap: 0;
-            width: 100%;
-            /* flex: 1; removed to allow shrink-wrap */
-            position: relative;
-            height: auto;
-            background: transparent;
-            /* Gradient removed to allow column radius */
+            /* Makes children participate in the .page grid so left-column can overlap header */
+            display: contents;
         }
 
         .left-column {
-            grid-area: left_col;
+            grid-column: 1;
+            grid-row: 2;
+            /* Default: sits below the header */
             position: relative;
-            /* background: transparent !important; removed to allow custom backgrounds */
             padding: 25px 20px;
             min-height: 500px;
             overflow: hidden;
             view-transition-name: left-col;
+            z-index: 1;
+        }
+
+        .header-overlap .left-column {
+            grid-row: 1 / -1;
+            /* Spans to the very top, behind/over the header */
         }
 
         .right-column {
-            grid-area: right_col;
+            grid-column: 2;
+            grid-row: 2;
+            /* Starts precisely below the header */
             position: relative;
             /* background: transparent !important; removed to allow custom backgrounds */
             padding: 25px 30px;
             min-height: 500px;
             overflow: hidden;
             view-transition-name: right-col;
+            z-index: 1;
         }
 
         /* Left Column Frame — mirrors header::before pattern */
@@ -3031,6 +3039,7 @@
             /* Remove standard UI spacing from header */
             #mainHeader {
                 margin-top: 0 !important;
+                z-index: var(--header-z-index, 2);
             }
 
             /* Hide UI elements completely so they take 0 physical space */
@@ -5758,6 +5767,7 @@
                         sectionMargin: getVar('--section-margin', '25px'),
                         lineHeight: getVar('--line-height', '1.4'),
                         borderRadius: getVar('--border-radius', '0px'),
+                        headerZIndex: getVar('--header-z-index', '2'),
                         // Frame Specifics
                         leftFrameThickness: getVar('--left-frame-thickness', '0px'),
                         leftFrameRadius: getVar('--left-frame-radius', '0px'),
@@ -5942,6 +5952,19 @@
                         document.documentElement.style.setProperty('--header-frame-bottom', state.metrics.headerFrameSides[1]);
                         document.documentElement.style.setProperty('--header-frame-left', state.metrics.headerFrameSides[2]);
                         document.documentElement.style.setProperty('--header-frame-right', state.metrics.headerFrameSides[3]);
+                    }
+
+                    if (state.metrics.headerZIndex !== undefined) {
+                        document.documentElement.style.setProperty('--header-z-index', state.metrics.headerZIndex);
+
+                        var cssZ = Number(state.metrics.headerZIndex);
+                        if (cssZ === 0 || cssZ === 2) {
+                            document.documentElement.classList.add('header-overlap');
+                        } else {
+                            document.documentElement.classList.remove('header-overlap');
+                        }
+
+                        if (window._zDbg) window._zDbg('applyState', 'restored headerZIndex=' + state.metrics.headerZIndex);
                     }
 
                     // Restore Background Images for Columns
@@ -7135,8 +7158,14 @@
                             let splitPos = parseInt(style.getPropertyValue('--left-split-pos')) || 50;
                             let splitDir = style.getPropertyValue('--left-split-angle').trim() === '180deg' ? 'horizontal' : 'vertical';
 
+                            // Read CSS z-index (0=below, 1=collide, 2=over) and convert to user value (-1, 0, +1) for Java
+                            let cssZ = type === 'header' ? parseInt(style.getPropertyValue('--header-z-index').trim()) : 1;
+                            if (isNaN(cssZ)) cssZ = 2;
+                            let zIndex = cssZ === 0 ? -1 : (cssZ === 2 ? 1 : 0);
+
+                            if (window._zDbg) window._zDbg('openDialog', 'type=' + type + ' cssZ=' + cssZ + ' userVal=' + zIndex);
                             if (window.Android && window.Android.openFrameSettings) {
-                                window.Android.openFrameSettings(type, thickness, colorStart, colorEnd, radius, sides, bgStart, bgEnd, textColor, width, height, blur, scale, isSplit, splitColor, splitPos, splitDir);
+                                window.Android.openFrameSettings(type, thickness, colorStart, colorEnd, radius, sides, bgStart, bgEnd, textColor, width, height, blur, scale, isSplit, splitColor, splitPos, splitDir, zIndex);
                             }
                         };
                     }
@@ -7253,29 +7282,7 @@
                     if (content) content.classList.add('mirror-mode');
                 }
 
-                window.updateHeaderFrameConfig = (config) => {
-                    const root = document.documentElement;
-                    if (config.thickness !== undefined) root.style.setProperty('--header-frame-thickness', config.thickness + 'px');
-                    if (config.radius !== undefined) root.style.setProperty('--header-frame-radius', config.radius + 'px');
-                    if (config.colorStart) root.style.setProperty('--header-frame-color', config.colorStart);
-                    if (config.colorEnd) root.style.setProperty('--header-frame-color-end', config.colorEnd);
-                    if (config.bgStart) root.style.setProperty('--primary-color', config.bgStart);
-                    if (config.bgEnd) root.style.setProperty('--secondary-color', config.bgEnd);
-                    if (config.sides) {
-                        root.style.setProperty('--header-frame-top', config.sides[0]);
-                        root.style.setProperty('--header-frame-bottom', config.sides[1]);
-                        root.style.setProperty('--header-frame-left', config.sides[2]);
-                        root.style.setProperty('--header-frame-right', config.sides[3]);
-                    }
-                    if (config.blur !== undefined) root.style.setProperty('--header-bg-blur', config.blur + 'px');
-                    if (config.scale) root.style.setProperty('--header-bg-size', config.scale);
-                    if (config.textColor) {
-                        document.querySelectorAll('#mainHeader .header-info, #mainHeader h1, #mainHeader .contact-item, #mainHeader i').forEach(el => {
-                            el.style.color = config.textColor;
-                        });
-                    }
-                    triggerAutoSave();
-                };
+                // DELETED: Duplicate updateHeaderFrameConfig was here
             }
 
             // Reusable Helper for Header Size (Refactored for clarity)
@@ -8639,22 +8646,167 @@
             };
 
             window.updateHeaderFrameConfig = function (config) {
-                console.log('WEB_DEBUG: updateHeaderFrameConfig', config);
-                if (config.thickness !== undefined) document.documentElement.style.setProperty('--header-frame-thickness', config.thickness + 'px');
-                if (config.color) document.documentElement.style.setProperty('--header-frame-color', config.color);
-                if (config.radius !== undefined) document.documentElement.style.setProperty('--header-frame-radius', config.radius + 'px');
-                if (config.sides) {
-                    document.documentElement.style.setProperty('--header-frame-top', config.sides[0]);
-                    document.documentElement.style.setProperty('--header-frame-bottom', config.sides[1]);
-                    document.documentElement.style.setProperty('--header-frame-left', config.sides[2]);
-                    document.documentElement.style.setProperty('--header-frame-right', config.sides[3]);
+                try {
+                    window._zLog.push('>>> updateHeaderFrameConfig ENTERED');
+                    if (window._zPanel) window._zPanel.refresh();
+                    console.log('WEB_DEBUG: updateHeaderFrameConfig', config);
+                    if (config.thickness !== undefined) document.documentElement.style.setProperty('--header-frame-thickness', config.thickness + 'px');
+                    if (config.colorStart) document.documentElement.style.setProperty('--header-frame-color', config.colorStart);
+                    if (config.colorEnd) document.documentElement.style.setProperty('--header-frame-color-end', config.colorEnd);
+                    if (config.bgStart) document.documentElement.style.setProperty('--primary-color', config.bgStart);
+                    if (config.bgEnd) document.documentElement.style.setProperty('--secondary-color', config.bgEnd);
+                    if (config.radius !== undefined) document.documentElement.style.setProperty('--header-frame-radius', config.radius + 'px');
+                    if (config.sides) {
+                        document.documentElement.style.setProperty('--header-frame-top', config.sides[0]);
+                        document.documentElement.style.setProperty('--header-frame-bottom', config.sides[1]);
+                        document.documentElement.style.setProperty('--header-frame-left', config.sides[2]);
+                        document.documentElement.style.setProperty('--header-frame-right', config.sides[3]);
+                    }
+                    if (config.blur !== undefined) document.documentElement.style.setProperty('--header-bg-blur', config.blur + 'px');
+                    if (config.scale) document.documentElement.style.setProperty('--header-bg-size', config.scale);
+                    if (config.textColor) {
+                        document.querySelectorAll('#mainHeader .header-info, #mainHeader h1, #mainHeader .contact-item, #mainHeader i').forEach(function (el) {
+                            el.style.color = config.textColor;
+                        });
+                    }
+                    if (config.zIndex !== undefined) {
+                        var cssZ = config.zIndex == -1 ? 0 : (config.zIndex == 1 ? 2 : 1);
+                        document.documentElement.style.setProperty('--header-z-index', String(cssZ));
+
+                        // Toggle grid overlap support
+                        if (cssZ === 0 || cssZ === 2) {
+                            document.documentElement.classList.add('header-overlap');
+                        } else {
+                            document.documentElement.classList.remove('header-overlap');
+                        }
+
+                        window._zLog.push('>>> setProperty --header-z-index = ' + cssZ);
+                        if (window._zDbg) window._zDbg('updateHeaderFrameConfig', 'userVal=' + config.zIndex + ' cssZ=' + cssZ);
+                    }
+                    if (config.columnBg) {
+                        document.documentElement.style.setProperty('--primary-color', config.columnBg);
+                        document.documentElement.style.setProperty('--secondary-color', config.columnBg);
+                    }
+                    triggerAutoSave();
+                } catch (e) {
+                    window._zLog.push('!!! updateHeaderFrameConfig ERROR: ' + e.message);
+                    if (window._zPanel) window._zPanel.refresh();
                 }
-                if (config.columnBg) {
-                    document.documentElement.style.setProperty('--primary-color', config.columnBg);
-                    document.documentElement.style.setProperty('--secondary-color', config.columnBg);
-                }
-                triggerAutoSave();
             };
+
+            // === Z-INDEX DEBUG SYSTEM ===
+            window._zLog = [];
+            window._zDbg = function (source, msg) {
+                var now = new Date();
+                var ts = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+                var cssVal = getComputedStyle(document.documentElement).getPropertyValue('--header-z-index').trim();
+                var inlineVal = document.documentElement.style.getPropertyValue('--header-z-index');
+                var hdr = document.getElementById('mainHeader');
+                var hdrInline = hdr ? hdr.style.zIndex : 'N/A';
+                var hdrComputed = hdr ? getComputedStyle(hdr).zIndex : 'N/A';
+                var entry = ts + ' [' + source + '] ' + msg + ' | css=' + cssVal + ' inline=' + inlineVal + ' hdr.style=' + hdrInline + ' hdr.computed=' + hdrComputed;
+                window._zLog.push(entry);
+                console.log('Z-DBG: ' + entry);
+                if (window._zPanel) window._zPanel.refresh();
+            };
+
+            // Monitor CSS variable changes via MutationObserver on :root
+            var _zObs = new MutationObserver(function (mutations) {
+                mutations.forEach(function (m) {
+                    if (m.attributeName === 'style') {
+                        var val = document.documentElement.style.getPropertyValue('--header-z-index');
+                        if (val && val !== window._lastZVal) {
+                            window._lastZVal = val;
+                            window._zDbg('CSS_MUTATION', '--header-z-index changed to: ' + val);
+                        }
+                    }
+                });
+            });
+            _zObs.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
+
+            // Create persistent draggable debug panel
+            setTimeout(function () {
+                var panel = document.createElement('div');
+                panel.id = 'zIndexDebugPanel';
+                panel.style.cssText = 'position:fixed;bottom:10px;right:10px;width:340px;max-height:45vh;background:rgba(0,0,0,0.92);color:#0ff;font-size:9px;padding:0;z-index:999999;white-space:pre-wrap;font-family:monospace;border:2px solid cyan;border-radius:8px;display:flex;flex-direction:column;touch-action:none;';
+
+                // Titlebar
+                var tb = document.createElement('div');
+                tb.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#111;padding:6px 10px;cursor:grab;border-radius:6px 6px 0 0;border-bottom:1px solid cyan;touch-action:none;user-select:none;';
+                tb.innerHTML = '<span style="font-weight:bold;font-size:11px;color:cyan;">\uD83D\uDD0D Z-Index Debug</span>';
+
+                var btns = document.createElement('span');
+                btns.style.cssText = 'display:flex;gap:8px;';
+                var closeB = document.createElement('span');
+                closeB.textContent = '\u2715';
+                closeB.style.cssText = 'cursor:pointer;font-size:14px;color:red;font-weight:bold;';
+                closeB.onclick = function () { panel.style.display = 'none'; };
+                btns.appendChild(closeB);
+                tb.appendChild(btns);
+                panel.appendChild(tb);
+
+                // Status bar
+                var status = document.createElement('div');
+                status.id = 'zDbgStatus';
+                status.style.cssText = 'padding:6px 10px;background:#0a0a2a;border-bottom:1px solid #333;font-size:10px;color:#ff0;';
+                panel.appendChild(status);
+
+                // Log content
+                var ct = document.createElement('div');
+                ct.id = 'zDbgContent';
+                ct.style.cssText = 'overflow-y:auto;padding:8px;flex:1;max-height:30vh;';
+                panel.appendChild(ct);
+
+                // Drag - pointer events for desktop
+                tb.onpointerdown = function (ev) {
+                    var sx = ev.clientX - panel.offsetLeft;
+                    var sy = ev.clientY - panel.offsetTop;
+                    tb.setPointerCapture(ev.pointerId);
+                    tb.onpointermove = function (mv) {
+                        panel.style.left = (mv.clientX - sx) + 'px';
+                        panel.style.top = (mv.clientY - sy) + 'px';
+                        panel.style.right = 'auto';
+                        panel.style.bottom = 'auto';
+                    };
+                };
+                tb.onpointerup = function () { tb.onpointermove = null; };
+                // Drag - touch events for Android
+                var _tSX = 0, _tSY = 0;
+                tb.addEventListener('touchstart', function (ev) {
+                    ev.preventDefault();
+                    var t = ev.touches[0];
+                    _tSX = t.clientX - panel.offsetLeft;
+                    _tSY = t.clientY - panel.offsetTop;
+                }, { passive: false });
+                tb.addEventListener('touchmove', function (ev) {
+                    ev.preventDefault();
+                    var t = ev.touches[0];
+                    panel.style.left = (t.clientX - _tSX) + 'px';
+                    panel.style.top = (t.clientY - _tSY) + 'px';
+                    panel.style.right = 'auto';
+                    panel.style.bottom = 'auto';
+                }, { passive: false });
+
+                window._zPanel = {
+                    refresh: function () {
+                        var cssVal = getComputedStyle(document.documentElement).getPropertyValue('--header-z-index').trim();
+                        var inlineVal = document.documentElement.style.getPropertyValue('--header-z-index');
+                        var hdr = document.getElementById('mainHeader');
+                        var mc = document.querySelector('.main-content');
+                        var hdrZ = hdr ? getComputedStyle(hdr).zIndex : 'N/A';
+                        var mcZ = mc ? getComputedStyle(mc).zIndex : 'N/A';
+                        var label = cssVal == '0' ? 'BELOW' : (cssVal == '2' ? 'OVER' : 'COLLIDE');
+                        status.innerHTML = 'CSS var: <b>' + cssVal + '</b> (' + label + ') | inline: ' + inlineVal + ' | header computed: <b>' + hdrZ + '</b> | main-content: ' + mcZ;
+                        ct.textContent = window._zLog.join('\n');
+                        ct.scrollTop = ct.scrollHeight;
+                    }
+                };
+
+                document.body.appendChild(panel);
+                window._zDbg('INIT', 'Debug panel created');
+                setInterval(function () { if (window._zPanel) window._zPanel.refresh(); }, 2000);
+            }, 1000);
+
 
             window.adjustHeaderHeight = function () {
                 const header = document.getElementById('mainHeader');
@@ -9639,8 +9791,8 @@
             // --- TOOLBARS & EDITING ---
             let currentToolbar = null;
             function removeToolbar(preventNativeHide) {
-                // Remove highlighting class from all sections
-                document.querySelectorAll('section.section-editing').forEach(el => el.classList.remove('section-editing'));
+                // Remove highlighting class from all sections and header
+                document.querySelectorAll('.section-editing').forEach(el => el.classList.remove('section-editing'));
 
 
                 // If preventNativeHide is true, we skip calling Android.hideToolbar()
@@ -10994,8 +11146,11 @@
                                 let textColor = '#333333';
                                 const h1 = header ? header.querySelector('h1') : null;
                                 if (h1) textColor = window.getComputedStyle(h1).color;
+                                var hdrCssZ = parseInt(style.getPropertyValue('--header-z-index').trim());
+                                if (isNaN(hdrCssZ)) hdrCssZ = 2;
+                                var hdrUserZ = hdrCssZ === 0 ? -1 : (hdrCssZ === 2 ? 1 : 0);
                                 if (window.Android && window.Android.openFrameSettings) {
-                                    window.Android.openFrameSettings('header', thickness, colorStart, colorEnd, radius, sides, bgStart, bgEnd, textColor, 0, 0, 0, 'cover', false, '#ffffff', 50, 'vertical');
+                                    window.Android.openFrameSettings('header', thickness, colorStart, colorEnd, radius, sides, bgStart, bgEnd, textColor, 0, 0, 0, 'cover', false, '#ffffff', 50, 'vertical', hdrUserZ);
                                 }
                             };
                         }
@@ -15993,6 +16148,10 @@
                             if (m.itemMargin) root.style.setProperty('--item-margin', m.itemMargin);
                             if (m.itemPadding) root.style.setProperty('--item-padding', m.itemPadding);
                             if (m.sectionMargin) root.style.setProperty('--section-margin', m.sectionMargin);
+
+                            if (m.headerZIndex !== undefined) {
+                                root.style.setProperty('--header-z-index', m.headerZIndex);
+                            }
                         }
                         if (template.colors) {
                             const c = template.colors;
@@ -16163,6 +16322,9 @@
                         if (m.splitPos) root.style.setProperty('--left-split-pos', m.splitPos);
                         if (m.splitColor) root.style.setProperty('--left-split-color', m.splitColor);
                         if (m.splitAngle) root.style.setProperty('--left-split-angle', m.splitAngle);
+                        if (m.headerZIndex !== undefined) {
+                            root.style.setProperty('--header-z-index', m.headerZIndex);
+                        }
                     }
 
                     // SPLIT FRAME RESTORATION from template

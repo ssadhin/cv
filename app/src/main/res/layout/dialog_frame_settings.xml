@@ -96,6 +96,21 @@
                             <TextView android:id="@+id/txt_radius_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="0" android:gravity="end" android:textColor="#616161" android:textStyle="bold" />
                         </LinearLayout>
 
+                        <!-- Z-Index Layer (Header Only) -->
+                        <LinearLayout android:id="@+id/layout_z_index_settings" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="24dp" android:visibility="gone">
+
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Layer Position" android:textColor="#757575" android:textStyle="bold" android:textSize="13sp" android:layout_marginBottom="12dp" />
+
+                            <RadioGroup android:id="@+id/rg_z_index" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_horizontal">
+
+                                <RadioButton android:id="@+id/rb_z_below" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Below" android:textSize="12sp" android:layout_marginEnd="16dp" />
+
+                                <RadioButton android:id="@+id/rb_z_collide" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Collide" android:textSize="12sp" android:layout_marginEnd="16dp" android:checked="true" />
+
+                                <RadioButton android:id="@+id/rb_z_over" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Over" android:textSize="12sp" />
+                            </RadioGroup>
+                        </LinearLayout>
+
                         <!-- Fill Color Gradient -->
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Fill Gradient" android:textColor="#757575" android:textStyle="bold" android:textSize="13sp" android:layout_marginBottom="12dp" />
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
