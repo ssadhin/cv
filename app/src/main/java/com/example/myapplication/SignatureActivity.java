@@ -33,6 +33,7 @@ public class SignatureActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ThemeManager.applyTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signature);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -158,10 +159,10 @@ public class SignatureActivity extends AppCompatActivity {
         if (uri != null) {
             try (OutputStream out = getContentResolver().openOutputStream(uri)) {
                 signature.compress(Bitmap.CompressFormat.PNG, 100, out);
-                Toast.makeText(this, "Signature exported to Gallery", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.signature_exported, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(this, "Export failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.export_failed_prefix) + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }

@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#FFFFFF">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="@color/surface_dialog">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
 
-        <View android:layout_width="40dp" android:layout_height="4dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" android:background="#DDDDDD" />
+        <View android:layout_width="40dp" android:layout_height="4dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" android:background="@color/divider_color" />
 
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Save Template" android:textSize="20sp" android:textStyle="bold" android:textColor="#333333" android:layout_marginBottom="8dp" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Save Template" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_marginBottom="8dp" />
 
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name your template to find it easily later." android:textSize="14sp" android:textColor="#666666" android:layout_marginBottom="24dp" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name your template to find it easily later." android:textSize="14sp" android:textColor="@color/text_secondary" android:layout_marginBottom="24dp" />
 
         <!-- Name Input -->
-        <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Template Name (Optional)" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_marginBottom="16dp" app:boxStrokeColor="@color/black" app:hintTextColor="@color/black">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_template_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textCapWords" android:textColor="#333333" />
+        <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Template Name (Optional)" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_marginBottom="16dp" app:boxStrokeColor="@color/text_primary" app:hintTextColor="@color/text_secondary">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_template_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textCapWords" android:textColor="@color/text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Email Input -->
-        <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Email (Optional)" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_marginBottom="16dp" app:boxStrokeColor="@color/black" app:hintTextColor="@color/black">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_template_email" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textEmailAddress" android:textColor="#333333" />
+        <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Email (Optional)" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_marginBottom="16dp" app:boxStrokeColor="@color/text_primary" app:hintTextColor="@color/text_secondary">
+            <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_template_email" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="textEmailAddress" android:textColor="@color/text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Tag Input -->
-        <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Tag (Optional, e.g. Minimal, Creative)" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox" android:layout_marginBottom="24dp" app:boxStrokeColor="@color/black" app:hintTextColor="@color/black">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/et_template_tag" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:textColor="#333333" />
+        <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Tag (Optional, e.g. Minimal, Creative)" style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu" android:layout_marginBottom="24dp" app:boxStrokeColor="@color/text_primary" app:hintTextColor="@color/text_secondary">
+            <AutoCompleteTextView android:id="@+id/et_template_tag" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="text" android:textColor="@color/text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="end">
 
-            <Button android:id="@+id/btn_cancel_save" style="?attr/borderlessButtonStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cancel" android:textColor="#666666" />
+            <Button android:id="@+id/btn_cancel_save" style="?attr/borderlessButtonStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cancel" android:textColor="@color/text_secondary" />
 
-            <com.google.android.material.button.MaterialButton android:id="@+id/btn_confirm_save" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Save Template" app:cornerRadius="12dp" android:backgroundTint="#000000" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn_confirm_save" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Save Template" app:cornerRadius="12dp" android:backgroundTint="@color/brand_primary" />
         </LinearLayout>
 
     </LinearLayout>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/cardPurpose" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="16dp" app:cardElevation="2dp" app:strokeColor="#eee" app:strokeWidth="1dp" app:rippleColor="#33000000" android:clickable="true" android:focusable="true">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/cardPurpose" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="@color/surface_dialog" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" app:rippleColor="#33000000" android:clickable="true" android:focusable="true">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="20dp">
 
@@ -9,9 +9,9 @@
             <ImageView android:id="@+id/ivPurposeIcon" android:layout_width="52dp" android:layout_height="52dp" android:layout_gravity="center" />
         </FrameLayout>
 
-        <TextView android:id="@+id/tvPurposeTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Job" android:textColor="#333333" android:textSize="17sp" android:textStyle="bold" />
+        <TextView android:id="@+id/tvPurposeTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="Job" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold" />
 
-        <TextView android:id="@+id/tvPurposeDesc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:text="Standard job application" android:textColor="#666" android:textSize="13sp" />
+        <TextView android:id="@+id/tvPurposeDesc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:text="Standard job application" android:textColor="@color/text_secondary" android:textSize="13sp" />
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

@@ -9,7 +9,7 @@
 
         <Button android:id="@+id/btn_font_poppins" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Poppins (Geometric)" android:textColor="#000000" android:fontFamily="sans-serif" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
 
-        <Button android:id="@+id/btn_font_opensans" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Open Sans (Clean)" android:textColor="#000000" android:fontFamily="sans-serif-condensed" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
+        <Button android:id="@+id/btn_font_opensans" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Open Sans (Clean)" android:textColor="@color/text_primary" android:fontFamily="sans-serif-condensed" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
 
         <Button android:id="@+id/btn_font_ubuntu" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ubuntu (Distinctive)" android:textColor="#000000" android:fontFamily="sans-serif" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
 

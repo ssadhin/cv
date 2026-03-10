@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingVertical="4dp">
 
     <!-- Main Card Container -->
-    <com.google.android.material.card.MaterialCardView android:id="@+id/card_root" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="#E0E0E0" app:cardCornerRadius="28dp" app:cardElevation="2dp" app:contentPadding="0dp" app:cardUseCompatPadding="false" android:clipToPadding="false">
+    <com.google.android.material.card.MaterialCardView android:id="@+id/card_root" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="@color/surface_card_nested" app:cardCornerRadius="28dp" app:cardElevation="2dp" app:contentPadding="0dp" app:cardUseCompatPadding="false" android:clipToPadding="false">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="4dp">
 
@@ -19,9 +19,9 @@
                 <!-- Section Info (Center) -->
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_vertical">
 
-                    <TextView android:id="@+id/section_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Section Title" android:textColor="#1a237e" android:textSize="14sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/section_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Section Title" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
 
-                    <TextView android:id="@+id/section_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Short description" android:textColor="#757575" android:textSize="11sp" android:maxLines="1" android:ellipsize="end" />
+                    <TextView android:id="@+id/section_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Short description" android:textColor="@color/text_secondary" android:textSize="11sp" android:maxLines="1" android:ellipsize="end" />
                 </LinearLayout>
 
                 <!-- Done Badge (Center-Right) -->
@@ -35,9 +35,9 @@
             <!-- Placement Controls (Toggle Style) -->
             <LinearLayout android:id="@+id/placement_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingHorizontal="12dp" android:paddingVertical="8dp" android:visibility="gone" android:gravity="center_vertical">
 
-                <TextView android:id="@+id/tv_placement_indicator" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Add to: Left" android:textStyle="bold" android:textSize="12sp" android:textColor="#1a237e" />
+                <TextView android:id="@+id/tv_placement_indicator" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Add to: Left" android:textStyle="bold" android:textSize="12sp" android:textColor="@color/text_primary" />
 
-                <ImageButton android:id="@+id/btn_toggle_placement" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/circular_button_background" android:backgroundTint="#f0f2f5" android:src="@drawable/ic_swap" android:padding="6dp" app:tint="#555555" android:scaleType="centerInside" />
+                <ImageButton android:id="@+id/btn_toggle_placement" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/circular_button_background" android:backgroundTint="#f0f2f5" android:src="@drawable/ic_swap" android:padding="6dp" app:tint="@color/text_secondary" android:scaleType="centerInside" />
 
             </LinearLayout>
         </LinearLayout>

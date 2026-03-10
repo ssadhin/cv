@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/step1Container" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="24dp">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="32dp" android:fontFamily="sans-serif-medium" android:text="@string/getting_started" android:textColor="@color/brand_primary" android:textSize="14sp" android:letterSpacing="0.1" />
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:fontFamily="sans-serif-black" android:text="@string/ai_step_1_title" android:textColor="@color/text_primary" android:textSize="32sp" />
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/ai_step_1_desc" android:textColor="@color/text_secondary" android:textSize="17sp" android:lineSpacingExtra="4dp" />
+
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnCopyPromptLarge" android:layout_width="match_parent" android:layout_height="72dp" android:layout_marginTop="48dp" android:text="@string/ai_copy_prompt" android:textAllCaps="false" android:textSize="18sp" android:textStyle="bold" app:cornerRadius="24dp" app:backgroundTint="@color/brand_primary" android:elevation="8dp"/>
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center" android:text="@string/copy_to_clipboard_hint" android:textColor="@color/text_secondary" android:textSize="13sp" />
+
+    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+
+    <com.google.android.material.button.MaterialButton android:id="@+id/btnNextStep1" android:layout_width="match_parent" android:layout_height="72dp" android:layout_marginBottom="16dp" android:text="@string/ai_next_step" android:textAllCaps="false" android:textSize="18sp" android:textStyle="bold" app:cornerRadius="24dp" app:backgroundTint="@color/brand_primary" app:icon="@drawable/ic_manual_arrow_right" app:iconGravity="textEnd" app:iconPadding="12dp" app:iconSize="24dp" android:textColor="#FFFFFF" />
+
+</LinearLayout>

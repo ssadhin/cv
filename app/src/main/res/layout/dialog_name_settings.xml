@@ -1,27 +1,27 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:background="@drawable/shape_dialog_bg">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp" android:background="@color/surface_dialog">
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name &amp; Title Settings" android:textSize="20sp" android:textStyle="bold" android:textColor="#000000" android:layout_marginBottom="16dp" android:shadowColor="#FFFFFF" android:shadowDx="1" android:shadowDy="1" android:shadowRadius="1" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name &amp; Title Settings" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_marginBottom="16dp" />
 
     <!-- Rotation Control -->
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rotation (0° - 360°)" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" android:shadowColor="#FFFFFF" android:shadowDx="1" android:shadowDy="1" android:shadowRadius="1" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rotation (0° - 360°)" android:textColor="@color/text_secondary" android:textSize="16sp" android:textStyle="bold" />
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
 
         <SeekBar android:id="@+id/seek_rotation" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="360" />
 
-        <TextView android:id="@+id/text_rotation_val" android:layout_width="50dp" android:layout_height="wrap_content" android:gravity="end" android:text="0°" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" android:shadowColor="#FFFFFF" android:shadowDx="1" android:shadowDy="1" android:shadowRadius="1" />
+        <TextView android:id="@+id/text_rotation_val" android:layout_width="50dp" android:layout_height="wrap_content" android:gravity="end" android:text="0°" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Scale Control -->
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Size Scale (%)" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" android:shadowColor="#FFFFFF" android:shadowDx="1" android:shadowDy="1" android:shadowRadius="1" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Size Scale (%)" android:textColor="@color/text_secondary" android:textSize="16sp" android:textStyle="bold" />
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="24dp">
 
         <SeekBar android:id="@+id/seek_scale" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="200" android:min="50" />
 
-        <EditText android:id="@+id/edit_scale_val" android:layout_width="60dp" android:layout_height="wrap_content" android:inputType="number" android:text="100" android:gravity="center" android:textSize="14sp" android:layout_marginStart="8dp" />
+        <EditText android:id="@+id/edit_scale_val" android:layout_width="60dp" android:layout_height="wrap_content" android:inputType="number" android:text="100" android:gravity="center" android:textSize="14sp" android:layout_marginStart="8dp" android:textColor="@color/text_primary" android:backgroundTint="@color/divider_color_new"/>
 
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="%" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" android:shadowColor="#FFFFFF" android:shadowDx="1" android:shadowDy="1" android:shadowRadius="1" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="%" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
     </LinearLayout>
 
     <Button android:id="@+id/btn_reset_name_settings" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Reset to Default" android:backgroundTint="#FF4444" android:textColor="#FFFFFF" />

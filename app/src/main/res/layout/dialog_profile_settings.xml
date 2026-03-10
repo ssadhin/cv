@@ -1,90 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="#B3FFFFFF">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="24dp" app:cardElevation="0dp" app:cardBackgroundColor="@color/surface_dialog">
 
     <androidx.core.widget.NestedScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
 
-            <View android:layout_width="40dp" android:layout_height="4dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" android:background="#DDDDDD" />
+            <View android:layout_width="40dp" android:layout_height="4dp" android:layout_gravity="center_horizontal" android:layout_marginBottom="16dp" android:background="@color/divider_color_new" />
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Profile Picture Settings" android:textSize="20sp" android:textStyle="bold" android:textColor="#333333" android:layout_marginBottom="16dp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/profile_settings_title" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_marginBottom="16dp" />
 
             <!-- Mode Toggle -->
             <com.google.android.material.button.MaterialButtonToggleGroup android:id="@+id/toggle_group_shape" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginBottom="24dp" app:singleSelection="true" app:selectionRequired="true">
-                <Button android:id="@+id/btn_mode_smooth" style="?attr/materialButtonOutlinedStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Smooth" />
-                <Button android:id="@+id/btn_mode_polygon" style="?attr/materialButtonOutlinedStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Polygon" />
+                <Button android:id="@+id/btn_mode_smooth" style="?attr/materialButtonOutlinedStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/shape_mode_smooth" />
+                <Button android:id="@+id/btn_mode_polygon" style="?attr/materialButtonOutlinedStyle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/shape_mode_polygon" />
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
             <!-- Radius/Sides Slider -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
-                <TextView android:id="@+id/txt_slider_label" android:layout_width="80dp" android:layout_height="wrap_content" android:text="Radius" android:textColor="#666666" />
-                <SeekBar android:id="@+id/slider_radius" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="60" />
+                <TextView android:id="@+id/txt_slider_label" android:layout_width="80dp" android:layout_height="wrap_content" android:text="@string/radius" android:textColor="@color/text_secondary" />
+                <SeekBar android:id="@+id/slider_radius" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="60" android:thumbTint="@color/brand_primary" android:progressTint="@color/brand_primary" />
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="end">
-                    <TextView android:id="@+id/txt_radius_val" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="#333333" android:textStyle="bold" />
-                    <TextView android:id="@+id/txt_shape_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textSize="10sp" android:textColor="#999999" android:visibility="gone" />
+                    <TextView android:id="@+id/txt_radius_val" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textColor="@color/text_primary" android:textStyle="bold" />
+                    <TextView android:id="@+id/txt_shape_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textSize="10sp" android:textColor="@color/text_secondary" android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
 
             <!-- Corner Selection -->
             <LinearLayout android:id="@+id/layout_corners_selection" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="16dp">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Round Corners:" android:textColor="#666666" android:textSize="12sp" android:layout_marginBottom="8dp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/round_corners" android:textColor="@color/text_secondary" android:textSize="12sp" android:layout_marginBottom="8dp" />
                 <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="2" android:rowCount="2">
-                    <CheckBox android:id="@+id/chk_round_tl" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="Top-Left" android:textSize="12sp" android:buttonTint="#1e3c72" />
-                    <CheckBox android:id="@+id/chk_round_tr" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="Top-Right" android:textSize="12sp" android:buttonTint="#1e3c72" />
-                    <CheckBox android:id="@+id/chk_round_bl" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="Bottom-Left" android:textSize="12sp" android:buttonTint="#1e3c72" />
-                    <CheckBox android:id="@+id/chk_round_br" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="Bottom-Right" android:textSize="12sp" android:buttonTint="#1e3c72" />
+                    <CheckBox android:id="@+id/chk_round_tl" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="@string/corner_tl" android:textSize="12sp" android:buttonTint="@color/brand_primary" android:textColor="@color/text_primary" />
+                    <CheckBox android:id="@+id/chk_round_tr" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="@string/corner_tr" android:textSize="12sp" android:buttonTint="@color/brand_primary" android:textColor="@color/text_primary" />
+                    <CheckBox android:id="@+id/chk_round_bl" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="@string/corner_bl" android:textSize="12sp" android:buttonTint="@color/brand_primary" android:textColor="@color/text_primary" />
+                    <CheckBox android:id="@+id/chk_round_br" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:text="@string/corner_br" android:textSize="12sp" android:buttonTint="@color/brand_primary" android:textColor="@color/text_primary" />
                 </GridLayout>
             </LinearLayout>
 
             <!-- Width Slider + Editable Value -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Width" android:textColor="#666666" />
-                <SeekBar android:id="@+id/slider_width" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="700" android:progress="120" />
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="@string/width" android:textColor="@color/text_secondary" />
+                <SeekBar android:id="@+id/slider_width" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="700" android:progress="120" android:thumbTint="@color/brand_primary" android:progressTint="@color/brand_primary" />
                 <FrameLayout android:layout_width="48dp" android:layout_height="wrap_content" android:layout_marginStart="8dp">
-                    <TextView android:id="@+id/txt_width_val" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="120" android:gravity="center" android:textColor="#333333" android:textStyle="bold" android:padding="4dp" />
-                    <EditText android:id="@+id/input_width_edit" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:text="120" android:gravity="center" android:textColor="#333333" android:textStyle="bold" android:padding="4dp" android:background="@android:drawable/editbox_background" android:visibility="gone" android:maxLength="3" />
+                    <TextView android:id="@+id/txt_width_val" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="120" android:gravity="center" android:textColor="@color/text_primary" android:textStyle="bold" android:padding="4dp" />
+                    <EditText android:id="@+id/input_width_edit" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:text="120" android:gravity="center" android:textColor="@color/text_primary" android:textStyle="bold" android:padding="4dp" android:background="@drawable/edit_text_bg" android:visibility="gone" android:maxLength="3" />
                 </FrameLayout>
             </LinearLayout>
 
             <!-- Height Slider + Editable Value -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Height" android:textColor="#666666" />
-                <SeekBar android:id="@+id/slider_height" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="700" android:progress="120" />
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="@string/height" android:textColor="@color/text_secondary" />
+                <SeekBar android:id="@+id/slider_height" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="700" android:progress="120" android:thumbTint="@color/brand_primary" android:progressTint="@color/brand_primary" />
                 <FrameLayout android:layout_width="48dp" android:layout_height="wrap_content" android:layout_marginStart="8dp">
-                    <TextView android:id="@+id/txt_height_val" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="120" android:gravity="center" android:textColor="#333333" android:textStyle="bold" android:padding="4dp" />
-                    <EditText android:id="@+id/input_height_edit" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:text="120" android:gravity="center" android:textColor="#333333" android:textStyle="bold" android:padding="4dp" android:background="@android:drawable/editbox_background" android:visibility="gone" android:maxLength="3" />
+                    <TextView android:id="@+id/txt_height_val" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="120" android:gravity="center" android:textColor="@color/text_primary" android:textStyle="bold" android:padding="4dp" />
+                    <EditText android:id="@+id/input_height_edit" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:text="120" android:gravity="center" android:textColor="@color/text_primary" android:textStyle="bold" android:padding="4dp" android:background="@drawable/edit_text_bg" android:visibility="gone" android:maxLength="3" />
                 </FrameLayout>
             </LinearLayout>
 
             <!-- Thickness Slider -->
             <LinearLayout android:id="@+id/layout_thickness" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Thickness" android:textColor="#666666" />
-                <SeekBar android:id="@+id/slider_thickness" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="20" android:progress="2" />
-                <TextView android:id="@+id/txt_thickness_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="2" android:gravity="end" android:textColor="#333333" android:textStyle="bold" />
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="@string/thickness" android:textColor="@color/text_secondary" />
+                <SeekBar android:id="@+id/slider_thickness" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="20" android:progress="2" android:thumbTint="@color/brand_primary" android:progressTint="@color/brand_primary" />
+                <TextView android:id="@+id/txt_thickness_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="2" android:gravity="end" android:textColor="@color/text_primary" android:textStyle="bold" />
             </LinearLayout>
 
             <!-- No Frame Toggle -->
-            <CheckBox android:id="@+id/chk_no_frame" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No Frame (image only)" android:textColor="#666666" android:layout_marginBottom="16dp" android:buttonTint="#1e3c72" />
+            <CheckBox android:id="@+id/chk_no_frame" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/no_frame" android:textColor="@color/text_secondary" android:layout_marginBottom="16dp" android:buttonTint="@color/brand_primary" />
 
             <!-- Frame Color -->
             <LinearLayout android:id="@+id/layout_frame_color" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Frame Color" android:textColor="#666666" />
-                <View android:id="@+id/view_frame_color_indicator" android:layout_width="24dp" android:layout_height="24dp" android:background="#000000" android:layout_marginEnd="12dp" />
-                <Button android:id="@+id/btn_change_frame_color" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Change" style="?attr/materialButtonOutlinedStyle" />
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="@string/frame_color" android:textColor="@color/text_secondary" />
+                <View android:id="@+id/view_frame_color_indicator" android:layout_width="24dp" android:layout_height="24dp" android:background="@color/surface_card_nested" android:layout_marginEnd="12dp" />
+                <Button android:id="@+id/btn_change_frame_color" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/change" style="?attr/materialButtonOutlinedStyle" />
             </LinearLayout>
 
             <!-- X Position Slider -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="16dp">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Move X" android:textColor="#666666" />
-                <SeekBar android:id="@+id/slider_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="200" android:progress="100" />
-                <TextView android:id="@+id/txt_x_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="0" android:gravity="end" android:textColor="#333333" android:textStyle="bold" />
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="@string/move_x" android:textColor="@color/text_secondary" />
+                <SeekBar android:id="@+id/slider_x" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="200" android:progress="100" android:thumbTint="@color/brand_primary" android:progressTint="@color/brand_primary" />
+                <TextView android:id="@+id/txt_x_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="0" android:gravity="end" android:textColor="@color/text_primary" android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Y Position Slider -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="Move Y" android:textColor="#666666" />
-                <SeekBar android:id="@+id/slider_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="200" android:progress="100" />
-                <TextView android:id="@+id/txt_y_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="0" android:gravity="end" android:textColor="#333333" android:textStyle="bold" />
+                <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="@string/move_y" android:textColor="@color/text_secondary" />
+                <SeekBar android:id="@+id/slider_y" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_weight="1" android:max="200" android:progress="100" android:thumbTint="@color/brand_primary" android:progressTint="@color/brand_primary" />
+                <TextView android:id="@+id/txt_y_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="0" android:gravity="end" android:textColor="@color/text_primary" android:textStyle="bold" />
             </LinearLayout>
 
         </LinearLayout>

@@ -20,7 +20,7 @@
 
         <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" />
 
-        <Button android:id="@+id/btnAddItem" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="+ Add Item" android:textColor="#1a237e" />
+        <Button android:id="@+id/btnAddItem" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/add_item" android:textColor="#1a237e" />
     </LinearLayout>
 
 </LinearLayout>

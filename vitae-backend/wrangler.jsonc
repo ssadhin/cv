@@ -1,0 +1,15 @@
+{
+  "name": "vitae-backend",
+  "main": "src/index.js",
+  "compatibility_date": "2025-01-01",
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "vitae-db",
+      "database_id": "8e04b882-c467-48c6-b229-e584a53ab05c"
+    }
+  ]
+}

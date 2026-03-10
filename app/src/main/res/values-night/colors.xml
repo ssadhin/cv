@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Semantic Colors (Dark Theme) -->
+    <color name="bg_primary">#121212</color>
+    <color name="bg_card">#1E1E1E</color>
+    <color name="bg_button">#2C2C2E</color>
+    <color name="bg_button_pressed">#3A3A3C</color>
+    <color name="text_primary">#F5F5F7</color>
+    <color name="text_secondary">#D1D5DB</color>
+
+    <!-- Header / Brand Colors -->
+    <color name="bg_header">#121212</color>
+    <color name="divider_color">#2C2C2E</color>
+
+    <!-- Common Accents (Adjusted for Dark Mode readability) -->
+    <color name="accent_blue">#60A5FA</color>
+    <color name="accent_blue_bg">#1E3A8A</color>
+    <color name="accent_red">#F87171</color>
+    <color name="accent_red_bg">#3D1E1E</color>
+    <color name="accent_green">#34D399</color>
+    <color name="accent_green_bg">#064E3B</color>
+    <color name="accent_yellow">#FBBF24</color>
+    <color name="accent_yellow_bg">#451A03</color>
+
+    <!-- Semantic Surface Colors (Dark) -->
+    <color name="surface_purple">#2A2433</color>
+    <color name="surface_lavender">#27242C</color>
+    <color name="surface_pink">#2D2428</color>
+    <color name="surface_gray">#232224</color>
+    <color name="surface_sub_card">#1E1E1E</color>
+    <color name="text_on_brand_bg">#E0E0E0</color>
+    <color name="tier_bg">#2A2433</color>
+    <color name="tier_text">#B5A8D5</color>
+
+    <color name="surface_dialog">#1C1C1E</color>
+    <color name="surface_card_nested">#2C2C2E</color>
+    <color name="divider_color_new">#3A3A3C</color>
+</resources>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/bg_primary" tools:context=".SettingsActivity">
+
+    <!-- Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/settingsHeader" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="32dp" android:paddingBottom="16dp" app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="16dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_chevron_left" android:padding="12dp" android:scaleType="fitCenter" app:tint="@color/text_primary" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/settings_title" android:textColor="@color/text_primary" android:textSize="20sp" android:textStyle="bold" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton android:id="@+id/btnMenu" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginEnd="16dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_more" android:padding="12dp" android:scaleType="fitCenter" app:tint="@color/text_primary" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:clipToPadding="false" android:paddingBottom="40dp" app:layout_constraintTop_toBottomOf="@id/settingsHeader" app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+
+            <!-- Profile Section -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:layout_marginBottom="32dp">
+
+                <FrameLayout android:layout_width="100dp" android:layout_height="100dp" android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivSettingsProfile" android:layout_width="100dp" android:layout_height="100dp" android:src="@drawable/cv" android:scaleType="centerCrop" app:shapeAppearanceOverlay="@style/CircleAppearance" />
+                </FrameLayout>
+
+                <TextView android:id="@+id/tvSettingsName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/guest_user" android:textColor="@color/text_primary" android:textSize="22sp" android:textStyle="bold" android:layout_marginBottom="8dp" />
+
+                <TextView android:id="@+id/tvSettingsTier" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/not_logged_in" android:textColor="#8B7BB5" android:textSize="14sp" android:textStyle="bold" android:paddingHorizontal="16dp" android:paddingVertical="6dp" android:background="@drawable/rounded_corner" android:backgroundTint="@color/surface_gray" />
+            </LinearLayout>
+
+            <!-- General Preferences -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/general_preferences" android:textColor="@color/text_secondary" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.05" android:layout_marginBottom="12dp" android:layout_marginStart="8dp" />
+
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="@color/bg_card" app:cardCornerRadius="20dp" app:cardElevation="0dp" android:layout_marginBottom="24dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="8dp">
+
+                    <!-- Language Row -->
+                    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/itemLanguage" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:background="?attr/selectableItemBackground">
+
+                        <View android:id="@+id/iconBgLang" android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/rounded_corner" android:backgroundTint="@color/surface_purple" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_globe" app:tint="#A079B1" app:layout_constraintTop_toTopOf="@id/iconBgLang" app:layout_constraintBottom_toBottomOf="@id/iconBgLang" app:layout_constraintStart_toStartOf="@id/iconBgLang" app:layout_constraintEnd_toEndOf="@id/iconBgLang" />
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="16dp" app:layout_constraintStart_toEndOf="@id/iconBgLang" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@id/tvLangValue">
+
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/language" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/select_language" android:textColor="@color/text_secondary" android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <TextView android:id="@+id/tvLangValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/english_us" android:textColor="@color/text_secondary" android:textSize="14sp" android:layout_marginEnd="8dp" app:layout_constraintEnd_toStartOf="@id/ivChevronLang" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+
+                        <ImageView android:id="@+id/ivChevronLang" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <!-- Theme Row -->
+                    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/itemTheme" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:layout_marginTop="4dp" android:background="?attr/selectableItemBackground">
+
+                        <View android:id="@+id/iconBgTheme" android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/rounded_corner" android:backgroundTint="@color/surface_lavender" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_palette" app:tint="#937B9C" app:layout_constraintTop_toTopOf="@id/iconBgTheme" app:layout_constraintBottom_toBottomOf="@id/iconBgTheme" app:layout_constraintStart_toStartOf="@id/iconBgTheme" app:layout_constraintEnd_toEndOf="@id/iconBgTheme" />
+
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="16dp" app:layout_constraintStart_toEndOf="@id/iconBgTheme" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@id/switchTheme">
+
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/theme" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/switch_dark_mode" android:textColor="@color/text_secondary" android:textSize="14sp" />
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/switchTheme" android:layout_width="wrap_content" android:layout_height="wrap_content" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Membership -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/membership" android:textColor="@color/text_secondary" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.05" android:layout_marginBottom="12dp" android:layout_marginStart="8dp" />
+
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="@color/bg_card" app:cardCornerRadius="20dp" app:cardElevation="0dp" android:layout_marginBottom="24dp">
+
+                <!-- Subscription Row -->
+                <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/itemSubscription" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="20dp" android:background="?attr/selectableItemBackground">
+
+                    <View android:id="@+id/iconBgSub" android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/rounded_corner" android:backgroundTint="@color/surface_pink" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_star" app:tint="#87588B" app:layout_constraintTop_toTopOf="@id/iconBgSub" app:layout_constraintBottom_toBottomOf="@id/iconBgSub" app:layout_constraintStart_toStartOf="@id/iconBgSub" app:layout_constraintEnd_toEndOf="@id/iconBgSub" />
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="16dp" app:layout_constraintStart_toEndOf="@id/iconBgSub" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@id/ivChevronSub">
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/subscription" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                        <TextView android:id="@+id/tvSettingsSubDesc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/not_active" android:textColor="@color/text_secondary" android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <ImageView android:id="@+id/ivChevronSub" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Application -->
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/application" android:textColor="@color/text_secondary" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.05" android:layout_marginBottom="12dp" android:layout_marginStart="8dp" />
+
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardBackgroundColor="@color/bg_card" app:cardCornerRadius="20dp" app:cardElevation="0dp" android:layout_marginBottom="40dp">
+
+                <!-- About Row -->
+                <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/itemAbout" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="20dp" android:background="?attr/selectableItemBackground">
+
+                    <View android:id="@+id/iconBgAbout" android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/rounded_corner" android:backgroundTint="@color/surface_gray" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_info" app:tint="#886498" app:layout_constraintTop_toTopOf="@id/iconBgAbout" app:layout_constraintBottom_toBottomOf="@id/iconBgAbout" app:layout_constraintStart_toStartOf="@id/iconBgAbout" app:layout_constraintEnd_toEndOf="@id/iconBgAbout" />
+
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="16dp" app:layout_constraintStart_toEndOf="@id/iconBgAbout" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@id/ivChevronAbout">
+
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/about" android:textColor="@color/text_primary" android:textSize="16sp" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/version_text" android:textColor="@color/text_secondary" android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <ImageView android:id="@+id/ivChevronAbout" android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_chevron_right" app:tint="@color/text_secondary" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+
+            <!-- Dynamic Login/Log Out Button -->
+            <LinearLayout android:id="@+id/btnAuthAction" android:layout_width="match_parent" android:layout_height="60dp" android:background="@drawable/rounded_corner" android:backgroundTint="@color/accent_red_bg" android:gravity="center" android:orientation="horizontal" android:clickable="true" android:focusable="true">
+
+                <ImageView android:id="@+id/ivAuthIcon" android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_menu_close_clear_cancel" app:tint="@color/accent_red" android:layout_marginEnd="12dp" />
+
+                <TextView android:id="@+id/tvAuthText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/log_out" android:textColor="@color/accent_red" android:textSize="16sp" android:textStyle="bold" android:letterSpacing="0.05" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

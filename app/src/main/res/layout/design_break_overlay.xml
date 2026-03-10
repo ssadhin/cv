@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/break_overlay" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#DD000000" android:clickable="true" android:focusable="true" android:visibility="gone">
+
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/take_a_break" android:textColor="#FFFFFF" android:textSize="32sp" android:textStyle="bold" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/ad_rest_msg" android:textColor="#BBBBBB" android:textSize="16sp" />
+
+        <ProgressBar android:layout_width="48dp" android:layout_height="48dp" android:layout_marginTop="24dp" android:indeterminateTint="#FFFFFF" />
+
+        <TextView android:id="@+id/tv_ad_block_msg" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:gravity="center" android:paddingHorizontal="32dp" android:text="@string/ad_block_msg" android:textColor="#FF5252" android:textSize="14sp" android:textStyle="bold" android:visibility="gone" />
+
+    </LinearLayout>
+
+    <ImageButton android:id="@+id/btn_close_break" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginTop="32dp" android:layout_marginEnd="32dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_close_clear_cancel" android:visibility="invisible" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:tint="#FFFFFF" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.asanistudiobd.vitae" />
+                  <option name="mobileSdkAppId" value="1:279857990557:android:3a9e559f45b8b9efb5fd74" />
+                  <option name="projectId" value="vitae-254b2" />
+                  <option name="projectNumber" value="279857990557" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

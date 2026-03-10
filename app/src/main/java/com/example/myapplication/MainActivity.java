@@ -99,6 +99,7 @@ import androidx.core.view.WindowInsetsCompat;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
+import android.provider.Settings;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -108,18 +109,42 @@ import android.os.Handler;
 import android.os.Build;
 import android.view.ViewAnimationUtils;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity implements ColorPickerDialogListener {
 
+    private final OkHttpClient httpClient = new OkHttpClient();
+    private static final String API_BASE_URL = "https://vitae-backend.asanistudiobangladesh.workers.dev";
+    
     private View currentFrameSettingsView;
     private WebView myWebView;
     private boolean isNativeEditing = false;
 
     // Slide Mode State
     private final Handler nativeSlideHandler = new Handler(android.os.Looper.getMainLooper());
+    private boolean isOnlineMode = false;
 
     // Original Buttons
     private View addFab, undoFab, redoFab, editFab, printFab;
@@ -129,6 +154,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private ValueCallback<Uri[]> mUploadMessage;
     private ActivityResultLauncher<String> mGetContent;
     private ActivityResultLauncher<Intent> mSignatureResultLauncher;
+    private ActivityResultLauncher<String> mReviewImagePicker;
+    private final List<String> currentSelectedBase64Images = new ArrayList<>();
 
     private SidePanelHelper leftPanel;
     private SidePanelHelper rightPanel;
@@ -249,6 +276,11 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private String currentColorRequestType = "";
     private String currentHighlightColor = "#FFF176"; // Default yellow highlight color
     
+    // Template Panel State
+    private int userTemplatesColumnCount = 2;
+    private int templateSortMode = 0; // 0 = Time (Recent), 1 = Alphabetical
+    private String currentTemplateTagFilter = null;
+    
     private boolean isPickingIconImage = false;
     private boolean isPickingContactIcon = false;
     private String currentIconSectionId = "";
@@ -279,10 +311,20 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private View infoContent;
     private View btnTemplateInfoMinimized;
     
+    // Monetization
+    private UserTierManager tierManager;
+    private InterstitialAd mInterstitialAd;
+    private RewardedAd mRewardedAd;
+    private final Handler breakTimerHandler = new Handler();
+    private Runnable breakTimerRunnable;
+    private View breakOverlay;
+    private View btnCloseBreak;
+    
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ThemeManager.applyTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
@@ -307,12 +349,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             }
         }
         updateTitleDisplay(); // Initial update
-        
+
         View rootView = findViewById(R.id.root_container);
-        ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
-            adjustButtonMargins();
-            return insets;
-        });
+        if (rootView != null) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+                adjustButtonMargins();
+                return insets;
+            });
+        }
         
         setupResultLaunchers();
         setupWebView();
@@ -504,6 +548,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         // ATS Badge
         atsBadge = findViewById(R.id.ats_badge);
         atsBadgeScore = findViewById(R.id.ats_badge_score);
+
+        initMonetizationInEditor();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new UserTierManager(this).syncUserToCloud();
     }
 
     private void setupActionPanels() {
@@ -520,11 +572,11 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         btnHighlight = findViewById(R.id.btn_highlight);
         
         // Setup Formatting Listeners (Static)
-        setupPanelButton(btnBold, "Bold", android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('bold');", null));
-        setupPanelButton(btnItalic, "Italic", android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('italic');", null));
-        setupPanelButton(btnUnderline, "Underline", android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('underline');", null));
-        setupPanelButton(btnStrike, "Strike", android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('strikethrough');", null));
-        setupPanelButton(btnHighlight, "Highlight", android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('hiliteColor', false, 'yellow');", null));
+        setupPanelButton(btnBold, getString(R.string.toolbar_bold), android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('bold');", null));
+        setupPanelButton(btnItalic, getString(R.string.toolbar_italic), android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('italic');", null));
+        setupPanelButton(btnUnderline, getString(R.string.toolbar_underline), android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('underline');", null));
+        setupPanelButton(btnStrike, getString(R.string.toolbar_strike), android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('strikethrough');", null));
+        setupPanelButton(btnHighlight, getString(R.string.toolbar_highlight), android.R.drawable.ic_menu_edit, v -> myWebView.evaluateJavascript("document.execCommand('hiliteColor', false, 'yellow');", null));
 
         // Generic Buttons
         btnAdd = findViewById(R.id.btn_add);
@@ -558,11 +610,11 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             case "text_selection": // Text Formatting selection
             groupFormatting.setVisibility(View.VISIBLE);
             
-            setupPanelButton(btnBold, "Bold", R.drawable.ic_format_bold, v -> myWebView.evaluateJavascript("document.execCommand('bold', false, null); triggerAutoSave();", null));
-            setupPanelButton(btnItalic, "Italic", R.drawable.ic_format_italic, v -> myWebView.evaluateJavascript("document.execCommand('italic', false, null); triggerAutoSave();", null));
-            setupPanelButton(btnUnderline, "Underline", R.drawable.ic_format_underlined, v -> myWebView.evaluateJavascript("document.execCommand('underline', false, null); triggerAutoSave();", null));
-            setupPanelButton(btnStrike, "Strike", R.drawable.ic_format_strikethrough, v -> myWebView.evaluateJavascript("document.execCommand('strikeThrough', false, null); triggerAutoSave();", null));
-            setupPanelButton(btnHighlight, "Highlight", R.drawable.ic_highlight, v -> myWebView.evaluateJavascript("toggleHighlight(); triggerAutoSave();", null));
+            setupPanelButton(btnBold, getString(R.string.toolbar_bold), R.drawable.ic_format_bold, v -> myWebView.evaluateJavascript("document.execCommand('bold', false, null); triggerAutoSave();", null));
+            setupPanelButton(btnItalic, getString(R.string.toolbar_italic), R.drawable.ic_format_italic, v -> myWebView.evaluateJavascript("document.execCommand('italic', false, null); triggerAutoSave();", null));
+            setupPanelButton(btnUnderline, getString(R.string.toolbar_underline), R.drawable.ic_format_underlined, v -> myWebView.evaluateJavascript("document.execCommand('underline', false, null); triggerAutoSave();", null));
+            setupPanelButton(btnStrike, getString(R.string.toolbar_strike), R.drawable.ic_format_strikethrough, v -> myWebView.evaluateJavascript("document.execCommand('strikeThrough', false, null); triggerAutoSave();", null));
+            setupPanelButton(btnHighlight, getString(R.string.toolbar_highlight), R.drawable.ic_highlight, v -> myWebView.evaluateJavascript("toggleHighlight(); triggerAutoSave();", null));
             
             // Add long-press listener for custom highlight color selection
             btnHighlight.setOnLongClickListener(v -> {
@@ -595,10 +647,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 btnDown.setVisibility(View.VISIBLE);
                 btnDelete.setVisibility(View.VISIBLE);
                 
-                setupPanelButton(btnAdd, "Add", R.drawable.ic_add, v -> myWebView.evaluateJavascript("console.log('Add button clicked'); if(currentEditableElement) { console.log('currentEditableElement:', currentEditableElement.tagName, currentEditableElement.className); let ul = currentEditableElement.querySelector('ul.resp-list'); if(!ul) ul = currentEditableElement.closest('ul.resp-list'); console.log('Found ul.resp-list:', ul); if(ul) { const li = document.createElement('li'); li.contentEditable = true; li.textContent = 'New bullet point...'; li.onclick = (e) => { e.stopPropagation(); currentEditableElement = li; if(window.Android) Android.showToolbar('item'); }; ul.appendChild(li); console.log('New bullet added to ul'); li.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); triggerAutoSave(); } else { console.log('No ul.resp-list found'); } } else { console.log('No currentEditableElement'); }", null));
-                setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.tagName === currentEditableElement.tagName) { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
-                setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.tagName === currentEditableElement.tagName) { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
-                setupPanelButton(btnDelete, "Delete", R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
+                setupPanelButton(btnAdd, getString(R.string.toolbar_add), R.drawable.ic_add, v -> myWebView.evaluateJavascript("console.log('Add button clicked'); if(currentEditableElement) { console.log('currentEditableElement:', currentEditableElement.tagName, currentEditableElement.className); let ul = currentEditableElement.querySelector('ul.resp-list'); if(!ul) ul = currentEditableElement.closest('ul.resp-list'); console.log('Found ul.resp-list:', ul); if(ul) { const li = document.createElement('li'); li.contentEditable = true; li.textContent = '" + getString(R.string.new_bullet_placeholder) + "'; li.onclick = (e) => { e.stopPropagation(); currentEditableElement = li; if(window.Android) Android.showToolbar('item'); }; ul.appendChild(li); console.log('New bullet added to ul'); li.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); triggerAutoSave(); } else { console.log('No ul.resp-list found'); } } else { console.log('No currentEditableElement'); }", null));
+                setupPanelButton(btnUp, getString(R.string.toolbar_up), R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.tagName === currentEditableElement.tagName) { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
+                setupPanelButton(btnDown, getString(R.string.toolbar_down), R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.tagName === currentEditableElement.tagName) { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
+                setupPanelButton(btnDelete, getString(R.string.toolbar_delete), R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
                 break;
                 
             case "default": // Up, Down, Delete (for subsection items)
@@ -609,9 +661,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 setupNativeSlideMode(btnUp, "up");
                 setupNativeSlideMode(btnDown, "down");
                 
-                setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.classList && (prev.classList.contains('data-table-item') || prev.classList.contains('skill-group') || prev.classList.contains('simple-list-item') || prev.classList.contains('pd-row'))) { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
-                setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.classList && (next.classList.contains('data-table-item') || next.classList.contains('skill-group') || next.classList.contains('simple-list-item') || next.classList.contains('pd-row'))) { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
-                setupPanelButton(btnDelete, "Delete", R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('Delete this item?')) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
+                setupPanelButton(btnUp, getString(R.string.toolbar_up), R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.classList && (prev.classList.contains('data-table-item') || prev.classList.contains('skill-group') || prev.classList.contains('simple-list-item') || prev.classList.contains('pd-row'))) { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
+                setupPanelButton(btnDown, getString(R.string.toolbar_down), R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.classList && (next.classList.contains('data-table-item') || next.classList.contains('skill-group') || next.classList.contains('simple-list-item') || next.classList.contains('pd-row'))) { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
+                setupPanelButton(btnDelete, getString(R.string.toolbar_delete), R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('" + getString(R.string.confirm_delete_item) + "')) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
                 break;
                 
             case "section": // Add, Copy, Edit, Swap, Up, Down, Delete
@@ -626,10 +678,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 setupNativeSlideMode(btnUp, "up");
                 setupNativeSlideMode(btnDown, "down");
                 
-                setupPanelButton(btnAdd, "Add", R.drawable.ic_add, v -> myWebView.evaluateJavascript("console.log('WEB_DEBUG: Native Add Button Clicked'); if(currentEditableElement) { console.log('WEB_DEBUG: Calling addItemToSection for ' + currentEditableElement.dataset.type); addItemToSection(currentEditableElement); removeToolbar(); triggerAutoSave(); } else { console.error('WEB_DEBUG: No currentEditableElement'); }", null));
-                setupPanelButton(btnCopy, "Copy", R.drawable.copy, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; let clone = section.cloneNode(true); let baseId = section.id.replace(/-\\d+$/, ''); let num = 1; while(document.getElementById(baseId + '-' + num)) num++; clone.id = baseId + '-' + num; section.parentNode.insertBefore(clone, section.nextSibling); triggerAutoSave(); const h2 = clone.querySelector('h2'); if(h2) { h2.onclick = (e) => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }; }; if(typeof enableFreeDrag === 'function') enableFreeDrag(clone); clone.querySelectorAll('.data-table-item, .simple-list-item, .skill-group, .pd-row').forEach(item => { item.onclick = (e) => { e.stopPropagation(); currentEditableElement = item; if(window.Android) Android.showToolbar('default'); }; }); clone.querySelectorAll('li').forEach(li => { li.onclick = (e) => { e.stopPropagation(); currentEditableElement = li; if(window.Android) Android.showToolbar('item'); }; }); clone.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }, 200); }", null));
-                setupPanelButton(btnEdit, "Edit", R.drawable.edit, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const sec = currentEditableElement; if(sec.dataset.editing === 'true') { sec.removeAttribute('data-editing'); sec.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = false); const h2 = sec.querySelector('h2'); if(h2) { h2.querySelectorAll('.section-icon-upload-btn, .section-gear-btn').forEach(b => b.remove()); } sec.querySelectorAll('.section-icon-file-input').forEach(i => i.remove()); triggerAutoSave(); } else { sec.dataset.editing = 'true'; sec.querySelectorAll('.table-val, .table-label, .pd-val, .pd-label, .exp-role, .skill-header, .skill-sub, .proj-desc, span:not(.table-label):not(.pd-label), .simple-list-item').forEach(el => el.contentEditable = true); const h2 = sec.querySelector('h2'); if(h2) { h2.contentEditable = true; } } const isEditing = sec.dataset.editing === 'true'; if(window.Android) Android.updateEditButton(isEditing, sec.id); }", null));
-                setupPanelButton(btnSwap, "Swap", R.drawable.swap, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; const p = section.closest('.left-column') ? document.getElementById('leftCol') : document.getElementById('rightCol'); const t = p.id === 'leftCol' ? document.getElementById('rightCol') : document.getElementById('leftCol'); t.appendChild(section); section.style.transform = 'translateY(0)'; removeToolbar(); triggerAutoSave(); }", null));
+                setupPanelButton(btnAdd, getString(R.string.toolbar_add), R.drawable.ic_add, v -> myWebView.evaluateJavascript("console.log('WEB_DEBUG: Native Add Button Clicked'); if(currentEditableElement) { console.log('WEB_DEBUG: Calling addItemToSection for ' + currentEditableElement.dataset.type); addItemToSection(currentEditableElement); removeToolbar(); triggerAutoSave(); } else { console.error('WEB_DEBUG: No currentEditableElement'); }", null));
+                setupPanelButton(btnCopy, getString(R.string.toolbar_copy), R.drawable.copy, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; let clone = section.cloneNode(true); let baseId = section.id.replace(/-\\d+$/, ''); let num = 1; while(document.getElementById(baseId + '-' + num)) num++; clone.id = baseId + '-' + num; section.parentNode.insertBefore(clone, section.nextSibling); triggerAutoSave(); const h2 = clone.querySelector('h2'); if(h2) { h2.onclick = (e) => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }; }; if(typeof enableFreeDrag === 'function') enableFreeDrag(clone); clone.querySelectorAll('.data-table-item, .simple-list-item, .skill-group, .pd-row').forEach(item => { item.onclick = (e) => { e.stopPropagation(); currentEditableElement = item; if(window.Android) Android.showToolbar('default'); }; }); clone.querySelectorAll('li').forEach(li => { li.onclick = (e) => { e.stopPropagation(); currentEditableElement = li; if(window.Android) Android.showToolbar('item'); }; }); clone.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { currentEditableElement = clone; if(window.Android) Android.showToolbar('section'); }, 200); }", null));
+                setupPanelButton(btnEdit, getString(R.string.toolbar_edit), R.drawable.edit, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const sec = currentEditableElement; if(sec.dataset.editing === 'true') { sec.removeAttribute('data-editing'); sec.querySelectorAll('[contenteditable]').forEach(el => el.contentEditable = false); const h2 = sec.querySelector('h2'); if(h2) { h2.querySelectorAll('.section-icon-upload-btn, .section-gear-btn').forEach(b => b.remove()); } sec.querySelectorAll('.section-icon-file-input').forEach(i => i.remove()); triggerAutoSave(); } else { sec.dataset.editing = 'true'; sec.querySelectorAll('.table-val, .table-label, .pd-val, .pd-label, .exp-role, .skill-header, .skill-sub, .proj-desc, span:not(.table-label):not(.pd-label), .simple-list-item').forEach(el => el.contentEditable = true); const h2 = sec.querySelector('h2'); if(h2) { h2.contentEditable = true; } } const isEditing = sec.dataset.editing === 'true'; if(window.Android) Android.updateEditButton(isEditing, sec.id); }", null));
+                setupPanelButton(btnSwap, getString(R.string.toolbar_swap), R.drawable.swap, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const section = currentEditableElement; const p = section.closest('.left-column') ? document.getElementById('leftCol') : document.getElementById('rightCol'); const t = p.id === 'leftCol' ? document.getElementById('rightCol') : document.getElementById('leftCol'); t.appendChild(section); section.style.transform = 'translateY(0)'; removeToolbar(); triggerAutoSave(); }", null));
                 
                 // LONG PRESS SWAP for full width (Sections)
                 btnSwap.setOnLongClickListener(v -> {
@@ -637,9 +689,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     return true;
                 });
 
-                setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { let prev = currentEditableElement.previousElementSibling; while(prev && prev.tagName === 'SECTION' && prev.dataset.layer) { prev = prev.previousElementSibling; } if(prev && prev.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.style.marginTop = ''; currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
-                setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { let next = currentEditableElement.nextElementSibling; while(next && next.tagName === 'SECTION' && next.dataset.layer) { next = next.nextElementSibling; } if(next && next.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
-                setupPanelButton(btnDelete, "Delete", R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('Delete this section?')) { const targetId = currentEditableElement.id; currentEditableElement.remove(); document.querySelectorAll('#global-ui-overlay [data-target-id=\"' + targetId + '\"]').forEach(el => el.remove()); triggerAutoSave(); removeToolbar(); }", null));
+                setupPanelButton(btnUp, getString(R.string.toolbar_up), R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { let prev = currentEditableElement.previousElementSibling; while(prev && prev.tagName === 'SECTION' && prev.dataset.layer) { prev = prev.previousElementSibling; } if(prev && prev.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); currentEditableElement.style.marginTop = ''; currentEditableElement.classList.add('item-slide-from-below'); prev.classList.add('item-slide-from-above'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-below'); prev.classList.remove('item-slide-from-above'); }, 300); triggerAutoSave(); }}", null));
+                setupPanelButton(btnDown, getString(R.string.toolbar_down), R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { let next = currentEditableElement.nextElementSibling; while(next && next.tagName === 'SECTION' && next.dataset.layer) { next = next.nextElementSibling; } if(next && next.tagName === 'SECTION') { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); currentEditableElement.classList.add('item-slide-from-above'); next.classList.add('item-slide-from-below'); setTimeout(() => { currentEditableElement.classList.remove('item-slide-from-above'); next.classList.remove('item-slide-from-below'); }, 300); triggerAutoSave(); }}", null));
+                setupPanelButton(btnDelete, getString(R.string.toolbar_delete), R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('" + getString(R.string.confirm_delete_section) + "')) { const targetId = currentEditableElement.id; currentEditableElement.remove(); document.querySelectorAll('#global-ui-overlay [data-target-id=\"' + targetId + '\"]').forEach(el => el.remove()); triggerAutoSave(); removeToolbar(); }", null));
                 break;
                 
             case "header": // Swap, Up, Down, Copy, Delete
@@ -649,7 +701,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 btnCopy.setVisibility(View.VISIBLE);
                 btnDelete.setVisibility(View.VISIBLE);
                 
-                setupPanelButton(btnSwap, "Swap", R.drawable.swap, v -> myWebView.evaluateJavascript("if(currentEditableElement) { swapHeaderItemColumn(currentEditableElement); }", null));
+                setupPanelButton(btnSwap, getString(R.string.toolbar_swap), R.drawable.swap, v -> myWebView.evaluateJavascript("if(currentEditableElement) { swapHeaderItemColumn(currentEditableElement); }", null));
                 
                 // LONG PRESS SWAP for full width (Header Items)
                 btnSwap.setOnLongClickListener(v -> {
@@ -657,10 +709,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     return true;
                 });
 
-                setupPanelButton(btnUp, "Up", R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.classList.contains('contact-item')) { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); triggerAutoSave(); }}", null));
-                setupPanelButton(btnDown, "Down", R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.classList.contains('contact-item')) { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); triggerAutoSave(); }}", null));
-                setupPanelButton(btnCopy, "Copy", R.drawable.copy, v -> myWebView.evaluateJavascript("duplicateHeaderItem();", null));
-                setupPanelButton(btnDelete, "Delete", R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('Delete this item?')) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
+                setupPanelButton(btnUp, getString(R.string.toolbar_up), R.drawable.up, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const prev = currentEditableElement.previousElementSibling; if(prev && prev.classList.contains('contact-item')) { currentEditableElement.parentNode.insertBefore(currentEditableElement, prev); triggerAutoSave(); }}", null));
+                setupPanelButton(btnDown, getString(R.string.toolbar_down), R.drawable.down, v -> myWebView.evaluateJavascript("if(currentEditableElement) { const next = currentEditableElement.nextElementSibling; if(next && next.classList.contains('contact-item')) { currentEditableElement.parentNode.insertBefore(next, currentEditableElement); triggerAutoSave(); }}", null));
+                setupPanelButton(btnCopy, getString(R.string.toolbar_copy), R.drawable.copy, v -> myWebView.evaluateJavascript("duplicateHeaderItem();", null));
+                setupPanelButton(btnDelete, getString(R.string.toolbar_delete), R.drawable.delete, v -> myWebView.evaluateJavascript("if(currentEditableElement && confirm('" + getString(R.string.confirm_delete_item) + "')) { currentEditableElement.remove(); triggerAutoSave(); removeToolbar(); }", null));
                 break;
                 
 
@@ -1581,6 +1633,67 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     }
                 }
         );
+
+        mReviewImagePicker = registerForActivityResult(
+                new ActivityResultContracts.GetMultipleContents(),
+                uris -> {
+                    if (uris != null && !uris.isEmpty()) {
+                        currentSelectedBase64Images.clear();
+                        for (Uri uri : uris) {
+                            String base64 = encodeImageToBase64(uri);
+                            if (base64 != null) {
+                                currentSelectedBase64Images.add(base64);
+                            }
+                        }
+                        Toast.makeText(this, currentSelectedBase64Images.size() + " images selected", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private String encodeImageToBase64(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            if (bitmap == null) return null;
+
+            // Compress if too large
+            int maxSize = 800;
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            if (width > maxSize || height > maxSize) {
+                float ratio = (float) width / height;
+                if (width > height) {
+                    width = maxSize;
+                    height = (int) (width / ratio);
+                } else {
+                    height = maxSize;
+                    width = (int) (height * ratio);
+                }
+                bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
+            byte[] bytes = outputStream.toByteArray();
+            return Base64.encodeToString(bytes, Base64.NO_WRAP);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private List<String> parseImagesJson(String jsonStr) {
+        List<String> list = new ArrayList<>();
+        if (jsonStr == null || jsonStr.isEmpty() || jsonStr.equals("null")) return list;
+        try {
+            JSONArray arr = new JSONArray(jsonStr);
+            for (int i = 0; i < arr.length(); i++) {
+                list.add(arr.getString(i));
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Error parsing images JSON: " + jsonStr, e);
+        }
+        return list;
     }
 
     private void setupWebView() {
@@ -1597,6 +1710,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         webSettings.setDisplayZoomControls(false);
         // Inject Java Interface
         myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
+        myWebView.addJavascriptInterface(new AdminInterface(this), "AndroidAdmin");
         
         // Load HTML
         // myWebView.loadUrl("file:///android_asset/index.html"); // Moved for custom handling
@@ -1788,6 +1902,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
         myWebView.setWebChromeClient(getChromeClient());
         myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
+        myWebView.addJavascriptInterface(new AdminInterface(this), "AndroidAdmin");
         // Build URL with query params so JS can read them immediately on page load
         // (evaluateJavascript from onPageFinished arrives too late - deferredReload has already run)
         StringBuilder urlBuilder = new StringBuilder("file:///android_asset/index.html");
@@ -1817,7 +1932,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 } else if (rightPanel.getPanel().getVisibility() == View.VISIBLE) {
                     rightPanel.hidePanel();
                 }
-                createWebPrintJob(myWebView);
+                handleExportWithAds();
             });
 
             printFab.setOnLongClickListener(v -> {
@@ -1927,15 +2042,30 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         if (webView == null) {
             return;
         }
-        PrintManager printManager = (PrintManager) this.getSystemService(Context.PRINT_SERVICE);
-        PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter("MyDocument");
-        String jobName = getString(R.string.app_name) + " Print Test";
-        if (printManager != null) {
-            PrintAttributes attributes = new PrintAttributes.Builder()
-                    .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-                    .build();
-            printManager.print(jobName, printAdapter, attributes);
-        }
+
+        // Temporarily reset scale to 100% so the print adapter captures full-size content
+        webView.evaluateJavascript(
+            "document.querySelector('.resume-container').style.transform = 'scale(1)'; " +
+            "document.querySelector('.resume-container').style.width = '100%';",
+            value -> {
+                PrintManager printManager = (PrintManager) MainActivity.this.getSystemService(Context.PRINT_SERVICE);
+                PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter("MyDocument");
+                String jobName = getString(R.string.app_name) + " Print Test";
+                if (printManager != null) {
+                    PrintAttributes attributes = new PrintAttributes.Builder()
+                            .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                            .build();
+                    printManager.print(jobName, printAdapter, attributes);
+                }
+
+                // Restore original scale after print dialog opens
+                webView.postDelayed(() -> {
+                    webView.evaluateJavascript(
+                        "document.querySelector('.resume-container').style.transform = ''; " +
+                        "document.querySelector('.resume-container').style.width = '';", null);
+                }, 1000);
+            }
+        );
     }
 
     private void updateNativeUI(boolean isEditing) {
@@ -2227,7 +2357,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             name = name.replace("_", " "); // Cleaner display
             cvNameDisplay.setText(name);
         } else {
-            cvNameDisplay.setText("Untitled CV");
+            cvNameDisplay.setText(R.string.untitled_cv);
         }
     }
 
@@ -2319,12 +2449,58 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     stylesArray.put(newStyle);
                     
                     prefs.edit().putString("SavedCustomStyles", stylesArray.toString()).apply();
-                    Toast.makeText(MainActivity.this, "Style '" + styleName + "' saved!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.style_saved, styleName), Toast.LENGTH_SHORT).show();
                     
                     refreshStyleCarousel();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(MainActivity.this, "Error saving style", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, R.string.error_saving_style, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void showExtraSectionsDialog(String sectionsJson) {
+            runOnUiThread(() -> {
+                try {
+                    JSONArray sections = new JSONArray(sectionsJson);
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < sections.length(); i++) {
+                        sb.append("• ").append(sections.getString(i)).append("\n");
+                    }
+                    if (sb.length() > 0) sb.setLength(sb.length() - 1); // remove last newline
+
+                    View dialogView = getLayoutInflater().inflate(R.layout.dialog_extra_sections, null);
+                    androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this)
+                            .setView(dialogView)
+                            .create();
+
+                    if (dialog.getWindow() != null) {
+                        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                    }
+
+                    TextView tvList = dialogView.findViewById(R.id.tvSectionsList);
+                    tvList.setText(sb.toString());
+
+                    dialogView.findViewById(R.id.btnAddSections).setOnClickListener(v -> {
+                        if (myWebView != null) {
+                            myWebView.evaluateJavascript("window.onExtraSectionsConfirmed(true)", null);
+                        }
+                        dialog.dismiss();
+                    });
+
+                    dialogView.findViewById(R.id.btnSkipSections).setOnClickListener(v -> {
+                        if (myWebView != null) {
+                            myWebView.evaluateJavascript("window.onExtraSectionsConfirmed(false)", null);
+                        }
+                        dialog.dismiss();
+                    });
+
+                    dialog.show();
+                } catch (Exception e) {
+                    Log.e(TAG, "Error showing extra sections dialog", e);
+                    // Fallback to true if dialog fails
+                    if (myWebView != null) myWebView.evaluateJavascript("window.onExtraSectionsConfirmed(true)", null);
                 }
             });
         }
@@ -2345,7 +2521,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         @JavascriptInterface
         public void onColorCorruption() {
             runOnUiThread(() -> {
-                Toast.makeText(mContext, "⚠️ Color corruption detected! Auto-reverting to safe colors.", Toast.LENGTH_LONG).show();
+                Toast.makeText(mContext, R.string.color_corruption_msg, Toast.LENGTH_LONG).show();
             });
         }
 
@@ -2857,14 +3033,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         @JavascriptInterface
         public void onHeaderMenuClicked() {
             runOnUiThread(() -> {
-                android.widget.Toast.makeText(mContext, "Menu clicked!", android.widget.Toast.LENGTH_SHORT).show();
+                android.widget.Toast.makeText(mContext, R.string.menu_clicked, android.widget.Toast.LENGTH_SHORT).show();
             });
         }
 
         @JavascriptInterface
         public void onHeaderResizeClicked() {
             runOnUiThread(() -> {
-                android.widget.Toast.makeText(mContext, "Resize clicked!", android.widget.Toast.LENGTH_SHORT).show();
+                android.widget.Toast.makeText(mContext, R.string.resize_clicked, android.widget.Toast.LENGTH_SHORT).show();
             });
         }
 
@@ -2876,6 +3052,37 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         @JavascriptInterface
         public void playWaterDropAnimation() {
             MainActivity.this.playWaterDropAnimation();
+        }
+    }
+
+    public class AdminInterface {
+        Context mContext;
+
+        AdminInterface(Context c) {
+            mContext = c;
+        }
+
+        @JavascriptInterface
+        public void fetchAllUsers() {
+            FirebaseFirestore.getInstance().collection("users")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        JSONArray users = new JSONArray();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            JSONObject user = new JSONObject(document.getData());
+                            users.put(user);
+                        }
+                        String json = users.toString();
+                        runOnUiThread(() -> {
+                            if (myWebView != null) {
+                                myWebView.evaluateJavascript("if(window.onUsersFetched) window.onUsersFetched('" + json.replace("\"", "\\\"").replace("'", "\\'") + "');", null);
+                            }
+                        });
+                    } else {
+                        Log.e(TAG, "Error fetching users: ", task.getException());
+                    }
+                });
         }
     }
 
@@ -2963,13 +3170,13 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             // Set initial state
             if ("polygon".equals(shapeMode)) {
                 toggleGroup.check(R.id.btn_mode_polygon);
-                txtSliderLabel.setText("Sides");
+                txtSliderLabel.setText(R.string.sides);
                 sliderRadius.setMax(20); // Limit to 20 sides
                 if (radius < 3) sliderRadius.setProgress(3);
                 else sliderRadius.setProgress(Math.min(radius, 20));
             } else {
                 toggleGroup.check(R.id.btn_mode_smooth);
-                txtSliderLabel.setText("Radius");
+                txtSliderLabel.setText(R.string.radius);
                 sliderRadius.setMax(100); // Back to radius max
                 sliderRadius.setProgress(radius);
             }
@@ -3149,11 +3356,11 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 if (isChecked) {
                     if (checkedId == R.id.btn_mode_smooth) {
                         currentMode[0] = "smooth";
-                        txtSliderLabel.setText("Radius");
+                        txtSliderLabel.setText(R.string.radius);
                         sliderRadius.setMax(100);
                     } else if (checkedId == R.id.btn_mode_polygon) {
                         currentMode[0] = "polygon";
-                        txtSliderLabel.setText("Sides");
+                        txtSliderLabel.setText(R.string.sides);
                         sliderRadius.setMax(20);
                         if (sliderRadius.getProgress() < 3) {
                             sliderRadius.setProgress(3);
@@ -3208,15 +3415,15 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     }
 
     private String getShapeName(int sides) {
-        if (sides <= 3) return "(Triangle)";
-        if (sides == 4) return "(Diamond)";
-        if (sides == 5) return "(Pentagon)";
-        if (sides == 6) return "(Hexagon)";
-        if (sides == 7) return "(Heptagon)";
-        if (sides == 8) return "(Octagon)";
-        if (sides < 12) return "(Polygon)";
-        if (sides < 30) return "(Circle with lines)";
-        return "(Circle)";
+        if (sides <= 3) return getString(R.string.shape_triangle);
+        if (sides == 4) return getString(R.string.shape_diamond);
+        if (sides == 5) return getString(R.string.shape_pentagon);
+        if (sides == 6) return getString(R.string.shape_hexagon);
+        if (sides == 7) return getString(R.string.shape_heptagon);
+        if (sides == 8) return getString(R.string.shape_octagon);
+        if (sides < 12) return getString(R.string.shape_polygon);
+        if (sides < 30) return getString(R.string.shape_circle_lines);
+        return getString(R.string.shape_circle);
     }
 
     private void animatePanelChildren(View view) {
@@ -3340,7 +3547,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             case "languages":
             case "headerBoxSection":
             case "profileSection":
-                return "Core Essentials";
+                return getString(R.string.cat_core_essentials);
             case "education":
             case "experience":
             case "projects":
@@ -3348,7 +3555,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             case "teachingExp":
             case "internships":
             case "training":
-                return "Professional Exp";
+                return getString(R.string.cat_professional_exp);
             case "skills":
             case "testScores":
             case "awards":
@@ -3357,7 +3564,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             case "achievements":
             case "affiliations":
             case "grants":
-                return "Skills & Honors";
+                return getString(R.string.cat_skills_honors);
             case "familyDetails":
             case "partnerExpectations":
             case "astrologySection":
@@ -3365,18 +3572,18 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             case "physicalProfile":
             case "visualRegistry":
             case "activeLife":
-                return "Personal & Photos";
+                return getString(R.string.cat_personal_photos);
             case "volunteer":
             case "hobbies":
             case "extra":
             case "interests":
             case "references":
             case "weblinks":
-                return "Interests & More";
+                return getString(R.string.cat_interests_more);
             case "declarationSection":
-                return "Documentation";
+                return getString(R.string.cat_documentation);
             default:
-                return "Others";
+                return getString(R.string.cat_others);
         }
     }
 
@@ -4332,6 +4539,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private void setupWizardButton() {
         View wizardFab = findViewById(R.id.fab_wizard);
         if (wizardFab != null) {
+            wizardFab.setVisibility(View.GONE);
             wizardFab.setOnClickListener(v -> {
                 onNativePanelOpened();
                 if (myWebView != null) {
@@ -4513,6 +4721,19 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
     }
 
+    private Set<String> getKnownTemplateTags() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        return prefs.getStringSet("KnownTemplateTags", new HashSet<>());
+    }
+
+    private void saveTemplateTag(String tag) {
+        if (tag == null || tag.trim().isEmpty()) return;
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        Set<String> tags = new HashSet<>(getKnownTemplateTags());
+        tags.add(tag.trim());
+        prefs.edit().putStringSet("KnownTemplateTags", tags).apply();
+    }
+
     private void onTemplateConfirmed(String selectedSectionsJson) {
         Log.d(TAG, "Template Sections Selected: " + selectedSectionsJson);
         
@@ -4540,9 +4761,18 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
 
         EditText etName = dialogView.findViewById(R.id.et_template_name);
         EditText etEmail = dialogView.findViewById(R.id.et_template_email);
-        EditText etTag = dialogView.findViewById(R.id.et_template_tag);
+        android.widget.AutoCompleteTextView etTag = dialogView.findViewById(R.id.et_template_tag);
         Button btnSave = dialogView.findViewById(R.id.btn_confirm_save);
         Button btnCancel = dialogView.findViewById(R.id.btn_cancel_save);
+
+        // Populate AutoComplete
+        Set<String> knownTags = getKnownTemplateTags();
+        if (!knownTags.isEmpty()) {
+            List<String> tagList = new ArrayList<>(knownTags);
+            Collections.sort(tagList);
+            android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, tagList);
+            etTag.setAdapter(adapter);
+        }
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
@@ -4577,7 +4807,490 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         return base + " " + count;
     }
 
+    private static class ReviewItem {
+        String id, userId, name, score, text, status, adminReason;
+        List<String> images; // List of Base64 strings
+        ReviewItem(String id, String userId, String name, String score, String text, String status, String adminReason, List<String> images) {
+            this.id = id; this.userId = userId; this.name = name; this.score = score; this.text = text;
+            this.status = status; this.adminReason = adminReason;
+            this.images = images;
+        }
+    }
+
+    private void showTemplateReviewsDialog(String templateName, double avgRating, int ratingCount) {
+        currentSelectedBase64Images.clear(); // Reset images for new dialog session
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_template_reviews, null);
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.TransparentDialog)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        // Populate Summary Rating
+        TextView tvAvg = dialogView.findViewById(R.id.tv_avg_rating_score);
+        TextView tvCount = dialogView.findViewById(R.id.tv_rating_count);
+        if (tvAvg != null) {
+            if (ratingCount > 0) {
+                tvAvg.setText(String.format("%.1f/10", avgRating));
+                if (tvCount != null) tvCount.setText(ratingCount + " people rated");
+            } else {
+                tvAvg.setText("Unrated");
+                if (tvCount != null) tvCount.setText("Be the first to rate!");
+            }
+        }
+
+        // Rating Slider Logic
+        TextView tvYourRatingScore = dialogView.findViewById(R.id.tv_your_rating_score);
+        android.widget.SeekBar seekYourRating = dialogView.findViewById(R.id.seek_your_rating);
+        if (seekYourRating != null && tvYourRatingScore != null) {
+            seekYourRating.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(android.widget.SeekBar seekBar, int progress, boolean fromUser) {
+                    tvYourRatingScore.setText(progress + "/10");
+                }
+                @Override public void onStartTrackingTouch(android.widget.SeekBar seekBar) {}
+                @Override public void onStopTrackingTouch(android.widget.SeekBar seekBar) {}
+            });
+        }
+
+        // Mock Reviews List
+        androidx.recyclerview.widget.RecyclerView rvReviews = dialogView.findViewById(R.id.rv_template_reviews);
+        if (rvReviews != null) {
+            rvReviews.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
+            
+            // Dynamic Data List
+            List<ReviewItem> templateReviewsList = new ArrayList<>();
+
+            final androidx.recyclerview.widget.RecyclerView.Adapter[] adapterArr = new androidx.recyclerview.widget.RecyclerView.Adapter[1];
+            adapterArr[0] = new androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
+                @androidx.annotation.NonNull
+                @Override
+                public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(@androidx.annotation.NonNull android.view.ViewGroup parent, int viewType) {
+                    View view = getLayoutInflater().inflate(R.layout.item_template_review, parent, false);
+                    return new androidx.recyclerview.widget.RecyclerView.ViewHolder(view) {};
+                }
+
+                @Override
+                public void onBindViewHolder(@androidx.annotation.NonNull androidx.recyclerview.widget.RecyclerView.ViewHolder holder, int position) {
+                    ReviewItem item = templateReviewsList.get(position);
+                    
+                    TextView tvName = holder.itemView.findViewById(R.id.tv_review_username);
+                    TextView tvScore = holder.itemView.findViewById(R.id.tv_review_score);
+                    TextView tvText = holder.itemView.findViewById(R.id.tv_review_text);
+                    View layoutImages = holder.itemView.findViewById(R.id.layout_review_images);
+                    ImageView[] ivs = {
+                        holder.itemView.findViewById(R.id.iv_review_image_1),
+                        holder.itemView.findViewById(R.id.iv_review_image_2),
+                        holder.itemView.findViewById(R.id.iv_review_image_3)
+                    };
+
+                    ImageView ivAvatar = holder.itemView.findViewById(R.id.iv_review_avatar);
+                    if (tvName != null) tvName.setText(item.name);
+                    if (tvScore != null) tvScore.setText(item.score);
+                    
+                    if (item.status != null && item.status.equals("deleted_by_admin")) {
+                        if (ivAvatar != null) {
+                            ivAvatar.setImageResource(R.drawable.ic_moderated);
+                            ivAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(Color.RED));
+                        }
+                        if (tvText != null) {
+                            tvText.setText("Review removed. Reason: " + item.adminReason);
+                            tvText.setTextColor(Color.GRAY);
+                            tvText.setTypeface(null, android.graphics.Typeface.ITALIC);
+                        }
+                    } else {
+                        if (ivAvatar != null) {
+                            ivAvatar.setImageResource(R.drawable.ic_person);
+                            ivAvatar.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#999999")));
+                        }
+                        if (tvText != null) {
+                            tvText.setText(item.text);
+                            tvText.setTextColor(Color.BLACK); // Reset in case of reuse
+                            tvText.setTypeface(null, android.graphics.Typeface.NORMAL);
+                        }
+                    }
+                    
+                    // Bind images if present
+                    if (layoutImages != null && item.images != null && !item.images.isEmpty()) {
+                        layoutImages.setVisibility(View.VISIBLE);
+                        for (int i = 0; i < ivs.length; i++) {
+                            if (ivs[i] != null) {
+                                if (i < item.images.size()) {
+                                    ivs[i].setVisibility(View.VISIBLE);
+                                    String b64 = item.images.get(i);
+                                    if (b64 != null && !b64.isEmpty()) {
+                                        try {
+                                            byte[] decodedString = android.util.Base64.decode(b64, android.util.Base64.DEFAULT);
+                                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                            ivs[i].setImageBitmap(decodedByte);
+                                        } catch (Exception e) {
+                                            ivs[i].setImageResource(R.drawable.ic_image_placeholder); // Fixed fallback name
+                                        }
+                                    }
+                                } else {
+                                    ivs[i].setVisibility(View.GONE);
+                                }
+                            }
+                        }
+                    } else {
+                        if (layoutImages != null) layoutImages.setVisibility(View.GONE);
+                    }
+                    
+                    // Show actions only for own reviews AND if not moderated
+                    View layoutActions = holder.itemView.findViewById(R.id.layout_review_actions);
+                    String androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+                    if (layoutActions != null) {
+                        if (item.userId != null && item.userId.equals(androidId) && !"deleted_by_admin".equals(item.status)) {
+                            layoutActions.setVisibility(View.VISIBLE);
+                            
+                            View btnEdit = holder.itemView.findViewById(R.id.btn_edit_review);
+                            View btnDelete = holder.itemView.findViewById(R.id.btn_delete_review);
+                            
+                            if (btnEdit != null) {
+                                btnEdit.setOnClickListener(v -> {
+                                    EditText etInput = dialogView.findViewById(R.id.et_review_input);
+                                    if (etInput != null) {
+                                        etInput.setText(item.text);
+                                        etInput.requestFocus();
+                                        
+                                        // Sync SeekBar with existing score
+                                        SeekBar seekRating = dialogView.findViewById(R.id.seek_your_rating);
+                                        if (seekRating != null) {
+                                            try {
+                                                int scoreValue = Integer.parseInt(item.score.replace("/10", ""));
+                                                seekRating.setProgress(scoreValue);
+                                            } catch (Exception e) {}
+                                        }
+
+                                        // Highlight that we are editing
+                                        Toast.makeText(MainActivity.this, "Edit your review below", Toast.LENGTH_SHORT).show();
+                                        // Update submit button listener for editing
+                                        ImageButton btnSubmit = dialogView.findViewById(R.id.btn_submit_review);
+                                        if (btnSubmit != null) {
+                                            btnSubmit.setOnClickListener(vSub -> {
+                                                String newText = etInput.getText().toString().trim();
+                                                String newScore = ((TextView)dialogView.findViewById(R.id.tv_your_rating_score)).getText().toString().replace("/10", "");
+                                                editOnlineReview(item.id, androidId, newScore, newText, item, adapterArr[0]);
+                                                // Reset listener back to normal after submit
+                                                btnSubmit.setOnClickListener(vNext -> btnSubmitClick(dialogView, templateName, templateReviewsList, adapterArr[0], tvAvg, tvCount, avgRating, ratingCount));
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                            
+                            if (btnDelete != null) {
+                                btnDelete.setOnClickListener(v -> {
+                                    new AlertDialog.Builder(MainActivity.this)
+                                        .setTitle("Delete Review")
+                                        .setMessage("Are you sure you want to delete your review?")
+                                        .setPositiveButton("Delete", (d, w) -> deleteOnlineReview(item.id, androidId, item, templateReviewsList, adapterArr[0], tvAvg, tvCount, avgRating, ratingCount))
+                                        .setNegativeButton("Cancel", null)
+                                        .show();
+                                });
+                            }
+                        } else {
+                            layoutActions.setVisibility(View.GONE);
+                        }
+                    }
+                    
+                    holder.itemView.setOnClickListener(v -> showFullReviewDialog(item));
+                }
+
+                @Override
+                public int getItemCount() {
+                    return templateReviewsList.size();
+                }
+            };
+            rvReviews.setAdapter(adapterArr[0]);
+
+            if (isOnlineMode) {
+                fetchOnlineReviews(templateName, templateReviewsList, adapterArr[0]);
+            } else {
+                templateReviewsList.add(new ReviewItem(null, null, "Offline Mode", "-/10", "Template reviews can only be loaded when Online.", "active", "", null));
+                adapterArr[0].notifyDataSetChanged();
+            }
+
+            // Input Actions (inside rvReviews block so adapter & list are in scope)
+            ImageButton btnAddImage = dialogView.findViewById(R.id.btn_add_review_image);
+            ImageButton btnSubmit = dialogView.findViewById(R.id.btn_submit_review);
+            android.widget.EditText etInput = dialogView.findViewById(R.id.et_review_input);
+
+            if (btnAddImage != null) {
+                btnAddImage.setOnClickListener(v -> {
+                    currentSelectedBase64Images.clear();
+                    mReviewImagePicker.launch("image/*");
+                });
+            }
+
+            if (btnSubmit != null) {
+                btnSubmit.setOnClickListener(v -> btnSubmitClick(dialogView, templateName, templateReviewsList, adapterArr[0], tvAvg, tvCount, avgRating, ratingCount));
+            }
+        }
+
+        dialog.show();
+    }
+
+    private void btnSubmitClick(View dialogView, String templateName, List<ReviewItem> templateReviewsList, RecyclerView.Adapter adapter, TextView tvAvg, TextView tvCount, double avgRating, int ratingCount) {
+        EditText etInput = dialogView.findViewById(R.id.et_review_input);
+        TextView tvYourRatingScore = dialogView.findViewById(R.id.tv_your_rating_score);
+        String text = etInput != null ? etInput.getText().toString().trim() : "";
+        if (text.isEmpty()) {
+            Toast.makeText(this, "Please write a review", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String scoreStr = tvYourRatingScore != null ? tvYourRatingScore.getText().toString().replace("/10", "") : "5";
+        String androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        if (isOnlineMode) {
+            submitOnlineReview(templateName, scoreStr, text, androidId, new ArrayList<>(currentSelectedBase64Images), templateReviewsList, adapter, tvAvg, tvCount, avgRating, ratingCount);
+            currentSelectedBase64Images.clear(); // Clear after passing to submission method
+            Toast.makeText(this, "Submitting review...", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "You must go Online to post a review", Toast.LENGTH_SHORT).show();
+        }
+
+        if (etInput != null) {
+            etInput.setText("");
+            // Hide keyboard
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) imm.hideSoftInputFromWindow(etInput.getWindowToken(), 0);
+        }
+    }
+
+    private void fetchOnlineReviews(String templateId, List<ReviewItem> reviewsList, androidx.recyclerview.widget.RecyclerView.Adapter adapter) {
+        Request request = new Request.Builder()
+                .url(API_BASE_URL + "/api/reviews?templateId=" + templateId)
+                .build();
+
+        httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e(TAG, "Failed fetching reviews", e);
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    runOnUiThread(() -> {
+                        try {
+                            JSONObject json = new JSONObject(responseData);
+                            if (json.getBoolean("success")) {
+                                JSONArray array = json.getJSONArray("reviews");
+                                reviewsList.clear();
+                                for (int i = 0; i < array.length(); i++) {
+                                    JSONObject r = array.getJSONObject(i);
+                                    reviewsList.add(new ReviewItem(
+                                        r.optString("id"),
+                                        r.optString("user_id"),
+                                        r.optString("user_id", "Anonymous"),
+                                        r.optString("score", "?") + "/10",
+                                        r.optString("review_text", ""),
+                                        r.optString("status", "active"),
+                                        r.optString("admin_reason", ""),
+                                        parseImagesJson(r.optString("images"))
+                                    ));
+                                }
+                                adapter.notifyDataSetChanged();
+                            }
+                        } catch (JSONException e) {
+                            Log.e(TAG, "Review JSON Parse error", e);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void submitOnlineReview(String templateId, String score, String text, String userId, List<String> images,
+                                     List<ReviewItem> list, 
+                                     androidx.recyclerview.widget.RecyclerView.Adapter adapter,
+                                     TextView tvAvg, TextView tvCount, double currentAvg, int currentCount) {
+        try {
+            int newScore = Integer.parseInt(score);
+            JSONObject postData = new JSONObject();
+            postData.put("template_id", templateId);
+            postData.put("score", newScore);
+            postData.put("review_text", text);
+            postData.put("user_id", userId);
+            if (images != null && !images.isEmpty()) {
+                JSONArray imgArr = new JSONArray(images);
+                postData.put("images", imgArr);
+            }
+
+            RequestBody body = RequestBody.create(postData.toString(), MediaType.parse("application/json; charset=utf-8"));
+            Request req = new Request.Builder()
+                    .url(API_BASE_URL + "/api/reviews")
+                    .post(body)
+                    .build();
+
+            httpClient.newCall(req).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to submit review", Toast.LENGTH_SHORT).show());
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        String respStr = response.body().string();
+                        runOnUiThread(() -> {
+                            try {
+                                JSONObject respJson = new JSONObject(respStr);
+                                String newReviewId = respJson.optString("id");
+                                list.add(0, new ReviewItem(newReviewId, userId, "You", score + "/10", text, "active", "", images));
+                                adapter.notifyItemInserted(0);
+                                
+                                // Update Summary UI immediately
+                                int newCount = currentCount + 1;
+                                double newAvg = ((currentAvg * currentCount) + newScore) / newCount;
+                                
+                                if (tvAvg != null) tvAvg.setText(String.format("%.1f/10", newAvg));
+                                if (tvCount != null) tvCount.setText(newCount + " people rated");
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing submit response", e);
+                            }
+                        });
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Review submit error", e);
+        }
+    }
+
+    private void deleteOnlineReview(String reviewId, String userId, ReviewItem item, List<ReviewItem> list, RecyclerView.Adapter adapter, TextView tvAvg, TextView tvCount, double currentAvg, int currentCount) {
+        Request req = new Request.Builder()
+                .url(API_BASE_URL + "/api/reviews/" + reviewId + "?userId=" + userId)
+                .delete()
+                .build();
+
+        httpClient.newCall(req).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to delete review", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    runOnUiThread(() -> {
+                        int pos = list.indexOf(item);
+                        if (pos != -1) {
+                            list.remove(pos);
+                            adapter.notifyItemRemoved(pos);
+                            
+                            // Update Summary UI
+                            if (currentCount > 1) {
+                                int newCount = currentCount - 1;
+                                int scoreToRemove = Integer.parseInt(item.score.replace("/10", ""));
+                                double newAvg = ((currentAvg * currentCount) - scoreToRemove) / newCount;
+                                if (tvAvg != null) tvAvg.setText(String.format("%.1f/10", newAvg));
+                                if (tvCount != null) tvCount.setText(newCount + " people rated");
+                            } else {
+                                if (tvAvg != null) tvAvg.setText("Unrated");
+                                if (tvCount != null) tvCount.setText("Be the first to rate!");
+                            }
+                            Toast.makeText(MainActivity.this, "Review deleted", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void editOnlineReview(String reviewId, String userId, String score, String text, ReviewItem item, RecyclerView.Adapter adapter) {
+        try {
+            JSONObject postData = new JSONObject();
+            postData.put("user_id", userId);
+            postData.put("score", Integer.parseInt(score));
+            postData.put("review_text", text);
+
+            RequestBody body = RequestBody.create(postData.toString(), MediaType.parse("application/json; charset=utf-8"));
+            Request req = new Request.Builder()
+                    .url(API_BASE_URL + "/api/reviews/" + reviewId)
+                    .put(body)
+                    .build();
+
+            httpClient.newCall(req).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Failed to update review", Toast.LENGTH_SHORT).show());
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        runOnUiThread(() -> {
+                            item.score = score + "/10";
+                            item.text = text;
+                            adapter.notifyDataSetChanged();
+                            Toast.makeText(MainActivity.this, "Review updated", Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }
+            });
+        } catch (Exception e) {}
+    }
+
+    private void showFullReviewDialog(ReviewItem item) {
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_full_review, null);
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.TransparentDialog)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+
+        ImageButton btnClose = dialogView.findViewById(R.id.btn_close_full_review);
+        if (btnClose != null) btnClose.setOnClickListener(v -> dialog.dismiss());
+
+        TextView tvName = dialogView.findViewById(R.id.tv_full_review_username);
+        TextView tvScore = dialogView.findViewById(R.id.tv_full_review_score);
+        TextView tvText = dialogView.findViewById(R.id.tv_full_review_text);
+        
+        if (tvName != null) tvName.setText(item.name);
+        if (tvScore != null) tvScore.setText("Rating: " + item.score);
+        if (tvText != null) tvText.setText(item.text);
+
+        View layoutImages = dialogView.findViewById(R.id.layout_full_review_images);
+        ImageView[] ivs = {
+            dialogView.findViewById(R.id.iv_full_review_image_1),
+            dialogView.findViewById(R.id.iv_full_review_image_2),
+            dialogView.findViewById(R.id.iv_full_review_image_3)
+        };
+
+        if (layoutImages != null && item.images != null && !item.images.isEmpty()) {
+            layoutImages.setVisibility(View.VISIBLE);
+            for (int i = 0; i < ivs.length; i++) {
+                if (ivs[i] != null) {
+                    if (i < item.images.size()) {
+                        ivs[i].setVisibility(View.VISIBLE);
+                        String b64 = item.images.get(i);
+                        if (b64 != null && !b64.isEmpty()) {
+                            try {
+                                byte[] decodedString = android.util.Base64.decode(b64, android.util.Base64.DEFAULT);
+                                Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                ivs[i].setImageBitmap(decodedByte);
+                            } catch (Exception e) {
+                                ivs[i].setImageResource(R.drawable.ic_image_placeholder);
+                            }
+                        }
+                    } else {
+                        ivs[i].setVisibility(View.GONE);
+                    }
+                }
+            }
+        }
+
+        dialog.show();
+    }
+
     private void performTemplateSave(String json, String name, String email, String tag) {
+        if (!tierManager.canDownloadTemplate()) {
+            Toast.makeText(this, "Monthly template download limit reached. Upgrade for more!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         try {
             File dir = new File(getFilesDir(), "user_templates");
             if (!dir.exists()) dir.mkdirs();
@@ -4591,7 +5304,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 fullTemplate.put("timestamp", System.currentTimeMillis());
                 fullTemplate.put("template_name", name);
                 if (!email.isEmpty()) fullTemplate.put("user_email", email);
-                if (!tag.isEmpty()) fullTemplate.put("template_tag", tag);
+                if (!tag.isEmpty()) {
+                    fullTemplate.put("template_tag", tag);
+                    saveTemplateTag(tag); // Save to Tag Database
+                }
                 writer.write(fullTemplate.toString());
             }
             
@@ -4602,12 +5318,81 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 addPanelAdapter.notifyItemChanged(1); // Index 1 is Template tab
             }
             
+            tierManager.incrementTemplateCount();
             Toast.makeText(this, "Template '" + name + "' Saved!", Toast.LENGTH_SHORT).show();
             exitTemplateSelectionMode();
             
         } catch (Exception e) {
             Log.e(TAG, "Error performing template save", e);
             Toast.makeText(this, "Failed to save template", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void publishTemplateToCloud(File templateFile, String displayName) {
+        try {
+            // Read the template JSON from disk
+            StringBuilder sb = new StringBuilder();
+            try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(templateFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) sb.append(line);
+            }
+            String jsonString = sb.toString();
+            JSONObject templateJson = new JSONObject(jsonString);
+
+            // Extract saved metadata
+            String userId = templateJson.optString("user_email", "anonymous");
+            String tag = templateJson.optString("template_tag", "");
+
+            // Build API payload
+            JSONObject postData = new JSONObject();
+            postData.put("user_id", userId);
+            postData.put("title", displayName);
+            postData.put("content", templateJson);
+            if (!tag.isEmpty()) postData.put("tag", tag);
+
+            // Encode thumbnail as base64 if available
+            File thumbFile = new File(templateFile.getAbsolutePath().replace(".json", ".png"));
+            if (thumbFile.exists()) {
+                byte[] thumbBytes = new byte[(int) thumbFile.length()];
+                try (java.io.FileInputStream fis = new java.io.FileInputStream(thumbFile)) {
+                    fis.read(thumbBytes);
+                }
+                String thumbBase64 = Base64.encodeToString(thumbBytes, Base64.NO_WRAP);
+                postData.put("thumbnail", thumbBase64);
+            }
+
+            RequestBody httpBody = RequestBody.create(
+                postData.toString(),
+                MediaType.parse("application/json; charset=utf-8")
+            );
+
+            Request request = new Request.Builder()
+                .url(API_BASE_URL + "/api/templates")
+                .post(httpBody)
+                .build();
+
+            Toast.makeText(this, "Publishing '" + displayName + "'...", Toast.LENGTH_SHORT).show();
+
+            httpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Log.e(TAG, "Failed to publish template", e);
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Publish failed. Check your connection.", Toast.LENGTH_SHORT).show());
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "'" + displayName + "' Published to Community!", Toast.LENGTH_SHORT).show());
+                    } else {
+                        Log.e(TAG, "Publish error: " + response.code());
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, "Publish error: " + response.code(), Toast.LENGTH_SHORT).show());
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Error publishing template", e);
+            Toast.makeText(this, "Error reading template file", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -4659,8 +5444,100 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         GridLayout container = root.findViewById(R.id.user_templates_container);
         TextView noTemplatesTv = root.findViewById(R.id.tv_no_templates);
         if (container == null) return;
-        
+
+        // Clear existing views first to avoid GridLayout constraint exceptions when reducing column count
         container.removeAllViews();
+        
+        // Apply current column count safely
+        container.setColumnCount(userTemplatesColumnCount);
+
+        // --- Wire up panel controls ---
+
+        // Resize thumbnail slider
+        android.widget.SeekBar seekGridSize = root.findViewById(R.id.seekTemplateGridSize);
+        if (seekGridSize != null) {
+            // Restore actual slider progress (5 columns max, 2 columns min -> progress is 5 - cols)
+            seekGridSize.setProgress(5 - userTemplatesColumnCount);
+            
+            // Remove previous listener to avoid loops when we re-bind
+            seekGridSize.setOnSeekBarChangeListener(null);
+            
+            seekGridSize.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(android.widget.SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        int cols = 5 - progress; // 5 columns (small) to 2 columns (large)
+                        if (cols != userTemplatesColumnCount) {
+                            userTemplatesColumnCount = cols;
+                            root.post(() -> refreshUserTemplates(root)); // Rebuild grid with new column count safely
+                        }
+                    }
+                }
+                @Override public void onStartTrackingTouch(android.widget.SeekBar seekBar) {}
+                @Override public void onStopTrackingTouch(android.widget.SeekBar seekBar) {}
+            });
+        }
+
+        // Sort Toggle (Recent / A-Z)
+        TextView btnSortToggle = root.findViewById(R.id.btnTemplateSortToggle);
+        if (btnSortToggle != null) {
+            btnSortToggle.setText(templateSortMode == 0 ? "Recent" : "A-Z");
+            btnSortToggle.setOnClickListener(v -> {
+                templateSortMode = (templateSortMode == 0) ? 1 : 0;
+                root.post(() -> refreshUserTemplates(root));
+            });
+        }
+
+        // Tag Filter
+        TextView btnTagFilter = root.findViewById(R.id.btnTemplateTagFilter);
+        if (btnTagFilter != null) {
+            btnTagFilter.setText(currentTemplateTagFilter == null ? "Tag: All" : "Tag: " + currentTemplateTagFilter);
+            btnTagFilter.setOnClickListener(v -> {
+                Set<String> knownTags = getKnownTemplateTags();
+                List<String> tagList = new ArrayList<>();
+                tagList.add("All Templates");
+                List<String> sortedTags = new ArrayList<>(knownTags);
+                Collections.sort(sortedTags);
+                tagList.addAll(sortedTags);
+
+                new AlertDialog.Builder(this)
+                    .setTitle("Filter by Tag")
+                    .setItems(tagList.toArray(new String[0]), (dialog, which) -> {
+                        if (which == 0) {
+                            currentTemplateTagFilter = null;
+                        } else {
+                            currentTemplateTagFilter = tagList.get(which);
+                        }
+                        root.post(() -> refreshUserTemplates(root));
+                    })
+                    .show();
+            });
+        }
+
+        // Online/Offline switch (simulated tag db sync)
+        com.google.android.material.switchmaterial.SwitchMaterial switchOnOff = root.findViewById(R.id.switchOnlineOffline);
+        if (switchOnOff != null) {
+            switchOnOff.setOnCheckedChangeListener(null); // Clear old listener
+            switchOnOff.setChecked(isOnlineMode);
+            switchOnOff.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                isOnlineMode = isChecked;
+                if (isChecked) {
+                    Toast.makeText(this, "Connecting to Community...", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Offline mode", Toast.LENGTH_SHORT).show();
+                }
+                root.post(() -> refreshUserTemplates(root));
+            });
+        }
+
+        // --- End panel controls ---
+
+        if (isOnlineMode) {
+            container.removeAllViews();
+            noTemplatesTv.setVisibility(View.GONE);
+            fetchOnlineTemplates(root, container, noTemplatesTv);
+            return;
+        }
 
         int totalItems = 0;
 
@@ -4684,6 +5561,8 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         TextView tvName = itemView.findViewById(R.id.tvTemplateName);
                         ImageView ivThumb = itemView.findViewById(R.id.ivTemplateThumbnail);
                         ImageButton btnDelete = itemView.findViewById(R.id.btnDeleteTemplate);
+                        ImageButton btnPublish = itemView.findViewById(R.id.btnPublishTemplate);
+                        ImageButton btnInfo = itemView.findViewById(R.id.btnTemplateInfo);
 
                         tvName.setText(assetName.replace(".vitae", ""));
                         
@@ -4696,6 +5575,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                         }
 
                         btnDelete.setVisibility(View.GONE);
+                        if (btnPublish != null) btnPublish.setVisibility(View.GONE);
+                        if (btnInfo != null) {
+                            btnInfo.setOnClickListener(v -> showTemplateReviewsDialog(assetName.replace(".vitae", ""), 0, 0));
+                        }
 
                         itemView.setOnClickListener(v -> {
                             if (vData.json != null && myWebView != null) {
@@ -4720,14 +5603,41 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         // 2. Load User-Saved Templates from Files (Deletable)
         File dir = new File(getFilesDir(), "user_templates");
         if (!dir.exists()) dir.mkdirs();
-        File[] templates = dir.listFiles((d, name) -> name.endsWith(".json"));
+        File[] templatesArr = dir.listFiles((d, name) -> name.endsWith(".json"));
         
-        if (templates != null && templates.length > 0) {
+        if (templatesArr != null && templatesArr.length > 0) {
+            List<File> templates = new ArrayList<>(java.util.Arrays.asList(templatesArr));
+            
+            // Apply Sort Mode
+            if (templateSortMode == 0) {
+                // Sort by Time (Recent first)
+                Collections.sort(templates, (f1, f2) -> Long.compare(f2.lastModified(), f1.lastModified()));
+            } else {
+                // Sort by Alphabetical (A-Z)
+                Collections.sort(templates, (f1, f2) -> f1.getName().compareToIgnoreCase(f2.getName()));
+            }
+
             noTemplatesTv.setVisibility(View.GONE);
             for (File t : templates) {
+                // Apply Tag Filter if needed
+                if (currentTemplateTagFilter != null) {
+                    try {
+                        StringBuilder sb = new StringBuilder();
+                        try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(t))) {
+                            String line;
+                            while ((line = reader.readLine()) != null) sb.append(line);
+                        }
+                        String jsonString = sb.toString();
+                        // Fast string match check for the tag to avoid full JSON parsing
+                        if (!jsonString.contains("\"template_tag\":\"" + currentTemplateTagFilter + "\"")) {
+                            continue; // Skip templates that don't match the tag
+                        }
+                    } catch (Exception e) {}
+                }
+
                 View itemView = getLayoutInflater().inflate(R.layout.item_user_template, container, false);
                 
-                // Set GridLayout params for 2 columns
+                // Set GridLayout params
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                 params.width = 0;
                 params.height = GridLayout.LayoutParams.WRAP_CONTENT;
@@ -4738,8 +5648,14 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 ImageView ivThumb = itemView.findViewById(R.id.ivTemplateThumbnail);
                 TextView tvName = itemView.findViewById(R.id.tvTemplateName);
                 ImageButton btnDelete = itemView.findViewById(R.id.btnDeleteTemplate);
+                ImageButton btnInfo = itemView.findViewById(R.id.btnTemplateInfo);
 
-                tvName.setText(t.getName().replace("Template_", "").replace(".json", ""));
+                String displayName = t.getName().replace("Template_", "").replace(".json", "");
+                tvName.setText(displayName);
+
+                if (btnInfo != null) {
+                    btnInfo.setOnClickListener(v -> showTemplateReviewsDialog(displayName, 0, 0));
+                }
 
                 // Load thumbnail
                 File thumbFile = new File(t.getAbsolutePath().replace(".json", ".png"));
@@ -4771,26 +5687,213 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 });
 
                 btnDelete.setOnClickListener(v -> deleteUserTemplate(t, root));
+
+                // Publish button — uploads this template to the Cloudflare community
+                ImageButton btnPublish = itemView.findViewById(R.id.btnPublishTemplate);
+                if (btnPublish != null) {
+                    btnPublish.setVisibility(View.VISIBLE);
+                    btnPublish.setOnClickListener(v -> publishTemplateToCloud(t, displayName));
+                }
                 
                 container.addView(itemView);
                 totalItems++;
             }
         }
 
-        // Handle Spacers and Visibility
+        // Handle Spacers and Visibility dynamically based on column count
         if (totalItems > 0) {
             noTemplatesTv.setVisibility(View.GONE);
-            if (totalItems % 2 != 0) {
-                View spacer = new View(this);
-                GridLayout.LayoutParams spacerParams = new GridLayout.LayoutParams();
-                spacerParams.width = 0;
-                spacerParams.height = 1;
-                spacerParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-                spacerParams.setMargins(8, 8, 8, 8);
-                spacer.setLayoutParams(spacerParams);
-                container.addView(spacer);
+            int itemsInLastRow = totalItems % userTemplatesColumnCount;
+            if (itemsInLastRow != 0) {
+                int spacersNeeded = userTemplatesColumnCount - itemsInLastRow;
+                for (int i = 0; i < spacersNeeded; i++) {
+                    View spacer = new View(this);
+                    GridLayout.LayoutParams spacerParams = new GridLayout.LayoutParams();
+                    spacerParams.width = 0;
+                    spacerParams.height = 1;
+                    spacerParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+                    spacerParams.setMargins(8, 8, 8, 8);
+                    spacer.setLayoutParams(spacerParams);
+                    container.addView(spacer);
+                }
             }
         } else {
+            noTemplatesTv.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void fetchOnlineTemplates(View root, GridLayout container, TextView noTemplatesTv) {
+        Request request = new Request.Builder()
+                .url(API_BASE_URL + "/api/templates")
+                .build();
+
+        httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e(TAG, "API call failed", e);
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "Failed to connect to Community", Toast.LENGTH_SHORT).show();
+                    noTemplatesTv.setText("Connection failed. Try again.");
+                    noTemplatesTv.setVisibility(View.VISIBLE);
+                });
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    Log.e(TAG, "API response error: " + response.code());
+                    runOnUiThread(() -> {
+                        Toast.makeText(MainActivity.this, "Server error: " + response.code(), Toast.LENGTH_SHORT).show();
+                        noTemplatesTv.setText("Server error.");
+                        noTemplatesTv.setVisibility(View.VISIBLE);
+                    });
+                    return;
+                }
+
+                String responseData = response.body().string();
+                runOnUiThread(() -> {
+                    try {
+                        JSONObject json = new JSONObject(responseData);
+                        if (json.getBoolean("success")) {
+                            JSONArray templatesArray = json.getJSONArray("templates");
+                            populateOnlineTemplateGrid(templatesArray, root, container, noTemplatesTv);
+                        } else {
+                            Toast.makeText(MainActivity.this, "Error returning templates", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        Log.e(TAG, "Failed JSON parse", e);
+                    }
+                });
+            }
+        });
+    }
+
+    private void populateOnlineTemplateGrid(JSONArray templatesArray, View root, GridLayout container, TextView noTemplatesTv) throws JSONException {
+        container.removeAllViews();
+        int totalItems = 0;
+
+        if (templatesArray.length() == 0) {
+            noTemplatesTv.setText("No community templates found.");
+            noTemplatesTv.setVisibility(View.VISIBLE);
+            return;
+        }
+        noTemplatesTv.setVisibility(View.GONE);
+
+        for (int i = 0; i < templatesArray.length(); i++) {
+            JSONObject t = templatesArray.getJSONObject(i);
+            String tId = t.optString("id");
+            String tName = t.optString("title", "Community Template");
+            String tContent = t.optString("content");
+            String tTags = t.optString("tags", "");
+
+            // Apply filter natively 
+            if (currentTemplateTagFilter != null && !tTags.contains(currentTemplateTagFilter)) {
+                continue;
+            }
+
+            View itemView = getLayoutInflater().inflate(R.layout.item_user_template, container, false);
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = 0;
+            params.height = GridLayout.LayoutParams.WRAP_CONTENT;
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+            params.setMargins(8, 8, 8, 8);
+            itemView.setLayoutParams(params);
+
+            TextView tvName = itemView.findViewById(R.id.tvTemplateName);
+            ImageView ivThumb = itemView.findViewById(R.id.ivTemplateThumbnail);
+            ImageButton btnDelete = itemView.findViewById(R.id.btnDeleteTemplate);
+            ImageButton btnPublish = itemView.findViewById(R.id.btnPublishTemplate);
+            ImageButton btnInfo = itemView.findViewById(R.id.btnTemplateInfo);
+
+            tvName.setText(tName);
+
+            // Handle Rating
+            TextView tvRating = itemView.findViewById(R.id.tvTemplateRating);
+            if (tvRating != null) {
+                tvRating.setVisibility(View.VISIBLE);
+                int rCount = t.optInt("rating_count", 0);
+                if (rCount == 0 || t.isNull("avg_rating")) {
+                    tvRating.setText("Unrated");
+                    tvRating.setTextColor(Color.parseColor("#999999"));
+                } else {
+                    double avg = t.optDouble("avg_rating", 0);
+                    tvRating.setText(String.format("%.1f/10", avg));
+                    tvRating.setTextColor(Color.parseColor("#FF9800"));
+                }
+            }
+
+            // Decode and display base64 thumbnail if available
+            String tThumb = t.optString("thumbnail", null);
+            if (tThumb != null && !tThumb.isEmpty() && !tThumb.equals("null")) {
+                try {
+                    byte[] decodedBytes = Base64.decode(tThumb, Base64.NO_WRAP);
+                    Bitmap thumbBitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    if (thumbBitmap != null) {
+                        ivThumb.setImageBitmap(thumbBitmap);
+                        ivThumb.setImageTintList(null);
+                    } else {
+                        ivThumb.setImageResource(R.drawable.ic_description);
+                        ivThumb.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#ff9800")));
+                    }
+                } catch (Exception e) {
+                    ivThumb.setImageResource(R.drawable.ic_description);
+                    ivThumb.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#ff9800")));
+                }
+            } else {
+                ivThumb.setImageResource(R.drawable.ic_description);
+                ivThumb.setImageTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#ff9800")));
+            }
+
+            btnDelete.setVisibility(View.GONE);
+            if (btnPublish != null) btnPublish.setVisibility(View.GONE);
+
+            // Re-use our existing dialog functionality, but pass the T-ID now
+            if (btnInfo != null) {
+                double avg = t.optDouble("avg_rating", 0);
+                int rCount = t.optInt("rating_count", 0);
+                btnInfo.setOnClickListener(v -> showTemplateReviewsDialog(tId, avg, rCount));
+            }
+
+            itemView.setOnClickListener(v -> {
+                if (tContent != null && myWebView != null) {
+                    try {
+                        String cleanContent = tContent;
+                        // Sometimes JSON.stringify wrapped JSON strings.
+                        if (cleanContent.startsWith("\"") && cleanContent.endsWith("\"")) {
+                            cleanContent = cleanContent.substring(1, cleanContent.length() - 1);
+                            cleanContent = cleanContent.replace("\\\"", "\"");
+                        }
+                        String safeJson = org.json.JSONObject.quote(cleanContent);
+                        myWebView.evaluateJavascript("window.applyUserTemplate(" + safeJson + ")", null);
+                        Toast.makeText(this, "Community Template '" + tName + "' Applied!", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error applying online template", e);
+                    }
+                }
+            });
+
+            container.addView(itemView);
+            totalItems++;
+        }
+
+        // Add spacers
+        if (totalItems > 0) {
+            int itemsInLastRow = totalItems % userTemplatesColumnCount;
+            if (itemsInLastRow != 0) {
+                int spacersNeeded = userTemplatesColumnCount - itemsInLastRow;
+                for (int i = 0; i < spacersNeeded; i++) {
+                    View spacer = new View(this);
+                    GridLayout.LayoutParams spacerParams = new GridLayout.LayoutParams();
+                    spacerParams.width = 0;
+                    spacerParams.height = 1;
+                    spacerParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+                    spacerParams.setMargins(8, 8, 8, 8);
+                    spacer.setLayoutParams(spacerParams);
+                    container.addView(spacer);
+                }
+            }
+        } else {
+            noTemplatesTv.setText("No templates match the selected tag.");
             noTemplatesTv.setVisibility(View.VISIBLE);
         }
     }
@@ -7970,6 +9073,248 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 if (myWebView != null) myWebView.evaluateJavascript("triggerAutoSave();", null);
             }
         });
+    }
+
+    private void initMonetizationInEditor() {
+        tierManager = new UserTierManager(this);
+        
+        // --- Ensuring Initialization ---
+        if (tierManager.shouldShowAds()) {
+            com.google.android.gms.ads.MobileAds.initialize(this, status -> {
+                Log.d("AdMob", "Editor Init Status: " + status.toString());
+                
+                runOnUiThread(() -> {
+                    // --- Banner Ad Loading ---
+                    com.google.android.gms.ads.AdView adViewMain = findViewById(R.id.adViewMain);
+                    if (adViewMain != null) {
+                        adViewMain.setVisibility(View.VISIBLE);
+                        
+                        adViewMain.setAdListener(new com.google.android.gms.ads.AdListener() {
+                            @Override
+                            public void onAdLoaded() {
+                                super.onAdLoaded();
+                                Log.d("AdMob", "Editor Banner Loaded Successfully");
+                            }
+
+                            @Override
+                            public void onAdFailedToLoad(@NonNull com.google.android.gms.ads.LoadAdError adError) {
+                                super.onAdFailedToLoad(adError);
+                                String detailedError = "!!! EDITOR AD FAIL !!!\n" +
+                                        "Code: " + adError.getCode() + "\n" +
+                                        "Message: " + adError.getMessage();
+                                Log.e("AdMob", detailedError);
+                                Toast.makeText(MainActivity.this, detailedError, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        com.google.android.gms.ads.AdRequest adRequest = new com.google.android.gms.ads.AdRequest.Builder().build();
+                        adViewMain.loadAd(adRequest);
+                    }
+
+                    loadInterstitialAd();
+                    loadRewardedAd();
+                });
+            });
+        } else {
+            com.google.android.gms.ads.AdView adViewMain = findViewById(R.id.adViewMain);
+            if (adViewMain != null) adViewMain.setVisibility(View.GONE);
+        }
+
+        breakOverlay = findViewById(R.id.break_overlay);
+        btnCloseBreak = findViewById(R.id.btn_close_break);
+        final View tvAdBlockMsg = findViewById(R.id.tv_ad_block_msg);
+        startBreakTimer();
+    }
+
+    private void startBreakTimer() {
+        if (!tierManager.shouldShowAds()) return;
+        
+        if (breakTimerRunnable != null) breakTimerHandler.removeCallbacks(breakTimerRunnable);
+        
+        breakTimerRunnable = () -> {
+            showBreakInterruption();
+        };
+        
+        // 3m = 180s, 5m = 300s
+        long delay = UserTierManager.isFirstAdShownInSession ? 300000 : 180000;
+        breakTimerHandler.postDelayed(breakTimerRunnable, delay);
+    }
+
+    private void showBreakInterruption() {
+        if (isFinishing() || isDestroyed()) return;
+        
+        UserTierManager.isFirstAdShownInSession = true; // Flag as shown
+        
+        final View tvAdBlockMsg = findViewById(R.id.tv_ad_block_msg);
+        if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.GONE);
+        
+        new Thread(() -> {
+            boolean isBlocked = isAdBlockerActive();
+            if (isBlocked) {
+                runOnUiThread(() -> {
+                    if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.VISIBLE);
+                });
+            }
+        }).start();
+        
+        if (breakOverlay != null) {
+            breakOverlay.setVisibility(View.VISIBLE);
+            
+            if (mInterstitialAd != null) {
+                mInterstitialAd.show(this);
+                mInterstitialAd = null; // Reset
+                loadInterstitialAd(); // Load next
+                
+                // Allow closing after ad or brief delay
+                breakOverlay.postDelayed(() -> {
+                    if (btnCloseBreak != null) btnCloseBreak.setVisibility(View.VISIBLE);
+                }, 3000);
+            } else {
+                // If ad not ready, just show the screen for 5 seconds then allow close
+                breakOverlay.postDelayed(() -> {
+                    if (btnCloseBreak != null) btnCloseBreak.setVisibility(View.VISIBLE);
+                }, 5000);
+            }
+            
+            if (btnCloseBreak != null) {
+                btnCloseBreak.setOnClickListener(v -> {
+                    breakOverlay.setVisibility(View.GONE);
+                    btnCloseBreak.setVisibility(View.INVISIBLE);
+                    startBreakTimer(); // Restart the cycle
+                });
+            }
+        }
+    }
+
+    private void loadInterstitialAd() {
+        if (!tierManager.shouldShowAds()) return;
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        mInterstitialAd = interstitialAd;
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        mInterstitialAd = null;
+                        boolean blocked = isAdBlockerActive();
+                        String detailedError = "!!! INTERSTITIAL AD FAIL !!!\n" +
+                                "Code: " + loadAdError.getCode() + "\n" +
+                                "Message: " + loadAdError.getMessage() + "\n" +
+                                "AdBlocker: " + (blocked ? "Detected (Checking DNS...)" : "None Detected");
+                        Log.e("AdMob", detailedError);
+                    }
+                });
+    }
+
+    private void loadRewardedAd() {
+        if (!tierManager.shouldShowAds()) return;
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(this, "ca-app-pub-3940256099942544/5224354917",
+                adRequest, new RewardedAdLoadCallback() {
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        mRewardedAd = null;
+                        boolean blocked = isAdBlockerActive();
+                        String detailedError = "!!! REWARDED AD FAIL !!!\n" +
+                                "Code: " + loadAdError.getCode() + "\n" +
+                                "Message: " + loadAdError.getMessage() + "\n" +
+                                "AdBlocker: " + (blocked ? "Detected (Check Private DNS)" : "None Detected");
+                        Log.e("AdMob", detailedError);
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this, detailedError, Toast.LENGTH_LONG).show());
+                    }
+
+                    @Override
+                    public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
+                        mRewardedAd = rewardedAd;
+                    }
+                });
+    }
+
+    private void handleExportWithAds() {
+        UserTierManager.Tier tier = tierManager.getUserTier();
+        int exports = tierManager.getExportsThisMonth();
+
+        // New Logic: Every 3rd print triggers 2 consecutive ads (Interstitial + Rewarded)
+        // Actually user said "after the three are print", implying 4th print onwards.
+        if (tier == UserTierManager.Tier.FREE && exports >= 3) {
+            showChainedAdsAndExport();
+        } else {
+            // No ads for first 3 exports or for premium users
+            tierManager.incrementExportCount();
+            createWebPrintJob(myWebView);
+        }
+    }
+
+    private void showChainedAdsAndExport() {
+        // Step 1: Show Interstitial
+        if (mInterstitialAd != null) {
+            mInterstitialAd.setFullScreenContentCallback(new com.google.android.gms.ads.FullScreenContentCallback() {
+                @Override
+                public void onAdDismissedFullScreenContent() {
+                    mInterstitialAd = null;
+                    loadInterstitialAd();
+                    showStep2RewardedAd();
+                }
+
+                @Override
+                public void onAdFailedToShowFullScreenContent(@NonNull com.google.android.gms.ads.AdError adError) {
+                    mInterstitialAd = null;
+                    loadInterstitialAd();
+                    showStep2RewardedAd(); // Proceed to next ad even if this fails
+                }
+            });
+            mInterstitialAd.show(this);
+        } else {
+            // Fallback if Interstitial not ready
+            loadInterstitialAd();
+            showStep2RewardedAd();
+        }
+    }
+
+    private void showStep2RewardedAd() {
+        // Step 2: Show Rewarded Ad
+        if (mRewardedAd != null) {
+            mRewardedAd.setFullScreenContentCallback(new com.google.android.gms.ads.FullScreenContentCallback() {
+                @Override
+                public void onAdDismissedFullScreenContent() {
+                    mRewardedAd = null;
+                    completeExportProcess();
+                }
+
+                @Override
+                public void onAdFailedToShowFullScreenContent(@NonNull com.google.android.gms.ads.AdError adError) {
+                    mRewardedAd = null;
+                    completeExportProcess();
+                }
+            });
+
+            mRewardedAd.show(this, rewardItem -> {
+                // Reward logic if needed
+            });
+        } else {
+            // Fallback if Rewarded ad not ready
+            completeExportProcess();
+        }
+    }
+
+    private void completeExportProcess() {
+        tierManager.incrementExportCount();
+        createWebPrintJob(myWebView);
+        loadRewardedAd(); // Load next for future use
+    }
+
+    private boolean isAdBlockerActive() {
+        try {
+            java.net.InetAddress address = java.net.InetAddress.getByName("googleads.g.doubleclick.net");
+            return address.getHostAddress().equals("127.0.0.1") || address.getHostAddress().equals("0.0.0.0");
+        } catch (Exception e) {
+            return true; // If we can't resolve, it's likely blocked
+        }
     }
 }
 

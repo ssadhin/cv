@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="#FFFFFF" android:foreground="?android:attr/selectableItemBackground">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="@color/surface_dialog" android:foreground="?android:attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout android:layout_width="match_parent" android:layout_height="wrap_content">
 
         <!-- Thumbnail Image -->
         <ImageView android:id="@+id/ivTemplateThumbnail" android:layout_width="0dp" android:layout_height="0dp" android:scaleType="centerCrop" android:src="@drawable/ic_description" app:tint="#E0E0E0" app:layout_constraintDimensionRatio="H,3:4" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Info Bar -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="#F9F9F9" android:gravity="center_vertical" app:layout_constraintTop_toBottomOf="@id/ivTemplateThumbnail" app:layout_constraintBottom_toBottomOf="parent">
+        <!-- Publish Button (top-right corner of thumbnail) -->
+        <ImageButton android:id="@+id/btnPublishTemplate" android:layout_width="28dp" android:layout_height="28dp" android:layout_margin="6dp" android:background="@drawable/bg_circle_dark" android:padding="5dp" android:src="@drawable/ic_upload" app:tint="@android:color/white" android:contentDescription="Publish template" android:visibility="gone" app:layout_constraintTop_toTopOf="@id/ivTemplateThumbnail" app:layout_constraintEnd_toEndOf="@id/ivTemplateThumbnail" />
 
-            <TextView android:id="@+id/tvTemplateName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="User Template" android:textColor="#333333" android:textSize="12sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" />
+        <!-- Info/Reviews Button (bottom-right corner of thumbnail) -->
+        <ImageButton android:id="@+id/btnTemplateInfo" android:layout_width="32dp" android:layout_height="32dp" android:layout_margin="8dp" android:background="@drawable/bg_circle_dark" android:padding="6dp" android:src="@drawable/ic_info" app:tint="@android:color/white" android:contentDescription="Template Info &amp; Reviews" app:layout_constraintBottom_toBottomOf="@id/ivTemplateThumbnail" app:layout_constraintEnd_toEndOf="@id/ivTemplateThumbnail" />
+
+        <!-- Info Bar -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="@color/surface_card_nested" android:gravity="center_vertical" app:layout_constraintTop_toBottomOf="@id/ivTemplateThumbnail" app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView android:id="@+id/tvTemplateName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="User Template" android:textColor="@color/text_primary" android:textSize="12sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" />
+
+            <TextView android:id="@+id/tvTemplateRating" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="4dp" android:text="Unrated" android:textColor="#FF9800" android:textSize="11sp" android:textStyle="bold" android:visibility="gone" />
 
             <ImageButton android:id="@+id/btnDeleteTemplate" android:layout_width="24dp" android:layout_height="24dp" android:background="?attr/selectableItemBackgroundBorderless" android:padding="4dp" android:src="@drawable/ic_close" app:tint="#FF5252" />
 

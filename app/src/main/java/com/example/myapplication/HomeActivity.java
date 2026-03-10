@@ -2,11 +2,18 @@ package com.example.myapplication;
 
 import android.content.ClipData;
 import android.content.Intent;
+import android.util.Log;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.transition.AutoTransition;
+import android.transition.TransitionManager;
 import android.view.DragEvent;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -21,6 +28,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.ads.LoadAdError;
+import androidx.annotation.NonNull;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.bumptech.glide.Glide;
+import com.google.android.material.imageview.ShapeableImageView;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -59,6 +79,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
     private static final String KEY_IS_GRID_VIEW = "isGridView";
     private static final String KEY_IS_SORT_ALPHA = "isSortAlpha";
     private static final String KEY_GRID_SPAN = "gridSpanCount";
+    private FirebaseAuth mAuth;
 
     private File currentDir;
     private View fabOptionsPanel;
@@ -74,11 +95,23 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
     private int lastFolderX, lastFolderY;
     
     private ActivityResultLauncher<String> importLauncher;
+    private InterstitialAd mInterstitialAd;
+    private UserTierManager tierManager;
+    private View breakOverlay;
+    private View btnCloseBreak;
+    private TextView tvAdBlockMsg;
+    private AdView adView;
     
+    private final android.os.Handler breakTimerHandler = new android.os.Handler();
+    private Runnable breakTimerRunnable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ThemeManager.applyTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        mAuth = FirebaseAuth.getInstance();
 
         rvRecentResumes = findViewById(R.id.rvRecentResumes);
         tvEmptyState = findViewById(R.id.tvEmptyState);
@@ -103,6 +136,29 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         advancedDragZones = findViewById(R.id.advancedDragZones);
         zoneMoveToHome = findViewById(R.id.zoneMoveToHome);
         zoneMoveToOtherGroup = findViewById(R.id.zoneMoveToOtherGroup);
+
+        setupBrandingSwipe();
+        
+        // Initialize UserTierManager (Must be before initMonetization)
+        tierManager = new UserTierManager(this);
+        
+        initMonetization();
+        
+        // Debug Toast
+        Toast.makeText(this, getString(R.string.current_tier_msg, tierManager.getUserTier().name()), Toast.LENGTH_LONG).show();
+
+        ShapeableImageView ivAppLogo = findViewById(R.id.ivAppLogo);
+        ShapeableImageView ivUserProfile = findViewById(R.id.ivUserProfile);
+
+        ivAppLogo.setOnClickListener(v -> {
+            startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
+        });
+
+        ivUserProfile.setOnClickListener(v -> {
+            startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
+        });
+
+
 
         importLauncher = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
@@ -149,14 +205,14 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             if (count > 0) {
                 btnDeleteSelected.setVisibility(View.VISIBLE);
                 btnCloseSelection.setVisibility(View.VISIBLE);
-                tvRecentHeader.setText(count + " Selected");
+                tvRecentHeader.setText(getString(R.string.selected_count, count));
                 // Hide sort/grid controls when selecting? Optional, but cleaner.
                 btnSort.setVisibility(View.GONE);
                 btnToggleView.setVisibility(View.GONE);
             } else {
                 btnDeleteSelected.setVisibility(View.GONE);
                 btnCloseSelection.setVisibility(View.GONE);
-                tvRecentHeader.setText("Recent");
+                tvRecentHeader.setText(R.string.recent);
                 btnSort.setVisibility(View.VISIBLE);
                 btnToggleView.setVisibility(View.VISIBLE);
             }
@@ -249,7 +305,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             if (isMenuOpen) {
                 toggleMenu(false);
             } else {
-                Intent intent = new Intent(HomeActivity.this, AIActivity.class);
+                Intent intent = new Intent(HomeActivity.this, AISelectionActivity.class);
                 startActivity(intent);
             }
         });
@@ -352,7 +408,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
 
     private void updateSortUI() {
         btnSort.setImageResource(isSortAlphabetical ? android.R.drawable.ic_menu_today : android.R.drawable.ic_menu_sort_alphabetically);
-        tvSortLabel.setText(isSortAlphabetical ? "Sorted A-Z" : "Sorted by time edited");
+        tvSortLabel.setText(isSortAlphabetical ? getString(R.string.sorted_a_z) : getString(R.string.sorted_by_time_edited));
     }
 
     private void updateSliderVisibility() {
@@ -430,6 +486,109 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
     protected void onResume() {
         super.onResume();
         loadResumes();
+        updateUI();
+        new UserTierManager(this).syncUserToCloud();
+    }
+
+    private boolean isForcedDefault = false;
+
+    private void setupBrandingSwipe() {
+        GestureDetector gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null || e2 == null) return false;
+                float diffX = e2.getX() - e1.getX();
+                if (Math.abs(diffX) > 50 && Math.abs(velocityX) > 100) {
+                    isForcedDefault = !isForcedDefault;
+                    updateUI();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        View.OnTouchListener jointListener = (v, event) -> {
+            if (gestureDetector.onTouchEvent(event)) {
+                return true;
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                v.performClick();
+            }
+            return true;
+        };
+
+        findViewById(R.id.brandingHeader).setOnTouchListener(jointListener);
+        findViewById(R.id.ivAppLogo).setOnTouchListener(jointListener);
+        findViewById(R.id.ivUserProfile).setOnTouchListener(jointListener);
+    }
+
+    private void updateUI() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        ShapeableImageView ivAppLogo = findViewById(R.id.ivAppLogo);
+        ShapeableImageView ivUserProfile = findViewById(R.id.ivUserProfile);
+        TextView tvAppTitle = findViewById(R.id.tvAppTitle);
+        ViewGroup brandingHeader = findViewById(R.id.brandingHeader);
+
+        if (brandingHeader == null || ivAppLogo == null || ivUserProfile == null || tvAppTitle == null) return;
+
+        // Begin smooth transition
+        TransitionManager.beginDelayedTransition(brandingHeader, new AutoTransition().setDuration(300));
+
+        // Logic: if isForcedDefault is true, always show App Branding (Logo + Vitae)
+        // If false, show User Info (Photo + Name)
+        if (isForcedDefault) {
+            ivAppLogo.setVisibility(View.VISIBLE);
+            ivUserProfile.setVisibility(View.GONE);
+            
+            ivAppLogo.setScaleX(0.8f);
+            ivAppLogo.setScaleY(0.8f);
+            ivAppLogo.animate().scaleX(1.0f).scaleY(1.0f).alpha(1.0f).setDuration(300).start();
+
+            tvAppTitle.setText(R.string.app_name);
+            ivAppLogo.setImageResource(R.drawable.cv);
+        } else {
+            // Show User Info (Real or Guest)
+            ivAppLogo.setVisibility(View.GONE);
+            ivUserProfile.setVisibility(View.VISIBLE);
+
+            // Add a slight scale-up animation for the "morph" feel
+            ivUserProfile.setScaleX(0.8f);
+            ivUserProfile.setScaleY(0.8f);
+            ivUserProfile.animate().scaleX(1.0f).scaleY(1.0f).alpha(1.0f).setDuration(300).start();
+
+            if (user != null && !user.isAnonymous()) {
+                // Real User
+                String name = user.getDisplayName();
+                tvAppTitle.setText(name != null && !name.isEmpty() ? name : getString(R.string.vitae_user));
+
+                File profilePic = new File(getFilesDir(), "profile_pic.jpg");
+                if (profilePic.exists()) {
+                    Glide.with(this).load(profilePic).circleCrop().into(ivUserProfile);
+                } else if (user.getPhotoUrl() != null) {
+                    Glide.with(this).load(user.getPhotoUrl()).circleCrop().into(ivUserProfile);
+                } else {
+                    ivUserProfile.setImageResource(R.drawable.cv);
+                }
+            } else {
+                // Guest User
+                String androidId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+                String guestId = (androidId != null && androidId.length() > 4) ? androidId.substring(0, 4).toUpperCase() : "USR";
+                tvAppTitle.setText(getString(R.string.guest_with_id, guestId));
+                
+                // For Guests, show the icon or local pic
+                File profilePic = new File(getFilesDir(), "profile_pic.jpg");
+                if (profilePic.exists()) {
+                    Glide.with(this).load(profilePic).circleCrop().into(ivUserProfile);
+                } else {
+                    ivUserProfile.setImageResource(R.drawable.cv);
+                }
+            }
+        }
     }
 
     private void loadResumes() {
@@ -467,7 +626,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                 adapter.updateData(fileList);
                 
                 if (tvRecentHeader != null) {
-                    tvRecentHeader.setText(isSubfolder ? "Group: " + currentDir.getName() : "Recent");
+                    tvRecentHeader.setText(isSubfolder ? getString(R.string.group_label, currentDir.getName()) : getString(R.string.recent));
                 }
             }
         }
@@ -554,36 +713,85 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
 
     @Override
     public void onDeleteClick(File file) {
-        String type = file.isDirectory() ? "Folder" : "Resume";
+        String type = file.isDirectory() ? getString(R.string.folder) : getString(R.string.resume);
         String displayName = file.getName();
         if (!file.isDirectory() && displayName.endsWith(".json")) {
             displayName = displayName.substring(0, displayName.lastIndexOf("."));
         }
         
-        new AlertDialog.Builder(this)
-            .setTitle("Delete " + type)
-            .setMessage("Are you sure you want to delete '" + displayName + "'?" + (file.isDirectory() ? "\nAll contents will be lost." : ""))
-            .setPositiveButton("Delete", (dialog, which) -> {
-                boolean deleted;
-                if (file.isDirectory()) {
-                    deleted = deleteRecursive(file);
-                } else {
-                    if (file.getName().endsWith(".json")) {
-                        markPathForLocalStorageCleanup(file.getAbsolutePath());
+        android.view.View dialogView = getLayoutInflater().inflate(R.layout.dialog_delete_confirm, null);
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        TextView tvTitle = dialogView.findViewById(R.id.dialogTitle);
+        TextView tvMessage = dialogView.findViewById(R.id.dialogMessage);
+        
+        tvTitle.setText(getString(R.string.delete_confirmation_title, type));
+        tvMessage.setText(getString(R.string.delete_confirmation_msg, displayName) + (file.isDirectory() ? "\n" + getString(R.string.delete_folder_warning) : ""));
+
+        dialogView.findViewById(R.id.btnConfirmDelete).setOnClickListener(v -> {
+            boolean deleted;
+            if (file.isDirectory()) {
+                deleted = deleteRecursive(file);
+            } else {
+                if (file.getName().endsWith(".json")) {
+                    markPathForLocalStorageCleanup(file.getAbsolutePath());
+                }
+                deleted = file.delete();
+                if (deleted) {
+                    // Also delete thumbnail
+                    String base = file.getName();
+                    if (base.endsWith(".json")) {
+                        base = base.substring(0, base.lastIndexOf("."));
+                        File thumb = new File(file.getParentFile(), base + ".png");
+                        if (thumb.exists()) thumb.delete();
                     }
-                    deleted = file.delete();
                 }
-                
-                if(deleted) {
-                    loadResumes();
-                    Toast.makeText(this, "Deleted", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(this, "Failed to delete", Toast.LENGTH_SHORT).show();
-                }
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
+            }
+            
+            if(deleted) {
+                loadResumes();
+                Toast.makeText(this, R.string.deleted, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, R.string.failed_to_delete, Toast.LENGTH_SHORT).show();
+            }
+            dialog.dismiss();
+        });
+
+        dialogView.findViewById(R.id.btnCancelDelete).setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
+
+    private void checkAuthAndInitialize() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        // If logged in, initialize data
+        if (currentUser != null) {
+            updateUI();
+            loadResumes();
+            new UserTierManager(this).syncUserToCloud();
+        } else {
+            // Persist the Guest ID securely using device ID so it doesn't rotate
+            mAuth.signInAnonymously().addOnCompleteListener(this, task -> {
+                if (task.isSuccessful()) {
+                    updateUI();
+                    loadResumes();
+                    new UserTierManager(this).syncUserToCloud();
+                } else {
+                    android.util.Log.e("HomeActivity", "Anon Auth failed.", task.getException());
+                    // Fallback to offline mode
+                    updateUI();
+                    loadResumes();
+                }
+            });
+        }
+    }
+
 
     private boolean deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory()) {
@@ -617,9 +825,9 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         input.setText(currentBaseName);
         
         new AlertDialog.Builder(this)
-            .setTitle("Rename Resume")
+            .setTitle(R.string.rename_resume)
             .setView(input)
-            .setPositiveButton("Rename", (dialog, which) -> {
+            .setPositiveButton(R.string.rename, (dialog, which) -> {
                 String newName = input.getText().toString().trim();
                 if (!newName.isEmpty() && !newName.equals(currentBaseName)) {
                     // Determine new file/dir path
@@ -644,25 +852,25 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                         
                         loadResumes();
                     } else {
-                        Toast.makeText(this, "Failed to rename (name might exist)", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.error_rename_exists, Toast.LENGTH_SHORT).show();
                     }
                 }
             })
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.cancel, null)
             .show();
     }
 
     @Override
     public void onMerge(File target, File source) {
         final EditText input = new EditText(this);
-        input.setHint("Group name");
+        input.setHint(R.string.group_name_hint);
         
         new AlertDialog.Builder(this)
-            .setTitle("Create Folder")
+            .setTitle(R.string.create_folder)
             .setView(input)
-            .setPositiveButton("Create", (dialog, which) -> {
+            .setPositiveButton(R.string.create, (dialog, which) -> {
                 String folderName = input.getText().toString().trim();
-                if (folderName.isEmpty()) folderName = "New Folder";
+                if (folderName.isEmpty()) folderName = getString(R.string.new_folder);
                 
                 File newFolder = new File(currentDir, folderName);
                 if (!newFolder.exists()) {
@@ -675,7 +883,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                 
                 loadResumes();
             })
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(R.string.cancel, null)
             .show();
     }
 
@@ -683,9 +891,9 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
     public void onMoveToFolder(File folder, File source) {
         if (moveFileToFolder(source, folder)) {
             loadResumes();
-            Toast.makeText(this, "Moved to " + folder.getName(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.moved_items_to_group, 1, folder.getName()), Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Failed to move", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.failed_to_move, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -834,10 +1042,10 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                     if (successCount > 0) {
                         loadResumes();
                         if (itemCount > 1) {
-                            Toast.makeText(this, "Moved " + successCount + " items to Home", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, getString(R.string.moved_to_home_count, successCount), Toast.LENGTH_SHORT).show();
                             if (adapter != null) adapter.setSelectionMode(false);
                         } else {
-                            Toast.makeText(this, "Moved to Home", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, R.string.moved_to_home, Toast.LENGTH_SHORT).show();
                         }
                     }
                     return true;
@@ -871,11 +1079,11 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                     }
 
                     final EditText input = new EditText(this);
-                    input.setHint("Group name...");
+                    input.setHint(R.string.group_name_placeholder);
                     new AlertDialog.Builder(this)
-                            .setTitle("Move to Group")
+                            .setTitle(R.string.move_to_group)
                             .setView(input)
-                            .setPositiveButton("Move", (dialog, which) -> {
+                            .setPositiveButton(R.string.move, (dialog, which) -> {
                                 String folderName = input.getText().toString().trim();
                                 if (!folderName.isEmpty()) {
                                     File folder = new File(resumesDir, folderName);
@@ -888,7 +1096,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                                     if (adapter != null) adapter.setSelectionMode(false);
                                 }
                             })
-                            .setNegativeButton("Cancel", null)
+                            .setNegativeButton(R.string.cancel, null)
                             .show();
                     return true;
                 case DragEvent.ACTION_DRAG_ENDED:
@@ -904,7 +1112,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         File[] folders = resumesDir.listFiles(File::isDirectory);
         
         if (folders == null || folders.length == 0) {
-            Toast.makeText(this, "No groups available", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.no_groups_available, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -918,14 +1126,14 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         }
 
         if (folderList.isEmpty()) {
-            Toast.makeText(this, "No other groups available", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.no_other_groups_available, Toast.LENGTH_SHORT).show();
             return;
         }
         
         int itemCount = clipData.getItemCount();
 
         new AlertDialog.Builder(this)
-            .setTitle("Move " + itemCount + " items to Group")
+            .setTitle(getString(R.string.move_items_to_group, itemCount))
             .setItems(folderNames.toArray(new String[0]), (dialog, which) -> {
                 File targetFolder = folderList.get(which);
                 int successCount = 0;
@@ -941,7 +1149,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                 }
                 
                 if (successCount > 0) {
-                    Toast.makeText(this, "Moved " + successCount + " items to " + targetFolder.getName(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.moved_items_to_group, successCount, targetFolder.getName()), Toast.LENGTH_SHORT).show();
                     if (adapter != null) adapter.setSelectionMode(false);
                     loadResumes();
                 }
@@ -957,9 +1165,9 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         File parentDir = currentDir.getParentFile();
         if (moveFileToFolder(file, parentDir)) {
             loadResumes();
-            Toast.makeText(this, "Moved to main list", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.moved_to_main_list, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "Failed to ungroup", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.failed_to_ungroup, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -968,7 +1176,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             // Package into .vitae (zip)
             File vitaeFile = packageAsVitae(file);
             if (vitaeFile == null) {
-                Toast.makeText(this, "Error creating .vitae package", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.error_creating_package, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -977,10 +1185,10 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             shareIntent.setType("application/zip"); 
             shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(shareIntent, "Share .vitae Package"));
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.share_vitae_package)));
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error sharing file", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_sharing_file, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -1062,43 +1270,204 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                 }
                 zis.closeEntry();
             }
-            Toast.makeText(this, "Imported successfully!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.imported_successfully, Toast.LENGTH_SHORT).show();
             loadResumes();
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "Import failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.import_failed, Toast.LENGTH_SHORT).show();
         }
     }
 
     private void confirmMultiDelete(java.util.List<String> paths) {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Delete " + paths.size() + " items")
-            .setMessage("Are you sure you want to delete all selected items?")
-            .setPositiveButton("Delete All", (dialog, which) -> {
-                int count = 0;
-                for (String path : paths) {
-                    File file = new File(path);
-                    boolean deleted;
-                    if (file.isDirectory()) {
-                        deleted = deleteRecursive(file);
-                    } else {
-                        deleted = file.delete();
-                        if (deleted) {
-                            String baseName = file.getName();
-                            if (baseName.endsWith(".json")) {
-                                baseName = baseName.substring(0, baseName.lastIndexOf("."));
-                                File thumb = new File(file.getParentFile(), baseName + ".png");
-                                if (thumb.exists()) thumb.delete();
-                            }
+        android.view.View dialogView = getLayoutInflater().inflate(R.layout.dialog_delete_confirm, null);
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setView(dialogView)
+                .create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        TextView tvTitle = dialogView.findViewById(R.id.dialogTitle);
+        TextView tvMessage = dialogView.findViewById(R.id.dialogMessage);
+        
+        tvTitle.setText(getString(R.string.delete_multi_title, paths.size()));
+        tvMessage.setText(R.string.delete_multi_msg);
+
+        dialogView.findViewById(R.id.btnConfirmDelete).setOnClickListener(v -> {
+            int count = 0;
+            for (String path : paths) {
+                File file = new File(path);
+                boolean deleted;
+                if (file.isDirectory()) {
+                    deleted = deleteRecursive(file);
+                } else {
+                    deleted = file.delete();
+                    if (deleted) {
+                        String baseName = file.getName();
+                        if (baseName.endsWith(".json")) {
+                            baseName = baseName.substring(0, baseName.lastIndexOf("."));
+                            File thumb = new File(file.getParentFile(), baseName + ".png");
+                            if (thumb.exists()) thumb.delete();
                         }
                     }
-                    if (deleted) count++;
                 }
-                if (adapter != null) adapter.setSelectionMode(false);
-                loadResumes();
-                Toast.makeText(this, "Deleted " + count + " items", Toast.LENGTH_SHORT).show();
-            })
-            .setNegativeButton("Cancel", null)
-            .show();
+                if (deleted) count++;
+            }
+            if (adapter != null) adapter.setSelectionMode(false);
+            loadResumes();
+            Toast.makeText(this, getString(R.string.deleted_count, count), Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialogView.findViewById(R.id.btnCancelDelete).setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+    private void initMonetization() {
+        adView = findViewById(R.id.adView);
+
+        if (tierManager.shouldShowAds()) {
+            // Check if already initialized at application level
+            MobileAds.initialize(this, initializationStatus -> {
+                Map<String, com.google.android.gms.ads.initialization.AdapterStatus> statusMap = initializationStatus.getAdapterStatusMap();
+                boolean isReady = false;
+                StringBuilder statuses = new StringBuilder("Ad Status:\n");
+                
+                for (String adapterClass : statusMap.keySet()) {
+                    com.google.android.gms.ads.initialization.AdapterStatus status = statusMap.get(adapterClass);
+                    String msg = String.format("%s: %s (%s)", 
+                        adapterClass.substring(adapterClass.lastIndexOf('.') + 1), 
+                        status.getInitializationState(),
+                        status.getDescription());
+                    statuses.append(msg).append("\n");
+                    
+                    if (status.getInitializationState() == com.google.android.gms.ads.initialization.AdapterStatus.State.READY) {
+                        isReady = true;
+                    }
+                }
+                
+                Log.d("AdMob", "Init Status: " + statuses.toString());
+                
+                final boolean finalIsReady = isReady;
+                runOnUiThread(() -> {
+                    Toast.makeText(HomeActivity.this, statuses.toString(), Toast.LENGTH_LONG).show();
+                    if (adView != null) {
+                        adView.setVisibility(View.VISIBLE);
+                        
+                        adView.setAdListener(new com.google.android.gms.ads.AdListener() {
+                            @Override
+                            public void onAdLoaded() {
+                                super.onAdLoaded();
+                                Log.d("AdMob", "Home Banner Loaded Successfully");
+                                adView.setBackgroundColor(Color.TRANSPARENT); 
+                            }
+
+                            @Override
+                            public void onAdFailedToLoad(@NonNull com.google.android.gms.ads.LoadAdError adError) {
+                                super.onAdFailedToLoad(adError);
+                                String detailedError = "!!! HOME AD FAIL !!!\n" +
+                                        "Code: " + adError.getCode() + "\n" +
+                                        "Domain: " + adError.getDomain() + "\n" +
+                                        "Message: " + adError.getMessage() + "\n" +
+                                        "ResponseInfo: " + (adError.getResponseInfo() != null ? adError.getResponseInfo().toString() : "Null");
+                                Log.e("AdMob", detailedError);
+                                Toast.makeText(HomeActivity.this, detailedError, Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                        // Attempt load even if not fully ready (it might fill later)
+                        AdRequest adRequest = new AdRequest.Builder().build();
+                        adView.loadAd(adRequest);
+                    }
+                    loadInterstitialAd();
+                });
+            });
+        }
+ else {
+            if (adView != null) {
+                adView.setVisibility(View.GONE);
+            }
+        }
+        breakOverlay = findViewById(R.id.break_overlay);
+        btnCloseBreak = findViewById(R.id.btn_close_break);
+        tvAdBlockMsg = findViewById(R.id.tv_ad_block_msg);
+        startBreakTimer();
+    }
+
+    private void startBreakTimer() {
+        if (!tierManager.shouldShowAds()) return;
+        if (breakTimerRunnable != null) breakTimerHandler.removeCallbacks(breakTimerRunnable);
+        
+        breakTimerRunnable = () -> showBreakInterruption();
+        // 3m = 180s, 5m = 300s
+        long delay = UserTierManager.isFirstAdShownInSession ? 300000 : 180000;
+        breakTimerHandler.postDelayed(breakTimerRunnable, delay);
+    }
+
+    private void showBreakInterruption() {
+        if (isFinishing() || isDestroyed()) return;
+        
+        UserTierManager.isFirstAdShownInSession = true; // Flag that at least one ad was shown
+        
+        if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.GONE);
+        checkAdBlocker();
+
+        if (breakOverlay != null) {
+            breakOverlay.setVisibility(View.VISIBLE);
+            if (mInterstitialAd != null) {
+                mInterstitialAd.show(this);
+                mInterstitialAd = null;
+                loadInterstitialAd();
+                breakOverlay.postDelayed(() -> {
+                    if (btnCloseBreak != null) btnCloseBreak.setVisibility(View.VISIBLE);
+                }, 3000);
+            } else {
+                breakOverlay.postDelayed(() -> {
+                    if (btnCloseBreak != null) btnCloseBreak.setVisibility(View.VISIBLE);
+                }, 5000);
+            }
+            if (btnCloseBreak != null) {
+                btnCloseBreak.setOnClickListener(v -> {
+                    breakOverlay.setVisibility(View.GONE);
+                    btnCloseBreak.setVisibility(View.INVISIBLE);
+                    startBreakTimer();
+                });
+            }
+        }
+    }
+
+    private void loadInterstitialAd() {
+        if (!tierManager.shouldShowAds()) return;
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest,
+            new InterstitialAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
+                    mInterstitialAd = interstitialAd;
+                }
+                @Override
+                public void onAdFailedToLoad(@NonNull com.google.android.gms.ads.LoadAdError loadAdError) {
+                    mInterstitialAd = null;
+                }
+            });
+    }
+
+    private void checkAdBlocker() {
+        new Thread(() -> {
+            try {
+                java.net.InetAddress address = java.net.InetAddress.getByName("googleads.g.doubleclick.net");
+                boolean isBlocked = address.getHostAddress().equals("127.0.0.1") || address.getHostAddress().equals("0.0.0.0");
+                if (isBlocked) {
+                    runOnUiThread(() -> {
+                        if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.VISIBLE);
+                    });
+                }
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.VISIBLE);
+                });
+            }
+        }).start();
     }
 }

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/sub_bg">
+
+    <!-- Back Button -->
+    <ImageButton android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="16dp" android:layout_marginTop="24dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_chevron_left" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:tint="@color/text_primary" />
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:clipToPadding="false" android:clipChildren="false" android:paddingBottom="40dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@id/btnBack">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" android:clipChildren="false" android:clipToPadding="false">
+
+            <!-- Title -->
+            <TextView android:id="@+id/tvSubTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/sub_title" android:textColor="@color/text_primary" android:textSize="32sp" android:textStyle="bold" />
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/sub_subtitle" android:textColor="@color/text_secondary" android:textSize="14sp" />
+
+            <!-- Banner Ad -->
+            <com.google.android.gms.ads.AdView android:id="@+id/adViewSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:visibility="gone" app:adSize="BANNER" app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+
+            <!-- Billing Toggle -->
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="32dp" android:background="@drawable/toggle_bg" android:orientation="horizontal" android:padding="4dp" android:clipChildren="false" android:clipToPadding="false">
+                <TextView android:id="@+id/btnMonthly" android:layout_width="100dp" android:layout_height="36dp" android:gravity="center" android:text="@string/billing_monthly" android:textColor="@color/text_secondary" android:textSize="13sp" android:textStyle="bold" />
+                <FrameLayout android:layout_width="110dp" android:layout_height="36dp" android:clipChildren="false">
+                    <TextView android:id="@+id/btnYearly" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/toggle_selected_bg" android:gravity="center" android:text="@string/billing_yearly" android:textColor="@color/text_primary" android:textSize="13sp" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="top|end" android:layout_marginTop="-8dp" android:layout_marginEnd="-8dp" android:background="@drawable/badge_bg" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:text="@string/billing_discount_20" android:textColor="@color/white" android:textSize="9sp" android:textStyle="bold" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- Elite Card -->
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardElite" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="32dp" app:cardBackgroundColor="@color/sub_elite_bg" app:cardCornerRadius="24dp" app:cardElevation="4dp" app:strokeWidth="0dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+                    <!-- Collapsed State -->
+                    <RelativeLayout android:id="@+id/layoutEliteCollapsed" android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
+                            <TextView android:id="@+id/tvElitePrice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Elite — $12/mo" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
+                            <TextView android:id="@+id/tvEliteYearlyFee" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$144/year" android:textColor="@color/sub_elite_accent" android:textSize="10sp" android:alpha="0.8" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/elite_summary" android:textColor="@color/sub_elite_accent" android:textSize="11sp" />
+                        </LinearLayout>
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:src="@drawable/ic_expand_more" app:tint="@color/sub_elite_accent" />
+                    </RelativeLayout>
+                    <!-- Expanded State -->
+                    <LinearLayout android:id="@+id/layoutEliteExpanded" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@color/sub_elite_accent" android:paddingHorizontal="10dp" android:paddingVertical="3dp" android:text="@string/most_exclusive" android:textColor="@color/sub_elite_bg" android:textSize="10sp" android:textStyle="bold" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:orientation="vertical">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:gravity="center_vertical">
+                                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_check" app:tint="@color/sub_elite_accent" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/elite_feature_1" android:textColor="@color/white" android:textSize="15sp" android:textStyle="bold" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:gravity="center_vertical">
+                                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_check" app:tint="@color/sub_elite_accent" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/elite_feature_2" android:textColor="@color/white" android:textSize="15sp" android:textStyle="bold" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_check" app:tint="@color/sub_elite_accent" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/elite_feature_3" android:textColor="@color/white" android:textSize="15sp" android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <Button android:id="@+id/btnJoinElite" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="20dp" android:backgroundTint="@color/sub_elite_accent" android:text="@string/sub_elite_btn" android:textColor="@color/sub_elite_bg" android:textStyle="bold" app:cornerRadius="12dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Pro Card -->
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardPro" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="#0F172A" app:cardCornerRadius="24dp" app:cardElevation="2dp" app:strokeWidth="0dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+                    <RelativeLayout android:id="@+id/layoutProCollapsed" android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
+                            <TextView android:id="@+id/tvProPrice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pro — $8/mo" android:textColor="@color/white" android:textSize="18sp" android:textStyle="bold" />
+                            <TextView android:id="@+id/tvProYearlyFee" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$96/year" android:textColor="@color/sub_pro_accent" android:textSize="10sp" android:alpha="0.8" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/pro_summary" android:textColor="@color/sub_pro_accent" android:textSize="11sp" />
+                        </LinearLayout>
+                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:src="@drawable/ic_expand_more" app:tint="@color/sub_pro_accent" />
+                    </RelativeLayout>
+                    <LinearLayout android:id="@+id/layoutProExpanded" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@color/sub_pro_accent" android:paddingHorizontal="10dp" android:paddingVertical="3dp" android:text="@string/professional" android:textColor="#0F172A" android:textSize="10sp" android:textStyle="bold" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:orientation="vertical">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:gravity="center_vertical">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="@color/sub_pro_accent" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/pro_feature_1" android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:gravity="center_vertical">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="@color/sub_pro_accent" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/pro_feature_2" android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <Button android:id="@+id/btnUpgradePro" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp" android:backgroundTint="@color/sub_pro_accent" android:text="@string/sub_pro_btn" android:textColor="#0F172A" android:textStyle="bold" app:cornerRadius="12dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Plus Card -->
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardPlus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="@color/surface_sub_card" app:cardCornerRadius="20dp" app:cardElevation="1dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+                    <RelativeLayout android:id="@+id/layoutPlusCollapsed" android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
+                            <TextView android:id="@+id/tvPlusPrice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Plus — $4/mo" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold" />
+                            <TextView android:id="@+id/tvPlusYearlyFee" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$48/year" android:textColor="@color/text_secondary" android:textSize="10sp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/plus_summary" android:textColor="@color/text_secondary" android:textSize="11sp" />
+                        </LinearLayout>
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:src="@drawable/ic_expand_more" app:tint="@color/sub_plus_accent_new" />
+                    </RelativeLayout>
+                    <LinearLayout android:id="@+id/layoutPlusExpanded" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:gravity="center_vertical">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="@color/sub_plus_accent_new" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/plus_feature_1" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="@color/sub_plus_accent_new" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/plus_feature_2" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <Button android:id="@+id/btnSelectPlus" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp" android:backgroundTint="@color/sub_plus_accent_new" android:text="@string/sub_plus_btn" android:textColor="@color/white" android:textStyle="bold" app:cornerRadius="12dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Ad-Free Card -->
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardAdFree" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="@color/surface_sub_card" app:cardCornerRadius="20dp" app:cardElevation="1dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+                    <RelativeLayout android:id="@+id/layoutAdFreeCollapsed" android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
+                            <TextView android:id="@+id/tvAdFreePrice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ad-Free — $0.8/mo" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold" />
+                            <TextView android:id="@+id/tvAdFreeYearlyFee" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$9.6/year" android:textColor="@color/text_secondary" android:textSize="10sp" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/adfree_summary" android:textColor="@color/text_secondary" android:textSize="11sp" />
+                        </LinearLayout>
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:src="@drawable/ic_expand_more" app:tint="@color/sub_adfree_accent" />
+                    </RelativeLayout>
+                    <LinearLayout android:id="@+id/layoutAdFreeExpanded" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:gravity="center_vertical">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="@color/sub_adfree_accent" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/adfree_feature_1" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="@color/sub_adfree_accent" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/adfree_feature_2" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <Button android:id="@+id/btnSelectAdFree" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp" android:backgroundTint="@color/sub_adfree_accent" android:text="@string/sub_select" android:textColor="@color/white" android:textStyle="bold" app:cornerRadius="12dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Free Card -->
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardFree" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="@color/surface_sub_card" app:cardCornerRadius="20dp" app:cardElevation="1dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+                    <RelativeLayout android:id="@+id/layoutFreeCollapsed" android:layout_width="match_parent" android:layout_height="wrap_content">
+                        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/free_plan_title" android:textColor="@color/text_primary" android:textSize="17sp" android:textStyle="bold" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/free_plan_summary" android:textColor="@color/text_secondary" android:textSize="11sp" />
+                        </LinearLayout>
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:src="@drawable/ic_expand_more" app:tint="@color/sub_free_accent" />
+                    </RelativeLayout>
+                    <LinearLayout android:id="@+id/layoutFreeExpanded" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical">
+                            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:gravity="center_vertical">
+                                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check" app:tint="@color/sub_free_accent" />
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/free_feature_1" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <TextView android:id="@+id/tvFreeCurrent" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/sub_current" android:textColor="@color/sub_free_accent" android:textSize="14sp" android:textStyle="bold" android:visibility="visible" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- Coupon Section -->
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" app:cardBackgroundColor="@color/surface_sub_card" app:cardCornerRadius="16dp" app:cardElevation="0dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/coupon_title" android:textColor="@color/text_primary" android:textSize="14sp" android:textStyle="bold" />
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical" android:orientation="horizontal">
+
+                        <EditText android:id="@+id/etCouponCode" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:background="@drawable/edit_text_bg" android:hint="@string/coupon_hint" android:importantForAutofill="no" android:inputType="textCapCharacters" android:paddingHorizontal="16dp" android:textSize="14sp" />
+
+                        <Button android:id="@+id/btnApplyCoupon" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_marginStart="8dp" android:backgroundTint="@color/text_primary" android:text="@string/coupon_apply" android:textColor="@color/bg_primary" android:textAllCaps="false" app:cornerRadius="8dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Footer Quote -->
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="48dp" android:gravity="center" android:paddingHorizontal="40dp" android:text="@string/sub_footer_quote" android:textColor="@color/text_secondary" android:textSize="12sp" android:alpha="0.7" />
+
+            <!-- Footer Icons -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="32dp" android:gravity="center" android:orientation="horizontal" android:paddingBottom="40dp">
+
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:layout_marginHorizontal="20dp">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@android:drawable/ic_lock_idle_lock" app:tint="@color/sub_pro_accent" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/sub_secure" android:textColor="@color/text_secondary" android:textSize="10sp" android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:layout_marginHorizontal="20dp">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_upload" app:tint="@color/sub_pro_accent" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/sub_sync" android:textColor="@color/text_secondary" android:textSize="10sp" android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:layout_marginHorizontal="20dp">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_swap" app:tint="@color/sub_pro_accent" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/sub_flex" android:textColor="@color/text_secondary" android:textSize="10sp" android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Ad Break Overlay -->
+    <include layout="@layout/design_break_overlay" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

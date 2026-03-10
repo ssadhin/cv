@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="320dp" android:layout_height="wrap_content" android:layout_gravity="center" app:cardBackgroundColor="@color/surface_dialog" app:cardCornerRadius="28dp" app:cardElevation="24dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="32dp">
+
+        <ImageView android:layout_width="64dp" android:layout_height="64dp" android:src="@drawable/ic_extra_sections" app:tint="@color/text_primary" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:fontFamily="serif" android:text="@string/extra_sections_title" android:textColor="@color/text_primary" android:textSize="22sp" android:textStyle="bold" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center" android:text="@string/extra_sections_subtitle" android:textColor="@color/text_secondary" android:textSize="14sp" android:lineSpacingExtra="2dp"/>
+
+        <TextView android:id="@+id/tvSectionsList" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginBottom="8dp" android:background="@color/surface_card_nested" android:padding="16dp" android:text="• Section 1\n• Section 2" android:textColor="@color/text_primary" android:textSize="14sp" android:lineSpacingExtra="4dp" android:fontFamily="monospace"/>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="@string/extra_sections_question" android:textColor="@color/text_secondary" android:textSize="13sp" android:layout_marginTop="8dp"/>
+
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnAddSections" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:text="@string/extra_sections_add_btn" android:textAllCaps="false" android:textSize="16sp" android:textStyle="bold" app:cornerRadius="28dp" app:backgroundTint="@color/brand_primary" android:textColor="#FFFFFF"/>
+
+        <TextView android:id="@+id/btnSkipSections" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="@string/maybe_later" android:textColor="@color/text_secondary" android:textSize="14sp" android:textStyle="bold" android:padding="8dp" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless"/>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

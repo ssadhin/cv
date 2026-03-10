@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="320dp" android:layout_height="wrap_content" android:layout_gravity="center" app:cardBackgroundColor="@color/surface_dialog" app:cardCornerRadius="28dp" app:cardElevation="24dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="32dp">
+
+        <ImageView android:id="@+id/dialogIcon" android:layout_width="64dp" android:layout_height="64dp" android:src="@drawable/ic_delete" app:tint="@color/accent_red" />
+
+        <TextView android:id="@+id/dialogTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:fontFamily="serif" android:text="Delete Resume?" android:textColor="@color/text_primary" android:textSize="22sp" android:textStyle="bold" />
+
+        <TextView android:id="@+id/dialogMessage" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center" android:text="Are you sure you want to delete this resume? This action cannot be undone." android:textColor="@color/text_secondary" android:textSize="14sp" android:lineSpacingExtra="4dp"/>
+
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnConfirmDelete" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="32dp" android:text="Delete" android:textAllCaps="false" android:textSize="16sp" android:textStyle="bold" app:cornerRadius="28dp" app:backgroundTint="@color/accent_red" android:textColor="#FFFFFF"/>
+
+        <TextView android:id="@+id/btnCancelDelete" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Cancel" android:textColor="@color/text_secondary" android:textSize="14sp" android:textStyle="bold" android:padding="8dp" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless"/>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

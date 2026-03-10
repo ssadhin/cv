@@ -1,45 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/homeRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#f5f5f5" tools:context=".HomeActivity">
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/homeRoot" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/bg_primary" tools:context=".HomeActivity">
 
     <!-- Drop Zone for Share (Overlay) -->
-    <LinearLayout android:id="@+id/shareDropZone" android:layout_width="0dp" android:layout_height="120dp" android:background="#F5F5F5" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:elevation="20dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
-        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_share" app:tint="#333333" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Drop here to Share" android:textSize="18sp" android:textStyle="bold" android:textColor="#333333" android:layout_marginTop="8dp"/>
+    <LinearLayout android:id="@+id/shareDropZone" android:layout_width="0dp" android:layout_height="120dp" android:background="@color/bg_card" android:gravity="center" android:orientation="vertical" android:visibility="gone" android:elevation="20dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+        <ImageView android:layout_width="48dp" android:layout_height="48dp" android:src="@android:drawable/ic_menu_share" app:tint="@color/text_primary" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/drop_here_to_share" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/text_primary" android:layout_marginTop="8dp"/>
     </LinearLayout>
 
 
 
     <!-- Branding Header -->
-    <LinearLayout android:id="@+id/brandingHeader" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:paddingTop="48dp" android:paddingBottom="16dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/brandingHeader" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="48dp" android:paddingBottom="16dp" android:background="@android:color/transparent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView android:id="@+id/ivAppLogo" android:layout_width="90dp" android:layout_height="90dp" android:src="@drawable/cv" android:contentDescription="App Logo" />
+        <ImageButton android:id="@+id/ivRestoreBrand" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="16dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_revert" android:visibility="gone" app:tint="#8A8A8A" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="@id/profileContainer" app:layout_constraintBottom_toBottomOf="@id/profileContainer" />
 
-        <TextView android:id="@+id/tvAppTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Vitae" android:textColor="#333333" android:textSize="34sp" android:textStyle="bold" android:layout_marginTop="8dp"/>
+        <LinearLayout android:id="@+id/profileContainer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent">
 
+            <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="4dp">
+                <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivAppLogo" android:layout_width="90dp" android:layout_height="90dp" android:src="@drawable/cv" android:contentDescription="@string/app_logo_desc" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless" app:shapeAppearanceOverlay="@style/CircleAppearance" />
+
+                <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivUserProfile" android:layout_width="90dp" android:layout_height="90dp" android:visibility="gone" android:scaleType="centerCrop" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless" app:shapeAppearanceOverlay="@style/CircleAppearance" />
+            </FrameLayout>
+
+            <TextView android:id="@+id/tvAppTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/app_name" android:textColor="@color/text_secondary" android:textSize="34sp" android:textStyle="bold" android:fontFamily="@font/dancing_script" android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <TextView android:id="@+id/tvRecentHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginStart="24dp" android:text="@string/recent" android:textColor="@color/text_primary" android:textSize="20sp" android:textStyle="bold" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/brandingHeader" />
+
+    <!-- Grouped Sort Controls shifted left -->
+    <LinearLayout android:id="@+id/sortControlsGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" app:layout_constraintBottom_toBottomOf="@id/tvRecentHeader" app:layout_constraintTop_toTopOf="@id/tvRecentHeader" app:layout_constraintStart_toEndOf="@id/tvRecentHeader" app:layout_constraintEnd_toStartOf="@+id/controlsContainer" app:layout_constraintHorizontal_bias="0.2">
+
+        <ImageButton android:id="@+id/btnSort" android:layout_width="36dp" android:layout_height="36dp" android:background="?attr/selectableItemBackgroundBorderless" android:padding="6dp" android:src="@android:drawable/ic_menu_sort_alphabetically" app:tint="@color/text_secondary" />
+
+        <TextView android:id="@+id/tvSortLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="@string/sorted_by_time_edited" android:textColor="@color/text_secondary" android:textSize="11sp" />
     </LinearLayout>
-
-    <TextView android:id="@+id/tvRecentHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginStart="24dp" android:text="Recent" android:textColor="#424242" android:textSize="20sp" android:textStyle="bold" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/brandingHeader" />
-
-    <TextView android:id="@+id/tvSortLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sorted by time edited" android:textColor="#757575" android:textSize="12sp" app:layout_constraintBottom_toBottomOf="@id/tvRecentHeader" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="@id/tvRecentHeader" />
 
     <LinearLayout android:id="@+id/controlsContainer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="16dp" android:gravity="center_vertical" android:orientation="horizontal" app:layout_constraintBottom_toBottomOf="@id/tvRecentHeader" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="@id/tvRecentHeader">
 
         <SeekBar android:id="@+id/gridSizeSlider" android:layout_width="100dp" android:layout_height="wrap_content" android:max="3" android:progress="0" android:visibility="gone" />
 
-        <ImageButton android:id="@+id/btnCloseSelection" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_close_clear_cancel" app:tint="#424242" android:visibility="gone" />
+        <ImageButton android:id="@+id/btnCloseSelection" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_close_clear_cancel" app:tint="@color/text_primary" android:visibility="gone" />
 
         <ImageButton android:id="@+id/btnDeleteSelected" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_delete" app:tint="#D32F2F" android:visibility="gone" tools:visibility="visible" />
 
-        <ImageButton android:id="@+id/btnSort" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:padding="8dp" android:src="@android:drawable/ic_menu_sort_alphabetically" app:tint="#424242" />
-
-        <ImageButton android:id="@+id/btnToggleView" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_grid" app:tint="#424242" />
+        <ImageButton android:id="@+id/btnToggleView" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_grid" app:tint="@color/text_primary" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRecentResumes" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginTop="16dp" android:clipToPadding="false" android:paddingBottom="88dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/tvRecentHeader" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRecentResumes" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginTop="16dp" android:clipToPadding="false" android:paddingBottom="8dp" app:layout_constraintBottom_toTopOf="@id/adView" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/tvRecentHeader" />
 
-    <TextView android:id="@+id/tvEmptyState" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No recently worked on CVs" android:textColor="#9e9e9e" android:textSize="16sp" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/tvRecentHeader" />
+    <TextView android:id="@+id/tvEmptyState" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/no_recent_cvs" android:textColor="@color/text_secondary" android:textSize="16sp" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/tvRecentHeader" />
 
     <!-- FAB Options Panel -->
     <FrameLayout android:id="@+id/fabOptionsPanel" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#CC000000" android:visibility="gone" android:elevation="20dp">
@@ -48,70 +62,89 @@
 
             <!-- Option 4: AI Mode -->
             <LinearLayout android:id="@+id/optionAI" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI Mode" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@drawable/ic_ai_custom" app:tint="#757575" app:backgroundTint="#F5F5F5" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/ai_mode" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@drawable/ic_ai_custom" app:tint="@color/text_secondary" app:backgroundTint="@color/bg_button" />
             </LinearLayout>
 
             <!-- Option 3: Step by Step -->
-            <LinearLayout android:id="@+id/optionStepByStep" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Step by Step (Demo)" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@drawable/ic_step_by_step_wizard" app:tint="#757575" app:backgroundTint="#F5F5F5" />
+            <LinearLayout android:id="@+id/optionStepByStep" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal" android:visibility="gone">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/step_by_step_demo" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@drawable/ic_step_by_step_wizard" app:tint="@color/text_secondary" app:backgroundTint="@color/bg_button" />
             </LinearLayout>
 
             <!-- Option 2: Export/Import -->
             <LinearLayout android:id="@+id/optionExport" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Import (.vitae)" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@android:drawable/ic_menu_share" app:tint="#757575" app:backgroundTint="#F5F5F5" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/import_vitae" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@android:drawable/ic_menu_share" app:tint="@color/text_secondary" app:backgroundTint="@color/bg_button" />
             </LinearLayout>
 
             <!-- Option 1: New CV -->
             <LinearLayout android:id="@+id/optionNewCV" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="New CV" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@drawable/ic_add" app:tint="#757575" app:backgroundTint="#F5F5F5" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/new_cv" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@drawable/ic_add" app:tint="@color/text_secondary" app:backgroundTint="@color/bg_button" />
             </LinearLayout>
 
         </LinearLayout>
 
     </FrameLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/home_fab_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginEnd="16dp" android:layout_marginBottom="16dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/home_fab_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginEnd="24dp" android:layout_marginBottom="32dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Step by Step Wizard Button -->
-        <FrameLayout android:id="@+id/btnHomeStepByStep" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginBottom="16dp" app:layout_constraintDimensionRatio="1:1" app:layout_constraintWidth_percent="0.135" app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toTopOf="@id/btnHomeNewCV">
-            <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
-            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="Step by Step Wizard" android:scaleType="fitCenter" android:src="@drawable/ic_step_by_step_wizard" app:tint="#777777" />
-        </FrameLayout>
+        <!-- 1. Step-by-Step Button (Top Pill) -->
+        <com.google.android.material.card.MaterialCardView android:id="@+id/btnHomeStepByStep" android:layout_width="wrap_content" android:layout_height="64dp" android:layout_marginBottom="16dp" app:cardCornerRadius="32dp" app:cardElevation="8dp" app:cardBackgroundColor="@color/white" app:strokeWidth="0dp" app:layout_constraintBottom_toTopOf="@id/btnHomeAI" app:layout_constraintEnd_toEndOf="parent" android:visibility="gone">
 
-        <!-- New CV Button (+) -->
-        <FrameLayout android:id="@+id/btnHomeNewCV" android:layout_width="0dp" android:layout_height="0dp" app:layout_constraintDimensionRatio="1:1" app:layout_constraintWidth_percent="0.135" app:layout_constraintTop_toBottomOf="@id/btnHomeStepByStep" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent">
-            <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
-            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:contentDescription="Create New CV" android:scaleType="fitCenter" android:src="@drawable/ic_add" />
-        </FrameLayout>
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="24dp" android:paddingEnd="8dp">
 
-        <!-- AI Assistant Button (Left of Plus) -->
-        <FrameLayout android:id="@+id/btnHomeAI" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginEnd="16dp" app:layout_constraintDimensionRatio="1:1" app:layout_constraintWidth_percent="0.135" app:layout_constraintBottom_toBottomOf="@id/btnHomeNewCV" app:layout_constraintEnd_toStartOf="@id/btnHomeNewCV" app:layout_constraintTop_toTopOf="@id/btnHomeNewCV">
-            <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/pill_background" />
-            <ImageButton android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="AI Assistant" android:scaleType="fitCenter" android:src="@drawable/ic_ai_custom" />
-        </FrameLayout>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/step_by_step" android:textColor="@color/fab_text_dark" android:textSize="18sp" android:textStyle="bold" android:layout_marginEnd="16dp"/>
+
+                <FrameLayout android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/lavender_circle_light_bg">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_zigzag_trend" app:tint="@color/fab_icon_purple" />
+                </FrameLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 2. AI Helper Button (Middle Pill) -->
+        <com.google.android.material.card.MaterialCardView android:id="@+id/btnHomeAI" android:layout_width="wrap_content" android:layout_height="64dp" android:layout_marginBottom="24dp" app:cardCornerRadius="32dp" app:cardElevation="8dp" app:cardBackgroundColor="@color/white" app:strokeWidth="0dp" app:layout_constraintBottom_toTopOf="@id/btnHomeNewCV" app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="24dp" android:paddingEnd="8dp">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/ai_helper" android:textColor="@color/fab_text_dark" android:textSize="18sp" android:textStyle="bold" android:layout_marginEnd="16dp"/>
+
+                <FrameLayout android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/purple_circle_bg">
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_sparkles_premium" app:tint="@color/white" />
+                </FrameLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 3. New CV Button (Bottom Circle) -->
+        <com.google.android.material.card.MaterialCardView android:id="@+id/btnHomeNewCV" android:layout_width="72dp" android:layout_height="72dp" app:cardCornerRadius="36dp" app:cardElevation="10dp" app:cardBackgroundColor="@color/fab_purple_main" app:strokeWidth="0dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:layout_gravity="center" android:src="@drawable/ic_add" app:tint="@color/white" />
+        </com.google.android.material.card.MaterialCardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- AdMob Banner -->
+    <com.google.android.gms.ads.AdView android:id="@+id/adView" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF00FF" android:visibility="gone" app:adSize="BANNER" app:adUnitId="ca-app-pub-3940256099942544/6300978111" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Folder Expansion Animation Overlay -->
-    <View android:id="@+id/folderRevealOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:background="#FFFFFF" android:visibility="invisible" android:elevation="25dp" />
+    <View android:id="@+id/folderRevealOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/bg_primary" android:visibility="invisible" android:elevation="25dp" />
 
     <!-- Advanced Drag Zones (Right Side) -->
     <LinearLayout android:id="@+id/advancedDragZones" android:layout_width="120dp" android:layout_height="match_parent" android:orientation="vertical" android:visibility="gone" android:elevation="15dp" app:layout_constraintEnd_toEndOf="parent">
 
-        <LinearLayout android:id="@+id/zoneMoveToHome" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="#F5F5F5" android:gravity="center" android:orientation="vertical" android:padding="16dp">
-            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_keyboard_return" app:tint="#333333" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Move to Home" android:textSize="12sp" android:textStyle="bold" android:textColor="#333333" android:gravity="center" android:layout_marginTop="8dp"/>
+        <LinearLayout android:id="@+id/zoneMoveToHome" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/bg_card" android:gravity="center" android:orientation="vertical" android:padding="16dp">
+            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_keyboard_return" app:tint="@color/text_primary" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/move_to_home" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/text_primary" android:gravity="center" android:layout_marginTop="8dp"/>
         </LinearLayout>
 
-        <LinearLayout android:id="@+id/zoneMoveToOtherGroup" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="#EEEEEE" android:gravity="center" android:orientation="vertical" android:padding="16dp">
-            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_description" app:tint="#555555" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Move to Other Group" android:textSize="12sp" android:textStyle="bold" android:textColor="#555555" android:gravity="center" android:layout_marginTop="8dp"/>
+        <LinearLayout android:id="@+id/zoneMoveToOtherGroup" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@color/bg_button" android:gravity="center" android:orientation="vertical" android:padding="16dp">
+            <ImageView android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_description" app:tint="@color/text_secondary" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/move_to_other_group" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:gravity="center" android:layout_marginTop="8dp"/>
         </LinearLayout>
 
     </LinearLayout>
+
+    <include layout="@layout/design_break_overlay" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

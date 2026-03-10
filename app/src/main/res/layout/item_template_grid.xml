@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="4dp">
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="@color/surface_dialog" android:foreground="?android:attr/selectableItemBackground">
 
-    <com.google.android.material.card.MaterialCardView android:id="@+id/cardTemplate" android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="12dp" app:cardElevation="2dp" app:strokeWidth="2dp" app:strokeColor="#00000000">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center">
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center">
+        <ImageView android:id="@+id/ivThumbnail" android:layout_width="match_parent" android:layout_height="140dp" android:scaleType="centerCrop" android:background="@color/surface_card_nested" />
 
-            <ImageView android:id="@+id/ivThumbnail" android:layout_width="match_parent" android:layout_height="140dp" android:scaleType="centerCrop" android:background="#f5f5f5" />
+        <TextView android:id="@+id/tvTemplateName" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="8dp" android:gravity="center" android:textSize="12sp" android:textColor="@color/text_primary" android:maxLines="1" android:ellipsize="end" />
 
-            <TextView android:id="@+id/tvTemplateName" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="8dp" android:gravity="center" android:textSize="12sp" android:textColor="#333333" android:maxLines="1" android:ellipsize="end" />
+    </LinearLayout>
 
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
-</FrameLayout>
+</androidx.cardview.widget.CardView>

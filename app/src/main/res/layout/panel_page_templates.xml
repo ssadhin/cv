@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@android:color/transparent" android:fillViewport="true">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@android:color/transparent" android:fillViewport="true">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Store Templates" android:textStyle="bold" android:textSize="14sp" android:textColor="#000000" android:layout_marginBottom="12dp"/>
+
+        <!-- Controls Row -->
+        <!-- Controls Row -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:weightSum="1" android:layout_marginBottom="12dp">
+
+            <!-- Resize Thumbnail Slider (50% width) -->
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.5" android:orientation="horizontal" android:gravity="center_vertical" android:paddingEnd="4dp">
+                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_grid" app:tint="@color/text_secondary" android:layout_marginEnd="4dp" />
+                <SeekBar android:id="@+id/seekTemplateGridSize" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="3" android:progress="0" />
+                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_grid" app:tint="@color/text_secondary" android:layout_marginStart="4dp" />
+            </LinearLayout>
+
+            <!-- Filters & Toggles (50% width, scrolling) -->
+            <HorizontalScrollView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.5" android:scrollbars="none" android:fillViewport="true">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="4dp">
+
+                    <!-- Sort Toggle -->
+                    <TextView android:id="@+id/btnTemplateSortToggle" android:layout_width="wrap_content" android:layout_height="32dp" android:gravity="center" android:paddingStart="12dp" android:paddingEnd="12dp" android:text="Recent" android:textColor="#000000" android:textSize="12sp" android:background="@drawable/bg_pill_outline" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp" />
+
+                    <!-- Tag Filter -->
+                    <TextView android:id="@+id/btnTemplateTagFilter" android:layout_width="wrap_content" android:layout_height="32dp" android:gravity="center" android:paddingStart="12dp" android:paddingEnd="12dp" android:text="Tag: All" android:textColor="#000000" android:textSize="12sp" android:background="@drawable/bg_pill_outline" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp" />
+
+                    <!-- Online / Offline Pill Switch -->
+                    <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switchOnlineOffline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="false" />
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
 
         <GridLayout android:id="@+id/user_templates_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:columnCount="2" android:alignmentMode="alignMargins" android:columnOrderPreserved="false" />
 
-        <TextView android:id="@+id/tv_no_templates" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No saved templates yet.\nLong-press the Print icon to save one!" android:gravity="center" android:textColor="#555555" android:layout_marginTop="20dp"/>
+        <TextView android:id="@+id/tv_no_templates" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="No saved templates yet.\nLong-press the Print icon to save one!" android:gravity="center" android:textColor="@color/text_secondary" android:layout_marginTop="20dp"/>
     </LinearLayout>
 
 </ScrollView>

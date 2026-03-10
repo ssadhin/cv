@@ -1,0 +1,1 @@
+param($js); try { [System.Management.Automation.Language.Parser]::ParseInput($js, [ref]$null, [ref]$errs); if ($errs) { foreach ($e in $errs) { Write-Host "Error at line $($e.Extent.StartLineNumber): $($e.Message)" } } else { Write-Host "Syntax OK" } } catch { Write-Host $_ }

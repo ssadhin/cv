@@ -47,4 +47,17 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation("com.vanniktech:android-image-cropper:4.5.0")
     implementation("com.jaredrummler:colorpicker:1.1.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.play.services.auth)
+    implementation(libs.play.services.ads)
+    implementation(libs.billing)
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }
+
+
+apply(plugin = "com.google.gms.google-services")

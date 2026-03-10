@@ -14,8 +14,13 @@ import android.widget.ImageView;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -82,6 +87,9 @@ public class StepByStepActivity extends AppCompatActivity {
     private String signatureData = "";
     private JSONObject colorsData, metricsData;
 
+    private UserTierManager tierManager;
+    private RewardedAd mRewardedAd;
+
     private ActivityResultLauncher<String> mGetContent;
     private FieldModel pendingImageField;
     private ImageView pendingImageView;
@@ -129,7 +137,7 @@ public class StepByStepActivity extends AppCompatActivity {
     }
 
     // Section Model
-    public static class SectionModel {
+    public class SectionModel {
         String id;
         String name;
         String type;
@@ -160,201 +168,201 @@ public class StepByStepActivity extends AppCompatActivity {
             this.column = column;
         }
 
-        private static ItemModel createContactItem(String label, String value) {
+        private ItemModel createContactItem(String label, String value) {
             List<FieldModel> fields = new ArrayList<>();
             fields.add(new FieldModel("val", label, value, "text"));
             return new ItemModel(fields);
         }
 
-        private static ItemModel createDefaultItem(String type) {
+        private ItemModel createDefaultItem(String type) {
             List<FieldModel> fields = new ArrayList<>();
             switch (type) {
                 case "header":
-                    fields.add(new FieldModel("name", "Full Name", "Your Name", "text"));
-                    fields.add(new FieldModel("addr", "Address", "City, Country", "text"));
-                    fields.add(new FieldModel("email", "Email", "email@example.com", "text"));
-                    fields.add(new FieldModel("phone", "Phone", "+1 234 567 890", "text"));
-                    fields.add(new FieldModel("link", "LinkedIn / Web", "linkedin.com/in/...", "text"));
+                    fields.add(new FieldModel("name", StepByStepActivity.this.getString(R.string.field_full_name), getString(R.string.placeholder_name), "text"));
+                    fields.add(new FieldModel("addr", StepByStepActivity.this.getString(R.string.field_address), getString(R.string.placeholder_address), "text"));
+                    fields.add(new FieldModel("email", StepByStepActivity.this.getString(R.string.field_email), "email@example.com", "text"));
+                    fields.add(new FieldModel("phone", StepByStepActivity.this.getString(R.string.field_phone), "+1 234 567 890", "text"));
+                    fields.add(new FieldModel("link", StepByStepActivity.this.getString(R.string.field_linkedin), "linkedin.com/in/...", "text"));
                     break;
                 case "profile_pic":
                 case "profileSection":
-                    fields.add(new FieldModel("profile_pic", "Profile Picture", "", "image"));
+                    fields.add(new FieldModel("profile_pic", StepByStepActivity.this.getString(R.string.field_profile_pic), "", "image"));
                     break;
                 case "name_profession":
                 case "nameProfessionSection":
-                    fields.add(new FieldModel("name", "Name", "Your Name"));
-                    fields.add(new FieldModel("prof", "Profession", "Professional Title"));
+                    fields.add(new FieldModel("name", StepByStepActivity.this.getString(R.string.field_name), getString(R.string.placeholder_name)));
+                    fields.add(new FieldModel("prof", StepByStepActivity.this.getString(R.string.field_profession), getString(R.string.placeholder_profession)));
                     break;
                 case "personal":
                 case "personalDetails":
-                    fields.add(new FieldModel("nationality", "Nationality", ""));
-                    fields.add(new FieldModel("dob", "Date of Birth", ""));
-                    fields.add(new FieldModel("gender", "Gender", ""));
-                    fields.add(new FieldModel("ms", "Marital Status", ""));
+                    fields.add(new FieldModel("nationality", StepByStepActivity.this.getString(R.string.field_nationality), ""));
+                    fields.add(new FieldModel("dob", StepByStepActivity.this.getString(R.string.field_dob), ""));
+                    fields.add(new FieldModel("gender", StepByStepActivity.this.getString(R.string.field_gender), ""));
+                    fields.add(new FieldModel("ms", StepByStepActivity.this.getString(R.string.field_ms), ""));
                     break;
                 case "passport":
                 case "passportDetails":
-                    fields.add(new FieldModel("pno", "Passport No.", ""));
-                    fields.add(new FieldModel("issued", "Issued By", ""));
-                    fields.add(new FieldModel("idate", "Issue Date", ""));
-                    fields.add(new FieldModel("edate", "Expiry Date", ""));
+                    fields.add(new FieldModel("pno", StepByStepActivity.this.getString(R.string.field_pno), ""));
+                    fields.add(new FieldModel("issued", StepByStepActivity.this.getString(R.string.field_issued), ""));
+                    fields.add(new FieldModel("idate", StepByStepActivity.this.getString(R.string.field_idate), ""));
+                    fields.add(new FieldModel("edate", StepByStepActivity.this.getString(R.string.field_edate), ""));
                     break;
                 case "summary_paragraph":
                 case "summarySection":
-                    fields.add(new FieldModel("summary", "Summary", "textarea", "..."));
+                    fields.add(new FieldModel("summary", StepByStepActivity.this.getString(R.string.field_summary), "textarea", "..."));
                     break;
                 case "visaStatus":
-                    fields.add(new FieldModel("country", "Country", ""));
-                    fields.add(new FieldModel("type", "Visa Type", ""));
-                    fields.add(new FieldModel("status", "Status", ""));
-                    fields.add(new FieldModel("expiry", "Expiry Date", ""));
+                    fields.add(new FieldModel("country", StepByStepActivity.this.getString(R.string.field_country), ""));
+                    fields.add(new FieldModel("type", StepByStepActivity.this.getString(R.string.field_visa_type), ""));
+                    fields.add(new FieldModel("status", StepByStepActivity.this.getString(R.string.field_status), ""));
+                    fields.add(new FieldModel("expiry", StepByStepActivity.this.getString(R.string.field_edate), ""));
                     break;
                 case "languages":
-                    fields.add(new FieldModel("lang", "Language", ""));
-                    fields.add(new FieldModel("lvl", "Level (e.g. Fluent)", ""));
+                    fields.add(new FieldModel("lang", StepByStepActivity.this.getString(R.string.field_lang), ""));
+                    fields.add(new FieldModel("lvl", StepByStepActivity.this.getString(R.string.field_lvl_fluent), ""));
                     break;
                 case "education":
-                    fields.add(new FieldModel("inst", "Institute", ""));
-                    fields.add(new FieldModel("year", "Year", ""));
-                    fields.add(new FieldModel("board", "Board", ""));
-                    fields.add(new FieldModel("deg", "Degree", ""));
-                    fields.add(new FieldModel("gpa", "GPA/Score", ""));
+                    fields.add(new FieldModel("inst", StepByStepActivity.this.getString(R.string.field_inst), ""));
+                    fields.add(new FieldModel("year", StepByStepActivity.this.getString(R.string.field_year), ""));
+                    fields.add(new FieldModel("board", StepByStepActivity.this.getString(R.string.field_board), ""));
+                    fields.add(new FieldModel("deg", StepByStepActivity.this.getString(R.string.field_deg), ""));
+                    fields.add(new FieldModel("gpa", StepByStepActivity.this.getString(R.string.field_gpa), ""));
                     break;
                 case "experience":
-                    fields.add(new FieldModel("comp", "Company", ""));
-                    fields.add(new FieldModel("dur", "Duration", ""));
-                    fields.add(new FieldModel("role", "Role", ""));
-                    fields.add(new FieldModel("desc", "Responsibilities", "textarea", ""));
+                    fields.add(new FieldModel("comp", StepByStepActivity.this.getString(R.string.field_comp), ""));
+                    fields.add(new FieldModel("dur", StepByStepActivity.this.getString(R.string.field_dur), ""));
+                    fields.add(new FieldModel("role", StepByStepActivity.this.getString(R.string.field_role), ""));
+                    fields.add(new FieldModel("desc", StepByStepActivity.this.getString(R.string.field_desc), "textarea", ""));
                     break;
                 case "projects":
-                    fields.add(new FieldModel("name", "Project Name", ""));
-                    fields.add(new FieldModel("year", "Year", ""));
-                    fields.add(new FieldModel("desc", "Description", "textarea", ""));
-                    fields.add(new FieldModel("link", "Project Link", ""));
+                    fields.add(new FieldModel("name", StepByStepActivity.this.getString(R.string.field_title), ""));
+                    fields.add(new FieldModel("year", StepByStepActivity.this.getString(R.string.field_year), ""));
+                    fields.add(new FieldModel("desc", StepByStepActivity.this.getString(R.string.field_desc), "textarea", ""));
+                    fields.add(new FieldModel("link", StepByStepActivity.this.getString(R.string.field_link), ""));
                     break;
                 case "researchExp":
                 case "teachingExp":
                 case "grants":
                 case "training":
-                    fields.add(new FieldModel("title", "Title", ""));
-                    fields.add(new FieldModel("year", "Year / Date", ""));
-                    fields.add(new FieldModel("inst", "Institution / Agency", ""));
-                    fields.add(new FieldModel("desc", "Details", "textarea", ""));
+                    fields.add(new FieldModel("title", StepByStepActivity.this.getString(R.string.field_title), ""));
+                    fields.add(new FieldModel("year", StepByStepActivity.this.getString(R.string.field_year_date), ""));
+                    fields.add(new FieldModel("inst", StepByStepActivity.this.getString(R.string.field_inst_agency), ""));
+                    fields.add(new FieldModel("desc", StepByStepActivity.this.getString(R.string.field_details), "textarea", ""));
                     break;
                 case "skills":
                 case "hobbies":
                 case "interests":
-                    fields.add(new FieldModel("cat", "Category", ""));
-                    fields.add(new FieldModel("vals", "Items (comma separated)", "textarea", ""));
+                    fields.add(new FieldModel("cat", StepByStepActivity.this.getString(R.string.field_cat), ""));
+                    fields.add(new FieldModel("vals", StepByStepActivity.this.getString(R.string.field_items_comma), "textarea", ""));
                     break;
                 case "testScores":
-                    fields.add(new FieldModel("test", "Test Name", ""));
-                    fields.add(new FieldModel("score", "Score", ""));
-                    fields.add(new FieldModel("date", "Date", ""));
+                    fields.add(new FieldModel("test", StepByStepActivity.this.getString(R.string.field_test), ""));
+                    fields.add(new FieldModel("score", StepByStepActivity.this.getString(R.string.field_score), ""));
+                    fields.add(new FieldModel("date", StepByStepActivity.this.getString(R.string.field_date), ""));
                     break;
                 case "simple-list":
                 case "certificates":
                 case "physicalFitness":
-                    fields.add(new FieldModel("val", "Content", ""));
+                    fields.add(new FieldModel("val", StepByStepActivity.this.getString(R.string.field_val_content), ""));
                     break;
                 case "awards":
                 case "achievements":
-                    fields.add(new FieldModel("title", "Award/Achievement", ""));
+                    fields.add(new FieldModel("title", StepByStepActivity.this.getString(R.string.field_award_achievement), ""));
                     break;
                 case "contact":
-                    fields.add(new FieldModel("val", "Contact Detail", "example@gmail.com"));
+                    fields.add(new FieldModel("val", StepByStepActivity.this.getString(R.string.field_val_contact), "example@gmail.com"));
                     break;
                 case "certifications":
-                    fields.add(new FieldModel("name", "Certification Name", ""));
-                    fields.add(new FieldModel("org", "Organization", ""));
-                    fields.add(new FieldModel("date", "Date", ""));
+                    fields.add(new FieldModel("name", StepByStepActivity.this.getString(R.string.field_cert_name), ""));
+                    fields.add(new FieldModel("org", StepByStepActivity.this.getString(R.string.field_org), ""));
+                    fields.add(new FieldModel("date", StepByStepActivity.this.getString(R.string.field_date), ""));
                     break;
                 case "volunteer":
-                    fields.add(new FieldModel("role", "Role", ""));
-                    fields.add(new FieldModel("dur", "Date", ""));
-                    fields.add(new FieldModel("inst", "Organization", ""));
-                    fields.add(new FieldModel("desc", "Description", "textarea", ""));
+                    fields.add(new FieldModel("role", StepByStepActivity.this.getString(R.string.field_role), ""));
+                    fields.add(new FieldModel("dur", StepByStepActivity.this.getString(R.string.field_dur), ""));
+                    fields.add(new FieldModel("inst", StepByStepActivity.this.getString(R.string.field_org), ""));
+                    fields.add(new FieldModel("desc", StepByStepActivity.this.getString(R.string.field_desc), "textarea", ""));
                     break;
                 case "publications":
-                    fields.add(new FieldModel("title", "Title", ""));
-                    fields.add(new FieldModel("year", "Year", ""));
-                    fields.add(new FieldModel("pub", "Publisher", ""));
-                    fields.add(new FieldModel("link", "Link", ""));
+                    fields.add(new FieldModel("title", StepByStepActivity.this.getString(R.string.field_title), ""));
+                    fields.add(new FieldModel("year", StepByStepActivity.this.getString(R.string.field_year), ""));
+                    fields.add(new FieldModel("pub", StepByStepActivity.this.getString(R.string.field_pub), ""));
+                    fields.add(new FieldModel("link", StepByStepActivity.this.getString(R.string.field_link), ""));
                     break;
                 case "affiliations":
-                    fields.add(new FieldModel("org", "Organization", ""));
-                    fields.add(new FieldModel("role", "Role", ""));
-                    fields.add(new FieldModel("year", "Year", ""));
+                    fields.add(new FieldModel("org", StepByStepActivity.this.getString(R.string.field_org), ""));
+                    fields.add(new FieldModel("role", StepByStepActivity.this.getString(R.string.field_role), ""));
+                    fields.add(new FieldModel("year", StepByStepActivity.this.getString(R.string.field_year), ""));
                     break;
                 case "familyDetails":
-                    fields.add(new FieldModel("father", "Father: Name / Occupation", ""));
-                    fields.add(new FieldModel("mother", "Mother: Name / Occupation", ""));
-                    fields.add(new FieldModel("siblings", "Siblings: Number / Details", ""));
+                    fields.add(new FieldModel("father", StepByStepActivity.this.getString(R.string.field_father_occup), ""));
+                    fields.add(new FieldModel("mother", StepByStepActivity.this.getString(R.string.field_mother_occup), ""));
+                    fields.add(new FieldModel("siblings", StepByStepActivity.this.getString(R.string.field_siblings_details), ""));
                     break;
                 case "partnerExpectations":
-                    fields.add(new FieldModel("pref", "Edu / Prof Preference", ""));
-                    fields.add(new FieldModel("expectations", "General Expectations", "textarea", ""));
+                    fields.add(new FieldModel("pref", StepByStepActivity.this.getString(R.string.field_edu_prof_pref), ""));
+                    fields.add(new FieldModel("expectations", StepByStepActivity.this.getString(R.string.field_general_expectations), "textarea", ""));
                     break;
                 case "lifestyleHabits":
-                    fields.add(new FieldModel("diet", "Diet (Veg/Non-Veg)", ""));
-                    fields.add(new FieldModel("smoking", "Smoking Habit", ""));
-                    fields.add(new FieldModel("drinking", "Drinking Habit", ""));
+                    fields.add(new FieldModel("diet", StepByStepActivity.this.getString(R.string.field_diet_veg), ""));
+                    fields.add(new FieldModel("smoking", StepByStepActivity.this.getString(R.string.field_smoking), ""));
+                    fields.add(new FieldModel("drinking", StepByStepActivity.this.getString(R.string.field_drinking), ""));
                     break;
                 case "astrologySection":
                 case "astrological":
-                    fields.add(new FieldModel("rashi", "Rashi / Zodiac", ""));
-                    fields.add(new FieldModel("nakshatra", "Nakshatra / Star", ""));
-                    fields.add(new FieldModel("gotra", "Gotra / Lineage", ""));
+                    fields.add(new FieldModel("rashi", StepByStepActivity.this.getString(R.string.field_rashi), ""));
+                    fields.add(new FieldModel("nakshatra", StepByStepActivity.this.getString(R.string.field_nakshatra), ""));
+                    fields.add(new FieldModel("gotra", StepByStepActivity.this.getString(R.string.field_gotra), ""));
                     break;
                 case "physical":
                 case "physicalProfile":
-                    fields.add(new FieldModel("height", "Height", ""));
-                    fields.add(new FieldModel("weight", "Weight", ""));
-                    fields.add(new FieldModel("complexion", "Complexion", ""));
-                    fields.add(new FieldModel("build", "Build (e.g. Athletic)", ""));
-                    fields.add(new FieldModel("eye", "Eye Color", ""));
+                    fields.add(new FieldModel("height", StepByStepActivity.this.getString(R.string.field_height), ""));
+                    fields.add(new FieldModel("weight", StepByStepActivity.this.getString(R.string.field_weight), ""));
+                    fields.add(new FieldModel("complexion", StepByStepActivity.this.getString(R.string.field_complexion), ""));
+                    fields.add(new FieldModel("build", StepByStepActivity.this.getString(R.string.field_build), ""));
+                    fields.add(new FieldModel("eye", StepByStepActivity.this.getString(R.string.field_eye_color), ""));
                     break;
                 case "visualRegistry":
                 case "photography":
-                    fields.add(new FieldModel("head", "Headshot Label", "Headshot"));
-                    fields.add(new FieldModel("body", "Full-body Label", "Full-Body Shot"));
-                    fields.add(new FieldModel("life", "Lifestyle Label", "Lifestyle Photo"));
+                    fields.add(new FieldModel("head", StepByStepActivity.this.getString(R.string.field_headshot_label), "Headshot"));
+                    fields.add(new FieldModel("body", StepByStepActivity.this.getString(R.string.field_fullbody_label), "Full-Body Shot"));
+                    fields.add(new FieldModel("life", StepByStepActivity.this.getString(R.string.field_lifestyle_photo_label), "Lifestyle Photo"));
                     break;
                 case "active_lifestyle":
                 case "activeLife":
-                    fields.add(new FieldModel("activity", "Activity", ""));
-                    fields.add(new FieldModel("achievements", "Achievements", ""));
-                    fields.add(new FieldModel("health", "Health Status", ""));
+                    fields.add(new FieldModel("activity", StepByStepActivity.this.getString(R.string.field_activity), ""));
+                    fields.add(new FieldModel("achievements", StepByStepActivity.this.getString(R.string.field_achievements), ""));
+                    fields.add(new FieldModel("health", StepByStepActivity.this.getString(R.string.field_health_status), ""));
                     break;
                 case "extra":
-                    fields.add(new FieldModel("act", "Activity", ""));
-                    fields.add(new FieldModel("dur", "Duration", ""));
-                    fields.add(new FieldModel("desc", "Description", "textarea", ""));
+                    fields.add(new FieldModel("act", StepByStepActivity.this.getString(R.string.field_activity), ""));
+                    fields.add(new FieldModel("dur", StepByStepActivity.this.getString(R.string.field_dur), ""));
+                    fields.add(new FieldModel("desc", StepByStepActivity.this.getString(R.string.field_desc), "textarea", ""));
                     break;
                 case "references":
-                    fields.add(new FieldModel("name", "Name", ""));
-                    fields.add(new FieldModel("pos", "Position", ""));
-                    fields.add(new FieldModel("org", "Company", ""));
-                    fields.add(new FieldModel("email", "Email", ""));
-                    fields.add(new FieldModel("phone", "Phone", ""));
+                    fields.add(new FieldModel("name", StepByStepActivity.this.getString(R.string.field_name), ""));
+                    fields.add(new FieldModel("pos", StepByStepActivity.this.getString(R.string.field_pos), ""));
+                    fields.add(new FieldModel("org", StepByStepActivity.this.getString(R.string.field_org), ""));
+                    fields.add(new FieldModel("email", StepByStepActivity.this.getString(R.string.field_email), ""));
+                    fields.add(new FieldModel("phone", StepByStepActivity.this.getString(R.string.field_phone), ""));
                     break;
                 case "internships":
-                    fields.add(new FieldModel("role", "Role", ""));
-                    fields.add(new FieldModel("date", "Date", ""));
-                    fields.add(new FieldModel("comp", "Company", ""));
-                    fields.add(new FieldModel("desc", "Responsibilities", "textarea", ""));
+                    fields.add(new FieldModel("role", StepByStepActivity.this.getString(R.string.field_role), ""));
+                    fields.add(new FieldModel("date", StepByStepActivity.this.getString(R.string.field_date), ""));
+                    fields.add(new FieldModel("comp", StepByStepActivity.this.getString(R.string.field_comp), ""));
+                    fields.add(new FieldModel("desc", StepByStepActivity.this.getString(R.string.field_desc), "textarea", ""));
                     break;
                 case "weblinks":
-                    fields.add(new FieldModel("name", "Site Name", ""));
-                    fields.add(new FieldModel("link", "URL", ""));
-                    fields.add(new FieldModel("desc", "Description", "textarea", ""));
+                    fields.add(new FieldModel("name", StepByStepActivity.this.getString(R.string.field_site_name), ""));
+                    fields.add(new FieldModel("link", StepByStepActivity.this.getString(R.string.field_url), ""));
+                    fields.add(new FieldModel("desc", StepByStepActivity.this.getString(R.string.field_desc), "textarea", ""));
                     break;
                 case "declaration_block":
                 case "declarationSection":
-                    fields.add(new FieldModel("text", "Declaration Text", "textarea", "I hereby certify..."));
+                    fields.add(new FieldModel("text", StepByStepActivity.this.getString(R.string.field_declaration_text), "textarea", getString(R.string.placeholder_declaration)));
                     break;
                 default:
-                    fields.add(new FieldModel("val", "Content", ""));
+                    fields.add(new FieldModel("val", StepByStepActivity.this.getString(R.string.field_val_content), ""));
             }
             return new ItemModel(fields);
         }
@@ -416,59 +424,65 @@ public class StepByStepActivity extends AppCompatActivity {
         }
     }
 
-    private final List<SectionModel> ALL_SECTIONS = Arrays.asList(
-        // SPECIAL: Header (Hidden from Step 3 list but used for templates)
-        new SectionModel("headerSection", "Header Info", "fa-user-circle", "header", "gridEssentials"),
+    private List<SectionModel> ALL_SECTIONS;
 
-        // Essentials
-        new SectionModel("profileSection", "Profile Picture", "fa-user-circle", "profile_pic", "gridEssentials"),
-        new SectionModel("nameProfessionSection", "Name & Profession", "fa-id-badge", "name_profession", "gridEssentials"),
-        new SectionModel("personalDetails", "Personal Details", "fa-id-card", "personal", "gridEssentials"),
-        new SectionModel("passportDetails", "Passport Details", "fa-passport", "passport", "gridEssentials"),
-        new SectionModel("visaStatus", "Visa Status", "fa-file-invoice", "visaStatus", "gridEssentials"),
-        new SectionModel("summarySection", "Summary", "fa-user-tie", "summary_paragraph", "gridEssentials"),
-        new SectionModel("languages", "Languages", "fa-language", "languages", "gridEssentials"),
+    private void initAllSections() {
+        ALL_SECTIONS = Arrays.asList(
+            // SPECIAL: Header (Hidden from Step 3 list but used for templates)
+            new SectionModel("headerSection", getString(R.string.section_header), "fa-user-circle", "header", "gridEssentials"),
 
-        // Experience & Knowledge
-        new SectionModel("education", "Education", "fa-graduation-cap", "education", "gridExp"),
-        new SectionModel("experience", "Experience", "fa-briefcase", "experience", "gridExp"),
-        new SectionModel("projects", "Projects", "fa-project-diagram", "projects", "gridExp"),
-        new SectionModel("researchExp", "Research Experience", "fa-microscope", "researchExp", "gridExp"),
-        new SectionModel("teachingExp", "Teaching Experience", "fa-chalkboard-teacher", "teachingExp", "gridExp"),
-        new SectionModel("grants", "Grants & Funding", "fa-hand-holding-usd", "grants", "gridExp"),
-        new SectionModel("skills", "Skills", "fa-tools", "skills", "gridExp"),
-        new SectionModel("testScores", "Test Scores", "fa-check-double", "testScores", "gridExp"),
-        new SectionModel("certificates", "Certificates (Simple)", "fa-certificate", "simple-list", "gridExp"),
+            // Essentials
+            new SectionModel("profileSection", getString(R.string.section_profile), "fa-user-circle", "profile_pic", "gridEssentials"),
+            new SectionModel("nameProfessionSection", getString(R.string.section_name_prof), "fa-id-badge", "name_profession", "gridEssentials"),
+            new SectionModel("personalDetails", getString(R.string.section_personal), "fa-id-card", "personal", "gridEssentials"),
+            new SectionModel("passportDetails", getString(R.string.section_passport), "fa-passport", "passport", "gridEssentials"),
+            new SectionModel("visaStatus", getString(R.string.section_visa), "fa-file-invoice", "visaStatus", "gridEssentials"),
+            new SectionModel("summarySection", getString(R.string.section_summary), "fa-user-tie", "summary_paragraph", "gridEssentials"),
+            new SectionModel("languages", getString(R.string.section_languages), "fa-language", "languages", "gridEssentials"),
 
-        // Additional
-        new SectionModel("awards", "Awards & Honors", "fa-trophy", "awards", "gridAdd"),
-        new SectionModel("certifications", "Certifications (Adv)", "fa-certificate", "certifications", "gridAdd"),
-        new SectionModel("volunteer", "Volunteer Exp", "fa-hands-helping", "volunteer", "gridAdd"),
-        new SectionModel("publications", "Publications", "fa-book", "publications", "gridAdd"),
-        new SectionModel("affiliations", "Affiliations", "fa-users", "affiliations", "gridAdd"),
-        new SectionModel("familyDetails", "Family Details", "fa-users-cog", "familyDetails", "gridAdd"),
-        new SectionModel("partnerExpectations", "Partner Expectations", "fa-heart", "partnerExpectations", "gridAdd"),
-        new SectionModel("lifestyleHabits", "Lifestyle Habits", "fa-apple-alt", "lifestyleHabits", "gridAdd"),
-        new SectionModel("astrologySection", "Astrological Details", "fa-sun", "astrologySection", "gridAdd"),
-        new SectionModel("hobbies", "Hobbies", "fa-gamepad", "hobbies", "gridAdd"),
-        new SectionModel("extra", "Extracurricular", "fa-futbol", "extra", "gridAdd"),
-        new SectionModel("references", "References", "fa-user-check", "references", "gridAdd"),
-        new SectionModel("training", "Training", "fa-chalkboard-teacher", "training", "gridAdd"),
-        new SectionModel("internships", "Internships", "fa-laptop-code", "internships", "gridAdd"),
-        new SectionModel("achievements", "Achievements", "fa-star", "achievements", "gridAdd"),
-        new SectionModel("weblinks", "Web Links", "fa-link", "weblinks", "gridAdd"),
-        new SectionModel("contactDetails", "Contact Details", "fa-address-book", "contact", "gridEssentials"),
-        new SectionModel("physicalProfile", "Physical Profile", "fa-user-check", "physical", "gridAdd"),
-        new SectionModel("visualRegistry", "Visual Representation", "fa-camera", "photography", "gridAdd"),
-        new SectionModel("activeLife", "Active Lifestyle", "fa-running", "active_lifestyle", "gridAdd"),
-        new SectionModel("physicalFitness", "Interests (Misc)", "fa-heartbeat", "simple-list", "gridAdd"),
-        new SectionModel("interests", "Interests", "fa-star", "hobbies", "gridAdd"),
-        new SectionModel("declarationSection", "Declaration", "fa-file-signature", "declaration_block", "gridAdd")
-    );
+            // Experience & Knowledge
+            new SectionModel("education", getString(R.string.section_education), "fa-graduation-cap", "education", "gridExp"),
+            new SectionModel("experience", getString(R.string.section_experience), "fa-briefcase", "experience", "gridExp"),
+            new SectionModel("projects", getString(R.string.section_projects), "fa-project-diagram", "projects", "gridExp"),
+            new SectionModel("researchExp", getString(R.string.section_research), "fa-microscope", "researchExp", "gridExp"),
+            new SectionModel("teachingExp", getString(R.string.section_teaching), "fa-chalkboard-teacher", "teachingExp", "gridExp"),
+            new SectionModel("grants", getString(R.string.section_grants), "fa-hand-holding-usd", "grants", "gridExp"),
+            new SectionModel("skills", getString(R.string.section_skills), "fa-tools", "skills", "gridExp"),
+            new SectionModel("testScores", getString(R.string.section_test_scores), "fa-check-double", "testScores", "gridExp"),
+            new SectionModel("certificates", getString(R.string.section_certificates_simple), "fa-certificate", "simple-list", "gridExp"),
+
+            // Additional
+            new SectionModel("awards", getString(R.string.section_awards), "fa-trophy", "awards", "gridAdd"),
+            new SectionModel("certifications", getString(R.string.section_certifications), "fa-certificate", "certifications", "gridAdd"),
+            new SectionModel("volunteer", getString(R.string.section_volunteer), "fa-hands-helping", "volunteer", "gridAdd"),
+            new SectionModel("publications", getString(R.string.section_publications), "fa-book", "publications", "gridAdd"),
+            new SectionModel("affiliations", getString(R.string.section_affiliations), "fa-users", "affiliations", "gridAdd"),
+            new SectionModel("familyDetails", getString(R.string.section_family), "fa-users-cog", "familyDetails", "gridAdd"),
+            new SectionModel("partnerExpectations", getString(R.string.section_expectations), "fa-heart", "partnerExpectations", "gridAdd"),
+            new SectionModel("lifestyleHabits", getString(R.string.section_lifestyle), "fa-apple-alt", "lifestyleHabits", "gridAdd"),
+            new SectionModel("astrologySection", getString(R.string.section_astrology), "fa-sun", "astrologySection", "gridAdd"),
+            new SectionModel("hobbies", getString(R.string.section_hobbies), "fa-gamepad", "hobbies", "gridAdd"),
+            new SectionModel("extra", getString(R.string.section_extra), "fa-futbol", "extra", "gridAdd"),
+            new SectionModel("references", getString(R.string.section_references), "fa-user-check", "references", "gridAdd"),
+            new SectionModel("training", getString(R.string.section_training), "fa-chalkboard-teacher", "training", "gridAdd"),
+            new SectionModel("internships", getString(R.string.section_internships), "fa-laptop-code", "internships", "gridAdd"),
+            new SectionModel("achievements", getString(R.string.section_achievements), "fa-star", "achievements", "gridAdd"),
+            new SectionModel("weblinks", getString(R.string.section_weblinks), "fa-link", "weblinks", "gridAdd"),
+            new SectionModel("contactDetails", getString(R.string.section_contact), "fa-address-book", "contact", "gridEssentials"),
+            new SectionModel("physicalProfile", getString(R.string.section_physical), "fa-user-check", "physical", "gridAdd"),
+            new SectionModel("visualRegistry", getString(R.string.section_visual), "fa-camera", "photography", "gridAdd"),
+            new SectionModel("activeLife", getString(R.string.section_active), "fa-running", "active_lifestyle", "gridAdd"),
+            new SectionModel("physicalFitness", getString(R.string.section_interests), "fa-heartbeat", "simple-list", "gridAdd"),
+            new SectionModel("interests", getString(R.string.section_interests), "fa-star", "hobbies", "gridAdd"),
+            new SectionModel("declarationSection", getString(R.string.section_declaration), "fa-file-signature", "declaration_block", "gridAdd")
+        );
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ThemeManager.applyTheme(this);
         super.onCreate(savedInstanceState);
+        initAllSections(); // Initialize sections before layout needs them
         setContentView(R.layout.activity_step_by_step);
 
         mGetContent = registerForActivityResult(new ActivityResultContracts.GetContent(),
@@ -489,7 +503,7 @@ public class StepByStepActivity extends AppCompatActivity {
                             updateWebViewPreview();
                         } catch (Exception e) {
                             Log.e("StepByStep", "Error picking image", e);
-                            Toast.makeText(this, "Error picking image", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, getString(R.string.error_picking_image), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -536,11 +550,11 @@ public class StepByStepActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
                 updateUI();
             } else {
-                launchEditor();
+                showAdAndLaunchEditor();
             }
         });
 
-        btnSwitchToEditor.setOnClickListener(v -> launchEditor());
+        btnSwitchToEditor.setOnClickListener(v -> showAdAndLaunchEditor());
 
         if (getIntent() != null && getIntent().hasExtra("EXTRA_INITIAL_STATE")) {
             loadStructuredData(getIntent().getStringExtra("EXTRA_INITIAL_STATE"));
@@ -562,6 +576,7 @@ public class StepByStepActivity extends AppCompatActivity {
         }
 
         updateUI();
+        initMonetization();
     }
 
     private void setupResizer() {
@@ -606,19 +621,19 @@ public class StepByStepActivity extends AppCompatActivity {
         
         switch (current) {
             case 0:
-                tvStepTitle.setText("Select Purpose");
+                tvStepTitle.setText(getString(R.string.select_purpose));
                 btnBack.setVisibility(View.INVISIBLE);
-                btnNext.setText("Next");
+                btnNext.setText(getString(R.string.next));
                 break;
             case 1:
-                tvStepTitle.setText("Choose Template");
+                tvStepTitle.setText(getString(R.string.choose_template));
                 btnBack.setVisibility(View.VISIBLE);
-                btnNext.setText("Next");
+                btnNext.setText(getString(R.string.next));
                 break;
             case 2:
-                tvStepTitle.setText("Manage Sections");
+                tvStepTitle.setText(getString(R.string.manage_sections));
                 btnBack.setVisibility(View.VISIBLE);
-                btnNext.setText("Finish");
+                btnNext.setText(getString(R.string.finish));
                 break;
         }
     }
@@ -1144,6 +1159,135 @@ public class StepByStepActivity extends AppCompatActivity {
         }
     }
 
+    private String getLocalizedLabel(String key, String defaultLabel) {
+        if (com.example.myapplication.LocaleHelper.getLanguage(this).equals("en")) return defaultLabel;
+        switch (key.toLowerCase()) {
+            case "name": return getString(R.string.field_name);
+            case "email": return getString(R.string.field_email);
+            case "phone": return getString(R.string.field_phone);
+            case "addr": return getString(R.string.field_address);
+            case "linkedin": return getString(R.string.field_linkedin);
+            case "github": return getString(R.string.field_github);
+            case "portfolio": return getString(R.string.field_portfolio);
+            case "facebook": return getString(R.string.field_facebook);
+            case "web": return getString(R.string.field_website);
+            case "nationality": return getString(R.string.field_nationality);
+            case "dob": return getString(R.string.field_dob);
+            case "gender": return getString(R.string.field_gender);
+            case "ms": return getString(R.string.field_ms);
+            case "height": return getString(R.string.field_height);
+            case "pno": return getString(R.string.field_pno);
+            case "issued": return getString(R.string.field_issued);
+            case "idate": return getString(R.string.field_idate);
+            case "edate": return getString(R.string.field_edate);
+            case "summary": return getString(R.string.field_summary);
+            case "inst": return getString(R.string.field_inst);
+            case "year": return getString(R.string.field_year);
+            case "board": return getString(R.string.field_board);
+            case "deg": return getString(R.string.field_deg);
+            case "gpa": return getString(R.string.field_gpa);
+            case "comp": return getString(R.string.field_comp);
+            case "dur": return getString(R.string.field_dur);
+            case "role": return getString(R.string.field_role);
+            case "desc": return getString(R.string.field_desc);
+            case "link": return getString(R.string.field_link);
+            case "cat": return getString(R.string.field_cat);
+            case "vals": return getString(R.string.field_vals);
+            case "lang": return getString(R.string.field_lang);
+            case "lvl": return getString(R.string.field_lvl);
+            case "title": return getString(R.string.field_title);
+            case "body": return getString(R.string.field_body);
+            case "org": return getString(R.string.field_org);
+            case "date": return getString(R.string.field_date);
+            case "url": return getString(R.string.field_url);
+            case "pos": return getString(R.string.field_pos);
+            case "topic": return getString(R.string.field_topic);
+            case "course": return getString(R.string.field_course);
+            case "amt": return getString(R.string.field_amt);
+            case "test": return getString(R.string.field_test);
+            case "score": return getString(R.string.field_score);
+            case "father": return getString(R.string.field_father);
+            case "mother": return getString(R.string.field_mother);
+            case "siblings": return getString(R.string.field_siblings);
+            case "pref": return getString(R.string.field_pref);
+            case "habits": return getString(R.string.field_habits);
+            case "weight": return getString(R.string.field_weight);
+            case "complexion": return getString(R.string.field_complexion);
+            case "build": return getString(R.string.field_build);
+            case "status": return getString(R.string.field_status);
+            case "country": return getString(R.string.field_country);
+            case "headshot": return getString(R.string.field_headshot);
+            case "fullbody": return getString(R.string.field_fullbody);
+            case "family": return getString(R.string.field_family);
+            case "val": return getString(R.string.field_content);
+            case "diet": return getString(R.string.field_diet);
+            case "smoking": return getString(R.string.field_smoking);
+            case "drinking": return getString(R.string.field_drinking);
+            case "rashi": return getString(R.string.field_rashi);
+            case "nakshatra": return getString(R.string.field_nakshatra);
+            case "gotra": return getString(R.string.field_gotra);
+            case "eye": return getString(R.string.field_eye_color);
+            case "head": return getString(R.string.field_head);
+            case "life": return getString(R.string.field_life);
+            case "activity": return getString(R.string.field_activity);
+            case "achievements": return getString(R.string.field_achievements);
+            case "health": return getString(R.string.field_health);
+            case "act": return getString(R.string.field_act);
+            case "prof": return getString(R.string.field_prof);
+            case "expectations": return getString(R.string.field_expectations);
+            default: return defaultLabel;
+        }
+    }
+    
+    private String getLocalizedSectionName(String id, String defaultName) {
+        if (com.example.myapplication.LocaleHelper.getLanguage(this).equals("en")) return defaultName;
+        // Strip out trailing numbers if present (e.g. blank_section_1)
+        String baseId = id;
+        if (id.contains("_")) baseId = id.split("_")[0];
+
+        switch (baseId) {
+            case "headerSection": return getString(R.string.section_header);
+            case "profileSection": return getString(R.string.section_profile);
+            case "nameProfessionSection": return getString(R.string.section_name_prof);
+            case "personalDetails": return getString(R.string.section_personal);
+            case "passportDetails": return getString(R.string.section_passport);
+            case "visaStatus": return getString(R.string.section_visa);
+            case "summarySection": return getString(R.string.section_summary);
+            case "languages": return getString(R.string.section_languages);
+            case "education": return getString(R.string.section_education);
+            case "experience": return getString(R.string.section_experience);
+            case "projects": return getString(R.string.section_projects);
+            case "researchExp": return getString(R.string.section_research);
+            case "teachingExp": return getString(R.string.section_teaching);
+            case "grants": return getString(R.string.section_grants);
+            case "skills": return getString(R.string.section_skills);
+            case "testScores": return getString(R.string.section_test_scores);
+            case "certificates": return getString(R.string.section_certificates_simple);
+            case "awards": return getString(R.string.section_awards);
+            case "certifications": return getString(R.string.section_certifications);
+            case "volunteer": return getString(R.string.section_volunteer);
+            case "publications": return getString(R.string.section_publications);
+            case "affiliations": return getString(R.string.section_affiliations);
+            case "hobbies": return getString(R.string.section_hobbies);
+            case "extra": return getString(R.string.section_extra);
+            case "references": return getString(R.string.section_references);
+            case "training": return getString(R.string.section_training);
+            case "internships": return getString(R.string.section_internships);
+            case "achievements": return getString(R.string.section_achievements);
+            case "weblinks": return getString(R.string.section_weblinks);
+            case "familyDetails": return getString(R.string.section_family);
+            case "partnerExpectations": return getString(R.string.section_expectations);
+            case "lifestyleHabits": return getString(R.string.section_lifestyle);
+            case "astrologySection": return getString(R.string.section_astrology);
+            case "physicalProfile": return getString(R.string.section_physical);
+            case "visualRegistry": return getString(R.string.section_visual);
+            case "activeLife": return getString(R.string.section_active);
+            case "interests": return getString(R.string.section_interests);
+            case "declarationSection": return getString(R.string.section_declaration);
+            default: return defaultName;
+        }
+    }
+
     private void applyZoom() {
         if (wizardWebView != null) {
             wizardWebView.setInitialScale(currentZoom);
@@ -1184,7 +1328,7 @@ public class StepByStepActivity extends AppCompatActivity {
 
     private String generateAutoFilename() {
         try {
-            String name = "User";
+            String name = getString(R.string.user);
             // extract name from header section if available
             for (SectionModel s : currentSections) {
                 if (s.id.equals("headerSection") && !s.items.isEmpty()) {
@@ -1204,7 +1348,7 @@ public class StepByStepActivity extends AppCompatActivity {
             }
             // Sanitize filename
             lastName = lastName.replaceAll("[^a-zA-Z0-9]", "");
-            if (lastName.isEmpty()) lastName = "User";
+            if (lastName.isEmpty()) lastName = getString(R.string.user);
             
             String purpose = selectedPurpose.substring(0, 1).toUpperCase() + selectedPurpose.substring(1);
             
@@ -1218,9 +1362,9 @@ public class StepByStepActivity extends AppCompatActivity {
             do {
                 String fname;
                 if (count == 1) {
-                    fname = String.format("%s %s CV.json", lastName, purpose);
+                    fname = getString(R.string.cv_filename_format, lastName, purpose);
                 } else {
-                    fname = String.format("%s %s CV %d.json", lastName, purpose, count);
+                    fname = getString(R.string.cv_filename_format_count, lastName, purpose, count);
                 }
                 file = new File(dir, fname);
                 count++;
@@ -1276,11 +1420,11 @@ public class StepByStepActivity extends AppCompatActivity {
         PurposeViewHolder(View v) { super(v); rv = v.findViewById(R.id.rvPurposes); }
         void bind() {
             List<PurposeModel> purposes = Arrays.asList(
-                new PurposeModel("job", "Job", "Standard job application", R.drawable.avd_purpose_job),
-                new PurposeModel("job_abroad", "Job Abroad", "International opportunities", R.drawable.avd_purpose_job_abroad),
-                new PurposeModel("academic", "Academic", "University & research roles", R.drawable.avd_purpose_academic),
-                new PurposeModel("study_abroad", "Study Abroad", "Applying for education abroad", R.drawable.avd_purpose_study_abroad),
-                new PurposeModel("marriage", "Marriage", "Personal biodata for marriage", R.drawable.avd_purpose_marriage)
+                new PurposeModel("job", getString(R.string.purpose_job), getString(R.string.purpose_job_desc), R.drawable.avd_purpose_job),
+                new PurposeModel("job_abroad", getString(R.string.purpose_job_abroad), getString(R.string.purpose_job_abroad_desc), R.drawable.avd_purpose_job_abroad),
+                new PurposeModel("academic", getString(R.string.purpose_academic), getString(R.string.purpose_academic_desc), R.drawable.avd_purpose_academic),
+                new PurposeModel("study_abroad", getString(R.string.purpose_study_abroad), getString(R.string.purpose_study_abroad_desc), R.drawable.avd_purpose_study_abroad),
+                new PurposeModel("marriage", getString(R.string.purpose_marriage), getString(R.string.purpose_marriage_desc), R.drawable.avd_purpose_marriage)
             );
             rv.setLayoutManager(new GridLayoutManager(StepByStepActivity.this, 2));
             rv.setAdapter(new PurposeAdapter(purposes));
@@ -1295,7 +1439,7 @@ public class StepByStepActivity extends AppCompatActivity {
             rv = v.findViewById(R.id.rvTemplates);
             tvNotice = v.findViewById(R.id.tvTemplateNotice);
             
-            String notice = "<b>Note:</b> You can choose from <font color='#1E3C72'><b>many more</b></font> templates online, download new layouts, and switch at <font color='#1E3C72'><b>any time</b></font>. This selection is just for creating the <font color='#1E3C72'><b>base structure</b></font>.";
+            String notice = getString(R.string.template_notice);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                 tvNotice.setText(Html.fromHtml(notice, Html.FROM_HTML_MODE_LEGACY));
             } else {
@@ -1310,8 +1454,8 @@ public class StepByStepActivity extends AppCompatActivity {
             
             // Fallback if no assets
             if (templates.isEmpty()) {
-                templates.add(new TemplateModel("default", "Standard Modern"));
-                templates.add(new TemplateModel("sidebar", "Sidebar Pro"));
+                templates.add(new TemplateModel("default", getString(R.string.template_standard_modern)));
+                templates.add(new TemplateModel("sidebar", getString(R.string.template_sidebar_pro)));
             }
 
             // 2. Load User Templates - REMOVED per request
@@ -1356,8 +1500,7 @@ public class StepByStepActivity extends AppCompatActivity {
                         String assetPath = "default_templates/" + file;
                         VitaeData data = loadVitaeAsset(assetPath);
                         String name = file.replace(".vitae", "");
-                        if (name.equalsIgnoreCase("Classic")) name = "With Header";
-                        else if (name.equalsIgnoreCase("Timeline")) name = "Headerless";
+
                         // Use filename as ID
                         list.add(new TemplateModel(file, name, true, assetPath, data.thumbnail));
                     }
@@ -1442,13 +1585,13 @@ public class StepByStepActivity extends AppCompatActivity {
         if (btnReset != null) btnReset.setVisibility(View.GONE);
         
         TextView titleTv = (TextView) ((android.view.ViewGroup)dialogView).getChildAt(0);
-        if (titleTv != null) titleTv.setText("Add Section");
+        if (titleTv != null) titleTv.setText(getString(R.string.add_section_title));
 
         LinearLayout categoryContainer = dialogView.findViewById(R.id.sections_category_container);
         
         AlertDialog dialog = new AlertDialog.Builder(this)
             .setView(dialogView)
-            .setPositiveButton("Close", null)
+            .setPositiveButton(getString(R.string.close), null)
             .create();
 
         // Populate available sections
@@ -1465,14 +1608,18 @@ public class StepByStepActivity extends AppCompatActivity {
         }
 
         if (available.isEmpty()) {
-            Toast.makeText(this, "All sections added!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.all_sections_added), Toast.LENGTH_SHORT).show();
             return;
         }
 
         // --- NEW LOGIC: Grouping Sections by Category ---
         // Predefined bucket names corresponding to valid `group` values in ALL_SECTIONS
         String[] groupKeys = {"gridEssentials", "gridExp", "gridAdd"};
-        String[] groupTitles = {"Essentials", "Experience", "Additional"};
+        String[] groupTitles = {
+            getString(R.string.cat_essentials), 
+            getString(R.string.cat_experience), 
+            getString(R.string.cat_additional)
+        };
 
         // Create a map to hold lists of available sections per group
         java.util.LinkedHashMap<String, List<SectionModel>> groupedSections = new java.util.LinkedHashMap<>();
@@ -1568,14 +1715,21 @@ public class StepByStepActivity extends AppCompatActivity {
                 ImageButton btnSwap = v.findViewById(R.id.btn_toggle_placement);
                 final String[] placement = {"auto"}; // mutable ref
 
-                itemTitle.setText(s.name);
+                itemTitle.setText(getLocalizedSectionName(s.id, s.name));
                 // Description is now hidden by default in XML for "Pill" style
                 if (desc != null) desc.setVisibility(View.GONE);
                 
                 // Function to update indicator text
                 Runnable updateIndicatorText = () -> {
-                    String cap = placement[0].substring(0, 1).toUpperCase() + placement[0].substring(1);
-                    placementIndicator.setText("Add to: " + cap);
+                    String pVal = placement[0];
+                    String localizedP;
+                    switch (pVal) {
+                        case "left": localizedP = getString(R.string.placement_left); break;
+                        case "right": localizedP = getString(R.string.placement_right); break;
+                        case "header": localizedP = getString(R.string.placement_header); break;
+                        default: localizedP = getString(R.string.placement_auto); break;
+                    }
+                    placementIndicator.setText(getString(R.string.add_to_prefix) + localizedP);
                 };
                 updateIndicatorText.run();
 
@@ -1631,9 +1785,9 @@ public class StepByStepActivity extends AppCompatActivity {
                         adapter.notifyItemInserted(currentSections.size() - 1);
                         updateWebViewPreview();
                         dialog.dismiss();
-                        Toast.makeText(this, instance.name + " Added", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getLocalizedSectionName(instance.id, instance.name) + getString(R.string.added_suffix), Toast.LENGTH_SHORT).show();
                     } else {
-                         Toast.makeText(this, "Item already exists.", Toast.LENGTH_SHORT).show();
+                         Toast.makeText(this, getString(R.string.item_exists), Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -1846,7 +2000,7 @@ public class StepByStepActivity extends AppCompatActivity {
         }
         @Override public void onBindViewHolder(@NonNull ViewHolder h, int p) {
             SectionModel m = currentSections.get(p);
-            h.tvName.setText(m.name);
+            h.tvName.setText(getLocalizedSectionName(m.id, m.name));
             
             // Handle Expansion - click expand button
             h.body.setVisibility(m.isExpanded ? View.VISIBLE : View.GONE);
@@ -1975,7 +2129,7 @@ public class StepByStepActivity extends AppCompatActivity {
                 TextView label = fieldView.findViewById(R.id.tvFieldLabel);
                 EditText input = fieldView.findViewById(R.id.etFieldValue);
                 
-                label.setText(field.label);
+                label.setText(getLocalizedLabel(field.key, field.label));
                 
                 View layoutImagePicker = fieldView.findViewById(R.id.layoutImagePicker);
                 Button btnPickImage = fieldView.findViewById(R.id.btnPickImage);
@@ -2313,8 +2467,8 @@ public class StepByStepActivity extends AppCompatActivity {
             if (s.type.equals("personal")) personalSec = s;
         }
         
-        String name = "Your Name";
-        String title = "Professional Title";
+        String name = getString(R.string.your_name);
+        String title = getString(R.string.professional_title);
         JSONArray contacts = new JSONArray();
         String profileImg = "";
 
@@ -2462,7 +2616,7 @@ public class StepByStepActivity extends AppCompatActivity {
             case "personal":
                 for(FieldModel f : item.fields) {
                     sb.append("<div class=\"pd-row\"><span class=\"pd-label\">").append(f.label).append(":</span> <span class=\"pd-val\">")
-                      .append(f.value.isEmpty() ? "N/A" : f.value).append("</span></div>");
+                      .append(f.value.isEmpty() ? getString(R.string.na) : f.value).append("</span></div>");
                 }
                 break;
             case "identity":
@@ -2476,14 +2630,15 @@ public class StepByStepActivity extends AppCompatActivity {
                 sb.append("<div class=\"summary-text\">").append(getFieldValue(item, "summary")).append("</div>");
                 break;
             case "education":
-                sb.append("<div class=\"data-table-item\"><div class=\"table-row\"><span class=\"table-label\">Institute:</span> <span class=\"table-val\" style=\"font-weight:600;\">")
+                sb.append("<div class=\"data-table-item\"><div class=\"table-row\"><span class=\"table-label\">")
+                  .append(getString(R.string.label_institute)).append("</span> <span class=\"table-val\" style=\"font-weight:600;\">")
                   .append(getFieldValue(item, "inst")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">Year:</span> <span class=\"table-val\">").append(getFieldValue(item, "year")).append("</span>");
-                sb.append("<span class=\"table-label\" style=\"margin-left:14px;\">Board:</span> <span class=\"table-val\">").append(getFieldValue(item, "board")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">Degree:</span> <span class=\"table-val\">").append(getFieldValue(item, "deg")).append("</span>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_year)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "year")).append("</span>");
+                sb.append("<span class=\"table-label\" style=\"margin-left:14px;\">").append(getString(R.string.label_board)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "board")).append("</span></div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_degree)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "deg")).append("</span>");
                 String gpa = getFieldValue(item, "gpa");
                 if (!gpa.equals("...") && !gpa.isEmpty()) {
-                    sb.append("<span style=\"margin-left:auto; font-size:0.85em; opacity:0.8;\">GPA: ").append(gpa).append("</span>");
+                    sb.append("<span style=\"margin-left:auto; font-size:0.85em; opacity:0.8;\">").append(R.string.label_gpa_prefix).append(gpa).append("</span>");
                 }
                 sb.append("</div></div>");
                 break;
@@ -2529,10 +2684,10 @@ public class StepByStepActivity extends AppCompatActivity {
                 break;
             case "passport":
                 sb.append("<div class=\"data-table-item\">");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">Passport No:</span> <span class=\"table-val\">").append(getFieldValue(item, "pno")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">Issued By:</span> <span class=\"table-val\">").append(getFieldValue(item, "issued")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">Issue Date:</span> <span class=\"table-val\">").append(getFieldValue(item, "idate")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">Expiry Date:</span> <span class=\"table-val\">").append(getFieldValue(item, "edate")).append("</span></div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_passport_no)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "pno")).append("</span></div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_issued_by)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "issued")).append("</span></div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_issue_date)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "idate")).append("</span></div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_expiry_date)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "edate")).append("</span></div>");
                 sb.append("</div>");
                 break;
             case "weblinks":
@@ -2803,5 +2958,97 @@ public class StepByStepActivity extends AppCompatActivity {
         }
 
         return assignments;
+    }
+    private void initMonetization() {
+        tierManager = new UserTierManager(this);
+        if (tierManager.shouldShowAds()) {
+            MobileAds.initialize(this, initializationStatus -> {
+                java.util.Map<String, com.google.android.gms.ads.initialization.AdapterStatus> statusMap = initializationStatus.getAdapterStatusMap();
+                for (String adapterClass : statusMap.keySet()) {
+                    com.google.android.gms.ads.initialization.AdapterStatus status = statusMap.get(adapterClass);
+                    Log.d("AdMob", String.format("StepByStep Adapter: %s, State: %s, Desc: %s",
+                            adapterClass, status.getInitializationState(), status.getDescription()));
+                }
+                
+                // Show a quick status toast
+                runOnUiThread(() -> {
+                    String msg = getString(R.string.admob_ready);
+                    if (isAdBlockerActive()) msg += getString(R.string.dns_restricted);
+                    Toast.makeText(StepByStepActivity.this, msg, Toast.LENGTH_SHORT).show();
+                });
+            });
+            loadRewardedAd();
+        }
+    }
+
+    private void loadRewardedAd() {
+        if (!tierManager.shouldShowAds()) return;
+
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(this, "ca-app-pub-3940256099942544/5224354917",
+                adRequest, new RewardedAdLoadCallback() {
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        mRewardedAd = null;
+                        boolean blocked = isAdBlockerActive();
+                        String detailedError = "!!! REWARDED AD FAIL (STEP) !!!\n" +
+                                "Code: " + loadAdError.getCode() + "\n" +
+                                "Message: " + loadAdError.getMessage() + "\n" +
+                                "AdBlocker: " + (blocked ? "Detected (Check Private DNS)" : "None Detected");
+                        Log.e("AdMob", detailedError);
+                    }
+
+                    @Override
+                    public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
+                        mRewardedAd = rewardedAd;
+                        Log.d("AdMob", "Rewarded Ad Loaded in StepByStep");
+                    }
+                });
+    }
+
+    private boolean isAdBlockerActive() {
+        try {
+            java.net.InetAddress address = java.net.InetAddress.getByName("googleads.g.doubleclick.net");
+            return address.getHostAddress().equals("127.0.0.1") || address.getHostAddress().equals("0.0.0.0");
+        } catch (Exception e) {
+            return true; 
+        }
+    }
+
+    private void showAdAndLaunchEditor() {
+        Log.d("AdMob", "StepByStep showAdAndLaunchEditor called. Tier shows ads: " + tierManager.shouldShowAds());
+        if (tierManager.shouldShowAds()) {
+            if (mRewardedAd != null) {
+                // Set callbacks for show failure
+                mRewardedAd.setFullScreenContentCallback(new com.google.android.gms.ads.FullScreenContentCallback() {
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(@NonNull com.google.android.gms.ads.AdError adError) {
+                        Log.e("AdMob", "StepByStep Ad failed to show: " + adError.getMessage());
+                        mRewardedAd = null;
+                        launchEditor(); 
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        Log.d("AdMob", "StepByStep Ad dismissed");
+                        mRewardedAd = null;
+                    }
+                });
+
+                Log.d("AdMob", "Showing StepByStep Rewarded Ad...");
+                mRewardedAd.show(this, rewardItem -> {
+                    Log.d("AdMob", "User earned reward in StepByStep");
+                    launchEditor();
+                });
+            } else {
+                // Fallback
+                Log.w("AdMob", "Rewarded Ad Null in StepByStep. Possible ad-blocker or timeout. Launching directly...");
+                String msg = getString(R.string.ad_restricted_opening);
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                launchEditor();
+            }
+        } else {
+            launchEditor();
+        }
     }
 }

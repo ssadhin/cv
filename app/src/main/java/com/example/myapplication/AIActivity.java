@@ -8,6 +8,13 @@ import android.widget.Toast;
 import android.widget.EditText;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.ads.MobileAds;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
@@ -33,6 +40,9 @@ public class AIActivity extends AppCompatActivity {
     
     private List<TemplateItem> availableTemplates = new ArrayList<>();
     private TemplateItem selectedTemplateItem = null;
+    
+    private UserTierManager tierManager;
+    private InterstitialAd mInterstitialAd;
 
     private static class TemplateItem {
         String name;
@@ -49,6 +59,7 @@ public class AIActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ThemeManager.applyTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ai);
 
@@ -59,8 +70,8 @@ public class AIActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v -> finish());
         
         findViewById(R.id.btnCopyPrompt).setOnClickListener(v -> {
-            copyToClipboard(MASTER_PROMPT);
-            Toast.makeText(this, "Prompt copied to clipboard! Paste it into AI.", Toast.LENGTH_LONG).show();
+            copyToClipboard(getString(R.string.master_prompt_advanced));
+            Toast.makeText(this, R.string.prompt_copied_msg, Toast.LENGTH_LONG).show();
         });
 
         findViewById(R.id.btnPaste).setOnClickListener(v -> {
@@ -69,7 +80,7 @@ public class AIActivity extends AppCompatActivity {
                 android.content.ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
                 if (item != null && item.getText() != null) {
                     etJsonInput.setText(item.getText());
-                    Toast.makeText(this, "Pasted from clipboard", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.pasted_from_clipboard, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -79,14 +90,20 @@ public class AIActivity extends AppCompatActivity {
         });
 
         btnNext.setOnClickListener(v -> {
+            if (!tierManager.canGenerateAI()) {
+                Toast.makeText(this, R.string.ai_limit_reached, Toast.LENGTH_LONG).show();
+                return;
+            }
             String jsonInput = etJsonInput.getText().toString().trim();
             if (jsonInput.isEmpty()) {
-                Toast.makeText(this, "Please enter data", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.please_enter_data, Toast.LENGTH_SHORT).show();
                 return;
             }
             loadTemplates(); // Scan before showing dialog
             showTemplateSelectionDialog(jsonInput);
         });
+
+        initMonetization();
     }
 
     private void loadTemplates() {
@@ -120,7 +137,7 @@ public class AIActivity extends AppCompatActivity {
         
         // Ensure we have at least one (fallback if needed)
         if (availableTemplates.isEmpty()) {
-            availableTemplates.add(new TemplateItem("Standard Modern", "default", true));
+            availableTemplates.add(new TemplateItem(getString(R.string.template_standard_modern), "default", true));
         }
 
         // Load thumbnails for all
@@ -248,10 +265,10 @@ public class AIActivity extends AppCompatActivity {
         
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setView(dialogView)
-                .setPositiveButton("Generate CV", (dialog, which) -> {
-                     processAndLaunch(jsonInput);
+                .setPositiveButton(R.string.generate_cv, (dialog, which) -> {
+                     showProcessAdAndContinue(jsonInput);
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.cancel, null)
                 .show();
     }
 
@@ -299,11 +316,12 @@ public class AIActivity extends AppCompatActivity {
             }
 
             // 4. Launch Editor
+            tierManager.incrementAICount();
             launchEditor(finalState, selectedTemplateItem != null ? selectedTemplateItem.path : "default", templateJson);
             
         } catch (Exception e) {
             Log.e("AIActivity", "Error processing data", e);
-            Toast.makeText(this, "Error generating CV: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.error_generating_cv_prefix) + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -436,45 +454,53 @@ public class AIActivity extends AppCompatActivity {
         clipboard.setPrimaryClip(clip);
     }
     
-    private static final String MASTER_PROMPT = 
-        "You are a Resume Parser. Your goal is to extract information from my resume and format it into a specific \"Shorthand Code\" format.\n\n" +
-        "**CRITICAL: STICK TO THE JSON FORMAT BELOW. DO NOT include any text outside the JSON block.**\n\n" +
-        "### 1. CRITICAL RULES\n" +
-        "- **Output Structure:** You MUST output a SINGLE JSON object. Use a JSON code block.\n" +
-        "- **Analyze Everything:** Read the entire resume text. Map every piece of information to the sections below.\n" +
-        "- **ALWAYS Generate Summary:** YOU MUST create a `sum` section. If the resume has a summary, use it. If NOT, WRITE a 2-3 sentence professional summary.\n" +
-        "- **Header (Identity):** Use `hdr` for Name, Professional Title, and all contact methods (email, phone, links, address).\n" +
-        "- **RULE:** Everything related to identity and contact info goes in `hdr`.\n" +
-        "- **Personal Details (Demographics ONLY):** The `per` section is ONLY for: nationality, date of birth, gender, marital status, height. DO NOT put email or phone here.\n" +
-        "- **Languages:** Look for languages and map to `lan`.\n" +
-        "- **Remove Empty Sections:** If a section has no data, OMIT its key entirely.\n" +
-        "- **Start New Items:** For lists (exp, edu, etc.), each item MUST be an object with its Primary Key (e.g., `com`, `inst`).\n\n" +
-        "### 2. SHORTHAND JSON STRUCTURE\n\n" +
-        "```json\n" +
-        "{\n" +
-        "  \"hdr\": { \"name\": \"Full Name\", \"role\": \"Professional Title\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\" },\n" +
-        "  \"sum\": { \"desc\": \"2-3 sentence summary...\" },\n" +
-        "  \"per\": { \"nat\": \"Nationality\", \"dob\": \"DD/MM/YYYY\", \"gen\": \"Gender\", \"mar\": \"Status\", \"height\": \"Height\" },\n" +
-        "  \"pass\": { \"pno\": \"Passport No\", \"idate\": \"Issue Date\", \"edate\": \"Expiry Date\" },\n" +
-        "  \"vis\": { \"status\": \"Visa Status/Work Authorization\", \"country\": \"Target Country\" },\n" +
-        "  \"exp\": [ { \"com\": \"Company\", \"role\": \"Role\", \"dur\": \"Start - End\", \"desc\": \"Bullet points (use \\\\n for multiple lines)\" } ],\n" +
-        "  \"edu\": [ { \"inst\": \"Institute\", \"deg\": \"Degree\", \"year\": \"Year\", \"gpa\": \"GPA\", \"board\": \"Board Name\" } ],\n" +
-        "  \"skl\": [ { \"cat\": \"Category\", \"vals\": \"Skill 1, Skill 2, Skill 3\" } ],\n" +
-        "  \"pro\": [ { \"name\": \"Project\", \"desc\": \"Details\", \"year\": \"Year\", \"link\": \"URL\" } ],\n" +
-        "  \"res\": [ { \"topic\": \"Research Topic\", \"role\": \"Your Role\", \"desc\": \"Method/Findings\" } ],\n" +
-        "  \"tea\": [ { \"course\": \"Course Name\", \"inst\": \"Institution\", \"desc\": \"Responsibilities\" } ],\n" +
-        "  \"gra\": [ { \"title\": \"Grant Title\", \"amt\": \"Amount/Agency\", \"year\": \"Year\" } ],\n" +
-        "  \"cert\": [ { \"name\": \"Cert Name\", \"org\": \"Issuer\", \"date\": \"Date\" } ],\n" +
-        "  \"lan\": [ { \"lang\": \"Language\", \"lvl\": \"Proficiency\" } ],\n" +
-        "  \"tst\": [ { \"test\": \"Test Name\", \"score\": \"Score\", \"date\": \"Date\" } ],\n" +
-        "  \"fam\": { \"father\": \"Father's Job\", \"mother\": \"Mother's Job\", \"siblings\": \"Siblings summary\" },\n" +
-        "  \"pex\": { \"pref\": \"Partner Preferences & Expectations summary\" },\n" +
-        "  \"lst\": { \"diet\": \"Veg/Non-Veg\", \"habits\": \"Social Habits (Smoking/Drinking)\" },\n" +
-        "  \"ast\": { \"rashi\": \"Zodiac Sign\", \"nakshatra\": \"Birth Star\", \"gotra\": \"Lineage\" },\n" +
-        "  \"phy\": { \"weight\": \"Weight\", \"complexion\": \"Complexion\", \"build\": \"Build\" },\n" +
-        "  \"ref\": [ { \"name\": \"Name\", \"pos\": \"Title\", \"org\": \"Company\", \"email\": \"Email\", \"phone\": \"Number\" } ],\n" +
-        "  \"hob\": [ { \"cat\": \"Hobbies\", \"vals\": \"Hobby 1, Hobby 2\" } ]\n" +
-        "}\n" +
-        "```\n\n" +
-        "**Now, parse the resume and generate the JSON shorthand code ONLY:**";
+    // MASTER_PROMPT is now externalized to R.string.master_prompt_advanced
+    private void initMonetization() {
+        tierManager = new UserTierManager(this);
+        // Manual AI shows ads for free users. PRO users never see ads.
+        if (tierManager.shouldShowAds()) {
+            MobileAds.initialize(this, status -> {});
+            loadAndShowEntryAd();
+        }
+    }
+
+    private void loadAndShowEntryAd() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest,
+            new InterstitialAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                    mInterstitialAd = interstitialAd;
+                    mInterstitialAd.show(AIActivity.this);
+                    // Pre-load the second one for processing
+                    loadInterstitialAd();
+                }
+
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                    mInterstitialAd = null;
+                    loadInterstitialAd(); // Still try to load the second one
+                }
+            });
+    }
+
+    private void loadInterstitialAd() {
+        if (!tierManager.shouldShowAds()) return;
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest,
+            new InterstitialAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                    mInterstitialAd = interstitialAd;
+                }
+            });
+    }
+
+    private void showProcessAdAndContinue(String input) {
+        if (tierManager.shouldShowAds() && mInterstitialAd != null) {
+            mInterstitialAd.show(this);
+            mInterstitialAd = null; // Used
+        }
+        processAndLaunch(input);
+    }
 }

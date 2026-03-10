@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -94,7 +94,7 @@
             animation: growIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
         }
 
-        /* Section Settings Icon — Matches no-headings toolbar gear style */
+        /* Section Settings Icon â€” Matches no-headings toolbar gear style */
         .section-settings-icon {
             display: none;
             position: absolute;
@@ -637,7 +637,7 @@
            falling back to transparent if they haven't explicitly set one for the header. */
         header[data-header-style="Drop Shape"]::before {
             background:
-                linear-gradient(135deg, var(--primary-color, transparent), var(--secondary-color, transparent)) padding-box,
+                linear-gradient(135deg, transparent, transparent) padding-box,
                 linear-gradient(135deg, var(--header-frame-color, transparent), var(--header-frame-color-end, transparent)) border-box !important;
         }
 
@@ -954,7 +954,7 @@
             z-index: 1;
         }
 
-        /* Left Column Frame — mirrors header::before pattern */
+        /* Left Column Frame - mirrors header::before pattern */
         .left-column::before {
             content: "";
             position: absolute;
@@ -1913,7 +1913,7 @@
         }
 
         .simple-list-item::before {
-            content: "•";
+            content: "\2022";
             position: absolute;
             left: 0;
             top: 0px;
@@ -4179,6 +4179,127 @@
         .edit-mode-active .right-column {
             overflow: visible !important;
         }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+
+            /* 1. Reset body — no padding, no background, start at top */
+            body {
+                padding: 0 !important;
+                margin: 0 !important;
+                background: #ffffff !important;
+                display: block !important;
+            }
+
+            /* 2. Reset resume container — full width, no scale, no margin */
+            .resume-container {
+                transform: none !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            /* 3. Preserve the two-column CSS Grid on .page */
+            .page {
+                display: grid !important;
+                grid-template-columns: var(--left-width) 1fr !important;
+                grid-template-rows: auto 1fr !important;
+                width: 100% !important;
+                min-height: auto !important;
+                overflow: visible !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+
+            /* 4. Keep .main-content display:contents so children join the grid */
+            .main-content {
+                display: contents !important;
+            }
+
+            /* 5. Column layout preservation */
+            .left-column {
+                grid-column: 1 !important;
+                grid-row: 2 !important;
+                overflow: visible !important;
+            }
+
+            .header-overlap .left-column {
+                grid-row: 1 / -1 !important;
+            }
+
+            .right-column {
+                grid-column: 2 !important;
+                grid-row: 2 !important;
+                overflow: visible !important;
+            }
+
+            /* Mirror mode support */
+            .main-content.mirror-mode {
+                grid-template-columns: 1fr var(--left-width) !important;
+                grid-template-areas: "right_col left_col" !important;
+            }
+
+            /* 6. Header stays full width */
+            header {
+                grid-column: 1 / -1 !important;
+            }
+
+            /* 7. HIDE ALL EDITING UI & CONTROLS */
+            .controls,
+            .page-break-preview,
+            .floating-spacing-control,
+            .floating-column-handle,
+            .column-resizer,
+            .edit-mode-ripple,
+            .frame-trigger,
+            .color-trigger,
+            .section-settings-icon,
+            .drag-handle,
+            .section-move-buttons,
+            .stick-menu-trigger,
+            .stick-settings-trigger,
+            .header-move-handle,
+            .hdr-resize-handle,
+            .header-bg-move,
+            .sect-resize-handle,
+            .shape-controls,
+            .shape-context-menu,
+            .shape-menu-btn,
+            .shape-move-handle,
+            .add-shape-btn,
+            .no-headings-toolbar,
+            .no-headings-center-move,
+            .signature-controls,
+            #global-ui-overlay,
+            .left-radius-control,
+            .header-line-spacing-control,
+            .split-divider-line,
+            .split-frame-overlay,
+            .split-shape,
+            .item-bg-control,
+            #sigControls {
+                display: none !important;
+            }
+
+            /* 8. Contenteditable placeholder text should not appear in print */
+            [contenteditable="true"]:empty::before {
+                display: none !important;
+            }
+
+            /* 9. Remove border/outlines from editing marks */
+            .main-content.mirror-mode .left-column {
+                border-left: none !important;
+            }
+
+            section.sect-free-resize {
+                outline: none !important;
+            }
+
+            .dropped-shape.selected {
+                outline: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -4348,7 +4469,7 @@
                         <h2><i class="fas fa-certificate"></i> CERTIFICATES</h2>
                         <div class="content-area">
                             <div class="simple-list-item">Google UX Design Professional Certificate</div>
-                            <div class="simple-list-item">AWS Certified Developer – Associate</div>
+                            <div class="simple-list-item">AWS Certified Developer - Associate</div>
                             <div class="simple-list-item">Scrum Master Certified (SMC)</div>
                             <div class="simple-list-item">Advanced JavaScript - Coursera</div>
                         </div>
@@ -4619,116 +4740,9 @@
         </div>
 
         <script>
-            // --- INJECTED DRAGGABLE DEBUG PANEL ---
-            (function () {
-                var pan = document.createElement('div');
-                pan.id = 'liveDebugPanel';
-                pan.style.cssText = 'position:fixed;top:50px;right:10px;width:300px;height:300px;background:rgba(0,0,0,0.85);color:lime;font-size:11px;overflow-y:auto;z-index:999999;padding:10px;border:2px solid lime; border-radius:8px; display:flex; flex-direction:column; box-shadow: 0 4px 15px rgba(0,0,0,0.5);';
-
-                var header = document.createElement('div');
-                header.style.cssText = 'cursor:move; padding-bottom:5px; margin-bottom:5px; border-bottom:1px solid lime; display:flex; justify-content:space-between; align-items:center; font-weight:bold; flex-shrink:0;';
-                header.innerHTML = '<span>DEBUG PANEL</span><button id="closeDbg" style="background:red;color:white;border:none;border-radius:3px;cursor:pointer;">X</button>';
-                pan.appendChild(header);
-
-                var content = document.createElement('div');
-                content.style.cssText = 'flex-grow:1; overflow-y:auto; word-wrap:break-word;';
-                pan.appendChild(content);
-
-                document.documentElement.appendChild(pan);
-
-                // Dragging logic
-                var isDragging = false, startX, startY, initialLeft, initialTop;
-                header.addEventListener('mousedown', function (e) {
-                    if (e.target.id === 'closeDbg') return;
-                    isDragging = true;
-                    startX = e.clientX; startY = e.clientY;
-                    var rect = pan.getBoundingClientRect();
-                    initialLeft = rect.left; initialTop = rect.top;
-                    pan.style.right = 'auto'; // Disable right anchoring
-                    e.preventDefault();
-                });
-                document.addEventListener('mousemove', function (e) {
-                    if (!isDragging) return;
-                    pan.style.left = (initialLeft + (e.clientX - startX)) + 'px';
-                    pan.style.top = (initialTop + (e.clientY - startY)) + 'px';
-                });
-                document.addEventListener('mouseup', function () { isDragging = false; });
-                header.querySelector('#closeDbg').onclick = function () { pan.style.display = 'none'; };
-
-                // Utility buttons
-                var btnRow = document.createElement('div');
-                btnRow.style.cssText = 'margin-top:5px; display:flex; gap:5px; flex-shrink:0;';
-
-                var btnCheckSpace = document.createElement('button');
-                btnCheckSpace.textContent = "Check Top Space";
-                btnCheckSpace.style.cssText = 'background:lime;color:black;border:none;padding:3px 5px;cursor:pointer;flex-grow:1;';
-                btnCheckSpace.onclick = function () {
-                    var body = document.body;
-                    var rp = document.getElementById('resumePage');
-                    var hdr = document.getElementById('mainHeader');
-                    var rCont = document.getElementById('resumeContainer');
-                    window.recordDebug("body margin=" + getComputedStyle(body).marginTop + " pad=" + getComputedStyle(body).paddingTop);
-                    if (rCont) window.recordDebug(".resume-container margin=" + getComputedStyle(rCont).marginTop + " pad=" + getComputedStyle(rCont).paddingTop);
-                    if (rp) window.recordDebug("#resumePage margin=" + getComputedStyle(rp).marginTop + " pad=" + getComputedStyle(rp).paddingTop);
-                    if (hdr) window.recordDebug("#mainHeader margin=" + getComputedStyle(hdr).marginTop + " pad=" + getComputedStyle(hdr).paddingTop);
-
-                    // Look for rogue elements before header
-                    if (rp && rp.firstElementChild) {
-                        window.recordDebug("First child in resumePage: " + rp.firstElementChild.id + " / " + rp.firstElementChild.className);
-                        var hStyle = getComputedStyle(rp.firstElementChild);
-                        window.recordDebug("First child height=" + hStyle.height + " display=" + hStyle.display);
-                    }
-                };
-                btnRow.appendChild(btnCheckSpace);
-
-                var btnCopy = document.createElement('button');
-                btnCopy.textContent = "Copy Log";
-                btnCopy.style.cssText = 'background:#007bff;color:white;border:none;padding:3px 5px;cursor:pointer;';
-                btnCopy.onclick = function () {
-                    var text = Array.from(content.children).map(d => d.textContent).join('\n');
-                    if (navigator.clipboard) {
-                        navigator.clipboard.writeText(text).then(() => {
-                            btnCopy.textContent = "Copied!";
-                            setTimeout(() => btnCopy.textContent = "Copy Log", 2000);
-                        });
-                    } else if (window.Android && typeof window.Android.copyToClipboard === 'function') {
-                        window.Android.copyToClipboard(text);
-                        btnCopy.textContent = "Copied!";
-                        setTimeout(() => btnCopy.textContent = "Copy Log", 2000);
-                    } else {
-                        var ta = document.createElement('textarea');
-                        ta.value = text;
-                        document.body.appendChild(ta);
-                        ta.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(ta);
-                        btnCopy.textContent = "Copied!";
-                        setTimeout(() => btnCopy.textContent = "Copy Log", 2000);
-                    }
-                };
-                btnRow.appendChild(btnCopy);
-
-                var btnClear = document.createElement('button');
-                btnClear.textContent = "Clear";
-                btnClear.style.cssText = 'background:#444;color:white;border:none;padding:3px 5px;cursor:pointer;';
-                btnClear.onclick = function () { content.innerHTML = ''; };
-                btnRow.appendChild(btnClear);
-                pan.appendChild(btnRow);
-
-                window.recordDebug = function (msg) {
-                    var d = document.createElement('div');
-                    d.textContent = msg;
-                    content.appendChild(d);
-                    content.scrollTop = content.scrollHeight;
-                };
-
-                document.addEventListener('click', function (e) {
-                    if (e.target.closest('#liveDebugPanel')) return;
-                    var target = e.target;
-                    var info = target.tagName + (target.id ? '#' + target.id : '') + (target.className ? '.' + target.className.split(' ').join('.') : '');
-                    window.recordDebug('CLICK: ' + info);
-                }, true);
-            })();
+            // Debug panel stubs (panels removed)
+            window.recordDebug = function () { };
+            // ---------------------------------
             // ---------------------------------
             const LS_KEY = 'resume_app_v2_data';
             const LS_METRICS = 'resume_app_v2_metrics';
@@ -5304,14 +5318,14 @@
 
                     if (filePath) {
                         window.CURRENT_FILE_PATH = decodeURIComponent(filePath);
-                        console.log('✓ Set CURRENT_FILE_PATH from URL:', window.CURRENT_FILE_PATH);
+                        console.log('âœ“ Set CURRENT_FILE_PATH from URL:', window.CURRENT_FILE_PATH);
                     }
 
                     // Set the new CV flag based on URL param alone
                     // (filePath may not be available yet for brand new CVs)
                     if (isNew) {
                         window._isNewCv = true;
-                        console.log('✓ Marked as NEW CV from URL param');
+                        console.log('âœ“ Marked as NEW CV from URL param');
                     }
 
                     // If we have both flags, clear stale data immediately
@@ -5323,7 +5337,7 @@
                             'resume_app_v2_flags', 'resume_app_v2_designs', 'resume_app_v2_background',
                             'resume_last_cv_path']
                             .forEach(k => localStorage.removeItem(k));
-                        console.log('✓ Cleared stale localStorage for new CV path');
+                        console.log('âœ“ Cleared stale localStorage for new CV path');
                     }
                 })();
 
@@ -5333,7 +5347,7 @@
                 // Poll for it and re-apply the correct per-CV data if available.
                 (function deferredCvReload() {
                     let checks = 0;
-                    const maxChecks = 20; // 20 × 100ms = 2 seconds max wait
+                    const maxChecks = 20; // 20 Ã— 100ms = 2 seconds max wait
                     const ivl = setInterval(() => {
                         checks++;
                         // If this is a brand new CV, handle cleanup when path arrives
@@ -6094,134 +6108,8 @@
                         console.log("isApplyingState reset to false");
                     }, 1500);
 
-                    // DEBUG PANEL: Show event log after 3 seconds
-                    setTimeout(() => {
-                        try {
-                            const rows = [];
-                            if (window._applyStateError) {
-                                rows.push('🚨 ERROR: ' + window._applyStateError.message);
-                            } else {
-                                rows.push('✅ applyState OK');
-                            }
-                            rows.push('CURRENT_FILE_PATH: ' + (window.CURRENT_FILE_PATH || '(none)'));
-                            rows.push('isSplit in state: ' + state.metrics?.isSplit);
-                            rows.push('isSplit in DOM: ' + document.getElementById('leftCol')?.classList.contains('is-split'));
-                            rows.push('splitPos in state: ' + state.metrics?.splitPos);
-                            rows.push('');
-                            rows.push('--- EVENT LOG ---');
-                            const t0 = window._dbgLog.length > 0 ? window._dbgLog[0].t : Date.now();
-                            window._dbgLog.forEach(e => {
-                                const ms = e.t - t0;
-                                let line = `+${ms}ms [${e.fn}] ${e.msg}`;
-                                if (e.isSplit !== undefined) line += ` isSplit=${e.isSplit}`;
-                                if (e.splitPos !== undefined) line += ` pos=${e.splitPos}`;
-                                if (e.filePath !== undefined) line += ` file=${e.filePath}`;
-                                if (e.isApplying !== undefined) line += ` applying=${e.isApplying}`;
-                                rows.push(line);
-                            });
-                            rows.push('');
-                            rows.push('Total events: ' + window._dbgLog.length);
-
-                            const panel = document.createElement('div');
-                            panel.id = 'splitDebugPanel';
-                            panel.style.cssText = 'position:fixed;bottom:10px;left:10px;width:320px;max-height:55vh;background:rgba(0,0,0,0.93);color:#0f0;font-size:8px;padding:0;z-index:999999;white-space:pre-wrap;font-family:monospace;border:2px solid lime;border-radius:8px;display:flex;flex-direction:column;';
-
-                            // --- Toolbar (draggable handle + minimize + close) ---
-                            const toolbar = document.createElement('div');
-                            toolbar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#111;padding:10px 12px;min-height:36px;cursor:grab;border-radius:6px 6px 0 0;user-select:none;flex-shrink:0;border-bottom:1px solid lime;touch-action:none;';
-                            const titleSpan = document.createElement('span');
-                            titleSpan.textContent = '🐛 Debug Panel';
-                            titleSpan.style.cssText = 'font-weight:bold;font-size:11px;color:lime;';
-                            const btnGroup = document.createElement('span');
-                            btnGroup.style.cssText = 'display:flex;gap:10px;';
-                            const minBtn = document.createElement('span');
-                            minBtn.textContent = '▼';
-                            minBtn.title = 'Minimize';
-                            minBtn.style.cssText = 'cursor:pointer;font-size:16px;color:#0f0;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:rgba(0,255,0,0.1);border-radius:4px;';
-                            const copyBtn = document.createElement('span');
-                            copyBtn.textContent = '📋';
-                            copyBtn.title = 'Copy content';
-                            copyBtn.style.cssText = 'cursor:pointer;font-size:16px;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:rgba(0,255,0,0.1);border-radius:4px;';
-                            copyBtn.onclick = (e) => {
-                                e.stopPropagation();
-                                const text = content.textContent;
-                                if (navigator.clipboard && navigator.clipboard.writeText) {
-                                    navigator.clipboard.writeText(text).catch(() => { });
-                                } else {
-                                    const ta = document.createElement('textarea');
-                                    ta.value = text;
-                                    ta.style.cssText = 'position:fixed;left:-9999px;';
-                                    document.body.appendChild(ta);
-                                    ta.select();
-                                    document.execCommand('copy');
-                                    ta.remove();
-                                }
-                                copyBtn.textContent = '✔';
-                                copyBtn.style.color = '#0f0';
-                                setTimeout(() => { copyBtn.textContent = '📋'; copyBtn.style.color = ''; }, 1200);
-                            };
-                            const closeBtn = document.createElement('span');
-                            closeBtn.textContent = '✕';
-                            closeBtn.title = 'Close';
-                            closeBtn.style.cssText = 'cursor:pointer;font-size:16px;color:red;font-weight:bold;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:rgba(255,0,0,0.1);border-radius:4px;';
-                            closeBtn.onclick = () => panel.remove();
-                            btnGroup.appendChild(minBtn);
-                            btnGroup.appendChild(copyBtn);
-                            btnGroup.appendChild(closeBtn);
-                            toolbar.appendChild(titleSpan);
-                            toolbar.appendChild(btnGroup);
-                            panel.appendChild(toolbar);
-
-                            // --- Content area ---
-                            const content = document.createElement('div');
-                            content.style.cssText = 'padding:8px;overflow:auto;flex:1;max-height:calc(55vh - 40px);';
-                            content.textContent = rows.join('\n');
-                            panel.appendChild(content);
-
-                            // --- Minimize / Expand ---
-                            let minimized = false;
-                            minBtn.onclick = (e) => {
-                                e.stopPropagation();
-                                minimized = !minimized;
-                                if (minimized) {
-                                    content.style.display = 'none';
-                                    panel.style.maxHeight = 'none';
-                                    minBtn.textContent = '▲';
-                                    minBtn.title = 'Expand';
-                                } else {
-                                    content.style.display = '';
-                                    panel.style.maxHeight = '55vh';
-                                    minBtn.textContent = '▼';
-                                    minBtn.title = 'Minimize';
-                                }
-                            };
-
-                            // --- Drag-to-move logic ---
-                            let isDragging = false, dragX = 0, dragY = 0;
-                            toolbar.addEventListener('pointerdown', (e) => {
-                                isDragging = true;
-                                dragX = e.clientX - panel.getBoundingClientRect().left;
-                                dragY = e.clientY - panel.getBoundingClientRect().top;
-                                toolbar.style.cursor = 'grabbing';
-                                e.preventDefault();
-                            });
-                            document.addEventListener('pointermove', (e) => {
-                                if (!isDragging) return;
-                                panel.style.left = (e.clientX - dragX) + 'px';
-                                panel.style.top = (e.clientY - dragY) + 'px';
-                                panel.style.bottom = 'auto';
-                            });
-                            document.addEventListener('pointerup', () => {
-                                if (isDragging) {
-                                    isDragging = false;
-                                    toolbar.style.cursor = 'grab';
-                                }
-                            });
-
-                            document.body.appendChild(panel);
-                        } catch (e) { console.error('Debug panel error:', e); }
-                    }, 3000);
                 }
+
 
                 // Update contact details icons/links
                 document.querySelectorAll('.contact-val').forEach(input => window.updateContactItemStyle(input));
@@ -6360,7 +6248,7 @@
                     if (isManualColorChange) {
                         localStorage.setItem(LS_MANUAL_COLORS, JSON.stringify(state.colors));
                         localStorage.setItem(LS_MANUAL_BACKGROUND, JSON.stringify(state.background));
-                        console.log("✓ Robust Security: Saved Manual Color Backup (including background)");
+                        console.log("âœ“ Robust Security: Saved Manual Color Backup (including background)");
                         isManualColorChange = false; // Reset flag
                     }
 
@@ -6537,13 +6425,13 @@
                     const launch = localStorage.getItem(LS_LAUNCH_COLORS);
 
                     if (manual) {
-                        console.log("✓ Security: Reverted to Last Manual Backup");
+                        console.log("âœ“ Security: Reverted to Last Manual Backup");
                         colors = JSON.parse(manual);
                     } else if (launch) {
-                        console.log("✓ Security: Reverted to Launch Backup");
+                        console.log("âœ“ Security: Reverted to Launch Backup");
                         colors = JSON.parse(launch);
                     } else {
-                        console.log("⚠ Security: No backups found. Forcing Default Theme.");
+                        console.log("âš  Security: No backups found. Forcing Default Theme.");
                         colors = {
                             header: '#1e3c72',
                             left: '#f7f9fc',
@@ -7798,7 +7686,7 @@
                 // FIX: enableEditingUI excludes #mainHeader children to prevent toolbar fighting,
                 // but embedded sub-sections (contact, name_profession, personal, profile_pic) inside
                 // the header MUST be editable. This block ensures they are re-enabled on EVERY
-                // toggle to edit mode — not just during template application.
+                // toggle to edit mode - not just during template application.
                 var mainHdr = document.getElementById('mainHeader');
                 if (mainHdr) {
                     // Make editable elements inside embedded header sub-sections
@@ -8694,118 +8582,11 @@
                 }
             };
 
-            // === Z-INDEX DEBUG SYSTEM ===
+            // Z-Index debug stubs (panels removed)
             window._zLog = [];
-            window._zDbg = function (source, msg) {
-                var now = new Date();
-                var ts = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
-                var cssVal = getComputedStyle(document.documentElement).getPropertyValue('--header-z-index').trim();
-                var inlineVal = document.documentElement.style.getPropertyValue('--header-z-index');
-                var hdr = document.getElementById('mainHeader');
-                var hdrInline = hdr ? hdr.style.zIndex : 'N/A';
-                var hdrComputed = hdr ? getComputedStyle(hdr).zIndex : 'N/A';
-                var entry = ts + ' [' + source + '] ' + msg + ' | css=' + cssVal + ' inline=' + inlineVal + ' hdr.style=' + hdrInline + ' hdr.computed=' + hdrComputed;
-                window._zLog.push(entry);
-                console.log('Z-DBG: ' + entry);
-                if (window._zPanel) window._zPanel.refresh();
-            };
+            window._zDbg = function () { };
+            window._zPanel = null;
 
-            // Monitor CSS variable changes via MutationObserver on :root
-            var _zObs = new MutationObserver(function (mutations) {
-                mutations.forEach(function (m) {
-                    if (m.attributeName === 'style') {
-                        var val = document.documentElement.style.getPropertyValue('--header-z-index');
-                        if (val && val !== window._lastZVal) {
-                            window._lastZVal = val;
-                            window._zDbg('CSS_MUTATION', '--header-z-index changed to: ' + val);
-                        }
-                    }
-                });
-            });
-            _zObs.observe(document.documentElement, { attributes: true, attributeFilter: ['style'] });
-
-            // Create persistent draggable debug panel
-            setTimeout(function () {
-                var panel = document.createElement('div');
-                panel.id = 'zIndexDebugPanel';
-                panel.style.cssText = 'position:fixed;bottom:10px;right:10px;width:340px;max-height:45vh;background:rgba(0,0,0,0.92);color:#0ff;font-size:9px;padding:0;z-index:999999;white-space:pre-wrap;font-family:monospace;border:2px solid cyan;border-radius:8px;display:flex;flex-direction:column;touch-action:none;';
-
-                // Titlebar
-                var tb = document.createElement('div');
-                tb.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#111;padding:6px 10px;cursor:grab;border-radius:6px 6px 0 0;border-bottom:1px solid cyan;touch-action:none;user-select:none;';
-                tb.innerHTML = '<span style="font-weight:bold;font-size:11px;color:cyan;">\uD83D\uDD0D Z-Index Debug</span>';
-
-                var btns = document.createElement('span');
-                btns.style.cssText = 'display:flex;gap:8px;';
-                var closeB = document.createElement('span');
-                closeB.textContent = '\u2715';
-                closeB.style.cssText = 'cursor:pointer;font-size:14px;color:red;font-weight:bold;';
-                closeB.onclick = function () { panel.style.display = 'none'; };
-                btns.appendChild(closeB);
-                tb.appendChild(btns);
-                panel.appendChild(tb);
-
-                // Status bar
-                var status = document.createElement('div');
-                status.id = 'zDbgStatus';
-                status.style.cssText = 'padding:6px 10px;background:#0a0a2a;border-bottom:1px solid #333;font-size:10px;color:#ff0;';
-                panel.appendChild(status);
-
-                // Log content
-                var ct = document.createElement('div');
-                ct.id = 'zDbgContent';
-                ct.style.cssText = 'overflow-y:auto;padding:8px;flex:1;max-height:30vh;';
-                panel.appendChild(ct);
-
-                // Drag - pointer events for desktop
-                tb.onpointerdown = function (ev) {
-                    var sx = ev.clientX - panel.offsetLeft;
-                    var sy = ev.clientY - panel.offsetTop;
-                    tb.setPointerCapture(ev.pointerId);
-                    tb.onpointermove = function (mv) {
-                        panel.style.left = (mv.clientX - sx) + 'px';
-                        panel.style.top = (mv.clientY - sy) + 'px';
-                        panel.style.right = 'auto';
-                        panel.style.bottom = 'auto';
-                    };
-                };
-                tb.onpointerup = function () { tb.onpointermove = null; };
-                // Drag - touch events for Android
-                var _tSX = 0, _tSY = 0;
-                tb.addEventListener('touchstart', function (ev) {
-                    ev.preventDefault();
-                    var t = ev.touches[0];
-                    _tSX = t.clientX - panel.offsetLeft;
-                    _tSY = t.clientY - panel.offsetTop;
-                }, { passive: false });
-                tb.addEventListener('touchmove', function (ev) {
-                    ev.preventDefault();
-                    var t = ev.touches[0];
-                    panel.style.left = (t.clientX - _tSX) + 'px';
-                    panel.style.top = (t.clientY - _tSY) + 'px';
-                    panel.style.right = 'auto';
-                    panel.style.bottom = 'auto';
-                }, { passive: false });
-
-                window._zPanel = {
-                    refresh: function () {
-                        var cssVal = getComputedStyle(document.documentElement).getPropertyValue('--header-z-index').trim();
-                        var inlineVal = document.documentElement.style.getPropertyValue('--header-z-index');
-                        var hdr = document.getElementById('mainHeader');
-                        var mc = document.querySelector('.main-content');
-                        var hdrZ = hdr ? getComputedStyle(hdr).zIndex : 'N/A';
-                        var mcZ = mc ? getComputedStyle(mc).zIndex : 'N/A';
-                        var label = cssVal == '0' ? 'BELOW' : (cssVal == '2' ? 'OVER' : 'COLLIDE');
-                        status.innerHTML = 'CSS var: <b>' + cssVal + '</b> (' + label + ') | inline: ' + inlineVal + ' | header computed: <b>' + hdrZ + '</b> | main-content: ' + mcZ;
-                        ct.textContent = window._zLog.join('\n');
-                        ct.scrollTop = ct.scrollHeight;
-                    }
-                };
-
-                document.body.appendChild(panel);
-                window._zDbg('INIT', 'Debug panel created');
-                setInterval(function () { if (window._zPanel) window._zPanel.refresh(); }, 2000);
-            }, 1000);
 
 
             window.adjustHeaderHeight = function () {
@@ -11016,8 +10797,7 @@
             const LAYOUTS = [
                 { id: 'default', name: 'Standard Modern', icon: 'fa-table-columns', desc: 'Classic two-column layout with header' },
                 { id: 'sidebar', name: 'Sidebar Pro', icon: 'fa-id-card-clip', desc: 'Professional left sidebar profile' },
-                { id: 'stack', name: 'Split', icon: 'fa-grip-lines', desc: 'Stacked vertical columns' },
-                { id: 'wizard', name: 'Step-by-Step Wizard', icon: 'fa-magic', desc: 'Re-run the setup wizard for better control' }
+                { id: 'stack', name: 'Split', icon: 'fa-grip-lines', desc: 'Stacked vertical columns' }
             ];
 
             const FONTS = [
@@ -14070,7 +13850,7 @@
                 shape.className = 'dropped-shape shape-' + type;
                 shape.id = shapeId;
                 shape.dataset.shapeType = type;
-                shape.dataset.shapeColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim() || '#1e3c72';
+                shape.dataset.shapeColor = '#808080';
                 shape.dataset.rotation = '0';
                 shape.dataset.scaleX = '1';
                 shape.dataset.scaleY = '1';
@@ -14537,7 +14317,7 @@
 
                 const label = document.createElement('div');
                 label.style.cssText = 'position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;pointer-events:none;';
-                label.textContent = 'Drag to rotate • Tap to finish';
+                label.textContent = 'Drag to rotate â€¢ Tap to finish';
                 overlay.appendChild(label);
 
                 let currentAngle = parseFloat(shape.dataset.rotation) || 0;
@@ -15152,7 +14932,7 @@
                         };
 
                         if (isBlackColor(colors.right) || isBlackColor(colors.left)) {
-                            console.log("⚠ Security: Detected Corrupted Colors in arriving data. Reverting...");
+                            console.log("âš  Security: Detected Corrupted Colors in arriving data. Reverting...");
                             const manual = localStorage.getItem('resume_app_v2_manual_colors');
                             const launch = localStorage.getItem('resume_app_v2_launch_colors');
                             if (manual) colors = JSON.parse(manual);
@@ -15374,14 +15154,41 @@
 
                     let keepExtraSections = false;
                     if (extraSections.length > 0) {
-                        // Create a user-friendly list of unique section names (ES5 compatible deduplication)
+                        // Create a user-friendly list of unique section names
                         var uniqueExtras = extraSections.filter(function (item, index) {
                             return extraSections.indexOf(item) === index;
                         }).map(function (s) {
                             return s.replace(/Section|Section/g, "").replace(/([A-Z])/g, ' $1').trim();
                         });
-                        keepExtraSections = confirm("This template includes extra sections you don't have: " + uniqueExtras.join(', ') + ".\n\nWould you like to add these as blank sections to your CV?");
+
+                        // Beautified Native Dialog Bridge
+                        if (typeof Android !== 'undefined' && Android.showExtraSectionsDialog) {
+                            // Define the callback for the native dialog
+                            window.onExtraSectionsConfirmed = function (confirmed) {
+                                // Resume template application with the user's choice
+                                // Note: We need a way to resume from here. 
+                                // To keep it simple, we wrap the remainder of applyUserTemplate in a function.
+                                proceedWithTemplate(template, injectedData, currentDataByDataType, sharedData, liveMetrics, confirmed, liveStylesBackup, globalRescuedShapes, globalRescuedControls, globalRescuedCanvas, globalRescuedAddBtn, globalRescuedCtxMenu);
+                            };
+                            Android.showExtraSectionsDialog(JSON.stringify(uniqueExtras));
+                            return; // Wait for callback
+                        } else {
+                            // Fallback to basic confirm
+                            keepExtraSections = confirm("This template includes extra sections you don't have: " + uniqueExtras.join(', ') + ".\n\nWould you like to add these as blank sections to your CV?");
+                        }
                     }
+
+                    // Original synchronous path if no extra sections
+                    proceedWithTemplate(template, injectedData, currentDataByDataType, sharedData, liveMetrics, keepExtraSections, liveStylesBackup, globalRescuedShapes, globalRescuedControls, globalRescuedCanvas, globalRescuedAddBtn, globalRescuedCtxMenu);
+                } catch (e) {
+                    console.error("[applyUserTemplate] ERROR:", e);
+                    window._dbgLog.push({ t: Date.now(), fn: 'applyTemplate', msg: 'ERROR: ' + e.message });
+                }
+            };
+
+            // Wrap the core logic to support async dialog callbacks
+            const proceedWithTemplate = (template, injectedData, currentDataByDataType, sharedData, liveMetrics, keepExtraSections, liveStylesBackup, globalRescuedShapes, globalRescuedControls, globalRescuedCanvas, globalRescuedAddBtn, globalRescuedCtxMenu) => {
+                try {
 
                     // Helper for Smart Hydration
                     const hydrateSection = (el, dt, content) => {
@@ -15409,7 +15216,7 @@
                             window._dbgLog.push({ t: Date.now(), fn: 'hydrateSection', msg: '[' + dt + '] PRE: captured title="' + originalTitleText + '" span=' + !!titleSpan });
                         }
 
-                        // PRE-HYDRATION: Save header state (DO NOT append controls here — innerHTML wipe destroys them!)
+                        // PRE-HYDRATION: Save header state (DO NOT append controls here â€” innerHTML wipe destroys them!)
                         let rescuedHeaderStyle = null;
 
                         if (dt === 'mainHeader') {
@@ -15809,7 +15616,7 @@
                                     });
                                 }
                             }
-                            // FIX B: No user contact data — make template's default contact items editable
+                            // FIX B: No user contact data â€” make template's default contact items editable
                             // or inject fresh example rows so new CVs have editable contacts
                             else if (embContact) {
                                 var contactParent = embContact.querySelector('.content-area') || embContact;
@@ -16236,7 +16043,7 @@
                             // DEDUP: Skip if this section already exists in the DOM (e.g., embedded inside header content)
                             var existingInDom = resumePage.querySelector('[data-type="' + dt + '"], #' + (secData.id || 'NONE'));
                             if (existingInDom && dt !== 'mainHeader') {
-                                window._dbgLog.push({ t: Date.now(), fn: 'placement', msg: dt + ' → SKIPPED (already in DOM, embedded in parent)' });
+                                window._dbgLog.push({ t: Date.now(), fn: 'placement', msg: dt + ' â†’ SKIPPED (already in DOM, embedded in parent)' });
                                 return; // skip this section, it's already inside the header
                             }
 
@@ -16273,20 +16080,20 @@
                                 var hdr = document.getElementById('mainHeader');
                                 if (hdr) hdr.appendChild(el);
                                 else resumePage.appendChild(el);
-                                window._dbgLog.push({ t: Date.now(), fn: 'placement', msg: dt + ' → INSIDE header' });
+                                window._dbgLog.push({ t: Date.now(), fn: 'placement', msg: dt + ' â†’ INSIDE header' });
                             } else if (secData.parentType === 'page' || secData.type === 'header') {
                                 resumePage.appendChild(el);
-                                window._dbgLog.push({ t: Date.now(), fn: 'placement', msg: dt + ' → page (type=' + secData.type + ')' });
+                                window._dbgLog.push({ t: Date.now(), fn: 'placement', msg: dt + ' â†’ page (type=' + secData.type + ')' });
                             } else {
                                 if (!mainContentAdded) { resumePage.appendChild(mainContent); mainContentAdded = true; }
                                 if (secData.parentType === 'left') leftCol.appendChild(el);
                                 else if (secData.parentType === 'right') rightCol.appendChild(el);
                                 else mainContent.appendChild(el);
-                                window._dbgLog.push({ t: Date.now(), fn: 'placement', msg: dt + ' → ' + (secData.parentType || 'mainContent') });
+                                window._dbgLog.push({ t: Date.now(), fn: 'placement', msg: dt + ' â†’ ' + (secData.parentType || 'mainContent') });
                             }
                         });
 
-                        // (Styles are applied globally below — removed duplicate here)
+                        // (Styles are applied globally below â€” removed duplicate here)
                     }
 
                     // RESTORE BACKGROUND CLASSES
@@ -16451,90 +16258,6 @@
                     }
                     window._dbgLog.push({ t: Date.now(), fn: 'applyTemplate', msg: 'DONE. shapes=' + allShapesAtEnd.length + shapeReport + " " + hdrDiag });
 
-                    // FOCUSED DEBUG PANEL — template-only, comprehensive
-                    setTimeout(function () {
-                        var existing = document.getElementById('templateDebugPanel');
-                        if (existing) existing.remove();
-
-                        var rows = ['=== CONTACT DETAILS DEBUG ==='];
-                        var contactItems = document.querySelectorAll('.contact-item');
-                        rows.push('Total Contact Items: ' + contactItems.length);
-                        rows.push('');
-
-                        contactItems.forEach(function (item, idx) {
-                            rows.push('--- Item ' + idx + ' ---');
-                            rows.push('Tag: ' + item.tagName + ' (href: ' + (item.getAttribute('href') || 'none') + ')');
-                            rows.push('Classes: ' + item.className);
-                            rows.push('Display: ' + getComputedStyle(item).display);
-                            rows.push('PointerEvents (Item): ' + getComputedStyle(item).pointerEvents);
-                            rows.push('Has onclick: ' + (typeof item.onclick === 'function' ? 'YES' : 'NO'));
-
-                            var val = item.querySelector('.contact-val');
-                            if (val) {
-                                rows.push('  Val child found: YES');
-                                rows.push('  Val contentEditable: ' + val.getAttribute('contenteditable') + ' (prop: ' + val.contentEditable + ')');
-                                rows.push('  Val PointerEvents: ' + getComputedStyle(val).pointerEvents);
-                                rows.push('  Val Text (innerText): "' + val.innerText.substring(0, 15) + '"');
-                                rows.push('  Val Text (innerHTML): "' + val.innerHTML.substring(0, 15) + '"');
-                                rows.push('  Val Rect (WxH): ' + val.getBoundingClientRect().width + 'x' + Math.round(val.getBoundingClientRect().height));
-                                rows.push('  Val Display: ' + getComputedStyle(val).display);
-                            } else {
-                                rows.push('  Val child found: NO');
-                                // Let's see what's inside
-                                rows.push('  Inner HTML sample: ' + item.innerHTML.substring(0, 40));
-                            }
-                            rows.push('');
-                        });
-
-                        rows.push('');
-                        rows.push('--- EVENT LOG ---');
-                        var t0 = window._dbgLog.length > 0 ? window._dbgLog[0].t : Date.now();
-                        window._dbgLog.forEach(function (e) {
-                            var ms = e.t - t0;
-                            rows.push('+' + ms + 'ms [' + e.fn + '] ' + e.msg);
-                        });
-                        rows.push('');
-                        rows.push('Events: ' + window._dbgLog.length);
-
-                        var panel = document.createElement('div');
-                        panel.id = 'templateDebugPanel';
-                        panel.style.cssText = 'position:fixed;top:10px;left:10px;width:320px;max-height:60vh;background:rgba(0,0,0,0.95);color:#0f0;font-size:9px;padding:0;z-index:999999;white-space:pre-wrap;font-family:monospace;border:2px solid lime;border-radius:8px;display:flex;flex-direction:column;';
-                        var tb = document.createElement('div');
-                        tb.style.cssText = 'display:flex;align-items:center;justify-content:space-between;background:#111;padding:8px 10px;cursor:grab;border-radius:6px 6px 0 0;border-bottom:1px solid lime;touch-action:none;';
-                        tb.innerHTML = '<span style="font-weight:bold;font-size:11px;color:lime;">\uD83D\uDC1B Template Debug</span>';
-                        var btns = document.createElement('span');
-                        btns.style.cssText = 'display:flex;gap:8px;';
-                        var copyB = document.createElement('span');
-                        copyB.textContent = '\uD83D\uDCCB';
-                        copyB.style.cssText = 'cursor:pointer;font-size:14px;';
-                        copyB.onclick = function () {
-                            var ta = document.createElement('textarea');
-                            ta.value = rows.join('\n');
-                            ta.style.cssText = 'position:fixed;left:-9999px;';
-                            document.body.appendChild(ta);
-                            ta.select();
-                            document.execCommand('copy');
-                            ta.remove();
-                            copyB.textContent = '\u2714';
-                            setTimeout(function () { copyB.textContent = '\uD83D\uDCCB'; }, 1000);
-                        };
-                        var closeB = document.createElement('span');
-                        closeB.textContent = '\u2715';
-                        closeB.style.cssText = 'cursor:pointer;font-size:14px;color:red;font-weight:bold;';
-                        closeB.onclick = function () { panel.remove(); };
-                        btns.appendChild(copyB);
-                        btns.appendChild(closeB);
-                        tb.appendChild(btns);
-                        panel.appendChild(tb);
-                        var ct = document.createElement('div');
-                        ct.style.cssText = 'overflow-y:auto;padding:8px;flex:1;';
-                        ct.textContent = rows.join('\n');
-                        panel.appendChild(ct);
-                        // Drag support
-                        tb.onpointerdown = function (ev) { var sx = ev.clientX - panel.offsetLeft; var sy = ev.clientY - panel.offsetTop; tb.setPointerCapture(ev.pointerId); tb.onpointermove = function (mv) { panel.style.left = (mv.clientX - sx) + 'px'; panel.style.top = (mv.clientY - sy) + 'px'; }; };
-                        tb.onpointerup = function () { tb.onpointermove = null; };
-                        document.body.appendChild(panel);
-                    }, 500);
                 } catch (e) {
                     console.error("Error applying template:", e);
                     alert("Error applying template: " + e.message);

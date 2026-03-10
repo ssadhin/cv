@@ -5,9 +5,9 @@
 
 
         <!-- Section Designs -->
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Section Style" android:textStyle="bold" android:textSize="14sp" android:textColor="#000000" android:layout_marginBottom="12dp"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Section Style" android:textStyle="bold" android:textSize="14sp" android:textColor="@color/text_primary" android:layout_marginBottom="12dp"/>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:background="#F5F5F5" android:padding="4dp" android:layout_marginBottom="16dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:background="@color/surface_card_nested" android:padding="4dp" android:layout_marginBottom="16dp">
             <ImageButton android:id="@+id/btn_section_prev" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_chevron_left" android:background="?attr/selectableItemBackgroundBorderless"/>
 
             <ViewFlipper android:id="@+id/flipper_section" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:inAnimation="@android:anim/slide_in_left" android:outAnimation="@android:anim/slide_out_right">
@@ -25,7 +25,7 @@
         </LinearLayout>
 
         <!-- Progress Designs -->
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Progress Style" android:textStyle="bold" android:textSize="14sp" android:textColor="#000000" android:layout_marginBottom="12dp"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Progress Style" android:textStyle="bold" android:textSize="14sp" android:textColor="@color/text_primary" android:layout_marginBottom="12dp"/>
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:background="#F5F5F5" android:padding="4dp" android:layout_marginBottom="16dp">
             <ImageButton android:id="@+id/btn_progress_prev" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_chevron_left" android:background="?attr/selectableItemBackgroundBorderless"/>
@@ -45,12 +45,12 @@
         </LinearLayout>
 
         <!-- Designer Column (Left/Right) -->
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Designer Column" android:textStyle="bold" android:textSize="14sp" android:textColor="#000000" android:layout_marginBottom="12dp"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Designer Column" android:textStyle="bold" android:textSize="14sp" android:textColor="@color/text_primary" android:layout_marginBottom="12dp"/>
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#F5F5F5" android:padding="12dp" android:layout_marginBottom="16dp">
 
             <!-- Layout Mode: Default vs Mirror -->
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="LAYOUT MODE" android:textSize="10sp" android:textStyle="bold" android:textColor="#666666" android:layout_marginBottom="4dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="LAYOUT MODE" android:textSize="10sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_marginBottom="4dp"/>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
                 <ImageButton android:id="@+id/btn_layout_prev" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_chevron_left" android:background="?attr/selectableItemBackgroundBorderless"/>
 
@@ -71,15 +71,15 @@
             <SeekBar android:id="@+id/seek_left_frame_thickness" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="30" android:progress="0" android:layout_marginBottom="12dp"/>
 
             <!-- Corner Radius -->
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="CORNER RADIUS" android:textSize="10sp" android:textStyle="bold" android:textColor="#666666" android:layout_marginBottom="4dp"/>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="CORNER RADIUS" android:textSize="10sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_marginBottom="4dp"/>
             <SeekBar android:id="@+id/seek_left_col_radius" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="50" android:progress="0"/>
 
         </LinearLayout>
 
         <!-- Background Customization -->
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Page Background" android:textStyle="bold" android:textSize="14sp" android:textColor="#000000" android:layout_marginTop="8dp" android:layout_marginBottom="12dp"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Page Background" android:textStyle="bold" android:textSize="14sp" android:textColor="@color/text_primary" android:layout_marginTop="8dp" android:layout_marginBottom="12dp"/>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#F5F5F5" android:padding="12dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@color/surface_card_nested" android:padding="12dp">
 
             <Button android:id="@+id/btn_bg_color" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Set Background Color" android:textAllCaps="false" android:layout_marginBottom="12dp" style="@style/Widget.AppCompat.Button.Colored"/>
 

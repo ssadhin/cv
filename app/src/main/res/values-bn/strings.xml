@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Vitae</string>
+    <string name="action_settings">সেটিংস</string>
+    <string name="action_print">প্রিন্ট</string>
+    <string name="print">প্রিন্ট</string>
+    <string name="next">পরবর্তী</string>
+    <string name="lorem_ipsum">লোরেম ইপসাম</string>
+    <string name="previous">পূর্ববর্তী</string>
+    <string name="first_fragment_label">প্রথম অংশ</string>
+    <string name="second_fragment_label">দ্বিতীয় অংশ</string>
+
+    <!-- Home -->
+    <string name="drop_here_to_share">শেয়ার করার জন্য এখানে ড্রপ করুন</string>
+    <string name="recent">সাম্প্রতিক</string>
+    <string name="sorted_by_time_edited">সম্পাদনার সময় অনুযায়ী সাজানো</string>
+    <string name="no_recent_cvs">সাম্প্রতিক কোনো সিভি নেই</string>
+    <string name="ai_mode">এআই (AI) মোড</string>
+    <string name="step_by_step_demo">ধাপে ধাপে (ডেমো)</string>
+    <string name="import_vitae">ইম্পোর্ট করুন (.vitae)</string>
+    <string name="new_cv">নতুন সিভি</string>
+
+    <!-- Settings -->
+    <string name="settings_title">সেটিংস</string>
+    <string name="guest_user">গেস্ট ইউজার</string>
+    <string name="not_logged_in">লগ ইন করা নেই</string>
+    <string name="general_preferences">সাধারণ পছন্দসমূহ</string>
+    <string name="language">ভাষা</string>
+    <string name="select_language">আপনার ভাষা নির্বাচন করুন</string>
+    <string name="english_us">English US</string>
+    <string name="theme">থিম</string>
+    <string name="switch_dark_mode">ডার্ক মোড চালু করুন</string>
+    <string name="membership">মেম্বারশিপ</string>
+    <string name="subscription">সাবস্ক্রিপশন</string>
+    <string name="not_active">সক্রিয় নেই</string>
+    <string name="application">অ্যাপ্লিকেশন</string>
+    <string name="about">সম্পর্কে</string>
+    <string name="version_text">সংস্করণ ২.৪.০</string>
+    <string name="log_out">লগ আউট</string>
+    <string name="log_in">লগ ইন</string>
+
+    <!-- AI -->
+    <string name="ai_assistant">এআই (AI) সহকারী</string>
+    <string name="ai_data_input">এআই ডেটা ইনপুট</string>
+    <string name="ai_data_desc">এখানে আপনার JSON বা টেক্সট পেস্ট করুন। অ্যাপটি এটি ব্যবহার করে আপনার সিভি তৈরি করবে।</string>
+    <string name="copy_master_prompt">মাস্টার প্রম্পট কপি করুন</string>
+    <string name="resume_data_hint">রিজ্যুমে ডেটা</string>
+    <string name="paste_btn">পেস্ট করুন</string>
+    <string name="clear_btn">মুছে ফেলুন</string>
+    <string name="next_choose_template">পরবর্তী: টেমপ্লেট নির্বাচন করুন</string>
+
+    <!-- Step By Step -->
+    <string name="select_purpose">উদ্দেশ্য নির্বাচন করুন</string>
+    <string name="choose_template">টেমপ্লেট নির্বাচন করুন</string>
+    <string name="manage_sections">সেকশন ম্যানেজ করুন</string>
+    <string name="editor">এডিটর</string>
+    <string name="back">পেছনে</string>
+    <string name="finish">সম্পন্ন</string>
+    <string name="close">বন্ধ করুন</string>
+    <string name="add_section_title">যোগ করার জন্য সেকশন নির্বাচন করুন</string>
+    <string name="search_sections_hint">সেকশন খুজুন...</string>
+    <string name="sort_az">A-Z</string>
+    <string name="sort_most_used">সবচেয়ে বেশি ব্যবহৃত</string>
+    <string name="sort_recent">সাম্প্রতিক</string>
+    <string name="group_sections">গ্রুপ করা</string>
+    <string name="reset_resume_data">রিজ্যুমে ডেটা রিসেট করুন</string>
+    <string name="placeholder_name">আপনার নাম</string>
+    <string name="placeholder_address">শহর, দেশ</string>
+    <string name="placeholder_profession">পেশা/পদবী</string>
+    <string name="placeholder_declaration">আমি এতদ্বারা ঘোষণা করছি যে উপরে প্রদত্ত তথ্য আমার জ্ঞান ও বিশ্বাস মতে সত্য ও সঠিক।</string>
+    <string name="add_item">+ আইটেম যোগ করুন</string>
+    <string name="pick_image">ছবি নির্বাচন করুন</string>
+    <string name="error_picking_image">ছবি নির্বাচনে ত্রুটি হয়েছে</string>
+
+    <!-- Login -->
+    <string name="login_to_vitae">Vitae-তে লগ ইন করুন</string>
+    <string name="email_hint">ইমেইল</string>
+    <string name="password_hint">পাসওয়ার্ড</string>
+    <string name="login_btn">লগ ইন</string>
+    <string name="dont_have_account">অ্যাকাউন্ট নেই? সাইন আপ করুন</string>
+
+    <!-- Signup -->
+    <string name="join_vitae">Vitae-তে যোগ দিন</string>
+    <string name="full_name_hint">পুরো নাম</string>
+    <string name="create_account">অ্যাকাউন্ট তৈরি করুন</string>
+    <string name="already_have_account">আগে থেকেই অ্যাকাউন্ট আছে? লগ ইন করুন</string>
+
+    <!-- Language Names inside Settings -->
+    <string name="lang_english">English US</string>
+    <string name="lang_bangla">বাংলা</string>
+
+    <!-- Step By Step Fields -->
+    <string name="field_name">পুরো নাম</string>
+    <string name="field_email">ইমেইল</string>
+    <string name="field_phone">ফোন নম্বর</string>
+    <string name="field_address">ঠিকানা</string>
+    <string name="field_linkedin">লিঙ্কডইন</string>
+    <string name="field_github">গিটহাব</string>
+    <string name="field_portfolio">পোর্টফোলিও</string>
+    <string name="field_facebook">ফেসবুক</string>
+    <string name="field_website">ওয়েবসাইট/লিংক</string>
+    <string name="field_nationality">জাতীয়তা</string>
+    <string name="field_dob">জন্ম তারিখ</string>
+    <string name="field_gender">লিঙ্গ</string>
+    <string name="field_ms">বৈবাহিক অবস্থা</string>
+    <string name="field_height">উচ্চতা</string>
+    <string name="field_pno">পাসপোর্ট নম্বর</string>
+    <string name="field_issued">ইস্যুকারী কর্তৃপক্ষ</string>
+    <string name="field_idate">ইস্যু তারিখ</string>
+    <string name="field_edate">মেয়াদোত্তীর্ণের তারিখ</string>
+    <string name="field_summary">সারসংক্ষেপ</string>
+    <string name="field_inst">প্রতিষ্ঠান/অর্গানাইজেশন</string>
+    <string name="field_year">বছর</string>
+    <string name="field_board">বোর্ড</string>
+    <string name="field_deg">ডিগ্রি</string>
+    <string name="field_gpa">জিপিএ/স্কোর</string>
+    <string name="field_comp">কোম্পানি/অর্গানাইজেশন</string>
+    <string name="field_dur">সময়কাল</string>
+    <string name="field_role">ভূমিকা/পদ</string>
+    <string name="field_desc">বিবরণ/দায়িত্ব</string>
+    <string name="field_link">লিংক/ইউআরএল</string>
+    <string name="field_cat">বিভাগ</string>
+    <string name="field_vals">আইটেমসমূহ</string>
+    <string name="field_lang">ভাষা</string>
+    <string name="field_lvl">দক্ষতার স্তর</string>
+    <string name="field_title">শিরোনাম</string>
+    <string name="field_body">বিবরণ</string>
+    <string name="field_org">সংস্থা</string>
+    <string name="field_date">তারিখ</string>
+    <string name="field_url">ইউআরএল (URL)</string>
+    <string name="field_pos">পদ</string>
+    <string name="field_topic">বিষয়</string>
+    <string name="field_course">কোর্স</string>
+    <string name="field_amt">পরিমাণ</string>
+    <string name="field_test">পরীক্ষার নাম</string>
+    <string name="field_score">স্কোর</string>
+    <string name="field_father">পিতার নাম / পেশা</string>
+    <string name="field_mother">মাতার নাম / পেশা</string>
+    <string name="field_siblings">ভাই-বোন সম্পর্কিত তথ্য</string>
+    <string name="field_pref">পছন্দ</string>
+    <string name="field_habits">অভ্যাস</string>
+    <string name="field_weight">ওজন</string>
+    <string name="field_complexion">গায়ের রঙ</string>
+    <string name="field_build">শারীরিক গঠন</string>
+    <string name="field_status">অবস্থা</string>
+    <string name="field_country">দেশ</string>
+    <string name="field_headshot">মুখচ্ছবি (Headshot)</string>
+    <string name="field_fullbody">আকৃতি (Full Body)</string>
+    <string name="field_family">পরিবার</string>
+    <string name="field_content">বিবরণী</string>
+    <string name="field_diet">খাদ্যাভ্যাস</string>
+    <string name="field_smoking">ধূমপানের অভ্যাস</string>
+    <string name="field_drinking">মদ্যপানের অভ্যাস</string>
+    <string name="field_rashi">রাশি / নক্ষত্র</string>
+    <string name="field_nakshatra">নক্ষত্র</string>
+    <string name="field_gotra">গোত্র</string>
+    <string name="field_eye_color">চোখের রঙ</string>
+    <string name="field_head">হেডশট</string>
+    <string name="field_life">লাইফস্টাইল ছবি</string>
+    <string name="field_activity">কার্যক্রম</string>
+    <string name="field_achievements">অর্জন</string>
+    <string name="field_health">স্বাস্থ্যগত অবস্থা</string>
+    <string name="field_act">কার্যক্রম (Activity)</string>
+    <string name="field_prof">পেশা</string>
+    <string name="field_expectations">প্রত্যাশা</string>
+
+    <!-- Step By Step Section Names -->
+    <string name="section_header">হেডার তথ্য</string>
+    <string name="section_profile">প্রোফাইল ছবি</string>
+    <string name="section_name_prof">নাম ও পেশা</string>
+    <string name="section_personal">ব্যক্তিগত তথ্য</string>
+    <string name="section_passport">পাসপোর্ট তথ্য</string>
+    <string name="section_visa">ভিসা স্ট্যাটাস</string>
+    <string name="section_summary">সারসংক্ষেপ</string>
+    <string name="section_languages">ভাষা</string>
+    <string name="section_education">শিক্ষা</string>
+    <string name="section_experience">অভিজ্ঞতা</string>
+    <string name="section_projects">প্রজেক্টসমূহ</string>
+    <string name="section_research">গবেষণার অভিজ্ঞতা</string>
+    <string name="section_teaching">শিক্ষকতার অভিজ্ঞতা</string>
+    <string name="section_grants">অনুদান ও অর্থায়ন</string>
+    <string name="section_skills">দক্ষতা</string>
+    <string name="section_test_scores">পরীক্ষার স্কোর</string>
+    <string name="section_certificates_simple">সার্টিফিকেট (সাধারণ)</string>
+    <string name="section_awards">পুরস্কার ও সম্মাননা</string>
+    <string name="section_certifications">সার্টিফিকেশন (উন্নত)</string>
+    <string name="section_volunteer">স্বেচ্ছাসেবী অভিজ্ঞতা</string>
+    <string name="section_publications">প্রকাশনা</string>
+    <string name="section_affiliations">অ্যাফিলিয়েশন</string>
+    <string name="section_hobbies">শখ</string>
+    <string name="section_extra">অতিরিক্ত কার্যক্রম</string>
+    <string name="section_references">রেফারেন্স</string>
+    <string name="section_training">প্রশিক্ষণ</string>
+    <string name="section_internships">ইন্টার্নশিপ</string>
+    <string name="section_achievements">অর্জন</string>
+    <string name="section_weblinks">ওয়েব লিংক</string>
+    <string name="section_family">পারিবারিক তথ্য</string>
+    <string name="section_expectations">সঙ্গী প্রত্যাশা</string>
+    <string name="section_lifestyle">লাইফস্টাইল ও অভ্যাস</string>
+    <string name="section_astrology">জ্যোতিষ শাস্ত্রীয় তথ্য</string>
+    <string name="section_physical">শারীরিক তথ্য</string>
+    <string name="section_visual">ভিজ্যুয়াল প্রেজেন্টেশন</string>
+    <string name="section_active">সক্রিয় লাইফস্টাইল</string>
+    <string name="section_interests">আগ্রহ</string>
+    <string name="section_declaration">ঘোষণা</string>
+
+    <!-- UI Strings -->
+    <string name="cat_essentials">প্রয়োজনীয়</string>
+    <string name="cat_experience">অভিজ্ঞতা</string>
+    <string name="cat_additional">অতিরিক্ত</string>
+    <string name="add_to_prefix">যোগ হবে: </string>
+    <string name="added_suffix"> যোগ করা হয়েছে</string>
+    <string name="item_exists">আইটেমটি আগে থেকেই আছে।</string>
+    <string name="all_sections_added">সবগুলো সেকশন যোগ করা হয়েছে!</string>
+    <string name="placement_auto">অটো</string>
+    <string name="placement_left">বাম কলাম</string>
+    <string name="placement_right">ডান কলাম</string>
+    <string name="placement_header">হেডার</string>
+
+    <!-- Step By Step Purposes -->
+    <string name="purpose_job">চাকরি</string>
+    <string name="purpose_job_abroad">বিদেশে চাকরি</string>
+    <string name="purpose_academic">একাডেমিক</string>
+    <string name="purpose_study_abroad">বিদেশে পড়ালেখা</string>
+    <string name="purpose_marriage">বিয়ে (বায়োডাটা)</string>
+    <string name="purpose_job_desc">সাধারণ চাকরির আবেদন</string>
+    <string name="purpose_job_abroad_desc">আন্তর্জাতিক চাকরির সুযোগ</string>
+    <string name="purpose_academic_desc">বিশ্ববিদ্যালয় ও গবেষণার চাকরি</string>
+    <string name="purpose_study_abroad_desc">উচ্চশিক্ষার জন্য আবেদন</string>
+    <string name="purpose_marriage_desc">বিয়ের জন্য ব্যক্তিগত বায়োডাটা</string>
+
+    <string name="template_notice">&lt;b>নোট:&lt;/b> আপনি অনলাইনে আরও &lt;font color=\'#1E3C72\'>&lt;b>অনেক টেমপ্লেট&lt;/b>&lt;/font> বেছে নিতে পারেন, নতুন লেআউট ডাউনলোড করতে পারেন এবং যেকোনো সময়ে পরিবর্তন করতে পারেন। এই নির্বাচনটি শুধুমাত্র &lt;font color=\'#1E3C72\'>&lt;b>মূল কাঠামো&lt;/b>&lt;/font> তৈরির জন্য।</string>
+    <string name="template_standard_modern">স্ট্যান্ডার্ড মডার্ন (Standard Modern)</string>
+    <string name="template_sidebar_pro">সাইডবার প্রো (Sidebar Pro)</string>
+
+    <!-- Subscription Screen -->
+    <string name="sub_title">Vitae-কে আরও উঁচুতে নিয়ে যান</string>
+    <string name="sub_subtitle">আপনার ক্যারিয়ারের জন্য সঠিক সাবস্ক্রিপশনটি নির্বাচন করুন।</string>
+    <string name="sub_elite_title">এলিট (Elite)</string>
+    <string name="sub_elite_desc">প্রো-এর সব কিছু + নিখুঁত রেজ্যুমের জন্য আনলিমিটেড এআই সুবিধা।</string>
+    <string name="sub_elite_btn">এলিট যোগ দিন — প্রতি মাসে ১৫$</string>
+    <string name="sub_pro_title">প্রো (Pro)</string>
+    <string name="sub_pro_desc">প্লাস-এর সব কিছু + উন্নত এআই প্রযুক্তির সুবিধা।</string>
+    <string name="sub_pro_btn">প্রো-তে আপডেট করুন (১০$)</string>
+    <string name="sub_plus_title">প্লাস (Plus)</string>
+    <string name="sub_plus_desc">আনলিমিটেড এক্সপোর্ট, টেমপ্লেট এবং এআই। নিরবচ্ছিন্ন কাজের অভিজ্ঞতা।</string>
+    <string name="sub_plus_btn">প্লাস-এ আপডেট করুন (৫$)</string>
+    <string name="sub_select">নির্বাচন করুন</string>
+    <string name="sub_free_title">ফ্রি (Free)</string>
+    <string name="sub_free_desc">৩টি টেমপ্লেট, ৩টি এআই প্রতি মাসে। বিজ্ঞাপন দ্বারা সমর্থিত।</string>
+    <string name="sub_current">বর্তমান</string>
+    <string name="sub_adfree_title">অ্যাড-ফ্রি (Intro)</string>
+    <string name="sub_adfree_desc">৫টি টেমপ্লেট, ৫টি এআই প্রতি মাসে। বিজ্ঞাপনহীন অভিজ্ঞতা।</string>
+    <string name="sub_footer_quote">"আপনার অভিজ্ঞতাই আপনার পরিচয়। আপনার সাথে মানানসই সেরা প্ল্যানটি বেছে নিন।"</string>
+    <string name="sub_secure">সুরক্ষিত</string>
+    <string name="sub_sync">সিঙ্ক</string>
+    <string name="sub_flex">ফ্লেক্স</string>
+    <string name="sub_title_html">আপনার &lt;font color=\'#A08CFF\'>&lt;i>Vitae&lt;/i>&lt;/font> উন্নত করুন</string>
+
+    <!-- Coupons -->
+    <string name="coupon_title">আপনার কি কুপন আছে?</string>
+    <string name="coupon_hint">কোড দিন</string>
+    <string name="coupon_apply">প্রয়োগ করুন</string>
+    <string name="coupon_applied">কুপন সফলভাবে প্রয়োগ করা হয়েছে!</string>
+    <string name="coupon_invalid">অবৈধ কুপন কোড।</string>
+    <string name="coupon_ads_activated">টেস্টার মোড: বিজ্ঞাপন সক্রিয়।</string>
+
+    <!-- Analytics -->
+    <string name="analytics">অ্যানালিটিক্স ড্যাশবোর্ড</string>
+    <string name="view_user_data">ব্যবহারকারী এবং প্রবৃদ্ধি দেখুন</string>
+
+    <!-- Manual AI Redesign -->
+    <string name="ai_step_1_title">ধাপ ১: আপনার প্রম্পট সংগ্রহ করুন</string>
+    <string name="ai_step_1_desc">আপনার ক্যারিয়ার প্রোফাইল অপ্টিমাইজ করার জন্য বিশেষ এআই প্রম্পটটি কপি করুন।</string>
+    <string name="ai_step_2_title">ধাপ ২: এআই (AI) মডেল বেছে নিন</string>
+    <string name="ai_step_2_desc">আপনার পছন্দের এআই বেছে নিন, প্রম্পটটি পেস্ট করুন এবং আপনার তথ্য দিন।</string>
+    <string name="ai_step_3_title">ধাপ ৩: সিভি জেনারেট করুন</string>
+    <string name="ai_step_3_desc">এআই থেকে প্রাপ্ত কন্টেন্ট নিচে পেস্ট করুন। আমাদের ইঞ্জিন স্বয়ংক্রিয়ভাবে এটি সাজিয়ে দেবে।</string>
+    <string name="ai_copy_prompt">প্রম্পট কপি করুন</string>
+    <string name="ai_next_step">পরবর্তী ধাপ</string>
+    <string name="ai_continue_prompt">আমি এআই আউটপুট কপি করেছি</string>
+    <string name="ai_generate_cv">আপনার সিভি তৈরি করুন</string>
+    <string name="ai_model_google">গুগল জেমিনি (Gemini)</string>
+    <string name="ai_model_google_desc">বহুমুখী বুদ্ধিমত্তা এবং বিশাল তথ্য বিশ্লেষণ ক্ষমতা</string>
+    <string name="ai_model_chatgpt">ChatGPT</string>
+    <string name="ai_model_chatgpt_desc">উন্নত যুক্তি এবং সৃজনশীল লেখা</string>
+    <string name="ai_model_grok">Grok</string>
+    <string name="ai_model_grok_desc">রিয়েল-টাইম জ্ঞান এবং সরাসরি উত্তর</string>
+    <string name="ai_model_deepseek">DeepSeek</string>
+    <string name="ai_model_deepseek_desc">দক্ষ কোডিং এবং প্রযুক্তিগত বিশ্লেষণ</string>
+    <string name="ai_footer_lock">আপনার তথ্য নিরাপদ এবং ব্যক্তিগতভাবে সংরক্ষিত থাকবে।</string>
+    <string name="ai_copy_first">দয়া করে আগে প্রম্পটটি কপি করুন।</string>
+    <string name="ai_paste_guide">১. প্রম্পটটি পেস্ট করুন\n২. আপনার পুরনো ফাইল বা সিভি আপলোড করুন</string>
+    <string name="ai_copy_output_guide">৩. এআই থেকে রেজাল্ট কপি করুন</string>
+    <string name="ai_output_detected">ফরম্যাট শনাক্ত করা হয়েছে! আপনি এখন সিভি সম্পন্ন করতে পারেন।</string>
+
+    <string name="login_with_google">গুগল দিয়ে লগ ইন করুন</string>
+    <string name="signup_with_google">গুগল দিয়ে সাইন আপ করুন</string>
+    <string name="tier_member">%1$s মেম্বার</string>
+
+    <!-- প্রোফাইল পিকচার সেটিংস -->
+    <string name="profile_settings_title">প্রোফাইল পিকচার সেটিংস</string>
+    <string name="shape_mode_smooth">স্মুথ</string>
+    <string name="shape_mode_polygon">পলিগন</string>
+    <string name="radius">রেডিয়াস</string>
+    <string name="sides">বাহু (Sides)</string>
+    <string name="round_corners">কোণা রাউন্ড করুন:</string>
+    <string name="corner_tl">উপরে-বামে</string>
+    <string name="corner_tr">উপরে-ডানে</string>
+    <string name="corner_bl">নিচে-বামে</string>
+    <string name="corner_br">নিচে-ডানে</string>
+    <string name="width">প্রস্থ (Width)</string>
+    <string name="height">উচ্চতা (Height)</string>
+    <string name="thickness">পুরুত্ব (Thickness)</string>
+    <string name="no_frame">ফ্রেম ছাড়া (শুধুমাত্র ছবি)</string>
+    <string name="frame_color">ফ্রেমের রঙ</string>
+    <string name="change">পরিবর্তন</string>
+    <string name="move_x">X বরাবর সরান</string>
+    <string name="move_y">Y বরাবর সরান</string>
+
+    <!-- সাবস্ক্রিপশন ডিটেইলস -->
+    <string name="billing_monthly">মাসিক</string>
+    <string name="billing_yearly">বার্ষিক</string>
+    <string name="billing_discount_20">২০% ছাড়</string>
+    <string name="elite_price_monthly">এলিট — ১২$/মাস</string>
+    <string name="elite_price_yearly">১৪৪$/বছর</string>
+    <string name="elite_summary">আনলিমিটেড এআই এপিআই এবং প্রায়োরিটি সাপোর্ট</string>
+    <string name="most_exclusive">সবচেয়ে এক্সক্লুসিভ</string>
+    <string name="elite_feature_1">সম্পূর্ণ ইন্টারেক্টিভ এআই এপিআই অ্যাক্সেস</string>
+    <string name="elite_feature_2">আনলিমিটেড এক্সপোর্ট এবং টেমপ্লেট</string>
+    <string name="elite_feature_3">সরাসরি ১v১ কমিউনিটি সাপোর্ট</string>
+    <string name="pro_price_monthly">প্রো — ৮$/মাস</string>
+    <string name="pro_price_yearly">৯৬$/বছর</string>
+    <string name="pro_summary">প্লাস-এর সব সুবিধা + সম্পূর্ণ এআই ক্ষমতা</string>
+    <string name="professional">প্রফেশনাল</string>
+    <string name="pro_feature_1">আনলিমিটেড হাই-কোয়ালিটি এআই</string>
+    <string name="pro_feature_2">স্মার্ট ফরম্যাটিং ইঞ্জিন</string>
+    <string name="plus_price_monthly">প্লাস — ৪$/মাস</string>
+    <string name="plus_price_yearly">৪৮$/বছর</string>
+    <string name="plus_summary">আনলিমিটেড এক্সপোর্ট এবং ম্যানুয়াল এআই</string>
+    <string name="plus_feature_1">আনলিমিটেড এক্সপোর্ট এবং এআই</string>
+    <string name="plus_feature_2">প্রিমিয়াম টেমপ্লেট অ্যাক্সেস</string>
+    <string name="adfree_price_monthly">অ্যাড-ফ্রি — ০.৮$/মাস</string>
+    <string name="adfree_price_yearly">৯.৬$/বছর</string>
+    <string name="adfree_summary">বিরক্তিহীন, সম্পূর্ণ ফোকাস</string>
+    <string name="adfree_feature_1">শূন্য বিজ্ঞাপন (Zero Ads)</string>
+    <string name="adfree_feature_2">৫টি টেমপ্লেট এবং এআই প্রতি মাসে</string>
+    <string name="free_plan_title">ফ্রি প্ল্যান</string>
+    <string name="free_plan_summary">৩টি টেমপ্লেট, ৩টি এআই প্রতি মাসে</string>
+    <string name="free_feature_1">বিজ্ঞাপন সমর্থিত অভিজ্ঞতা</string>
+
+    <!-- এটিএস হাব -->
+    <string name="ats_hub_title">রেজুমে হেলথ হাব</string>
+    <string name="ats_hub_pending">বিশ্লেষণ পেন্ডিং...</string>
+    <string name="ats_hub_tap_tip">বিস্তারিত দেখতে স্কোরে ট্যাপ করুন</string>
+    <string name="ats_hub_distribution">স্কোর ডিস্ট্রিবিউশন</string>
+    <string name="ats_hub_success_title">আপনি যা ঠিক করেছেন</string>
+    <string name="ats_hub_critical_title">আপনি যা ভুল করেছেন</string>
+    <string name="ats_hub_improve_title">যা উন্নত করা যেতে পারে</string>
+    <string name="ats_hub_jd_match_title">জব টার্গেট ম্যাচ</string>
+    <string name="ats_hub_jd_hint">এখানে জব ডেসক্রিপশন পেস্ট করুন...</string>
+    <string name="ats_hub_jd_btn">জব ম্যাচ বিশ্লেষণ করুন</string>
+
+    <!-- এক্সট্রা সেকশনস -->
+    <string name="extra_sections_title">অতিরিক্ত সেকশন</string>
+    <string name="extra_sections_subtitle">এই টেমপ্লেটে এমন কিছু সেকশন আছে যা আপনার সিভিতে নেই:</string>
+    <string name="extra_sections_question">আপনি কি এগুলো খালি সেকশন হিসেবে যোগ করতে চান?</string>
+    <string name="extra_sections_add_btn">সেকশন যোগ করুন</string>
+    <string name="maybe_later">পরে করব</string>
+
+    <!-- সেকশন সেটিংস -->
+    <string name="section_settings_title">সেকশন সেটিংস</string>
+    <string name="section_title_label">সেকশন টাইটেল</string>
+    <string name="section_name_placeholder">সেকশনের নাম</string>
+    <string name="style">স্টাইল</string>
+    <string name="background">ব্যাকগ্রাউন্ড</string>
+    <string name="grid">গ্রিড</string>
+    <string name="align">অ্যালাইন</string>
+    <string name="apply_to_all">সবগুলোতে প্রয়োগ করুন</string>
+    <string name="alignment">অ্যালাইনমেন্ট</string>
+    <string name="center">মাঝখানে</string>
+    <string name="header">হেডার</string>
+    <string name="items">আইটেম</string>
+    <string name="columns">কলাম</string>
+    <string name="rows">রো (Row)</string>
+    <string name="grid_spacing">গ্রিড স্পেসিং</string>
+    <string name="item_width">আইটেমের প্রস্থ</string>
+    <string name="auto">অটো</string>
+    <string name="choose_header_style">একটি হেডার স্টাইল বেছে নিন</string>
+    <string name="style_name_hint">স্টাইল নাম</string>
+    <string name="icon_bg">আইকন ব্যাকগ্রাউন্ড</string>
+    <string name="title_bg">টাইটেল ব্যাকগ্রাউন্ড</string>
+    <string name="swap_btn">⇄ অদলবদল</string>
+    <string name="connect_btn">⊞ সংযোগ করুন</string>
+    <string name="connector_shape">কানেক্টর শেপ</string>
+    <string name="title_font_color">টাইটেল ফন্ট কালার</string>
+    <string name="icon_rounding">আইকন রাউন্ডিং</string>
+    <string name="icon_size">আইকন সাইজ</string>
+    <string name="title_rounding">টাইটেল রাউন্ডিং</string>
+    <string name="title_font_size">টাইটেল ফন্ট সাইজ</string>
+    <string name="icon_frame">আইকন ফ্রেম</string>
+    <string name="color">রঙ</string>
+    <string name="title_frame">টাইটেল ফ্রেম</string>
+    <string name="title_left_shape">টাইটেল বাম দিকের শেপ</string>
+    <string name="title_right_shape">টাইটেল ডান দিকের শেপ</string>
+    <string name="icon_bg_shape">আইকন বিজি শেপ</string>
+    <string name="item_customization">আইটেম কাস্টমাইজেশন</string>
+    <string name="select_all">সব সিলেক্ট করুন</string>
+    <string name="value">মান (Value)</string>
+
+    <!-- টেক এ ব্রেক -->
+    <string name="take_a_break">একটু বিরতি নিন</string>
+    <string name="ad_rest_msg">আপনার বিশ্রামের সময় একটি ছোট বিজ্ঞাপন...</string>
+    <string name="ad_block_msg">অ্যাড-ব্লকার শনাক্ত হয়েছে। আমাদের ফ্রি অ্যাপটিকে সাপোর্ট করতে দয়া করে এটি বন্ধ করুন।</string>
+
+    <!-- হোম অ্যাক্টিভিটি -->
+    <string name="step_by_step">ধাপে ধাপে</string>
+    <string name="ai_helper">এআই হেল্পার</string>
+    <string name="move_to_home">হোমে সরান</string>
+    <string name="move_to_other_group">অন্য গ্রুপে সরান</string>
+
+    <string name="undo">পূর্বাবস্থায় ফেরান (Undo)</string>
+    <string name="redo">পুনরায় করুন (Redo)</string>
+    <string name="step_by_step_wizard_desc">ধাপে ধাপে উইজার্ড</string>
+    <string name="edit">সম্পাদনা করুন</string>
+    <string name="add_features">ফিচার যোগ করুন</string>
+    <string name="untitled_cv">নামহীন সিভি</string>
+
+    <!-- Shape Names -->
+    <string name="shape_triangle">(ত্রিভুজ)</string>
+    <string name="shape_diamond">(ডায়মন্ড)</string>
+    <string name="shape_pentagon">(পঞ্চভুজ)</string>
+    <string name="shape_hexagon">(ষড়ভুজ)</string>
+    <string name="shape_heptagon">(সপ্তভুজ)</string>
+    <string name="shape_octagon">(অষ্টভুজ)</string>
+    <string name="shape_polygon">(বহুভুজ)</string>
+    <string name="shape_circle_lines">(লাইন সহ বৃত্ত)</string>
+    <string name="shape_circle">(বৃত্ত)</string>
+
+    <!-- Category Names -->
+    <string name="cat_core_essentials">গুরুত্বপূর্ণ তথ্য</string>
+    <string name="cat_professional_exp">পেশাদার অভিজ্ঞতা</string>
+    <string name="cat_skills_honors">দক্ষতা এবং সম্মান</string>
+    <string name="cat_personal_photos">ব্যক্তিগত এবং ছবি</string>
+    <string name="cat_interests_more">আগ্রহ এবং আরও কিছু</string>
+    <string name="cat_documentation">নথিপত্র</string>
+    <string name="cat_others">অন্যান্য</string>
+
+    <!-- Toast & Messages -->
+    <string name="color_corruption_msg">⚠️ রঙের ত্রুটি ধরা পড়েছে! স্বয়ংক্রিয়ভাবে নিরাপদ রঙে ফিরে যাচ্ছে।</string>
+    <string name="style_saved">স্টাইল \'%s\' সংরক্ষিত হয়েছে!</string>
+    <string name="error_saving_style">স্টাইল সংরক্ষণে ত্রুটি</string>
+    <string name="menu_clicked">মেনু ক্লিক করা হয়েছে!</string>
+    <string name="resize_clicked">রিসাইজ ক্লিক করা হয়েছে!</string>
+
+    <!-- AI Selection -->
+    <string name="ai_preference_title">আপনার এআই পছন্দ</string>
+    <string name="choose_intelligence">আপনার বুদ্ধিমত্তা চয়ন করুন</string>
+    <string name="select_interface_style">একটি ইন্টারফেস শৈলী নির্বাচন করুন</string>
+    <string name="manual_ai">ম্যানুয়াল এআই</string>
+    <string name="manual_ai_desc">ধাপে ধাপে এবং বিনামূল্যে</string>
+    <string name="automatic_ai">স্বয়ংক্রিয় এআই</string>
+    <string name="automatic_ai_desc">সম্পূর্ণ স্বায়ত্তশাসিত প্রিমিয়াম</string>
+
+    <!-- Manual AI Wizard -->
+    <string name="cv_generator">সিভি জেনারেটর</string>
+    <string name="getting_started">শুরু করা যাক</string>
+    <string name="copy_to_clipboard_hint">ক্লিক করলে লেখাটি আপনার ক্লিপবোর্ডে কপি হয়ে যাবে</string>
+    <string name="progress">অগ্রগতি</string>
+    <string name="choosing_ai_model">এআই মডেল নির্বাচন করা হচ্ছে</string>
+    <string name="step_2_of_3">৩ এর মধ্যে ২য় ধাপ</string>
+    <string name="next_step_label">পরবর্তী ধাপ</string>
+    <string name="next_step_desc">একটি মডেল নির্বাচন করার পরে, আপনি আপনার নির্দিষ্ট চাকরির বিবরণ এবং বর্তমান জীবনবৃত্তান্ত পেস্ট করতে সক্ষম হবেন।</string>
+    <string name="back_to_step_1">প্রথম ধাপে ফিরে যান</string>
+    <string name="final_step">শেষ ধাপ</string>
+    <string name="step_3_of_3">৩ / ৩</string>
+    <string name="paste_ai_cv_hint">এআই-জেনারেটেড সিভি কন্টেন্ট এখানে পেস্ট করুন...</string>
+    <string name="clear">পরিষ্কার করুন</string>
+    <string name="paste">পেস্ট করুন</string>
+    <string name="back_to_step_2">পূর্ববর্তী ধাপে ফিরে যান</string>
+
+    <!-- Auth -->
+    <string name="forgot_password">পাসওয়ার্ড ভুলে গেছেন?</string>
+
+    <!-- Home Screen -->
+    <string name="current_tier_msg">বর্তমান টায়ার: %s</string>
+    <string name="selected_count">%dটি নির্বাচিত</string>
+    <string name="sorted_a_z">অ-ক ক্রমে সাজানো</string>
+    <string name="vitae_user">ভিটা ব্যবহারকারী</string>
+    <string name="guest_with_id">অতিথি (%s)</string>
+    <string name="group_label">গ্রুপ: %s</string>
+    <string name="folder">ফোল্ডার</string>
+    <string name="resume">রেজ্যুমে</string>
+    <string name="delete_confirmation_title">%s ডিলিট করবেন?</string>
+    <string name="delete_confirmation_msg">আপনি কি নিশ্চিত যে আপনি \'%s\' ডিলিট করতে চান?</string>
+    <string name="delete_folder_warning">\nসমস্ত কন্টেন্ট হারিয়ে যাবে।</string>
+    <string name="deleted">ডিলিট করা হয়েছে</string>
+    <string name="failed_to_delete">ডিলিট করতে ব্যর্থ হয়েছে</string>
+    <string name="rename_resume">রেজ্যুমে রিনেম করুন</string>
+    <string name="rename">রিনেম করুন</string>
+    <string name="error_rename_exists">রিনেম করতে ব্যর্থ হয়েছে (নামটি হয়তো আগে থেকেই আছে)</string>
+    <string name="cancel">বাতিল করুন</string>
+    <string name="group_name_hint">গ্রুপের নাম</string>
+    <string name="create_folder">ফোল্ডার তৈরি করুন</string>
+    <string name="create">তৈরি করুন</string>
+    <string name="new_folder">নতুন ফোল্ডার</string>
+    <string name="moved_to_home_count">%dটি আইটেম হোমে সরানো হয়েছে</string>
+    <string name="moved_to_home">হোমে সরানো হয়েছে</string>
+    <string name="group_name_placeholder">গ্রুপের নাম...</string>
+    <string name="move_to_group">গ্রুপে সরান</string>
+    <string name="move">সরান</string>
+    <string name="no_groups_available">কোনো গ্রুপ নেই</string>
+    <string name="no_other_groups_available">অন্য কোনো গ্রুপ নেই</string>
+    <string name="move_items_to_group">%dটি আইটেম গ্রুপে সরান</string>
+    <string name="moved_items_to_group">%dটি আইটেম %s এ সরানো হয়েছে</string>
+    <string name="moved_to_main_list">মূল তালিকায় সরানো হয়েছে</string>
+    <string name="failed_to_ungroup">আনগ্রুপ করতে ব্যর্থ হয়েছে</string>
+    <string name="error_creating_package">.vitae প্যাকেজ তৈরিতে ত্রুটি</string>
+    <string name="share_vitae_package">.vitae প্যাকেজ শেয়ার করুন</string>
+    <string name="error_sharing_file">ফাইল শেয়ার করতে ত্রুটি</string>
+    <string name="imported_successfully">সফলভাবে ইম্পোর্ট করা হয়েছে!</string>
+    <string name="import_failed">ইম্পোর্ট ব্যর্থ হয়েছে</string>
+    <string name="delete_multi_title">%dটি আইটেম ডিলিট করবেন?</string>
+    <string name="delete_multi_msg">আপনি কি নিশ্চিত যে আপনি সমস্ত নির্বাচিত আইটেম ডিলিট করতে চান? এই কাজটি আর ফিরিয়ে আনা যাবে না।</string>
+    <string name="deleted_count">%dটি আইটেম ডিলিট করা হয়েছে</string>
+    <string name="app_logo_desc">অ্যাপ লোগো</string>
+
+    <!-- Settings Screen -->
+    <string name="menu_options_msg">মেনু অপশন</string>
+    <string name="plan_active_msg">%s প্ল্যান • সক্রিয়</string>
+    <string name="logout_confirm_msg">আপনি কি নিশ্চিত যে আপনি লগ আউট করতে চান?</string>
+    <string name="login_to_manage_sub">সাবস্ক্রিপশন পরিচালনা করতে দয়া করে লগ ইন করুন।</string>
+    <string name="english">ইংরেজি</string>
+    <string name="bangla">বাংলা</string>
+    <string name="about_vitae">ভিটা সম্পর্কে</string>
+    <string name="about_vitae_msg">ভিটা সিভি বিল্ডার\nভার্সন ২.৪.০\n\nপ্রফেশনালদের জন্য একটি প্রিমিয়াম রেজ্যুমে বিল্ডার।</string>
+    <string name="ok">ঠিক আছে</string>
+
+    <!-- AI Selection / Upgrade -->
+    <string name="launching_automated_ai">স্বয়ংক্রিয় এআই চালু হচ্ছে...</string>
+    <string name="pro_feature_only">শুধুমাত্র প্রো (PRO) ফিচার</string>
+    <string name="pro_feature_desc">স্বয়ংক্রিয় এআই একটি প্রিমিয়াম ফিচার যা ১০ ডলারের প্রো টায়ারে অন্তর্ভুক্ত। সম্পূর্ণ স্বয়ংক্রিয় সিভি তৈরির সুবিধা পেতে এখনই আপগ্রেড করুন!</string>
+    <string name="upgrade_now">এখনই আপগ্রেড করুন</string>
+    <string name="maybe_later">পরে হবে</string>
+
+    <!-- AI Common & Wizard -->
+    <string name="prompt_copied_msg">প্রম্পট কপি করা হয়েছে! এটি এআই-তে পেস্ট করুন।</string>
+    <string name="pasted_from_clipboard">ক্লিপবোর্ড থেকে পেস্ট করা হয়েছে</string>
+    <string name="ai_limit_reached">এআই-এর মাসিক সীমা শেষ। আরও সুবিধার জন্য আপগ্রেড করুন!</string>
+    <string name="please_enter_data">দয়া করে ডাটা লিখুন</string>
+    <string name="template_standard_modern">স্ট্যান্ডার্ড মডার্ন</string>
+    <string name="template_standard">স্ট্যান্ডার্ড</string>
+    <string name="generate_cv">সিভি তৈরি করুন</string>
+    <string name="error_generating_cv_prefix">সিভি তৈরিতে ত্রুটি: </string>
+    <string name="manual_ai_prompt_copied_msg">মাস্টার প্রম্পট কপি করা হয়েছে!\nএখন পরের ধাপে একটি এআই সিলেক্ট করুন।</string>
+    <string name="cleared">মুছে ফেলা হয়েছে</string>
+    <string name="module_error">মডিউলে ত্রুটি। দয়া করে আবার চেষ্টা করুন।</string>
+    <string name="pasted_result">রেজাল্ট পেস্ট করা হয়েছে</string>
+    <string name="please_paste_ai_output">দয়া করে আগে এআই আউটপুট পেস্ট করুন</string>
+    <string name="generate">তৈরি করুন</string>
+    <string name="processing_failed_prefix">প্রসেসিং ব্যর্থ হয়েছে: </string>
+
+    <!-- Auth & Profile -->
+    <string name="fill_all_fields">দয়া করে সবগুলো ঘর পূরণ করুন</string>
+    <string name="login_failed_prefix">লগইন ব্যর্থ হয়েছে: </string>
+    <string name="enter_your_email">আপনার ইমেল লিখুন</string>
+    <string name="reset_password">পাসওয়ার্ড রিসেট করুন</string>
+    <string name="reset_password_msg">পাসওয়ার্ড রিসেট লিঙ্ক পেতে আপনার ইমেল ঠিকানা লিখুন।</string>
+    <string name="send">পাঠান</string>
+    <string name="email_is_required">ইমেল প্রয়োজন</string>
+    <string name="reset_link_sent_msg">রিসেট লিঙ্ক পাঠানো হয়েছে! আপনার ইনবক্স চেক করুন।</string>
+    <string name="error_prefix">ত্রুটি: </string>
+    <string name="email_not_verified">ইমেল ভেরিফাইড নয়</string>
+    <string name="verify_email_msg">চালিয়ে যেতে দয়া করে আপনার ইমেল ঠিকানা ভেরিফাই করুন। ভেরিফিকেশন লিঙ্কের জন্য আপনার ইনবক্স (এবং স্প্যাম ফোল্ডার) চেক করুন।</string>
+    <string name="resend_email">ইমেল আবার পাঠান</string>
+    <string name="verification_resent">ভেরিফিকেশন ইমেল আবার পাঠানো হয়েছে!</string>
+    <string name="failed_to_resend">ইমেল পাঠাতে ব্যর্থ হয়েছে।</string>
+    <string name="google_sign_in_failed_prefix">গুগল সাইন-ইন ব্যর্থ হয়েছে: </string>
+    <string name="firebase_auth_failed">ফায়ারবেস অথ ব্যর্থ হয়েছে</string>
+    <string name="new_user">নতুন ব্যবহারকারী</string>
+    <string name="account_created_verify_msg">অ্যাকাউন্ট তৈরি হয়েছে! লগইন করার আগে আপনার অ্যাকাউন্ট ভেরিফাই করতে দয়া করে ইমেল চেক করুন।</string>
+    <string name="account_created_email_fail_msg">অ্যাকাউন্ট তৈরি হয়েছে, কিন্তু ভেরিফিকেশন ইমেল পাঠাতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার পাঠাতে লগইন করার চেষ্টা করুন।</string>
+    <string name="signup_failed_prefix">সাইনআপ ব্যর্থ হয়েছে: </string>
+    <string name="google_sign_up_failed_prefix">গুগল সাইন-আপ ব্যর্থ হয়েছে: </string>
+    <string name="verify_google_email_msg">লগইন করার আগে দয়া করে আপনার গুগল ইমেল ভেরিফাই করুন।</string>
+    <string name="name_cannot_be_empty">নাম খালি রাখা যাবে না</string>
+    <string name="failed_to_save_image">ইমেজ সেভ করতে ব্যর্থ হয়েছে</string>
+    <string name="profile_updated_locally">প্রোফাইল আপডেট করা হয়েছে!</string>
+    <string name="name_update_failed">নাম আপডেট ব্যর্থ হয়েছে</string>
+
+    <!-- AI Prompts -->
+    <string name="master_prompt_simple">আপনি একজন রেজ্যুমে পার্সার (Resume Parser)। আপনার লক্ষ্য হল আমার রিজ্যুমে থেকে তথ্য বের করা এবং সেটিকে একটি নির্দিষ্ট \"Shorthand Code\" ফরম্যাটে সাজানো।\n\n**গুরুত্বপূর্ণ: নিচের JSON ফরম্যাটটি হুবহু অনুসরণ করুন। JSON ব্লকের বাইরে কোনো টেক্সট দেবেন না।**\n\n### ১. প্রধান নিয়মাবলী\n- **আউটপুট স্ট্রাকচার:** আপনাকে অবশ্যই একটি মাত্র JSON অবজেক্ট আউটপুট দিতে হবে। একটি JSON কোড ব্লক ব্যবহার করুন।\n- **সবকিছু বিশ্লেষণ করুন:** পুরো রেজ্যুমে টেক্সটটি পড়ুন। নিচের সেকশনগুলোর সাথে প্রতিটি তথ্যের মিল তৈরি করুন।\n- **সর্বদা সামারি বা সারসংক্ষেপ তৈরি করুন:** আপনাকে অবশ্যই একটি `sum` সেকশন তৈরি করতে হবে। যদি রেজ্যুমের নিজস্ব সামারি থাকে সেটি ব্যবহার করুন। না থাকলে, ২-৩ লাইনের একটি প্রফেশনাল সামারি লিখুন।\n- **হেডার (পরিচয়):** নাম, প্রফেশনাল টাইটেল এবং সব ধরনের যোগাযোগের মাধ্যম (ইমেইল, ফোন, লিংক, ঠিকানা) এর জন্য `hdr` ব্যবহার করুন।\n- **নিয়ম:** পরিচয় এবং যোগাযোগ সংক্রান্ত সবকিছু `hdr` এর মধ্যে থাকবে।\n### ২. শর্টহ্যান্ড JSON স্ট্রাকচার\n\n```json\n{\n  \"hdr\": { \"name\": \"Full Name\", \"role\": \"Professional Title\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\" },\n  \"sum\": { \"desc\": \"2-3 sentence summary...\" },\n  \"exp\": [ { \"com\": \"Company\", \"role\": \"Role\", \"dur\": \"Start - End\", \"desc\": \"Bullet points (use \\\\n for multiple lines)\" } ],\n  \"edu\": [ { \"inst\": \"Institute\", \"deg\": \"Degree\", \"year\": \"Year\", \"gpa\": \"GPA\", \"board\": \"Board Name\" } ],\n  \"skl\": [ { \"cat\": \"Category\", \"vals\": \"Skill 1, Skill 2, Skill 3\" } ]\n}\n```\n\n**এখন, এই রিজ্যুমেটি পার্স করে শুধুমাত্র JSON শর্টহ্যান্ড কোডটি জেনারেট করুন:**</string>
+
+    <string name="master_prompt_advanced">আপনি একজন রেজ্যুমে পার্সার (Resume Parser)। আপনার লক্ষ্য হল আমার রিজ্যুমে থেকে তথ্য বের করা এবং সেটিকে একটি নির্দিষ্ট \"Shorthand Code\" ফরম্যাটে সাজানো।\n\n**গুরুত্বপূর্ণ: নিচের JSON ফরম্যাটটি হুবহু অনুসরণ করুন। JSON ব্লকের বাইরে কোনো টেক্সট দেবেন না।**\n\n### ১. প্রধান নিয়মাবলী\n- **আউটপুট স্ট্রাকচার:** আপনাকে অবশ্যই একটি মাত্র JSON অবজেক্ট আউটপুট দিতে হবে। একটি JSON কোড ব্লক ব্যবহার করুন।\n- **সবকিছু বিশ্লেষণ করুন:** পুরো রেজ্যুমে টেক্সটটি পড়ুন। নিচের সেকশনগুলোর সাথে প্রতিটি তথ্যের মিল তৈরি করুন।\n- **সর্বদা সামারি বা সারসংক্ষেপ তৈরি করুন:** আপনাকে অবশ্যই একটি `sum` সেকশন তৈরি করতে হবে। যদি রেজ্যুমের নিজস্ব সামারি থাকে সেটি ব্যবহার করুন। না থাকলে, ২-৩ লাইনের একটি প্রফেশনাল সামারি লিখুন।\n- **হেডার (পরিচয়):** নাম, প্রফেশনাল টাইটেল এবং সব ধরনের যোগাযোগের মাধ্যম (ইমেইল, ফোন, লিংক, ঠিকানা) এর জন্য `hdr` ব্যবহার করুন।\n- **নিয়ম:** পরিচয় এবং যোগাযোগ সংক্রান্ত সবকিছু `hdr` এর মধ্যে থাকবে।\n- **ব্যক্তিগত তথ্য (শুধুমাত্র ডেমোগ্রাফিকস):** `per` সেকশনটি শুধুমাত্র জাতীয়তা, জন্ম তারিখ, লিঙ্গ, বৈবাহিক অবস্থা, উচ্চতার জন্য। এখানে ইমেইল বা ফোন নম্বর দেবেন না।\n- **ভাষা:** ভাষাগুলো খুঁজে `lan` সেকশনে যুক্ত করুন।\n- **খালি সেকশন বাদ দিন:** যদি কোনো সেকশনে ডাটা না থাকে, সেই কী (key) টি পুরোপুরি বাদ দিন।\n- **নতুন আইটেম শুরু করুন:** লিস্টের ক্ষেত্রে (exp, edu ইত্যাদি), প্রতিটি আইটেম অবশ্যই একটি অবজেক্ট হতে হবে যার সাথে তার প্রাইমারি কী (যেমন: `com`, `inst`) থাকবে।\n\n### ২. শর্টহ্যান্ড JSON স্ট্রাকচার\n\n```json\n{\n  \"hdr\": { \"name\": \"Full Name\", \"role\": \"Professional Title\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\" },\n  \"sum\": { \"desc\": \"2-3 sentence summary...\" },\n  \"per\": { \"nat\": \"Nationality\", \"dob\": \"DD/MM/YYYY\", \"gen\": \"Gender\", \"mar\": \"Status\", \"height\": \"Height\" },\n  \"pass\": { \"pno\": \"Passport No\", \"idate\": \"Issue Date\", \"edate\": \"Expiry Date\" },\n  \"vis\": { \"status\": \"Visa Status/Work Authorization\", \"country\": \"Target Country\" },\n  \"exp\": [ { \"com\": \"Company\", \"role\": \"Role\", \"dur\": \"Start - End\", \"desc\": \"Bullet points (use \\\\n for multiple lines)\" } ],\n  \"edu\": [ { \"inst\": \"Institute\", \"deg\": \"Degree\", \"year\": \"Year\", \"gpa\": \"GPA\", \"board\": \"Board Name\" } ],\n  \"skl\": [ { \"cat\": \"Category\", \"vals\": \"Skill 1, Skill 2, Skill 3\" } ],\n  \"pro\": [ { \"name\": \"Project\", \"desc\": \"Details\", \"year\": \"Year\", \"link\": \"URL\" } ],\n  \"res\": [ { \"topic\": \"Research Topic\", \"role\": \"Your Role\", \"desc\": \"Method/Findings\" } ],\n  \"tea\": [ { \"course\": \"Course Name\", \"inst\": \"Institution\", \"desc\": \"Responsibilities\" } ],\n  \"gra\": [ { \"title\": \"Grant Title\", \"amt\": \"Amount/Agency\", \"year\": \"Year\" } ],\n  \"cert\": [ { \"name\": \"Cert Name\", \"org\": \"Issuer\", \"date\": \"Date\" } ],\n  \"lan\": [ { \"lang\": \"Language\", \"lvl\": \"Proficiency\" } ],\n  \"tst\": [ { \"test\": \"Test Name\", \"score\": \"Score\", \"date\": \"Date\" } ],\n  \"fam\": { \"father\": \"Father\'s Job\", \"mother\": \"Mother\'s Job\", \"siblings\": \"Siblings summary\" },\n  \"pex\": { \"pref\": \"Partner Preferences &amp; Expectations summary\" },\n  \"lst\": { \"diet\": \"Veg/Non-Veg\", \"habits\": \"Social Habits (Smoking/Drinking)\" },\n  \"ast\": { \"rashi\": \"Zodiac Sign\", \"nakshatra\": \"Birth Star\", \"gotra\": \"Lineage\" },\n  \"phy\": { \"weight\": \"Weight\", \"complexion\": \"Complexion\", \"build\": \"Build\" },\n  \"ref\": [ { \"name\": \"Name\", \"pos\": \"Title\", \"org\": \"Company\", \"email\": \"Email\", \"phone\": \"Number\" } ],\n  \"hob\": [ { \"cat\": \"Hobbies\", \"vals\": \"Hobby 1, Hobby 2\" } ]\n}\n```\n\n**এখন, এই রিজ্যুমেটি পার্স করে শুধুমাত্র JSON শর্টহ্যান্ড কোডটি জেনারেট করুন:**</string>\n\n                        <!-- Additional StepByStep Labels -->\n    <string name="field_val_contact">যোগাযোগের তথ্য</string>\n    <string name="field_val_content">বিষয়বস্তু</string>\n    <string name="field_lvl_fluent">স্তর (যেমন: সাবলীল)</string>\n    <string name="field_year_date">বছর / তারিখ</string>\n    <string name="field_inst_agency">প্রতিষ্ঠান / সংস্থা</string>\n    <string name="field_items_comma">আইটেমসমূহ (কমা দিয়ে আলাদা করুন)</string>\n    <string name="field_award_achievement">পুরস্কার/অর্জিত সাফল্য</string>\n    <string name="field_father_occup">পিতা: নাম / পেশা</string>\n    <string name="field_mother_occup">মাতা: নাম / পেশা</string>\n    <string name="field_siblings_details">ভাই-বোন: সংখ্যা / বিস্তারিত</string>\n    <string name="field_edu_prof_pref">শিক্ষা / পেশাগত পছন্দ</string>\n    <string name="field_general_expectations">সাধারণ প্রত্যাশা</string>\n    <string name="field_diet_veg">খাদ্যাভ্যাস (নিরামিষ/আমিষ)</string>\n    <string name="field_headshot_label">হেডশট লেবেল</string>
+    <string name="field_fullbody_label">ফুল-বডি লেবেল</string>
+    <string name="field_lifestyle_photo_label">লাইফস্টাইল ছবি লেবেল</string>
+    <string name="field_health_status">স্বাস্থ্যগত অবস্থা</string>
+    <string name="field_visa_type">ভিসার ধরণ</string>
+    <string name="field_site_name">সাইটের নাম</string>
+    <string name="field_declaration_text">ঘোষণা টেক্সট</string>
+
+    <!-- UI Confirmations -->
+    <string name="confirm_delete_item">এই আইটেমটি মুছে ফেলবেন?</string>
+    <string name="confirm_delete_section">এই সেকশনটি মুছে ফেলবেন?</string>
+    <string name="confirm_reset_all">সব তথ্য রিসেট করবেন? এটি আর ফিরে পাওয়া যাবে না।</string>
+    <string name="new_bullet_placeholder">নতুন বুলেট পয়েন্ট...</string>
+    <string name="layout_applied">লেআউট পরিবর্তন সম্পন্ন হয়েছে!</string>
+
+    <!-- Signature -->
+    <string name="signature_exported">সিগনেচার গ্যালারিতে সেভ করা হয়েছে!</string>
+    <string name="export_failed_prefix">এক্সপোর্ট ব্যর্থ হয়েছে: </string>
+
+    <!-- Subscription Missing -->
+    <string name="unavailable_for_now">এই ফিচারটি বর্তমানে অনুপলব্ধ।</string>
+    <string name="billing_unavailable">পেমেন্ট সিস্টেম অনুপলব্ধ। </string>
+    <string name="product_not_found_prefix">পণ্য পাওয়া যায়নি: %s</string>
+    <string name="purchase_ack_failed_prefix">স্বীকৃতি ব্যর্থ হয়েছে: </string>
+    <string name="purchase_pending_msg">ক্রয় প্রক্রিয়াধীন আছে। দয়া করে অপেক্ষা করুন।</string>
+    <string name="subscription_activated">সাবস্ক্রিপশন সক্রিয় হয়েছে!</string>
+    <string name="login_to_subscribe">সাবস্ক্রিপশন পরিচালনা করতে দয়া করে লগইন করুন।</string>
+    <string name="plan_updated_prefix">প্ল্যান আপডেট করা হয়েছে: </string>
+    <string name="verifying">যাচাই করা হচ্ছে...</string>
+    <string name="coupon_applied_success">কুপন সফলভাবে প্রয়োগ করা হয়েছে!</string>
+    <string name="connection_error_prefix">সংযোগ ত্রুটি: </string>
+    <string name="unavailable">অনুপলব্ধ</string>
+    <string name="ad_free_price_yearly">৳৯৬০/বছর</string>
+    <string name="ad_free_price_monthly">অ্যাড-ফ্রি — ৳৮০/মাস</string>
+
+    <!-- Toolbar Labels -->
+    <string name="toolbar_add">যোগ করুন</string>
+    <string name="toolbar_copy">কপি</string>
+    <string name="toolbar_edit">এডিট</string>
+    <string name="toolbar_swap">সোয়াপ</string>
+    <string name="toolbar_up">উপরে</string>
+    <string name="toolbar_down">নিচে</string>
+    <string name="toolbar_delete">মুছুন</string>
+    <string name="toolbar_bold">বোল্ড</string>
+    <string name="toolbar_italic">ইটালিক</string>
+    <string name="toolbar_underline">আন্ডারলাইন</string>
+    <string name="toolbar_strike">স্ট্রাইক</string>
+    <string name="toolbar_highlight">হাইলাইট</string>
+</resources>

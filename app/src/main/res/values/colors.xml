@@ -1,5 +1,69 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="bg_primary">#F5F5F7</color>
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_button">#FFFFFF</color>
+    <color name="bg_button_pressed">#E5E5EA</color>
+    <color name="text_primary">#1C1C1E</color>
+    <color name="text_secondary">#6B7280</color>
+
+    <color name="bg_header">@android:color/transparent</color>
+    <color name="divider_color">#E5E5EA</color>
+
+    <color name="accent_blue">#3B82F6</color>
+    <color name="accent_blue_bg">#EFF6FF</color>
+    <color name="accent_red">#EF4444</color>
+    <color name="accent_red_bg">#FFF5F5</color>
+    <color name="accent_green">#10B981</color>
+    <color name="accent_green_bg">#ECFDF5</color>
+    <color name="accent_yellow">#F59E0B</color>
+    <color name="accent_yellow_bg">#FFFBEB</color>
+
+    <color name="sub_bg">#F8F9FB</color>
+    <color name="sub_elite_bg">#1A1C2E</color>
+    <color name="sub_elite_accent">#A08CFF</color>
+    <color name="sub_pro_accent">#8B7BB5</color>
+    <color name="sub_plus_bg">#EFEDF5</color>
+    <color name="sub_plus_accent">#8B7BB5</color>
+    <color name="sub_free_bg">#F3F4F6</color>
+    <color name="sub_text_elite">#E0E0E0</color>
+    <color name="sub_purple_light">#EFEDF5</color>
+
+    <color name="sub_plus_accent_new">#FFB800</color>
+    <color name="sub_plus_bg_new">#1E1A10</color>
+
+    <color name="sub_adfree_accent">#00D1FF</color>
+    <color name="sub_adfree_bg">#101C1E</color>
+
+    <color name="sub_free_accent">#00FF94</color>
+    <color name="sub_free_bg_new">#101E17</color>
+
+    <color name="brand_primary">#4D2AFF</color>
+    <color name="brand_bg_light">#F8F9FE</color>
+    <color name="brand_text_dark">#0F172A</color>
+
+    <!-- FAB Redesign Colors -->
+    <color name="fab_text_dark">#2D3E50</color>
+    <color name="fab_lavender_light">#E8E5F4</color>
+    <color name="fab_purple_main">#A293C2</color>
+    <color name="fab_icon_purple">#9B8DBF</color>
+    <color name="fab_white">#FFFFFF</color>
+
+    <!-- Semantic Surface Colors -->
+    <color name="surface_purple">#F3EEF5</color>
+    <color name="surface_lavender">#F3EFF3</color>
+    <color name="surface_pink">#F4EBF0</color>
+    <color name="surface_gray">#F2EDF3</color>
+    <color name="surface_sub_card">@color/white</color>
+    <color name="surface_chip">#F5F5F7</color>
+    <color name="text_on_brand_bg">@color/white</color>
+    <color name="tier_bg">#EFEDF5</color>
+    <color name="tier_text">#8B7BB5</color>
+
+    <color name="surface_dialog">#FFFFFF</color>
+    <color name="surface_card_nested">#F9FAFB</color>
+    <color name="divider_color_new">#E5E5EA</color>
 </resources>

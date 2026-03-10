@@ -7,6 +7,10 @@
 
     <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />
 
+    <!-- Specific theme variants for manual switching -->
+    <style name="Theme.MyApplication.Light" parent="Theme.Material3.Light.NoActionBar" />
+    <style name="Theme.MyApplication.Dark" parent="Theme.Material3.Dark.NoActionBar" />
+
     <!-- Shape for the left-side unhide button, creating a right-facing arch -->
     <style name="ShapeAppearance.App.HalfCircleRight" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
@@ -42,4 +46,8 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <style name="CircleAppearance" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

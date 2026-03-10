@@ -8,4 +8,656 @@
     <string name="previous">Previous</string>
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
+    <!-- Placeholder for Google Sign-In. Replace with your actual Web Client ID from Firebase -->
+    <string name="default_web_client_id" translatable="false">279857990557-ihe2je4g2s34sigm3m7lqfl7p41jr6fs.apps.googleusercontent.com</string>
+
+    <!-- Home -->
+    <string name="drop_here_to_share">Drop here to Share</string>
+    <string name="recent">Recent</string>
+    <string name="sorted_by_time_edited">Sorted by time edited</string>
+    <string name="no_recent_cvs">No recently worked on CVs</string>
+    <string name="ai_mode">AI Mode</string>
+    <string name="step_by_step_demo">Step by Step (Demo)</string>
+    <string name="import_vitae">Import (.vitae)</string>
+    <string name="new_cv">New CV</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="guest_user">Guest User</string>
+    <string name="not_logged_in">Not Logged In</string>
+    <string name="general_preferences">GENERAL PREFERENCES</string>
+    <string name="language">Language</string>
+    <string name="select_language">Select your language</string>
+    <string name="english_us">English US</string>
+    <string name="theme">Theme</string>
+    <string name="switch_dark_mode">Switch to dark mode</string>
+    <string name="membership">MEMBERSHIP</string>
+    <string name="subscription">Subscription</string>
+    <string name="not_active">Not active</string>
+    <string name="application">APPLICATION</string>
+    <string name="about">About</string>
+    <string name="version_text">Version 2.4.0</string>
+    <string name="log_out">LOG OUT</string>
+    <string name="log_in">LOG IN</string>
+
+    <!-- AI -->
+    <string name="ai_assistant">AI Assistant</string>
+    <string name="ai_data_input">AI Data Input</string>
+    <string name="ai_data_desc">Paste your JSON or Smart Text here. The app will use this to populate your CV.</string>
+    <string name="copy_master_prompt">Copy Master Prompt</string>
+    <string name="resume_data_hint">Resume Data</string>
+    <string name="paste_btn">Paste</string>
+    <string name="clear_btn">Clear</string>
+    <string name="next_choose_template">Next: Choose Template</string>
+
+    <!-- Step By Step -->
+    <string name="select_purpose">Select Purpose</string>
+    <string name="choose_template">Choose Template</string>
+    <string name="manage_sections">Manage Sections</string>
+    <string name="editor">Editor</string>
+    <string name="back">Back</string>
+    <string name="finish">Finish</string>
+    <string name="close">Close</string>
+    <string name="add_section_title">Select Section to Add</string>
+    <string name="search_sections_hint">Search sections...</string>
+    <string name="sort_az">A-Z</string>
+    <string name="sort_most_used">Most Used</string>
+    <string name="sort_recent">Recent</string>
+    <string name="group_sections">Grouped</string>
+    <string name="reset_resume_data">Reset Resume Data</string>
+    <string name="placeholder_name">Your Name</string>
+    <string name="placeholder_address">City, Country</string>
+    <string name="placeholder_profession">Professional Title</string>
+    <string name="placeholder_declaration">I hereby certify that the information provided above is true and correct to the best of my knowledge and belief.</string>
+    <string name="add_item">+ Add Item</string>
+    <string name="pick_image">Pick Image</string>
+    <string name="error_picking_image">Error picking image</string>
+
+    <!-- Login -->
+    <string name="login_to_vitae">Login to Vitae</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="login_btn">Login</string>
+    <string name="login_with_google">Login with Google</string>
+    <string name="signup_with_google">Signup with Google</string>
+    <string name="dont_have_account">Don\'t have an account? Sign Up</string>
+
+    <!-- Signup -->
+    <string name="join_vitae">Join Vitae</string>
+    <string name="full_name_hint">Full Name</string>
+    <string name="create_account">Create Account</string>
+    <string name="already_have_account">Already have an account? Login</string>
+
+    <!-- Language Names inside Settings -->
+    <string name="lang_english">English US</string>
+    <string name="lang_bangla">বাংলা</string>
+
+    <!-- Step By Step Fields -->
+    <string name="field_name">Full Name</string>
+    <string name="field_email">Email</string>
+    <string name="field_phone">Phone</string>
+    <string name="field_address">Address</string>
+    <string name="field_linkedin">LinkedIn</string>
+    <string name="field_github">GitHub</string>
+    <string name="field_portfolio">Portfolio</string>
+    <string name="field_facebook">Facebook</string>
+    <string name="field_website">Website/Link</string>
+    <string name="field_nationality">Nationality</string>
+    <string name="field_dob">Date of Birth</string>
+    <string name="field_gender">Gender</string>
+    <string name="field_ms">Marital Status</string>
+    <string name="field_height">Height</string>
+    <string name="field_pno">Passport No.</string>
+    <string name="field_issued">Issued By</string>
+    <string name="field_idate">Issue Date</string>
+    <string name="field_edate">Expiry Date</string>
+    <string name="field_summary">Summary</string>
+    <string name="field_inst">Institute/Organization</string>
+    <string name="field_year">Year</string>
+    <string name="field_board">Board</string>
+    <string name="field_deg">Degree</string>
+    <string name="field_gpa">GPA/Score</string>
+    <string name="field_comp">Company/Organization</string>
+    <string name="field_dur">Duration</string>
+    <string name="field_role">Role/Position</string>
+    <string name="field_desc">Description/Responsibilities</string>
+    <string name="field_link">Link/URL</string>
+    <string name="field_cat">Category</string>
+    <string name="field_vals">Items</string>
+    <string name="field_lang">Language</string>
+    <string name="field_lvl">Proficiency Level</string>
+    <string name="field_title">Title</string>
+    <string name="field_body">Body</string>
+    <string name="field_org">Organization</string>
+    <string name="field_date">Date</string>
+    <string name="field_url">URL</string>
+    <string name="field_pos">Position</string>
+    <string name="field_topic">Topic</string>
+    <string name="field_course">Course</string>
+    <string name="field_amt">Amount</string>
+    <string name="field_test">Test Name</string>
+    <string name="field_score">Score</string>
+    <string name="field_father">Father\'s Details</string>
+    <string name="field_mother">Mother\'s Details</string>
+    <string name="field_siblings">Siblings Details</string>
+    <string name="field_pref">Preferences</string>
+    <string name="field_habits">Habits</string>
+    <string name="field_weight">Weight</string>
+    <string name="field_complexion">Complexion</string>
+    <string name="field_build">Build</string>
+    <string name="field_status">Status</string>
+    <string name="field_country">Target Country</string>
+    <string name="field_headshot">Headshot</string>
+    <string name="field_fullbody">Full Body</string>
+    <string name="field_family">Family</string>
+    <string name="field_content">Content</string>
+    <string name="field_diet">Diet</string>
+    <string name="field_smoking">Smoking Habit</string>
+    <string name="field_drinking">Drinking Habit</string>
+    <string name="field_rashi">Rashi</string>
+    <string name="field_nakshatra">Nakshatra</string>
+    <string name="field_gotra">Gotra</string>
+    <string name="field_eye_color">Eye Color</string>
+    <string name="field_head">Headshot</string>
+    <string name="field_life">Lifestyle</string>
+    <string name="field_activity">Activity</string>
+    <string name="field_achievements">Achievements</string>
+    <string name="field_health">Health</string>
+    <string name="field_act">Activity</string>
+    <string name="field_prof">Profession</string>
+    <string name="field_expectations">Expectations</string>
+
+    <!-- Step By Step Section Names -->
+    <string name="section_header">Header Info</string>
+    <string name="section_profile">Profile Picture</string>
+    <string name="section_name_prof">Name &amp; Profession</string>
+    <string name="section_personal">Personal Details</string>
+    <string name="section_passport">Passport Details</string>
+    <string name="section_visa">Visa Status</string>
+    <string name="section_summary">Summary</string>
+    <string name="section_languages">Languages</string>
+    <string name="section_education">Education</string>
+    <string name="section_experience">Experience</string>
+    <string name="section_projects">Projects</string>
+    <string name="section_research">Research Experience</string>
+    <string name="section_teaching">Teaching Experience</string>
+    <string name="section_grants">Grants &amp; Funding</string>
+    <string name="section_skills">Skills</string>
+    <string name="section_test_scores">Test Scores</string>
+    <string name="section_certificates_simple">Certificates (Simple)</string>
+    <string name="section_awards">Awards &amp; Honors</string>
+    <string name="section_certifications">Certifications (Adv)</string>
+    <string name="section_volunteer">Volunteer Exp</string>
+    <string name="section_publications">Publications</string>
+    <string name="section_affiliations">Affiliations</string>
+    <string name="section_hobbies">Hobbies</string>
+    <string name="section_extra">Extracurricular</string>
+    <string name="section_references">References</string>
+    <string name="section_training">Training</string>
+    <string name="section_internships">Internships</string>
+    <string name="section_achievements">Achievements</string>
+    <string name="section_weblinks">Web Links</string>
+    <string name="section_family">Family Details</string>
+    <string name="section_expectations">Partner Expectations</string>
+    <string name="section_lifestyle">Lifestyle &amp; Habits</string>
+    <string name="section_astrology">Astrological Details</string>
+    <string name="section_physical">Physical Profile</string>
+    <string name="section_visual">Visual Representation</string>
+    <string name="section_active">Active Lifestyle</string>
+    <string name="section_interests">Interests</string>
+    <string name="section_declaration">Declaration</string>
+
+    <!-- UI Strings -->
+    <string name="cat_essentials">Essentials</string>
+    <string name="cat_experience">Experience</string>
+    <string name="cat_additional">Additional</string>
+    <string name="add_to_prefix">Add to: </string>
+    <string name="added_suffix"> Added</string>
+    <string name="item_exists">Item already exists.</string>
+    <string name="all_sections_added">All sections added!</string>
+    <string name="placement_auto">Auto</string>
+    <string name="placement_left">Left Column</string>
+    <string name="placement_right">Right Column</string>
+    <string name="placement_header">Header</string>
+
+    <!-- Step By Step Purposes -->
+    <string name="purpose_job">Job</string>
+    <string name="purpose_job_abroad">Job Abroad</string>
+    <string name="purpose_academic">Academic</string>
+    <string name="purpose_study_abroad">Study Abroad</string>
+    <string name="purpose_marriage">Marriage</string>
+    <string name="purpose_job_desc">Standard job application</string>
+    <string name="purpose_job_abroad_desc">International opportunities</string>
+    <string name="purpose_academic_desc">University &amp; research roles</string>
+    <string name="purpose_study_abroad_desc">Applying for education abroad</string>
+    <string name="purpose_marriage_desc">Personal biodata for marriage</string>
+
+    <string name="template_notice">&lt;b>Note:&lt;/b> You can choose from &lt;font color=\'#1E3C72\'>&lt;b>many more&lt;/b>&lt;/font> templates online, download new layouts, and switch at &lt;font color=\'#1E3C72\'>&lt;b>any time&lt;/b>&lt;/font>. This selection is just for creating the &lt;font color=\'#1E3C72\'>&lt;b>base structure&lt;/b>&lt;/font>.</string>
+    <string name="template_standard_modern">Standard Modern</string>
+    <string name="template_sidebar_pro">Sidebar Pro</string>
+
+    <!-- Subscription Screen -->
+    <string name="sub_title">Elevate your Vitae</string>
+    <string name="sub_subtitle">Choose a dimension that fits your journey.</string>
+    <string name="sub_elite_title">Elite</string>
+    <string name="sub_elite_desc">Everything in Pro + Highest rate of free full AI for perfectionists.</string>
+    <string name="sub_elite_btn">Join Elite — $15/mo</string>
+    <string name="sub_pro_title">Pro</string>
+    <string name="sub_pro_desc">Everything in Plus + Limited access to full AI capabilities.</string>
+    <string name="sub_pro_btn">Upgrade to Pro ($10)</string>
+    <string name="sub_plus_title">Plus</string>
+    <string name="sub_plus_desc">Unlimited Exports, Templates, and Manual AI. Focused work.</string>
+    <string name="sub_plus_btn">Upgrade to Plus ($5)</string>
+    <string name="sub_select">Select</string>
+    <string name="sub_free_title">Free</string>
+    <string name="sub_free_desc">3 Templates, 3 AI / mo. Ads supported pulse.</string>
+    <string name="sub_current">CURRENT</string>
+    <string name="sub_adfree_title">Ad-Free (Intro)</string>
+    <string name="sub_adfree_desc">5 Templates, 5 AI / mo. Pure focus.</string>
+    <string name="sub_footer_quote">"Your digital legacy isn\'t just data, it\'s the rhythm of your existence. Choose the plan that beats with you."</string>
+    <string name="sub_secure">SECURE</string>
+    <string name="sub_sync">SYNC</string>
+    <string name="sub_flex">FLEX</string>
+    <string name="sub_title_html">Elevate your &lt;font color=\'#A08CFF\'>&lt;i>Vitae&lt;/i>&lt;/font></string>
+
+    <!-- Coupons -->
+    <string name="coupon_title">Have a Coupon?</string>
+    <string name="coupon_hint">Enter code</string>
+    <string name="coupon_apply">Apply</string>
+    <string name="coupon_applied">Coupon applied successfully!</string>
+    <string name="coupon_invalid">Invalid coupon code.</string>
+    <string name="coupon_ads_activated">Tester Mode: Ads activated.</string>
+
+    <!-- Analytics -->
+    <string name="analytics">Analytics Dashboard</string>
+    <string name="view_user_data">View user tiers and growth</string>
+
+    <!-- Manual AI Redesign -->
+    <string name="ai_step_1_title">Step 1: Get Your Prompt</string>
+    <string name="ai_step_1_desc">Copy this specialized AI prompt to start optimizing your career profile with precision.</string>
+    <string name="ai_step_2_title">Step 2: Choose Your AI</string>
+    <string name="ai_step_2_desc">Choose an AI, paste the prompt, and include your CV details.</string>
+    <string name="ai_step_3_title">Step 3: Generate CV</string>
+    <string name="ai_step_3_desc">Paste the AI’s content below. Our engine will format it into a professional, high-impact resume template.</string>
+    <string name="ai_copy_prompt">Copy Prompt</string>
+    <string name="ai_next_step">Next Step</string>
+    <string name="ai_continue_prompt">I\'ve Copied the AI Output</string>
+    <string name="ai_generate_cv">Generate Your CV</string>
+    <string name="ai_model_google">Google Gemini</string>
+    <string name="ai_model_google_desc">Multimodal intelligence &amp; large context window</string>
+    <string name="ai_model_chatgpt">ChatGPT</string>
+    <string name="ai_model_chatgpt_desc">Advanced reasoning &amp; creative writing</string>
+    <string name="ai_model_grok">Grok</string>
+    <string name="ai_model_grok_desc">Real-time knowledge &amp; direct answers</string>
+    <string name="ai_model_deepseek">DeepSeek</string>
+    <string name="ai_model_deepseek_desc">Efficient coding &amp; technical analysis</string>
+    <string name="ai_footer_lock">Your data is processed securely and privately.</string>
+    <string name="ai_copy_first">Please copy the prompt first to proceed.</string>
+    <string name="ai_paste_guide">1. Paste your prompt\n2. Upload your old document or resume</string>
+    <string name="ai_copy_output_guide">3. Copy the output from AI</string>
+    <string name="ai_output_detected">Result format detected! You can now proceed to the final step.</string>
+    <string name="url_gemini">https://gemini.google.com/</string>
+    <string name="url_chatgpt">https://chat.openai.com/</string>
+    <string name="url_grok">https://twitter.com/i/grok</string>
+    <string name="url_deepseek">https://chat.deepseek.com/</string>
+
+    <string name="tier_member">%1$s Member</string>
+
+    <!-- Profile Picture Settings -->
+    <string name="profile_settings_title">Profile Picture Settings</string>
+    <string name="shape_mode_smooth">Smooth</string>
+    <string name="shape_mode_polygon">Polygon</string>
+    <string name="radius">Radius</string>
+    <string name="sides">Sides</string>
+    <string name="round_corners">Round Corners:</string>
+    <string name="corner_tl">Top-Left</string>
+    <string name="corner_tr">Top-Right</string>
+    <string name="corner_bl">Bottom-Left</string>
+    <string name="corner_br">Bottom-Right</string>
+    <string name="width">Width</string>
+    <string name="height">Height</string>
+    <string name="thickness">Thickness</string>
+    <string name="no_frame">No Frame (image only)</string>
+    <string name="frame_color">Frame Color</string>
+    <string name="change">Change</string>
+    <string name="move_x">Move X</string>
+    <string name="move_y">Move Y</string>
+
+    <!-- Subscription Detailed -->
+    <string name="billing_monthly">Monthly</string>
+    <string name="billing_yearly">Yearly</string>
+    <string name="billing_discount_20">20% OFF</string>
+    <string name="elite_price_monthly">Elite — $12/mo</string>
+    <string name="elite_price_yearly">$144/year</string>
+    <string name="elite_summary">Unlimited Full AI API &amp; Priority Support</string>
+    <string name="most_exclusive">MOST EXCLUSIVE</string>
+    <string name="elite_feature_1">FULL Interactive AI API Access</string>
+    <string name="elite_feature_2">Unlimited Exports &amp; Templates</string>
+    <string name="elite_feature_3">Priority 1v1 Community Support</string>
+    <string name="pro_price_monthly">Pro — $8/mo</string>
+    <string name="pro_price_yearly">$96/year</string>
+    <string name="pro_summary">Everything in Plus + Full AI capability</string>
+    <string name="professional">PROFESSIONAL</string>
+    <string name="pro_feature_1">Unlimited High-Quality AI</string>
+    <string name="pro_feature_2">Smart Formatting Engine</string>
+    <string name="plus_price_monthly">Plus — $4/mo</string>
+    <string name="plus_price_yearly">$48/year</string>
+    <string name="plus_summary">Unlimited Exports &amp; Manual AI</string>
+    <string name="plus_feature_1">Unlimited Exports &amp; AI</string>
+    <string name="plus_feature_2">Premium Templates Access</string>
+    <string name="adfree_price_monthly">Ad-Free — $0.8/mo</string>
+    <string name="adfree_price_yearly">$9.6/year</string>
+    <string name="adfree_summary">No Distractions, Pure Focus</string>
+    <string name="adfree_feature_1">Zero Advertisements</string>
+    <string name="adfree_feature_2">5 Templates &amp; AI / mo</string>
+    <string name="free_plan_title">Free Plan</string>
+    <string name="free_plan_summary">3 Templates, 3 AI / mo</string>
+    <string name="free_feature_1">Ad-Supported Experience</string>
+
+    <!-- ATS Hub -->
+    <string name="ats_hub_title">Resume Health Hub</string>
+    <string name="ats_hub_pending">Pending Analysis...</string>
+    <string name="ats_hub_tap_tip">Tap score for breakdown</string>
+    <string name="ats_hub_distribution">SCORE DISTRIBUTION</string>
+    <string name="ats_hub_success_title">What you did right</string>
+    <string name="ats_hub_critical_title">What you did wrong</string>
+    <string name="ats_hub_improve_title">What you can improve</string>
+    <string name="ats_hub_jd_match_title">JOB TARGET MATCH</string>
+    <string name="ats_hub_jd_hint">Paste Job Description here...</string>
+    <string name="ats_hub_jd_btn">Analyze Job Match</string>
+
+    <!-- Extra Sections -->
+    <string name="extra_sections_title">Extra Sections</string>
+    <string name="extra_sections_subtitle">This template includes sections you don\'t currently have in your CV:</string>
+    <string name="extra_sections_question">Would you like to add these as blank sections?</string>
+    <string name="extra_sections_add_btn">Add Sections</string>
+    <string name="maybe_later">Maybe Later</string>
+
+    <!-- Section Settings -->
+    <string name="section_settings_title">Section Settings</string>
+    <string name="section_title_label">Section Title</string>
+    <string name="section_name_placeholder">Section Name</string>
+    <string name="style">Style</string>
+    <string name="background">Background</string>
+    <string name="grid">Grid</string>
+    <string name="align">Align</string>
+    <string name="apply_to_all">Apply to All</string>
+    <string name="alignment">Alignment</string>
+    <string name="center">Center</string>
+    <string name="header">Header</string>
+    <string name="items">Items</string>
+    <string name="columns">COLUMNS</string>
+    <string name="rows">ROWS</string>
+    <string name="grid_spacing">Grid Spacing</string>
+    <string name="item_width">Item Width</string>
+    <string name="auto">Auto</string>
+    <string name="choose_header_style">Choose a Header Style</string>
+    <string name="style_name_hint">Style Name</string>
+    <string name="icon_bg">Icon BG</string>
+    <string name="title_bg">Title BG</string>
+    <string name="swap_btn">⇄ Swap</string>
+    <string name="connect_btn">⊞ Connect</string>
+    <string name="connector_shape">Connector Shape</string>
+    <string name="title_font_color">Title Font Color</string>
+    <string name="icon_rounding">Icon Rounding</string>
+    <string name="icon_size">Icon Size</string>
+    <string name="title_rounding">Title Rounding</string>
+    <string name="title_font_size">Title Font Size</string>
+    <string name="icon_frame">Icon Frame</string>
+    <string name="color">Color</string>
+    <string name="title_frame">Title Frame</string>
+    <string name="title_left_shape">Title Left Shape</string>
+    <string name="title_right_shape">Title Right Shape</string>
+    <string name="icon_bg_shape">Icon BG Shape</string>
+    <string name="item_customization">Item Customization</string>
+    <string name="select_all">Select All</string>
+    <string name="value">Value</string>
+
+    <!-- Take a Break -->
+    <string name="take_a_break">Take a Break</string>
+    <string name="ad_rest_msg">Brief ad while you rest...</string>
+    <string name="ad_block_msg">Ad-Blocker detected. To support our free app, please disable it.</string>
+
+    <!-- Home Activity -->
+    <string name="step_by_step">Step-by-Step</string>
+    <string name="ai_helper">AI Helper</string>
+    <string name="move_to_home">Move to Home</string>
+    <string name="move_to_other_group">Move to Other Group</string>
+
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
+    <string name="step_by_step_wizard_desc">Step-by-Step Wizard</string>
+    <string name="edit">Edit</string>
+    <string name="add_features">Add Features</string>
+    <string name="untitled_cv">Untitled CV</string>
+
+    <!-- Shape Names -->
+    <string name="shape_triangle">(Triangle)</string>
+    <string name="shape_diamond">(Diamond)</string>
+    <string name="shape_pentagon">(Pentagon)</string>
+    <string name="shape_hexagon">(Hexagon)</string>
+    <string name="shape_heptagon">(Heptagon)</string>
+    <string name="shape_octagon">(Octagon)</string>
+    <string name="shape_polygon">(Polygon)</string>
+    <string name="shape_circle_lines">(Circle with lines)</string>
+    <string name="shape_circle">(Circle)</string>
+
+    <!-- Category Names -->
+    <string name="cat_core_essentials">Core Essentials</string>
+    <string name="cat_professional_exp">Professional Exp</string>
+    <string name="cat_skills_honors">Skills &amp; Honors</string>
+    <string name="cat_personal_photos">Personal &amp; Photos</string>
+    <string name="cat_interests_more">Interests &amp; More</string>
+    <string name="cat_documentation">Documentation</string>
+    <string name="cat_others">Others</string>
+
+    <!-- Toast & Messages -->
+    <string name="color_corruption_msg">⚠️ Color corruption detected! Auto-reverting to safe colors.</string>
+    <string name="style_saved">Style \'%s\' saved!</string>
+    <string name="error_saving_style">Error saving style</string>
+    <string name="menu_clicked">Menu clicked!</string>
+    <string name="resize_clicked">Resize clicked!</string>
+
+    <!-- AI Selection -->
+    <string name="ai_preference_title">Your AI Preference</string>
+    <string name="choose_intelligence">Choose Your\nIntelligence</string>
+    <string name="select_interface_style">SELECT AN INTERFACE STYLE</string>
+    <string name="manual_ai">Manual AI</string>
+    <string name="manual_ai_desc">Step-by-Step &amp; Free</string>
+    <string name="automatic_ai">Automatic AI</string>
+    <string name="automatic_ai_desc">Fully Autonomous Premium</string>
+
+    <!-- Manual AI Wizard -->
+    <string name="cv_generator">CV Generator</string>
+    <string name="getting_started">GETTING STARTED</string>
+    <string name="copy_to_clipboard_hint">Clicking will copy the text to your clipboard</string>
+    <string name="progress">PROGRESS</string>
+    <string name="choosing_ai_model">Choosing AI Model</string>
+    <string name="step_2_of_3">Step 2 of 3</string>
+    <string name="next_step_label">NEXT STEP</string>
+    <string name="next_step_desc">After selecting a model, you will be able to paste your specific job description and current resume text.</string>
+    <string name="back_to_step_1">Go back to first step</string>
+    <string name="final_step">FINAL STEP</string>
+    <string name="step_3_of_3">3 / 3</string>
+    <string name="paste_ai_cv_hint">Paste the AI-generated CV content here...</string>
+    <string name="clear">CLEAR</string>
+    <string name="paste">PASTE</string>
+    <string name="back_to_step_2">Go back to previous step</string>
+
+    <!-- Auth -->
+    <string name="forgot_password">Forgot Password?</string>
+
+    <!-- Home Screen -->
+    <string name="current_tier_msg">Current Tier: %s</string>
+    <string name="selected_count">%d Selected</string>
+    <string name="sorted_a_z">Sorted A-Z</string>
+    <string name="vitae_user">Vitae User</string>
+    <string name="guest_with_id">Guest (%s)</string>
+    <string name="group_label">Group: %s</string>
+    <string name="folder">Folder</string>
+    <string name="resume">Resume</string>
+    <string name="delete_confirmation_title">Delete %s?</string>
+    <string name="delete_confirmation_msg">Are you sure you want to delete \'%s\'?</string>
+    <string name="delete_folder_warning">\nAll contents will be lost.</string>
+    <string name="deleted">Deleted</string>
+    <string name="failed_to_delete">Failed to delete</string>
+    <string name="rename_resume">Rename Resume</string>
+    <string name="rename">Rename</string>
+    <string name="error_rename_exists">Failed to rename (name might exist)</string>
+    <string name="cancel">Cancel</string>
+    <string name="group_name_hint">Group name</string>
+    <string name="create_folder">Create Folder</string>
+    <string name="create">Create</string>
+    <string name="new_folder">New Folder</string>
+    <string name="moved_to_home_count">Moved %d items to Home</string>
+    <string name="moved_to_home">Moved to Home</string>
+    <string name="group_name_placeholder">Group name...</string>
+    <string name="move_to_group">Move to Group</string>
+    <string name="move">Move</string>
+    <string name="no_groups_available">No groups available</string>
+    <string name="no_other_groups_available">No other groups available</string>
+    <string name="move_items_to_group">Move %d items to Group</string>
+    <string name="moved_items_to_group">Moved %d items to %s</string>
+    <string name="moved_to_main_list">Moved to main list</string>
+    <string name="failed_to_ungroup">Failed to ungroup</string>
+    <string name="error_creating_package">Error creating .vitae package</string>
+    <string name="share_vitae_package">Share .vitae Package</string>
+    <string name="error_sharing_file">Error sharing file</string>
+    <string name="imported_successfully">Imported successfully!</string>
+    <string name="import_failed">Import failed</string>
+    <string name="delete_multi_title">Delete %d items?</string>
+    <string name="delete_multi_msg">Are you sure you want to delete all selected items? This action cannot be undone.</string>
+    <string name="deleted_count">Deleted %d items</string>
+    <string name="app_logo_desc">App Logo</string>
+
+    <!-- Settings Screen -->
+    <string name="menu_options_msg">Menu Options</string>
+    <string name="plan_active_msg">%s Plan • Active</string>
+    <string name="logout_confirm_msg">Are you sure you want to log out?</string>
+    <string name="login_to_manage_sub">Please log in to manage subscriptions.</string>
+    <string name="english">English</string>
+    <string name="bangla">বাংলা</string>
+    <string name="about_vitae">About Vitae</string>
+    <string name="about_vitae_msg">Vitae CV Builder\nVersion 2.4.0\n\nA premium resume builder for professionals.</string>
+    <string name="ok">OK</string>
+
+    <!-- AI Selection / Upgrade -->
+    <string name="launching_automated_ai">Launching Automated AI...</string>
+    <string name="pro_feature_only">PRO Feature Only</string>
+    <string name="pro_feature_desc">Automatic AI is a premium feature included in the $10 PRO tier. Upgrade now to unlock fully automated CV generation!</string>
+    <string name="upgrade_now">Upgrade Now</string>
+    <string name="maybe_later">Maybe Later</string>
+
+    <!-- AI Common & Wizard -->
+    <string name="prompt_copied_msg">Prompt copied to clipboard! Paste it into AI.</string>
+    <string name="pasted_from_clipboard">Pasted from clipboard</string>
+    <string name="ai_limit_reached">AI Monthly Limit Reached. Upgrade for more!</string>
+    <string name="please_enter_data">Please enter data</string>
+    <string name="template_standard_modern">Standard Modern</string>
+    <string name="template_standard">Standard</string>
+    <string name="generate_cv">Generate CV</string>
+    <string name="error_generating_cv_prefix">Error generating CV: </string>
+    <string name="manual_ai_prompt_copied_msg">Master Prompt Copied!\nNow select an AI in the next step.</string>
+    <string name="cleared">Cleared</string>
+    <string name="module_error">Module error. Please try again.</string>
+    <string name="pasted_result">Pasted result</string>
+    <string name="please_paste_ai_output">Please paste the AI output first</string>
+    <string name="generate">Generate</string>
+    <string name="processing_failed_prefix">Processing failed: </string>
+
+    <!-- Auth & Profile -->
+    <string name="fill_all_fields">Please fill all fields</string>
+    <string name="login_failed_prefix">Login failed: </string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="reset_password_msg">Enter your email address to receive a password reset link.</string>
+    <string name="send">Send</string>
+    <string name="email_is_required">Email is required</string>
+    <string name="reset_link_sent_msg">Reset link sent! Check your inbox.</string>
+    <string name="error_prefix">Error: </string>
+    <string name="email_not_verified">Email Not Verified</string>
+    <string name="verify_email_msg">Please verify your email address to continue. Check your inbox (and spam folder) for the verification link.</string>
+    <string name="resend_email">Resend Email</string>
+    <string name="verification_resent">Verification email resent!</string>
+    <string name="failed_to_resend">Failed to resend email.</string>
+    <string name="google_sign_in_failed_prefix">Google sign in failed: </string>
+    <string name="firebase_auth_failed">Firebase auth failed</string>
+    <string name="new_user">New User</string>
+    <string name="account_created_verify_msg">Account created! Please check your email to verify your account before logging in.</string>
+    <string name="account_created_email_fail_msg">Account created, but failed to send verification email. Please try logging in to resend.</string>
+    <string name="signup_failed_prefix">Signup failed: </string>
+    <string name="google_sign_up_failed_prefix">Google sign up failed: </string>
+    <string name="verify_google_email_msg">Please verify your Google email before logging in.</string>
+    <string name="name_cannot_be_empty">Name cannot be empty</string>
+    <string name="failed_to_save_image">Failed to save image locally</string>
+    <string name="profile_updated_locally">Profile updated locally!</string>
+    <string name="name_update_failed">Name update failed</string>
+
+    <!-- AI Prompts -->
+    <string name="master_prompt_simple">You are a Resume Parser. Your goal is to extract information from my resume and format it into a specific \"Shorthand Code\" format.\n\n**CRITICAL: STICK TO THE JSON FORMAT BELOW. DO NOT include any text outside the JSON block.**\n\n### 1. CRITICAL RULES\n- **Output Structure:** You MUST output a SINGLE JSON object. Use a JSON code block.\n- **Analyze Everything:** Read the entire resume text. Map every piece of information to the sections below.\n- **ALWAYS Generate Summary:** YOU MUST create a `sum` section. If the resume has a summary, use it. If NOT, WRITE a 2-3 sentence professional summary.\n- **Header (Identity):** Use `hdr` for Name, Professional Title, and all contact methods (email, phone, links, address).\n- **RULE:** Everything related to identity and contact info goes in `hdr`.\n### 2. SHORTHAND JSON STRUCTURE\n\n```json\n{\n  \"hdr\": { \"name\": \"Full Name\", \"role\": \"Professional Title\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\" },\n  \"sum\": { \"desc\": \"2-3 sentence summary...\" },\n  \"exp\": [ { \"com\": \"Company\", \"role\": \"Role\", \"dur\": \"Start - End\", \"desc\": \"Bullet points (use \\\\n for multiple lines)\" } ],\n  \"edu\": [ { \"inst\": \"Institute\", \"deg\": \"Degree\", \"year\": \"Year\", \"gpa\": \"GPA\", \"board\": \"Board Name\" } ],\n  \"skl\": [ { \"cat\": \"Category\", \"vals\": \"Skill 1, Skill 2, Skill 3\" } ]\n}\n```\n\n**Now, parse the resume and generate the JSON shorthand code ONLY:**</string>
+
+    <string name="master_prompt_advanced">You are a Resume Parser. Your goal is to extract information from my resume and format it into a specific \"Shorthand Code\" format.\n\n**CRITICAL: STICK TO THE JSON FORMAT BELOW. DO NOT include any text outside the JSON block.**\n\n### 1. CRITICAL RULES\n- **Output Structure:** You MUST output a SINGLE JSON object. Use a JSON code block.\n- **Analyze Everything:** Read the entire resume text. Map every piece of information to the sections below.\n- **ALWAYS Generate Summary:** YOU MUST create a `sum` section. If the resume has a summary, use it. If NOT, WRITE a 2-3 sentence professional summary.\n- **Header (Identity):** Use `hdr` for Name, Professional Title, and all contact methods (email, phone, links, address).\n- **RULE:** Everything related to identity and contact info goes in `hdr`.\n- **Personal Details (Demographics ONLY):** The `per` section is ONLY for: nationality, date of birth, gender, marital status, height. DO NOT put email or phone here.\n- **Languages:** Look for languages and map to `lan`.\n- **Remove Empty Sections:** If a section has no data, OMIT its key entirely.\n- **Start New Items:** For lists (exp, edu, etc.), each item MUST be an object with its Primary Key (e.g., `com`, `inst`).\n\n### 2. SHORTHAND JSON STRUCTURE\n\n```json\n{\n  \"hdr\": { \"name\": \"Full Name\", \"role\": \"Professional Title\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\" },\n  \"sum\": { \"desc\": \"2-3 sentence summary...\" },\n  \"per\": { \"nat\": \"Nationality\", \"dob\": \"DD/MM/YYYY\", \"gen\": \"Gender\", \"mar\": \"Status\", \"height\": \"Height\" },\n  \"pass\": { \"pno\": \"Passport No\", \"idate\": \"Issue Date\", \"edate\": \"Expiry Date\" },\n  \"vis\": { \"status\": \"Visa Status/Work Authorization\", \"country\": \"Target Country\" },\n  \"exp\": [ { \"com\": \"Company\", \"role\": \"Role\", \"dur\": \"Start - End\", \"desc\": \"Bullet points (use \\\\n for multiple lines)\" } ],\n  \"edu\": [ { \"inst\": \"Institute\", \"deg\": \"Degree\", \"year\": \"Year\", \"gpa\": \"GPA\", \"board\": \"Board Name\" } ],\n  \"skl\": [ { \"cat\": \"Category\", \"vals\": \"Skill 1, Skill 2, Skill 3\" } ],\n  \"pro\": [ { \"name\": \"Project\", \"desc\": \"Details\", \"year\": \"Year\", \"link\": \"URL\" } ],\n  \"res\": [ { \"topic\": \"Research Topic\", \"role\": \"Your Role\", \"desc\": \"Method/Findings\" } ],\n  \"tea\": [ { \"course\": \"Course Name\", \"inst\": \"Institution\", \"desc\": \"Responsibilities\" } ],\n  \"gra\": [ { \"title\": \"Grant Title\", \"amt\": \"Amount/Agency\", \"year\": \"Year\" } ],\n  \"cert\": [ { \"name\": \"Cert Name\", \"org\": \"Issuer\", \"date\": \"Date\" } ],\n  \"lan\": [ { \"lang\": \"Language\", \"lvl\": \"Proficiency\" } ],\n  \"tst\": [ { \"test\": \"Test Name\", \"score\": \"Score\", \"date\": \"Date\" } ],\n  \"fam\": { \"father\": \"Father\'s Job\", \"mother\": \"Mother\'s Job\", \"siblings\": \"Siblings summary\" },\n  \"pex\": { \"pref\": \"Partner Preferences &amp; Expectations summary\" },\n  \"lst\": { \"diet\": \"Veg/Non-Veg\", \"habits\": \"Social Habits (Smoking/Drinking)\" },\n  \"ast\": { \"rashi\": \"Zodiac Sign\", \"nakshatra\": \"Birth Star\", \"gotra\": \"Lineage\" },\n  \"phy\": { \"weight\": \"Weight\", \"complexion\": \"Complexion\", \"build\": \"Build\" },\n  \"ref\": [ { \"name\": \"Name\", \"pos\": \"Title\", \"org\": \"Company\", \"email\": \"Email\", \"phone\": \"Number\" } ],\n  \"hob\": [ { \"cat\": \"Hobbies\", \"vals\": \"Hobby 1, Hobby 2\" } ]\n}\n```\n\n**Now, parse the resume and generate the JSON shorthand code ONLY:**</string>
+
+    <!-- Additional StepByStep Labels -->
+    <string name="field_val_contact">Contact Detail</string>
+    <string name="field_val_content">Content</string>
+    <string name="field_lvl_fluent">Level (e.g. Fluent)</string>
+    <string name="field_year_date">Year / Date</string>
+    <string name="field_inst_agency">Institution / Agency</string>
+    <string name="field_items_comma">Items (comma separated)</string>
+    <string name="field_award_achievement">Award/Achievement</string>
+    <string name="field_father_occup">Father: Name / Occupation</string>
+    <string name="field_mother_occup">Mother: Name / Occupation</string>
+    <string name="field_siblings_details">Siblings: Number / Details</string>
+    <string name="field_edu_prof_pref">Edu / Prof Preference</string>
+    <string name="field_general_expectations">General Expectations</string>
+    <string name="field_diet_veg">Diet (Veg/Non-Veg)</string>
+    <string name="field_headshot_label">Headshot Label</string>
+    <string name="field_fullbody_label">Full-body Label</string>
+    <string name="field_lifestyle_photo_label">Lifestyle Photo Label</string>
+    <string name="field_health_status">Health Status</string>
+    <string name="field_visa_type">Visa Type</string>
+    <string name="field_site_name">Site Name</string>
+    <string name="field_declaration_text">Declaration Text</string>
+
+    <!-- UI Confirmations -->
+    <string name="confirm_delete_item">Delete this item?</string>
+    <string name="confirm_delete_section">Delete this section?</string>
+    <string name="confirm_reset_all">Reset all data? This cannot be undone.</string>
+    <string name="new_bullet_placeholder">New bullet point...</string>
+    <string name="layout_applied">Layout change applied!</string>
+
+    <!-- Signature -->
+    <string name="signature_exported">Signature exported to gallery!</string>
+    <string name="export_failed_prefix">Export failed: </string>
+
+    <!-- Subscription Missing -->
+    <string name="unavailable_for_now">Feature unavailable for now.</string>
+    <string name="billing_unavailable">Billing unavailable. </string>
+    <string name="product_not_found_prefix">Product not found: %s</string>
+    <string name="purchase_ack_failed_prefix">Acknowledgement failed: </string>
+    <string name="purchase_pending_msg">Purchase is pending. Please wait.</string>
+    <string name="subscription_activated">Subscription activated!</string>
+    <string name="login_to_subscribe">Please log in to manage subscriptions.</string>
+    <string name="plan_updated_prefix">Plan updated to: </string>
+    <string name="verifying">Verifying...</string>
+    <string name="coupon_applied_success">Coupon applied successfully!</string>
+    <string name="connection_error_prefix">Connection error: </string>
+    <string name="unavailable">Unavailable</string>
+    <string name="ad_free_price_yearly">$9.6/year</string>
+    <string name="ad_free_price_monthly">Ad-Free — $0.8/mo</string>
+
+    <!-- Toolbar Labels -->
+    <string name="toolbar_add">Add</string>
+    <string name="toolbar_copy">Copy</string>
+    <string name="toolbar_edit">Edit</string>
+    <string name="toolbar_swap">Swap</string>
+    <string name="toolbar_up">Up</string>
+    <string name="toolbar_down">Down</string>
+    <string name="toolbar_delete">Delete</string>
+    <string name="toolbar_bold">Bold</string>
+    <string name="toolbar_italic">Italic</string>
+    <string name="toolbar_underline">Underline</string>
+    <string name="toolbar_strike">Strike</string>
+    <string name="toolbar_highlight">Highlight</string>
 </resources>
