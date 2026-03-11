@@ -4,6 +4,7 @@
     <string name="action_settings">সেটিংস</string>
     <string name="action_print">প্রিন্ট</string>
     <string name="print">প্রিন্ট</string>
+    <string name="save">সংরক্ষণ করুন</string>
     <string name="next">পরবর্তী</string>
     <string name="lorem_ipsum">লোরেম ইপসাম</string>
     <string name="previous">পূর্ববর্তী</string>
@@ -22,6 +23,9 @@
 
     <!-- Settings -->
     <string name="settings_title">সেটিংস</string>
+    <string name="user">ব্যবহারকারী</string>
+    <string name="cv_filename_format">%1$s %2$s সিভি.json</string>
+    <string name="cv_filename_format_count">%1$s %2$s সিভি %3$d.json</string>
     <string name="guest_user">গেস্ট ইউজার</string>
     <string name="not_logged_in">লগ ইন করা নেই</string>
     <string name="general_preferences">সাধারণ পছন্দসমূহ</string>
@@ -91,6 +95,9 @@
 
     <!-- Step By Step Fields -->
     <string name="field_name">পুরো নাম</string>
+    <string name="your_name">আপনার নাম</string>
+    <string name="professional_title">পেশাগত শিরোনাম</string>
+    <string name="field_profile_pic">প্রোফাইল ছবি</string>
     <string name="field_email">ইমেইল</string>
     <string name="field_phone">ফোন নম্বর</string>
     <string name="field_address">ঠিকানা</string>
@@ -134,6 +141,19 @@
     <string name="field_amt">পরিমাণ</string>
     <string name="field_test">পরীক্ষার নাম</string>
     <string name="field_score">স্কোর</string>
+    <string name="field_details">বিস্তারিত</string>
+    <string name="field_cert_name">সার্টিফিকেশন নাম</string>
+    <string name="field_pub">জার্নাল / প্রকাশক</string>
+    <string name="na">প্রযোজ্য নয়</string>
+    <string name="label_institute">প্রতিষ্ঠান</string>
+    <string name="label_year">বছর</string>
+    <string name="label_board">বোর্ড</string>
+    <string name="label_degree">ডিগ্রি</string>
+    <string name="label_gpa_prefix">জিপিএ: </string>
+    <string name="label_passport_no">পাসপোর্ট নম্বর</string>
+    <string name="label_issued_by">প্রদানকারী</string>
+    <string name="label_issue_date">প্রদানের তারিখ</string>
+    <string name="label_expiry_date">মেয়াদোত্তীর্ণের তারিখ</string>
     <string name="field_father">পিতার নাম / পেশা</string>
     <string name="field_mother">মাতার নাম / পেশা</string>
     <string name="field_siblings">ভাই-বোন সম্পর্কিত তথ্য</string>
@@ -166,6 +186,7 @@
 
     <!-- Step By Step Section Names -->
     <string name="section_header">হেডার তথ্য</string>
+    <string name="section_contact">যোগাযোগের তথ্য</string>
     <string name="section_profile">প্রোফাইল ছবি</string>
     <string name="section_name_prof">নাম ও পেশা</string>
     <string name="section_personal">ব্যক্তিগত তথ্য</string>
@@ -249,6 +270,7 @@
     <string name="sub_free_title">ফ্রি (Free)</string>
     <string name="sub_free_desc">৩টি টেমপ্লেট, ৩টি এআই প্রতি মাসে। বিজ্ঞাপন দ্বারা সমর্থিত।</string>
     <string name="sub_current">বর্তমান</string>
+    <string name="current">বর্তমান প্ল্যান</string>
     <string name="sub_adfree_title">অ্যাড-ফ্রি (Intro)</string>
     <string name="sub_adfree_desc">৫টি টেমপ্লেট, ৫টি এআই প্রতি মাসে। বিজ্ঞাপনহীন অভিজ্ঞতা।</string>
     <string name="sub_footer_quote">"আপনার অভিজ্ঞতাই আপনার পরিচয়। আপনার সাথে মানানসই সেরা প্ল্যানটি বেছে নিন।"</string>
@@ -496,6 +518,7 @@
     <string name="delete_folder_warning">\nসমস্ত কন্টেন্ট হারিয়ে যাবে।</string>
     <string name="deleted">ডিলিট করা হয়েছে</string>
     <string name="failed_to_delete">ডিলিট করতে ব্যর্থ হয়েছে</string>
+    <string name="failed_to_move">সরানো সম্ভব হয়নি</string>
     <string name="rename_resume">রেজ্যুমে রিনেম করুন</string>
     <string name="rename">রিনেম করুন</string>
     <string name="error_rename_exists">রিনেম করতে ব্যর্থ হয়েছে (নামটি হয়তো আগে থেকেই আছে)</string>
@@ -541,14 +564,12 @@
     <string name="pro_feature_only">শুধুমাত্র প্রো (PRO) ফিচার</string>
     <string name="pro_feature_desc">স্বয়ংক্রিয় এআই একটি প্রিমিয়াম ফিচার যা ১০ ডলারের প্রো টায়ারে অন্তর্ভুক্ত। সম্পূর্ণ স্বয়ংক্রিয় সিভি তৈরির সুবিধা পেতে এখনই আপগ্রেড করুন!</string>
     <string name="upgrade_now">এখনই আপগ্রেড করুন</string>
-    <string name="maybe_later">পরে হবে</string>
 
     <!-- AI Common & Wizard -->
     <string name="prompt_copied_msg">প্রম্পট কপি করা হয়েছে! এটি এআই-তে পেস্ট করুন।</string>
     <string name="pasted_from_clipboard">ক্লিপবোর্ড থেকে পেস্ট করা হয়েছে</string>
     <string name="ai_limit_reached">এআই-এর মাসিক সীমা শেষ। আরও সুবিধার জন্য আপগ্রেড করুন!</string>
-    <string name="please_enter_data">দয়া করে ডাটা লিখুন</string>
-    <string name="template_standard_modern">স্ট্যান্ডার্ড মডার্ন</string>
+    <string name="please_enter_data">তথ্য লিখুন</string>
     <string name="template_standard">স্ট্যান্ডার্ড</string>
     <string name="generate_cv">সিভি তৈরি করুন</string>
     <string name="error_generating_cv_prefix">সিভি তৈরিতে ত্রুটি: </string>
@@ -591,7 +612,7 @@
     <!-- AI Prompts -->
     <string name="master_prompt_simple">আপনি একজন রেজ্যুমে পার্সার (Resume Parser)। আপনার লক্ষ্য হল আমার রিজ্যুমে থেকে তথ্য বের করা এবং সেটিকে একটি নির্দিষ্ট \"Shorthand Code\" ফরম্যাটে সাজানো।\n\n**গুরুত্বপূর্ণ: নিচের JSON ফরম্যাটটি হুবহু অনুসরণ করুন। JSON ব্লকের বাইরে কোনো টেক্সট দেবেন না।**\n\n### ১. প্রধান নিয়মাবলী\n- **আউটপুট স্ট্রাকচার:** আপনাকে অবশ্যই একটি মাত্র JSON অবজেক্ট আউটপুট দিতে হবে। একটি JSON কোড ব্লক ব্যবহার করুন।\n- **সবকিছু বিশ্লেষণ করুন:** পুরো রেজ্যুমে টেক্সটটি পড়ুন। নিচের সেকশনগুলোর সাথে প্রতিটি তথ্যের মিল তৈরি করুন।\n- **সর্বদা সামারি বা সারসংক্ষেপ তৈরি করুন:** আপনাকে অবশ্যই একটি `sum` সেকশন তৈরি করতে হবে। যদি রেজ্যুমের নিজস্ব সামারি থাকে সেটি ব্যবহার করুন। না থাকলে, ২-৩ লাইনের একটি প্রফেশনাল সামারি লিখুন।\n- **হেডার (পরিচয়):** নাম, প্রফেশনাল টাইটেল এবং সব ধরনের যোগাযোগের মাধ্যম (ইমেইল, ফোন, লিংক, ঠিকানা) এর জন্য `hdr` ব্যবহার করুন।\n- **নিয়ম:** পরিচয় এবং যোগাযোগ সংক্রান্ত সবকিছু `hdr` এর মধ্যে থাকবে।\n### ২. শর্টহ্যান্ড JSON স্ট্রাকচার\n\n```json\n{\n  \"hdr\": { \"name\": \"Full Name\", \"role\": \"Professional Title\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\" },\n  \"sum\": { \"desc\": \"2-3 sentence summary...\" },\n  \"exp\": [ { \"com\": \"Company\", \"role\": \"Role\", \"dur\": \"Start - End\", \"desc\": \"Bullet points (use \\\\n for multiple lines)\" } ],\n  \"edu\": [ { \"inst\": \"Institute\", \"deg\": \"Degree\", \"year\": \"Year\", \"gpa\": \"GPA\", \"board\": \"Board Name\" } ],\n  \"skl\": [ { \"cat\": \"Category\", \"vals\": \"Skill 1, Skill 2, Skill 3\" } ]\n}\n```\n\n**এখন, এই রিজ্যুমেটি পার্স করে শুধুমাত্র JSON শর্টহ্যান্ড কোডটি জেনারেট করুন:**</string>
 
-    <string name="master_prompt_advanced">আপনি একজন রেজ্যুমে পার্সার (Resume Parser)। আপনার লক্ষ্য হল আমার রিজ্যুমে থেকে তথ্য বের করা এবং সেটিকে একটি নির্দিষ্ট \"Shorthand Code\" ফরম্যাটে সাজানো।\n\n**গুরুত্বপূর্ণ: নিচের JSON ফরম্যাটটি হুবহু অনুসরণ করুন। JSON ব্লকের বাইরে কোনো টেক্সট দেবেন না।**\n\n### ১. প্রধান নিয়মাবলী\n- **আউটপুট স্ট্রাকচার:** আপনাকে অবশ্যই একটি মাত্র JSON অবজেক্ট আউটপুট দিতে হবে। একটি JSON কোড ব্লক ব্যবহার করুন।\n- **সবকিছু বিশ্লেষণ করুন:** পুরো রেজ্যুমে টেক্সটটি পড়ুন। নিচের সেকশনগুলোর সাথে প্রতিটি তথ্যের মিল তৈরি করুন।\n- **সর্বদা সামারি বা সারসংক্ষেপ তৈরি করুন:** আপনাকে অবশ্যই একটি `sum` সেকশন তৈরি করতে হবে। যদি রেজ্যুমের নিজস্ব সামারি থাকে সেটি ব্যবহার করুন। না থাকলে, ২-৩ লাইনের একটি প্রফেশনাল সামারি লিখুন।\n- **হেডার (পরিচয়):** নাম, প্রফেশনাল টাইটেল এবং সব ধরনের যোগাযোগের মাধ্যম (ইমেইল, ফোন, লিংক, ঠিকানা) এর জন্য `hdr` ব্যবহার করুন।\n- **নিয়ম:** পরিচয় এবং যোগাযোগ সংক্রান্ত সবকিছু `hdr` এর মধ্যে থাকবে।\n- **ব্যক্তিগত তথ্য (শুধুমাত্র ডেমোগ্রাফিকস):** `per` সেকশনটি শুধুমাত্র জাতীয়তা, জন্ম তারিখ, লিঙ্গ, বৈবাহিক অবস্থা, উচ্চতার জন্য। এখানে ইমেইল বা ফোন নম্বর দেবেন না।\n- **ভাষা:** ভাষাগুলো খুঁজে `lan` সেকশনে যুক্ত করুন।\n- **খালি সেকশন বাদ দিন:** যদি কোনো সেকশনে ডাটা না থাকে, সেই কী (key) টি পুরোপুরি বাদ দিন।\n- **নতুন আইটেম শুরু করুন:** লিস্টের ক্ষেত্রে (exp, edu ইত্যাদি), প্রতিটি আইটেম অবশ্যই একটি অবজেক্ট হতে হবে যার সাথে তার প্রাইমারি কী (যেমন: `com`, `inst`) থাকবে।\n\n### ২. শর্টহ্যান্ড JSON স্ট্রাকচার\n\n```json\n{\n  \"hdr\": { \"name\": \"Full Name\", \"role\": \"Professional Title\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\" },\n  \"sum\": { \"desc\": \"2-3 sentence summary...\" },\n  \"per\": { \"nat\": \"Nationality\", \"dob\": \"DD/MM/YYYY\", \"gen\": \"Gender\", \"mar\": \"Status\", \"height\": \"Height\" },\n  \"pass\": { \"pno\": \"Passport No\", \"idate\": \"Issue Date\", \"edate\": \"Expiry Date\" },\n  \"vis\": { \"status\": \"Visa Status/Work Authorization\", \"country\": \"Target Country\" },\n  \"exp\": [ { \"com\": \"Company\", \"role\": \"Role\", \"dur\": \"Start - End\", \"desc\": \"Bullet points (use \\\\n for multiple lines)\" } ],\n  \"edu\": [ { \"inst\": \"Institute\", \"deg\": \"Degree\", \"year\": \"Year\", \"gpa\": \"GPA\", \"board\": \"Board Name\" } ],\n  \"skl\": [ { \"cat\": \"Category\", \"vals\": \"Skill 1, Skill 2, Skill 3\" } ],\n  \"pro\": [ { \"name\": \"Project\", \"desc\": \"Details\", \"year\": \"Year\", \"link\": \"URL\" } ],\n  \"res\": [ { \"topic\": \"Research Topic\", \"role\": \"Your Role\", \"desc\": \"Method/Findings\" } ],\n  \"tea\": [ { \"course\": \"Course Name\", \"inst\": \"Institution\", \"desc\": \"Responsibilities\" } ],\n  \"gra\": [ { \"title\": \"Grant Title\", \"amt\": \"Amount/Agency\", \"year\": \"Year\" } ],\n  \"cert\": [ { \"name\": \"Cert Name\", \"org\": \"Issuer\", \"date\": \"Date\" } ],\n  \"lan\": [ { \"lang\": \"Language\", \"lvl\": \"Proficiency\" } ],\n  \"tst\": [ { \"test\": \"Test Name\", \"score\": \"Score\", \"date\": \"Date\" } ],\n  \"fam\": { \"father\": \"Father\'s Job\", \"mother\": \"Mother\'s Job\", \"siblings\": \"Siblings summary\" },\n  \"pex\": { \"pref\": \"Partner Preferences &amp; Expectations summary\" },\n  \"lst\": { \"diet\": \"Veg/Non-Veg\", \"habits\": \"Social Habits (Smoking/Drinking)\" },\n  \"ast\": { \"rashi\": \"Zodiac Sign\", \"nakshatra\": \"Birth Star\", \"gotra\": \"Lineage\" },\n  \"phy\": { \"weight\": \"Weight\", \"complexion\": \"Complexion\", \"build\": \"Build\" },\n  \"ref\": [ { \"name\": \"Name\", \"pos\": \"Title\", \"org\": \"Company\", \"email\": \"Email\", \"phone\": \"Number\" } ],\n  \"hob\": [ { \"cat\": \"Hobbies\", \"vals\": \"Hobby 1, Hobby 2\" } ]\n}\n```\n\n**এখন, এই রিজ্যুমেটি পার্স করে শুধুমাত্র JSON শর্টহ্যান্ড কোডটি জেনারেট করুন:**</string>\n\n                        <!-- Additional StepByStep Labels -->\n    <string name="field_val_contact">যোগাযোগের তথ্য</string>\n    <string name="field_val_content">বিষয়বস্তু</string>\n    <string name="field_lvl_fluent">স্তর (যেমন: সাবলীল)</string>\n    <string name="field_year_date">বছর / তারিখ</string>\n    <string name="field_inst_agency">প্রতিষ্ঠান / সংস্থা</string>\n    <string name="field_items_comma">আইটেমসমূহ (কমা দিয়ে আলাদা করুন)</string>\n    <string name="field_award_achievement">পুরস্কার/অর্জিত সাফল্য</string>\n    <string name="field_father_occup">পিতা: নাম / পেশা</string>\n    <string name="field_mother_occup">মাতা: নাম / পেশা</string>\n    <string name="field_siblings_details">ভাই-বোন: সংখ্যা / বিস্তারিত</string>\n    <string name="field_edu_prof_pref">শিক্ষা / পেশাগত পছন্দ</string>\n    <string name="field_general_expectations">সাধারণ প্রত্যাশা</string>\n    <string name="field_diet_veg">খাদ্যাভ্যাস (নিরামিষ/আমিষ)</string>\n    <string name="field_headshot_label">হেডশট লেবেল</string>
+    <string name="master_prompt_advanced">আপনি একজন রেজ্যুমে পার্সার (Resume Parser)। আপনার লক্ষ্য হল আমার রিজ্যুমে থেকে তথ্য বের করা এবং সেটিকে একটি নির্দিষ্ট \"Shorthand Code\" ফরম্যাটে সাজানো।\n\n**গুরুত্বপূর্ণ: নিচের JSON ফরম্যাটটি হুবহু অনুসরণ করুন। JSON ব্লকের বাইরে কোনো টেক্সট দেবেন না।**\n\n### ১. প্রধান নিয়মাবলী\n- **আউটপুট স্ট্রাকচার:** আপনাকে অবশ্যই একটি মাত্র JSON অবজেক্ট আউটপুট দিতে হবে। একটি JSON কোড ব্লক ব্যবহার করুন।\n- **সবকিছু বিশ্লেষণ করুন:** পুরো রেজ্যুমে টেক্সটটি পড়ুন। নিচের সেকশনগুলোর সাথে প্রতিটি তথ্যের মিল তৈরি করুন।\n- **সর্বদা সামারি বা সারসংক্ষেপ তৈরি করুন:** আপনাকে অবশ্যই একটি `sum` সেকশন তৈরি করতে হবে। যদি রেজ্যুমের নিজস্ব সামারি থাকে সেটি ব্যবহার করুন। না থাকলে, ২-৩ লাইনের একটি প্রফেশনাল সামারি লিখুন।\n- **হেডার (পরিচয়):** নাম, প্রফেশনাল টাইটেল এবং সব ধরনের যোগাযোগের মাধ্যম (ইমেইল, ফোন, লিংক, ঠিকানা) এর জন্য `hdr` ব্যবহার করুন।\n- **নিয়ম:** পরিচয় এবং যোগাযোগ সংক্রান্ত সবকিছু `hdr` এর মধ্যে থাকবে।\n- **ব্যক্তিগত তথ্য (শুধুমাত্র ডেমোগ্রাফিকস):** `per` সেকশনটি শুধুমাত্র জাতীয়তা, জন্ম তারিখ, লিঙ্গ, বৈবাহিক অবস্থা, উচ্চতার জন্য। এখানে ইমেইল বা ফোন নম্বর দেবেন না।\n- **ভাষা:** ভাষাগুলো খুঁজে `lan` সেকশনে যুক্ত করুন।\n- **খালি সেকশন বাদ দিন:** যদি কোনো সেকশনে ডাটা না থাকে, সেই কী (key) টি পুরোপুরি বাদ দিন।\n- **নতুন আইটেম শুরু করুন:** লিস্টের ক্ষেত্রে (exp, edu ইত্যাদি), প্রতিটি আইটেম অবশ্যই একটি অবজেক্ট হতে হবে যার সাথে তার প্রাইমারি কী (যেমন: `com`, `inst`) থাকবে।\n\n### ২. শর্টহ্যান্ড JSON স্ট্রাকচার\n\n```json\n{\n  \"hdr\": { \"name\": \"Full Name\", \"role\": \"Professional Title\", \"email\": \"e@mail.com\", \"phone\": \"...\", \"addr\": \"City\", \"linkedin\": \"in/user\" },\n  \"sum\": { \"desc\": \"2-3 sentence summary...\" },\n  \"per\": { \"nat\": \"Nationality\", \"dob\": \"DD/MM/YYYY\", \"gen\": \"Gender\", \"mar\": \"Status\", \"height\": \"Height\" },\n  \"pass\": { \"pno\": \"Passport No\", \"idate\": \"Issue Date\", \"edate\": \"Expiry Date\" },\n  \"vis\": { \"status\": \"Visa Status/Work Authorization\", \"country\": \"Target Country\" },\n  \"exp\": [ { \"com\": \"Company\", \"role\": \"Role\", \"dur\": \"Start - End\", \"desc\": \"Bullet points (use \\\\n for multiple lines)\" } ],\n  \"edu\": [ { \"inst\": \"Institute\", \"deg\": \"Degree\", \"year\": \"Year\", \"gpa\": \"GPA\", \"board\": \"Board Name\" } ],\n  \"skl\": [ { \"cat\": \"Category\", \"vals\": \"Skill 1, Skill 2, Skill 3\" } ],\n  \"pro\": [ { \"name\": \"Project\", \"desc\": \"Details\", \"year\": \"Year\", \"link\": \"URL\" } ],\n  \"res\": [ { \"topic\": \"Research Topic\", \"role\": \"Your Role\", \"desc\": \"Method/Findings\" } ],\n  \"tea\": [ { \"course\": \"Course Name\", \"inst\": \"Institution\", \"desc\": \"Responsibilities\" } ],\n  \"gra\": [ { \"title\": \"Grant Title\", \"amt\": \"Amount/Agency\", \"year\": \"Year\" } ],\n  \"cert\": [ { \"name\": \"Cert Name\", \"org\": \"Issuer\", \"date\": \"Date\" } ],\n  \"lan\": [ { \"lang\": \"Language\", \"lvl\": \"Proficiency\" } ],\n  \"tst\": [ { \"test\": \"Test Name\", \"score\": \"Score\", \"date\": \"Date\" } ],\n  \"fam\": { \"father\": \"Father\'s Job\", \"mother\": \"Mother\'s Job\", \"siblings\": \"Siblings summary\" },\n  \"pex\": { \"pref\": \"Partner Preferences &amp; Expectations summary\" },\n  \"lst\": { \"diet\": \"Veg/Non-Veg\", \"habits\": \"Social Habits (Smoking/Drinking)\" },\n  \"ast\": { \"rashi\": \"Zodiac Sign\", \"nakshatra\": \"Birth Star\", \"gotra\": \"Lineage\" },\n  \"phy\": { \"weight\": \"Weight\", \"complexion\": \"Complexion\", \"build\": \"Build\" },\n  \"ref\": [ { \"name\": \"Name\", \"pos\": \"Title\", \"org\": \"Company\", \"email\": \"Email\", \"phone\": \"Number\" } ],\n  \"hob\": [ { \"cat\": \"Hobbies\", \"vals\": \"Hobby 1, Hobby 2\" } ]\n}\n```\n\n**এখন, এই রিজ্যুমেটি পার্স করে শুধুমাত্র JSON শর্টহ্যান্ড কোডটি জেনারেট করুন:**</string>\n\n                                                                                                        <!-- Additional StepByStep Labels -->\n    <string name="field_val_contact">যোগাযোগের তথ্য</string>\n    <string name="field_val_content">বিষয়বস্তু</string>\n    <string name="field_lvl_fluent">স্তর (যেমন: সাবলীল)</string>\n    <string name="field_year_date">বছর / তারিখ</string>\n    <string name="field_inst_agency">প্রতিষ্ঠান / সংস্থা</string>\n    <string name="field_items_comma">আইটেমসমূহ (কমা দিয়ে আলাদা করুন)</string>\n    <string name="field_award_achievement">পুরস্কার/অর্জিত সাফল্য</string>\n    <string name="field_father_occup">পিতা: নাম / পেশা</string>\n    <string name="field_mother_occup">মাতা: নাম / পেশা</string>\n    <string name="field_siblings_details">ভাই-বোন: সংখ্যা / বিস্তারিত</string>\n    <string name="field_edu_prof_pref">শিক্ষা / পেশাগত পছন্দ</string>\n    <string name="field_general_expectations">সাধারণ প্রত্যাশা</string>\n    <string name="field_diet_veg">খাদ্যাভ্যাস (নিরামিষ/আমিষ)</string>\n    <string name="field_headshot_label">হেডশট লেবেল</string>
     <string name="field_fullbody_label">ফুল-বডি লেবেল</string>
     <string name="field_lifestyle_photo_label">লাইফস্টাইল ছবি লেবেল</string>
     <string name="field_health_status">স্বাস্থ্যগত অবস্থা</string>
@@ -625,6 +646,9 @@
     <string name="unavailable">অনুপলব্ধ</string>
     <string name="ad_free_price_yearly">৳৯৬০/বছর</string>
     <string name="ad_free_price_monthly">অ্যাড-ফ্রি — ৳৮০/মাস</string>
+    <string name="admob_ready">অ্যাডমব চালু হয়েছে</string>
+    <string name="dns_restricted"> (ডিএনএস সীমাবদ্ধ)</string>
+    <string name="ad_restricted_opening">অ্যাড সীমাবদ্ধ। সরাসরি খোলা হচ্ছে...</string>
 
     <!-- Toolbar Labels -->
     <string name="toolbar_add">যোগ করুন</string>
@@ -639,4 +663,7 @@
     <string name="toolbar_underline">আন্ডারলাইন</string>
     <string name="toolbar_strike">স্ট্রাইক</string>
     <string name="toolbar_highlight">হাইলাইট</string>
+    <string name="include_extra_sections">অতিরিক্ত সেকশনগুলো যুক্ত করুন</string>
+    <string name="include_extra_info">পূর্ব-সংরক্ষিত তথ্য যুক্ত করুন</string>
+    <string name="apply_template">টেমপ্লেট প্রয়োগ করুন</string>
 </resources>

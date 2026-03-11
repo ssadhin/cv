@@ -1,5 +1,5 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="12dp" app:cardElevation="2dp" app:strokeWidth="1dp" app:strokeColor="@color/divider_color_new" android:clickable="true" android:focusable="true" app:cardBackgroundColor="@color/surface_dialog">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="12dp" app:cardElevation="2dp" app:strokeWidth="1dp" app:strokeColor="@color/divider_color_new" android:clickable="true" android:focusable="true" app:cardBackgroundColor="@color/surface_dialog" android:stateListAnimator="@animator/wobbly_slime">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="8dp">
 
@@ -36,7 +36,7 @@
         <LinearLayout android:id="@+id/layout_blank_section_controls" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="4dp" android:visibility="gone" android:layout_marginTop="8dp">
 
             <!-- category 1: Transform -->
-            <LinearLayout android:id="@+id/header_transform" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="#F5F5F5" android:gravity="center_vertical" android:clickable="true" android:focusable="true">
+            <LinearLayout android:id="@+id/header_transform" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="#F5F5F5" android:gravity="center_vertical" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime">
                 <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="📐 Transform &amp; Layering" android:textStyle="bold" android:textColor="#333333" android:textSize="13sp" />
                 <TextView android:id="@+id/txt_status_transform" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="▾" android:textSize="18sp" android:textColor="#999999" />
             </LinearLayout>
@@ -63,7 +63,7 @@
             </LinearLayout>
 
             <!-- category 2: Geometry -->
-            <LinearLayout android:id="@+id/header_geometry" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="#F5F5F5" android:gravity="center_vertical" android:layout_marginTop="4dp" android:clickable="true" android:focusable="true">
+            <LinearLayout android:id="@+id/header_geometry" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="#F5F5F5" android:gravity="center_vertical" android:layout_marginTop="4dp" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime">
                 <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="💠 Outer Geometry" android:textStyle="bold" android:textColor="#333333" android:textSize="13sp" />
                 <TextView android:id="@+id/txt_status_geometry" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="▸" android:textSize="18sp" android:textColor="#999999" />
             </LinearLayout>
@@ -84,7 +84,7 @@
             </LinearLayout>
 
             <!-- category 3: Hole -->
-            <LinearLayout android:id="@+id/header_hole" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="#F5F5F5" android:gravity="center_vertical" android:layout_marginTop="4dp" android:clickable="true" android:focusable="true">
+            <LinearLayout android:id="@+id/header_hole" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="#F5F5F5" android:gravity="center_vertical" android:layout_marginTop="4dp" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime">
                 <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="🕳️ Hole Design" android:textStyle="bold" android:textColor="#333333" android:textSize="13sp" />
                 <TextView android:id="@+id/txt_status_hole" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="▸" android:textSize="18sp" android:textColor="#999999" />
             </LinearLayout>
@@ -102,7 +102,7 @@
             </LinearLayout>
 
             <!-- category 4: Appearance -->
-            <LinearLayout android:id="@+id/header_appearance" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="#F5F5F5" android:gravity="center_vertical" android:layout_marginTop="4dp" android:clickable="true" android:focusable="true">
+            <LinearLayout android:id="@+id/header_appearance" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="8dp" android:background="#F5F5F5" android:gravity="center_vertical" android:layout_marginTop="4dp" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime">
                 <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="🖼️ Background &amp; Style" android:textStyle="bold" android:textColor="#333333" android:textSize="13sp" />
                 <TextView android:id="@+id/txt_status_appearance" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="▸" android:textSize="18sp" android:textColor="#999999" />
             </LinearLayout>

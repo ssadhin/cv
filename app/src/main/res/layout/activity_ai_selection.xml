@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/bg_primary" android:padding="24dp" tools:context=".AISelectionActivity">
 
-    <ImageButton android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginTop="16dp" android:background="@drawable/circle_background" android:elevation="4dp" android:src="@drawable/ic_chevron_left" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:tint="@color/text_primary" />
+    <ImageButton android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginTop="16dp" android:background="@drawable/circle_background" android:elevation="4dp" android:src="@drawable/ic_chevron_left" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:tint="@color/text_primary" android:stateListAnimator="@animator/wobbly_slime" />
 
     <TextView android:id="@+id/tvHeaderSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/dancing_script" android:text="@string/ai_preference_title" android:textColor="@color/text_primary" android:textSize="20sp" android:textStyle="bold" app:layout_constraintBottom_toBottomOf="@id/btnBack" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="@id/btnBack" />
 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer slight shadow to simulate thumb elevation -->
+    <item android:top="0dp" android:bottom="0dp" android:left="0dp" android:right="0dp">
+        <shape android:shape="oval">
+            <solid android:color="#22000000" />
+            <size android:width="36dp" android:height="36dp" />
+        </shape>
+    </item>
+
+    <!-- Medium shadow transition -->
+    <item android:top="1dp" android:bottom="1dp" android:left="1dp" android:right="1dp">
+        <shape android:shape="oval">
+            <solid android:color="#11000000" />
+        </shape>
+    </item>
+
+    <!-- Inner soft border for frosted look -->
+    <item android:top="2dp" android:bottom="2dp" android:left="2dp" android:right="2dp">
+        <shape android:shape="oval">
+            <solid android:color="#F0EEF8" />
+        </shape>
+    </item>
+
+    <!-- Main White body of the thumb -->
+    <item android:top="3dp" android:bottom="3dp" android:left="3dp" android:right="3dp">
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Central Purple Dot -->
+    <item android:top="12dp" android:bottom="12dp" android:left="12dp" android:right="12dp">
+        <shape android:shape="oval">
+            <solid android:color="#8A52FF" />
+        </shape>
+    </item>
+</layer-list>

@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private View currentFrameSettingsView;
     private WebView myWebView;
     private boolean isNativeEditing = false;
+    private boolean hasEnteredEditOnce = false;
 
     // Slide Mode State
     private final Handler nativeSlideHandler = new Handler(android.os.Looper.getMainLooper());
@@ -168,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
     private int currentSectionIdx = 0;
     private int currentProgressIdx = 0;
 
-    private final String[] sectionDesignIds = {"default", "timeline", "glass", "bento"};
+    private final String[] sectionDesignIds = {"default", "timeline", "classic", "bento"};
     private final String[] headerDesignIds = {"d1", "d2", "d3"};
     private final String[] progressDesignIds = {"bar", "circle", "plain"};
     private boolean isPickingBgImage = false;
@@ -363,6 +364,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         setupSidePanels();
         setupOriginalButtons();
         setupWizardButton(); // New
+        WobblyAnimationHelper.attachWobblyTouchListener(findViewById(R.id.fab_wizard));
         setupActionPanels();
         setupAddFeaturePanel();
         setupATSHub();
@@ -1950,6 +1952,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 popup.show();
                 return true;
             });
+            WobblyAnimationHelper.attachWobblyTouchListener(printFab);
         }
 
 
@@ -1988,11 +1991,28 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             editFabIcon = (ImageButton) ((FrameLayout) editFab).getChildAt(1);
             editFab.setOnClickListener(v -> {
                 isNativeEditing = !isNativeEditing;
-                if (myWebView != null) {
-                    myWebView.evaluateJavascript("toggleEditMode(" + isNativeEditing + ");", null);
+                if (isNativeEditing && !hasEnteredEditOnce && myWebView != null) {
+                    // First time entering edit mode: reload the page, then enable edit mode
+                    hasEnteredEditOnce = true;
+                    myWebView.evaluateJavascript(
+                        "if(typeof triggerAutoSave === 'function') triggerAutoSave();" +
+                        "setTimeout(function(){ location.reload(); }, 200);", null);
+                    // After reload, onPageFinished or state restore will set view mode.
+                    // Schedule edit mode activation after reload completes.
+                    new Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                        if (myWebView != null) {
+                            myWebView.evaluateJavascript("toggleEditMode(true);", null);
+                        }
+                        updateNativeUI(true);
+                    }, 1500);
+                } else {
+                    if (myWebView != null) {
+                        myWebView.evaluateJavascript("toggleEditMode(" + isNativeEditing + ");", null);
+                    }
+                    updateNativeUI(isNativeEditing);
                 }
-                updateNativeUI(isNativeEditing);
             });
+            WobblyAnimationHelper.attachWobblyTouchListener(editFab);
         }
 
         addFab = findViewById(R.id.fab_add);
@@ -2035,6 +2055,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     }
                 }
             });
+            WobblyAnimationHelper.attachWobblyTouchListener(addFab);
         }
     }
 
@@ -2460,10 +2481,17 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         }
 
         @JavascriptInterface
-        public void showExtraSectionsDialog(String sectionsJson) {
+        public void showTemplateOptionsDialog(String optionsJson) {
             runOnUiThread(() -> {
                 try {
-                    JSONArray sections = new JSONArray(sectionsJson);
+                    JSONObject options = new JSONObject(optionsJson);
+                    JSONArray sections = options.optJSONArray("sections");
+                    if (sections == null) sections = new JSONArray();
+                    boolean hasExtraInfo = options.optBoolean("hasExtraInfo", false);
+                    boolean hasExtraSections = sections.length() > 0;
+                    
+                    Log.d(TAG, "showTemplateOptionsDialog: hasExtraSections=" + hasExtraSections + ", hasExtraInfo=" + hasExtraInfo + ", options=" + optionsJson);
+
                     StringBuilder sb = new StringBuilder();
                     for (int i = 0; i < sections.length(); i++) {
                         sb.append("• ").append(sections.getString(i)).append("\n");
@@ -2480,18 +2508,56 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     }
 
                     TextView tvList = dialogView.findViewById(R.id.tvSectionsList);
-                    tvList.setText(sb.toString());
+                    TextView tvQuestion = dialogView.findViewById(R.id.tvExtraQuestion);
+                    com.google.android.material.checkbox.MaterialCheckBox cbExtraSections = dialogView.findViewById(R.id.cbExtraSections);
+                    com.google.android.material.checkbox.MaterialCheckBox cbExtraInfo = dialogView.findViewById(R.id.cbExtraInfo);
 
-                    dialogView.findViewById(R.id.btnAddSections).setOnClickListener(v -> {
+                    if (hasExtraSections) {
+                        tvList.setText(sb.toString());
+                        tvList.setVisibility(View.VISIBLE);
+                        cbExtraSections.setVisibility(View.VISIBLE);
+                    } else {
+                        tvList.setVisibility(View.GONE);
+                        cbExtraSections.setVisibility(View.GONE);
+                        cbExtraSections.setChecked(false); // Force off if invisible
+                    }
+
+                    if (hasExtraInfo) {
+                        if (hasExtraSections) {
+                            // Only show extra info option if extra sections are checked
+                            cbExtraInfo.setVisibility(cbExtraSections.isChecked() ? View.VISIBLE : View.GONE);
+                            
+                            // Setup listener to toggle visibility when extra sections is toggled
+                            cbExtraSections.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                @Override
+                                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                    cbExtraInfo.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+                                    if (!isChecked) {
+                                        cbExtraInfo.setChecked(false); // Ensure it's off if hidden
+                                    }
+                                }
+                            });
+                        } else {
+                            // If there are no extra sections but there is extra info, just show it
+                            cbExtraInfo.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        cbExtraInfo.setVisibility(View.GONE);
+                        cbExtraInfo.setChecked(false); // Force off if invisible
+                    }
+
+                    dialogView.findViewById(R.id.btnApplyTemplate).setOnClickListener(v -> {
                         if (myWebView != null) {
-                            myWebView.evaluateJavascript("window.onExtraSectionsConfirmed(true)", null);
+                            boolean applySections = cbExtraSections.isChecked();
+                            boolean applyInfo = cbExtraInfo.isChecked();
+                            myWebView.evaluateJavascript("window.onTemplateOptionsConfirmed(" + applySections + ", " + applyInfo + ")", null);
                         }
                         dialog.dismiss();
                     });
 
                     dialogView.findViewById(R.id.btnSkipSections).setOnClickListener(v -> {
                         if (myWebView != null) {
-                            myWebView.evaluateJavascript("window.onExtraSectionsConfirmed(false)", null);
+                            myWebView.evaluateJavascript("window.onTemplateOptionsConfirmed(false, false)", null);
                         }
                         dialog.dismiss();
                     });
@@ -3711,12 +3777,25 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         } else {
             // Group by Category
             Map<String, List<SectionItem>> groups = new LinkedHashMap<>();
-            String[] catOrder = {"Core Essentials", "Professional Exp", "Skills & Honors", "Personal & Photos", "Interests & More", "Documentation", "Others"};
+            String[] catOrder = {
+                getString(R.string.cat_core_essentials), 
+                getString(R.string.cat_professional_exp), 
+                getString(R.string.cat_skills_honors), 
+                getString(R.string.cat_personal_photos), 
+                getString(R.string.cat_interests_more), 
+                getString(R.string.cat_documentation), 
+                getString(R.string.cat_others)
+            };
             for (String cat : catOrder) groups.put(cat, new ArrayList<>());
             
             for (SectionItem item : filtered) {
                 String cat = getCategoryForSection(item.id);
-                groups.get(cat).add(item);
+                if (groups.containsKey(cat)) {
+                    groups.get(cat).add(item);
+                } else {
+                    // Fallback to Others if somehow string is missing
+                    groups.get(getString(R.string.cat_others)).add(item);
+                }
             }
             
             LayoutInflater inflater = LayoutInflater.from(this);
@@ -3996,60 +4075,9 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                     setupPagedExplorer(itemView, "progress", progressDesignIds);
                     
                     bindBackgroundControls(itemView);
-                    bindDesignerColumnControls(itemView);
                 }
             }
 
-            void bindDesignerColumnControls(View root) {
-                 // Layout Mode (Default vs Mirror)
-                 ViewFlipper flipper = root.findViewById(R.id.flipper_layout);
-                 View btnPrev = root.findViewById(R.id.btn_layout_prev);
-                 View btnNext = root.findViewById(R.id.btn_layout_next);
-                 
-                 if (flipper != null && btnPrev != null && btnNext != null) {
-                     View.OnClickListener toggleLayout = v -> {
-                         if (flipper.getDisplayedChild() == 0) {
-                             flipper.showNext();
-                             if (myWebView != null) myWebView.evaluateJavascript("if(window.updateDesignerColumnLayout) window.updateDesignerColumnLayout('mirror');", null);
-                         } else {
-                             flipper.showPrevious();
-                             if (myWebView != null) myWebView.evaluateJavascript("if(window.updateDesignerColumnLayout) window.updateDesignerColumnLayout('default');", null);
-                         }
-                     };
-                     btnPrev.setOnClickListener(toggleLayout);
-                     btnNext.setOnClickListener(toggleLayout);
-                 }
-
-                 // Colors
-                 View btnBg = root.findViewById(R.id.btn_left_col_bg);
-                 View btnFrame = root.findViewById(R.id.btn_left_frame_color);
-                 if (btnBg != null) btnBg.setOnClickListener(v -> openColorPicker(LEFT_COL_BG_ID));
-                 if (btnFrame != null) btnFrame.setOnClickListener(v -> openColorPicker(LEFT_FRAME_COLOR_ID));
-
-                 // SeekBars
-                 SeekBar seekThick = root.findViewById(R.id.seek_left_frame_thickness);
-                 SeekBar seekRadius = root.findViewById(R.id.seek_left_col_radius);
-                 
-                 if (seekThick != null) {
-                     seekThick.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                         @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                             if (myWebView != null) myWebView.evaluateJavascript("if(window.updateLeftFrameThickness) window.updateLeftFrameThickness(" + progress + ");", null);
-                         }
-                         @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-                         @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-                     });
-                 }
-
-                 if (seekRadius != null) {
-                     seekRadius.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                         @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                             if (myWebView != null) myWebView.evaluateJavascript("if(window.updateLeftColRadius) window.updateLeftColRadius(" + progress + ");", null);
-                         }
-                         @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-                         @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-                     });
-                 }
-            }
 
             void bindBackgroundControls(View root) {
                 View btnColor = root.findViewById(R.id.btn_bg_color);
@@ -4663,6 +4691,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
             }
         }
     }
+    private boolean storedWizardFabVisibility = false;
 
     private void enterTemplateSelectionMode() {
         if (isTemplateSelectionMode) return;
@@ -4673,7 +4702,10 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         if (printFab != null) printFab.setVisibility(View.GONE);
         if (editFab != null) editFab.setVisibility(View.GONE);
         View wizardFab = findViewById(R.id.fab_wizard);
-        if (wizardFab != null) wizardFab.setVisibility(View.GONE);
+        if (wizardFab != null) {
+            storedWizardFabVisibility = wizardFab.getVisibility() == View.VISIBLE;
+            wizardFab.setVisibility(View.GONE);
+        }
         if (undoRedoContainer != null) undoRedoContainer.setVisibility(View.GONE);
         hideActiveNativeToolbar();
         if (leftPanel != null) leftPanel.hidePanel();
@@ -4708,9 +4740,29 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         if (btnTemplateInfoMinimized != null) btnTemplateInfoMinimized.setVisibility(View.GONE);
 
         // Restore Main UI
-        if (editFab != null) editFab.setVisibility(View.VISIBLE);
+        if (editFab != null) {
+            editFab.setScaleX(1f);
+            editFab.setScaleY(1f);
+            editFab.setAlpha(1f);
+            editFab.setRotation(0f);
+            editFab.setVisibility(View.VISIBLE);
+        }
+        if (printFab != null) {
+            printFab.setScaleX(1f);
+            printFab.setScaleY(1f);
+            printFab.setAlpha(1f);
+            printFab.setRotation(0f);
+        }
+        if (addFab != null) {
+            addFab.setScaleX(1f);
+            addFab.setScaleY(1f);
+            addFab.setAlpha(1f);
+            addFab.setRotation(0f);
+        }
         View wizardFab = findViewById(R.id.fab_wizard);
-        if (wizardFab != null) wizardFab.setVisibility(View.VISIBLE);
+        if (wizardFab != null) {
+            wizardFab.setVisibility(storedWizardFabVisibility ? View.VISIBLE : View.GONE);
+        }
         updateNativeUI(isNativeEditing); // Restores FABs based on edit mode
         if (undoRedoContainer != null) undoRedoContainer.setVisibility(View.VISIBLE);
         if (cvNameDisplay != null) cvNameDisplay.setVisibility(View.VISIBLE);

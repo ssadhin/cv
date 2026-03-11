@@ -44,37 +44,6 @@
             <ImageButton android:id="@+id/btn_progress_next" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_chevron_right" android:background="?attr/selectableItemBackgroundBorderless"/>
         </LinearLayout>
 
-        <!-- Designer Column (Left/Right) -->
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Designer Column" android:textStyle="bold" android:textSize="14sp" android:textColor="@color/text_primary" android:layout_marginBottom="12dp"/>
-
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="#F5F5F5" android:padding="12dp" android:layout_marginBottom="16dp">
-
-            <!-- Layout Mode: Default vs Mirror -->
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="LAYOUT MODE" android:textSize="10sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_marginBottom="4dp"/>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                <ImageButton android:id="@+id/btn_layout_prev" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_chevron_left" android:background="?attr/selectableItemBackgroundBorderless"/>
-
-                <ViewFlipper android:id="@+id/flipper_layout" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:inAnimation="@android:anim/slide_in_left" android:outAnimation="@android:anim/slide_out_right">
-                    <TextView android:id="@+id/txt_layout_choice_0" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Default (Left)" android:textAlignment="center" android:padding="8dp" android:textSize="11sp" android:textStyle="bold" android:layout_margin="2dp" android:background="@drawable/shape_active_choice"/>
-                    <TextView android:id="@+id/txt_layout_choice_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Mirror (Right)" android:textAlignment="center" android:padding="8dp" android:textSize="11sp" android:textStyle="bold" android:layout_margin="2dp"/>
-                </ViewFlipper>
-
-                <ImageButton android:id="@+id/btn_layout_next" android:layout_width="32dp" android:layout_height="32dp" android:src="@drawable/ic_chevron_right" android:background="?attr/selectableItemBackgroundBorderless"/>
-            </LinearLayout>
-
-            <Button android:id="@+id/btn_left_col_bg" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Column Background Color" android:textAllCaps="false" android:layout_marginBottom="8dp" style="@style/Widget.AppCompat.Button.Colored"/>
-
-            <Button android:id="@+id/btn_left_frame_color" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Frame Border Color" android:textAllCaps="false" android:layout_marginBottom="12dp" style="@style/Widget.AppCompat.Button.Colored"/>
-
-            <!-- Frame Thickness -->
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="FRAME THICKNESS" android:textSize="10sp" android:textStyle="bold" android:textColor="#666666" android:layout_marginBottom="4dp"/>
-            <SeekBar android:id="@+id/seek_left_frame_thickness" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="30" android:progress="0" android:layout_marginBottom="12dp"/>
-
-            <!-- Corner Radius -->
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="CORNER RADIUS" android:textSize="10sp" android:textStyle="bold" android:textColor="@color/text_secondary" android:layout_marginBottom="4dp"/>
-            <SeekBar android:id="@+id/seek_left_col_radius" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="50" android:progress="0"/>
-
-        </LinearLayout>
 
         <!-- Background Customization -->
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Page Background" android:textStyle="bold" android:textSize="14sp" android:textColor="@color/text_primary" android:layout_marginTop="8dp" android:layout_marginBottom="12dp"/>

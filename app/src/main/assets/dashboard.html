@@ -3801,102 +3801,115 @@
             display: none !important;
         }
 
-        /* === PREMIUM TRUE GLASS DESIGN (Design 3) === */
+        /* === CLASSIC TIMELINE DESIGN (Design 3) === */
 
-        @keyframes glass-bg-anim {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .section-glass .data-table-item,
-        .section-glass .skill-group,
-        .section-glass .simple-list-item,
-        .section-glass .pd-row {
-            background: transparent !important;
-            /* Use unified background system */
-            backdrop-filter: none !important;
-            -webkit-backdrop-filter: none !important;
-            border: 1px solid rgba(255, 255, 255, 0.5) !important;
-            border-top: 5px solid var(--primary-color) !important;
-            border-radius: var(--section-radius, 16px) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            padding: 18px !important;
-            margin-bottom: 22px !important;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        /* Container styling */
+        .section-classic .content-area {
             position: relative;
-            z-index: 1;
+            padding-left: 20px;
         }
 
-        /* Glass layer (use ::before for background and blur) */
-        .section-glass .data-table-item::before,
-        .section-glass .skill-group::before,
-        .section-glass .simple-list-item::after,
-        .section-glass .pd-row::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--item-bg, rgba(255, 255, 255, 0.4)) !important;
-            opacity: var(--item-opa, 1.0) !important;
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            z-index: -1;
-            pointer-events: none;
-            border-radius: inherit;
+        .section-classic .data-table-item {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding-left: 55px;
+            /* Space for the capsule and line */
         }
 
-        .section-glass .data-table-item:hover {
-            transform: translateY(-5px) scale(1.01);
-            box-shadow:
-                0 15px 35px rgba(0, 0, 0, 0.1),
-                0 0 15px rgba(var(--primary-color-rgb, 30, 60, 114), 0.2) !important;
-        }
-
-        .section-glass .data-table-item:hover::after {
-            left: 100%;
-            top: 100%;
-        }
-
-        .section-glass h2 {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            color: var(--primary-color);
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(5px);
-            padding: 10px 15px;
-            border-radius: 10px;
-            border-left: 4px solid var(--primary-color);
-            margin-bottom: 20px;
-            display: inline-block;
-        }
-
-        /* Vibrant animated mesh background for glass visibility */
-        .glass-active-bg::before {
+        /* The vertical line connecting items */
+        .section-classic .data-table-item::before {
             content: '';
-            position: fixed;
-            top: 0;
+            position: absolute;
+            left: 17px;
+            /* Center of the 35px wide capsule */
+            top: 110px;
+            /* Start below the capsule */
+            bottom: -25px;
+            /* Extend to the next item */
+            width: 1.5px;
+            background: #a9b5c2;
+            z-index: 0;
+        }
+
+        /* Hide the line on the last item to prevent overflow */
+        .section-classic .data-table-item:last-child::before {
+            display: none;
+        }
+
+        /* The dark capsule containing the date */
+        .section-classic .timeline-duration {
+            position: absolute;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                radial-gradient(circle at 10% 20%, rgba(30, 60, 114, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 90% 80%, rgba(42, 82, 152, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(200, 210, 230, 0.1) 0%, transparent 60%);
-            background-size: 200% 200%;
-            z-index: -1;
-            pointer-events: none;
-            animation: glass-bg-anim 15s ease infinite;
+            top: 5px;
+            width: 35px;
+            min-height: 90px;
+            background-color: #2b394e;
+            color: #ffffff;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em;
+            font-weight: 500;
+            padding: 15px 0;
+            z-index: 1;
+            /* Rotate text vertically */
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            white-space: nowrap;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Adjust right side flowing content */
+        .section-classic .bento-meta {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hide standard labels and structure not needed in this elegant design */
+        .section-classic .table-label,
+        .section-classic .timeline-extracted {
+            display: none !important;
+        }
+
+        /* Reset rows to flow normally inside classic */
+        .section-classic .table-row {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* First row (Title/Company) */
+        .section-classic .data-table-item .table-row:first-child .table-val {
+            font-size: 1.05em;
+            font-weight: 700;
+            color: var(--primary-color, #1e3c72);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Second row (Role/Location/Degree) */
+        .section-classic .data-table-item .table-row:not(:first-child) .table-val,
+        .section-classic .exp-role {
+            font-size: 0.95em;
+            font-style: italic;
+            color: var(--text-main, #333);
+        }
+
+        /* Bullet lists */
+        .section-classic .resp-list {
+            margin-top: 10px;
+            padding-left: 18px;
+            color: var(--text-main, #333);
+        }
+
+        .section-classic .resp-list li {
+            margin-bottom: 5px;
+            line-height: 1.5;
         }
 
         /* === BENTO MODERN DESIGN (Design 4) === */
@@ -5288,37 +5301,41 @@
                                 <h2><i class="fas fa-graduation-cap"></i> EDUCATION</h2>
                                 <div class="content-area">
                                     <div class="data-table-item">
-                                        <div class="table-row"><span class="table-label">Institute:</span> <span
-                                                class="table-val" style="font-weight:600;">California Institute of
-                                                Technology</span></div>
+                                        <div class="table-row" style="justify-content: space-between;">
+                                            <div><span class="table-label">Institute:</span> <span class="table-val"
+                                                    style="font-weight:600;">California Institute of Technology</span>
+                                            </div>
+                                            <span class="table-val"
+                                                style="font-size:0.85em; color: var(--text-muted);">CGPA: 3.8/4</span>
+                                        </div>
                                         <div class="table-row"><span class="table-label">Year:</span> <span
                                                 class="table-val">2010 - 2014</span></div>
                                         <div class="table-row"><span class="table-label">Degree:</span> <span
-                                                class="table-val">BSc in Computer Science</span> <span
-                                                style="margin-left:auto; font-size:0.85em; color: var(--text-main); opacity: 0.8;">GPA:
-                                                3.8/4</span></div>
+                                                class="table-val">BSc in Computer Science</span></div>
                                     </div>
                                     <div class="data-table-item">
-                                        <div class="table-row"><span class="table-label">Institute:</span> <span
-                                                class="table-val" style="font-weight:600;">State University of New
-                                                York</span>
+                                        <div class="table-row" style="justify-content: space-between;">
+                                            <div><span class="table-label">Institute:</span> <span class="table-val"
+                                                    style="font-weight:600;">State University of New York</span></div>
+                                            <span class="table-val"
+                                                style="font-size:0.85em; color: var(--text-muted);">CGPA: 3.9/4</span>
                                         </div>
                                         <div class="table-row"><span class="table-label">Year:</span> <span
                                                 class="table-val">2015 - 2017</span></div>
                                         <div class="table-row"><span class="table-label">Degree:</span> <span
-                                                class="table-val">MSc in Human-Computer Interaction</span> <span
-                                                style="margin-left:auto; font-size:0.85em; color: var(--text-main); opacity: 0.8;">GPA:
-                                                3.9/4</span></div>
+                                                class="table-val">MSc in Human-Computer Interaction</span></div>
                                     </div>
                                     <div class="data-table-item">
-                                        <div class="table-row"><span class="table-label">Institute:</span> <span
-                                                class="table-val" style="font-weight:600;">Online Academy</span></div>
+                                        <div class="table-row" style="justify-content: space-between;">
+                                            <div><span class="table-label">Institute:</span> <span class="table-val"
+                                                    style="font-weight:600;">Online Academy</span></div>
+                                            <span class="table-val"
+                                                style="font-size:0.85em; color: var(--text-muted);">CGPA: N/A</span>
+                                        </div>
                                         <div class="table-row"><span class="table-label">Year:</span> <span
                                                 class="table-val">2020</span></div>
                                         <div class="table-row"><span class="table-label">Degree:</span> <span
-                                                class="table-val">Fullstack Web Development (Certificate)</span> <span
-                                                style="margin-left:auto; font-size:0.85em; color: var(--text-main); opacity: 0.8;">GPA:
-                                                N/A</span></div>
+                                                class="table-val">Fullstack Web Development (Certificate)</span></div>
                                     </div>
                                 </div>
                             </section>
@@ -5607,7 +5624,7 @@
                     'awards': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Award Name</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">Year</span></div><div class="table-row"><span class="table-val" contenteditable="true" style="font-size:0.9em">Issuing Body</span></div><div class="proj-desc" contenteditable="true">Brief description...</div></div>`,
                     'certifications': `<div class="data-table-item"><div class="table-row"><span class="table-val" contenteditable="true" style="font-weight:700">Certification Name</span></div><div class="table-row"><span class="table-label">Org:</span> <span class="table-val" contenteditable="true">Organization</span></div><div class="table-row"><span class="table-label">Date:</span> <span class="table-val" contenteditable="true">Date</span></div><div class="table-row"><a href="#" onclick="promptLink(this);return false;" style="font-size:0.85em; color:var(--primary-color)">Link</a></div></div>`,
                     'experience': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Company</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">Date - Date</span></div><div class="table-row" style="margin-top:-2px; margin-bottom:5px; font-size:0.85em; color:#777;"><i class="fas fa-map-marker-alt" style="font-size:0.9em; margin-right:4px;" oncontextmenu="showNativeIconSettings(event, this)"></i><span class="table-val" contenteditable="true">Location</span></div><div class="table-row"><span class="table-val exp-role" contenteditable="true">Role</span></div><ul class="resp-list"><li contenteditable="true">Responsibility...</li></ul></div>`,
-                    'education': `<div class="data-table-item"><div class="table-row"><span class="table-label">Institute:</span> <span class="table-val" contenteditable="true" style="font-weight:600">Name</span></div><div class="table-row"><span class="table-label">Year:</span> <span class="table-val" contenteditable="true">Year</span> <span class="table-label" style="margin-left:14px;">Board:</span> <span class="table-val" contenteditable="true">Board Name</span></div><div class="table-row"><span class="table-label">Degree:</span> <span class="table-val" contenteditable="true">Degree</span></div></div>`,
+                    'education': `<div class="data-table-item"><div class="table-row" style="justify-content: space-between;"><div><span class="table-label">Institute:</span> <span class="table-val" contenteditable="true" style="font-weight:600">Name</span></div><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">CGPA: 3.8</span></div><div class="table-row"><span class="table-label">Year:</span> <span class="table-val" contenteditable="true">Year</span> <span class="table-label" style="margin-left:14px;">Board:</span> <span class="table-val" contenteditable="true">Board Name</span></div><div class="table-row"><span class="table-label">Degree:</span> <span class="table-val" contenteditable="true">Degree</span></div></div>`,
                     'projects': `<div class="data-table-item"><div class="table-row" style="justify-content: space-between;"><span class="table-val" contenteditable="true" style="font-weight:700;">Project</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">Year</span></div><div class="table-row" style="margin-top:-2px; margin-bottom:5px; font-size:0.85em; color:#777;"><i class="fas fa-map-marker-alt" style="font-size:0.9em; margin-right:4px;" oncontextmenu="showNativeIconSettings(event, this)"></i><span class="table-val" contenteditable="true">Location</span></div><div class="proj-desc" contenteditable="true">Description...</div><div class="table-row" style="margin-top:5px;"><a href="#" onclick="promptLink(this); return false;" style="font-size:0.85em; color:var(--primary-color); text-decoration:underline;">Link</a></div></div>`,
                     'skills': `<div class="skill-group"><span class="skill-header" contenteditable="true">Category</span><div class="skill-sub" contenteditable="true" oninput="updateSmartProgress(this)">Skills...</div><div class="progress-visual"><div class="progress-visual-fill"></div><div class="progress-visual-circle"></div></div></div>`,
                     'personal': `<div class="pd-row"><span class="pd-label" contenteditable="true">Label:</span> <span class="pd-val" contenteditable="true">Value</span></div>`,
@@ -5730,7 +5747,7 @@
                 // Global design trackers
                 const savedDesigns = JSON.parse(localStorage.getItem(LS_DESIGNS) || '{}');
                 let currentProgressDesign = savedDesigns.progress || 'bar'; // Raw: 'bar', 'circle', 'plain'
-                let currentSectionDesign = savedDesigns.section || 'default'; // Raw: 'default', 'timeline', 'glass', 'bento'
+                let currentSectionDesign = savedDesigns.section || 'default'; // Raw: 'default', 'timeline', 'classic', 'bento'
                 let currentHeaderDesign = savedDesigns.header || 'default';
 
                 // Undo / Redo Global Interface (Defined early for native stability)
@@ -9647,17 +9664,17 @@
 
                 // --- SECTION DESIGN LOGIC ---
                 function applySectionDesign(type) {
-                    // type: 'default', 'timeline', 'glass', 'bento'
+                    // type: 'default', 'timeline', 'classic', 'bento'
                     currentSectionDesign = type;
                     // UPDATED: Added hobbies, interests, references to be inclusive
                     const targetSections = document.querySelectorAll('section[data-type="education"], section[data-type="experience"], section[data-type="projects"], section[data-type="volunteer"], section[data-type="internships"], section[data-type="achievements"], section[data-type="awards"], section[data-type="certifications"], section[data-type="publications"], section[data-type="affiliations"], section[data-type="training"], section[data-type="extra"], section[data-type="certificate-simple"], section[data-type="researchExp"], section[data-type="teachingExp"], section[data-type="grants"]');
 
                     // Global cleanup
-                    document.body.classList.remove('glass-active-bg');
+
 
                     targetSections.forEach(sec => {
                         // Remove all design classes first
-                        sec.classList.remove('section-timeline', 'section-glass', 'section-bento');
+                        sec.classList.remove('section-timeline', 'section-classic', 'section-bento');
 
                         // Cleanup Bento specific wraps
                         sec.querySelectorAll('.bento-date-box').forEach(el => el.remove()); // Remove duplicate entirely
@@ -9723,9 +9740,76 @@
                                     durationField.addEventListener('input', () => triggerAutoSave());
                                 }
                             });
-                        } else if (type === 'glass') {
-                            sec.classList.add('section-glass');
-                            document.body.classList.add('glass-active-bg');
+                        } else if (type === 'classic') {
+                            sec.classList.add('section-classic');
+
+                            const items = sec.querySelectorAll('.data-table-item');
+                            items.forEach(item => {
+                                let durationField = item.querySelector('.timeline-duration');
+                                if (!durationField) {
+                                    durationField = document.createElement('span');
+                                    durationField.className = 'timeline-duration';
+                                    durationField.contentEditable = 'true';
+
+                                    let dateText = 'Date';
+                                    let dEl = null;
+
+                                    // 1. Try finding by common labels
+                                    const labels = Array.from(item.querySelectorAll('.table-label'));
+                                    const dateLabel = labels.find(el => {
+                                        const t = el.textContent.toLowerCase();
+                                        return t.includes('year') || t.includes('date') || t.includes('duration') || t.includes('period') || t.includes('time');
+                                    });
+
+                                    if (dateLabel) {
+                                        dEl = dateLabel.parentElement.querySelector('.table-val');
+                                        if (dEl) {
+                                            dateText = dEl.textContent.trim();
+                                            if (dateText === '-' || dateText === 'Date - Date') dateText = '';
+                                            const otherLabels = Array.from(dateLabel.parentElement.querySelectorAll('.table-label')).filter(l => l !== dateLabel);
+                                            if (otherLabels.length > 0) {
+                                                dateLabel.classList.add('timeline-extracted');
+                                                dEl.classList.add('timeline-extracted');
+                                            } else {
+                                                dateLabel.parentElement.classList.add('timeline-extracted');
+                                            }
+                                        }
+                                    } else {
+                                        // 2. Fallback to right-aligned muted text
+                                        const mutedVals = Array.from(item.querySelectorAll('.table-val')).filter(el => {
+                                            const style = el.getAttribute('style') || '';
+                                            return style.includes('var(--text-muted)') || style.includes('opacity') || style.includes('#666');
+                                        });
+
+                                        if (mutedVals.length > 0) {
+                                            dEl = mutedVals[mutedVals.length - 1];
+                                            dateText = dEl.textContent.trim();
+                                            if (dateText === '-' || dateText === 'Date - Date') dateText = '';
+                                            dEl.classList.add('timeline-extracted');
+                                        }
+                                    }
+
+                                    durationField.textContent = dateText;
+                                    durationField.setAttribute('placeholder', 'Date');
+                                    item.insertBefore(durationField, item.firstChild);
+
+                                    // Wrap the rest of the content (excluding the duration capsule) in a flex container so it flows right side of the capsule line
+                                    const rightContainer = document.createElement('div');
+                                    rightContainer.className = 'bento-meta';
+
+                                    // To avoid breaking live-editing links, simply move top-level children into rightContainer
+                                    const childrenToMove = Array.from(item.childNodes).filter(c => c !== durationField);
+                                    childrenToMove.forEach(child => rightContainer.appendChild(child));
+
+                                    item.appendChild(rightContainer);
+
+                                    // Bi-directional sync
+                                    durationField.addEventListener('input', () => {
+                                        if (dEl) dEl.textContent = durationField.textContent;
+                                        triggerAutoSave();
+                                    });
+                                }
+                            });
                         } else if (type === 'bento') {
                             sec.classList.add('section-bento');
 
@@ -9756,6 +9840,7 @@
                                     dEl = dateLabel.parentElement.querySelector('.table-val');
                                     if (dEl) {
                                         dateText = dEl.textContent.trim();
+                                        if (dateText === '-' || dateText === 'Date - Date') dateText = '';
                                         dateLabel.parentElement.classList.add('timeline-extracted');
                                     }
                                 } else {
@@ -9766,7 +9851,8 @@
                                     });
                                     if (mutedVals.length > 0) {
                                         dEl = mutedVals[mutedVals.length - 1];
-                                        dateText = dEl.textContent;
+                                        dateText = dEl.textContent.trim();
+                                        if (dateText === '-' || dateText === 'Date - Date') dateText = '';
                                         dEl.classList.add('timeline-extracted');
                                     }
                                 }
@@ -12669,19 +12755,17 @@
                 }
 
                 function updatePageBreaks() {
-                    const pageHeightMm = 297; // Exact A4 height
+                    // Use a margin-safe A4 height (297mm exact, 280mm safe printable area)
+                    const pageHeightMm = 280;
                     const dpi = 96;
                     const mmPerPx = 25.4 / dpi;
 
-                    // Get current zoom scale
-                    const scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--font-scale')) || 0.5;
-
-                    // Calculate total height in mm (accounting for scale)
-                    const totalPx = resumePage.offsetHeight / scale;
+                    // offsetHeight is already unscaled. Do not divide by scale.
+                    const totalPx = resumePage.offsetHeight;
                     const totalMm = totalPx * mmPerPx;
                     const numPages = Math.ceil(totalMm / pageHeightMm);
 
-                    // Create page breaks at exact 297mm intervals
+                    // Create page breaks at exact 280mm intervals
                     for (let i = 1; i < numPages; i++) {
                         const breakPositionMm = pageHeightMm * i;
 
@@ -15963,16 +16047,61 @@
                         }
 
                         let keepExtraSections = false;
+                        let keepExtraInfo = false;
+
+                        // Determine if the template has pre-saved data (Extra Info)
+                        let hasExtraInfo = false;
+                        if (template.sections) {
+                            // It has extra info if ANY section was explicitly locked/selected by the creator
+                            hasExtraInfo = template.sections.some(s => s.isSelected === true && !['mainHeader', 'name_profession', 'personal', 'profileSection', 'profile_pic', 'profile_picture'].includes(s.dataType || s.id));
+                        }
+                        // Also force true if there are extra sections (users consider the data inside a *new* extra section as "extra info" they might want to import)
                         if (extraSections.length > 0) {
-                            // Create a user-friendly list of unique section names (ES5 compatible deduplication)
+                            hasExtraInfo = true;
+                        }
+
+                        if (extraSections.length > 0 || hasExtraInfo) {
+                            // Create a user-friendly list of unique section names
                             var uniqueExtras = extraSections.filter(function (item, index) {
                                 return extraSections.indexOf(item) === index;
                             }).map(function (s) {
                                 return s.replace(/Section|Section/g, "").replace(/([A-Z])/g, ' $1').trim();
                             });
-                            keepExtraSections = confirm("This template includes extra sections you don't have: " + uniqueExtras.join(', ') + ".\n\nWould you like to add these as blank sections to your CV?");
+
+                            // Beautified Native Dialog Bridge
+                            if (typeof Android !== 'undefined' && Android.showTemplateOptionsDialog) {
+                                // Define the callback for the native dialog
+                                window.onTemplateOptionsConfirmed = function (sectionsConfirmed, infoConfirmed) {
+                                    proceedWithTemplate(template, injectedData, currentDataByDataType, sharedData, liveMetrics, sectionsConfirmed, infoConfirmed, liveStylesBackup, globalRescuedShapes, globalRescuedControls, globalRescuedCanvas, globalRescuedAddBtn, globalRescuedCtxMenu);
+                                };
+                                const optionsJson = JSON.stringify({
+                                    sections: uniqueExtras,
+                                    hasExtraInfo: hasExtraInfo
+                                });
+                                Android.showTemplateOptionsDialog(optionsJson);
+                                return; // Wait for callback
+                            } else {
+                                // Fallback to basic confirm if native bridge fails
+                                if (extraSections.length > 0) {
+                                    keepExtraSections = confirm("This template includes extra sections you don't have: " + uniqueExtras.join(', ') + ".\n\nWould you like to add these as blank sections to your CV?");
+                                }
+                                if (hasExtraInfo) {
+                                    keepExtraInfo = confirm("This template includes pre-saved information (e.g. frozen list items).\n\nWould you like to overwrite your current CV's data with this pre-saved information for those sections?");
+                                }
+                            }
                         }
 
+                        // Original synchronous path if no extra sections or extra info
+                        proceedWithTemplate(template, injectedData, currentDataByDataType, sharedData, liveMetrics, keepExtraSections, keepExtraInfo, liveStylesBackup, globalRescuedShapes, globalRescuedControls, globalRescuedCanvas, globalRescuedAddBtn, globalRescuedCtxMenu);
+                    } catch (e) {
+                        console.error("[applyUserTemplate] ERROR:", e);
+                        window._dbgLog.push({ t: Date.now(), fn: 'applyTemplate', msg: 'ERROR: ' + e.message });
+                    }
+                };
+
+                // Wrap the core logic to support async dialog callbacks
+                const proceedWithTemplate = (template, injectedData, currentDataByDataType, sharedData, liveMetrics, keepExtraSections, keepExtraInfo, liveStylesBackup, globalRescuedShapes, globalRescuedControls, globalRescuedCanvas, globalRescuedAddBtn, globalRescuedCtxMenu) => {
+                    try {
                         // Helper for Smart Hydration
                         const hydrateSection = (el, dt, content) => {
                             const isIdentity = dt === 'mainHeader' || dt === 'name_profession' || dt === 'personal' || dt === 'profileSection' || dt === 'profile_pic' || dt === 'profile_picture';
@@ -16000,7 +16129,6 @@
                             }
 
                             // PRE-HYDRATION: Save header state (DO NOT append controls here â€” innerHTML wipe destroys them!)
-                            let rescuedHeaderStyle = null;
 
                             if (dt === 'mainHeader') {
                                 rescuedHeaderStyle = el.getAttribute('data-header-style');
@@ -16165,6 +16293,30 @@
                                         el.innerHTML = temp.innerHTML;
                                     }
                                 }
+                            }
+                            // Priority 1.5: Custom Template Data (Extra Info requested by user)
+                            else if (keepExtraInfo && template.sections && template.sections.find(s => (s.dataType || s.id) === dt && s.isSelected === true)) {
+                                // User opted to keep the template creator's pre-filled data for this specific section!
+                                // We completely bypass Priority 2 (current CV data) and Priority 3 (blank placeholders).
+                                el.innerHTML = content;
+
+                                // Because we just transplanted raw HTML, we must re-attach native interactivity markers 
+                                // so the user can edit the loaded data.
+                                if (typeof isEditing !== 'undefined' && isEditing) {
+                                    el.querySelectorAll('.pd-row, .contact-item, .data-table-item, .skill-group, .table-row, .award-item, li').forEach(function (item) {
+                                        if (item.tagName !== 'LI') {
+                                            item.classList.add('editing');
+                                            item.onclick = function (e) { e.stopPropagation(); if (typeof showItemToolbar === 'function') showItemToolbar(e, item); };
+                                        } else {
+                                            item.classList.add('editing');
+                                            item.onclick = function (e) { e.stopPropagation(); window.currentEditableElement = item; if (window.Android && typeof window.Android.showToolbar === 'function') window.Android.showToolbar('default'); };
+                                        }
+                                    });
+                                    el.querySelectorAll('span:not(.table-label):not(.pd-label), .pd-val, .contact-val, .skill-sub, h3').forEach(function (txt) {
+                                        txt.contentEditable = 'true';
+                                    });
+                                }
+                                window._dbgLog.push({ t: Date.now(), fn: 'hydrateSection', msg: '[' + dt + '] PRIO1.5: Applied frozen template data.' });
                             }
                             // Priority 2: Raw data restoration (for custom content like contact details with existing data)
                             else if (currentDataByDataType[dt]) {

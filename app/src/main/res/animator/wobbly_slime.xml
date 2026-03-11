@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Pressed State: Instant Squish -->
+    <item android:state_pressed="true">
+        <set>
+            <objectAnimator android:duration="80" android:propertyName="scaleX" android:valueTo="1.3" android:valueType="floatType" />
+            <objectAnimator android:duration="80" android:propertyName="scaleY" android:valueTo="0.75" android:valueType="floatType" />
+        </set>
+    </item>
+    <!-- Default State: Smooth Wobble Back -->
+    <item>
+        <set>
+            <objectAnimator android:duration="500" android:propertyName="scaleX" android:valueTo="1.0" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator" />
+            <objectAnimator android:duration="500" android:propertyName="scaleY" android:valueTo="1.0" android:valueType="floatType" android:interpolator="@android:anim/overshoot_interpolator" />
+        </set>
+    </item>
+</selector>

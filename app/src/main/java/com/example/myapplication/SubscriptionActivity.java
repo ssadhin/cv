@@ -103,6 +103,7 @@ public class SubscriptionActivity extends AppCompatActivity {
         layoutPlusExpanded = findViewById(R.id.layoutPlusExpanded);
         layoutAdFreeCollapsed = findViewById(R.id.layoutAdFreeCollapsed);
         layoutAdFreeExpanded = findViewById(R.id.layoutAdFreeExpanded);
+        layoutFreeCollapsed = findViewById(R.id.layoutFreeCollapsed);
         layoutFreeExpanded = findViewById(R.id.layoutFreeExpanded);
 
         breakOverlay = findViewById(R.id.break_overlay);
@@ -135,7 +136,6 @@ public class SubscriptionActivity extends AppCompatActivity {
         
         // Style the Title "Elevate your Vitae"
         TextView tvSubTitle = findViewById(R.id.tvSubTitle);
-        String titleHtml = "Elevate your <font color='#A08CFF'><i>Vitae</i></font>";
         tvSubTitle.setText(android.text.Html.fromHtml(getString(R.string.sub_title_html), android.text.Html.FROM_HTML_MODE_LEGACY));
     }
 

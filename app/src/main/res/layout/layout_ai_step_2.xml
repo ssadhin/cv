@@ -20,7 +20,7 @@
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:orientation="vertical">
             <!-- Gemini -->
-            <com.google.android.material.card.MaterialCardView android:id="@+id/cardGemini" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" app:cardBackgroundColor="@color/bg_card">
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardGemini" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" app:cardBackgroundColor="@color/bg_card" android:stateListAnimator="@animator/wobbly_slime">
                 <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
                     <ImageView android:id="@+id/ivGemini" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_gemini_logo" android:padding="8dp" android:background="@color/surface_pink"/>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/ivGemini" android:layout_toStartOf="@+id/ivArrowGemini" android:layout_marginStart="16dp" android:layout_centerVertical="true" android:orientation="vertical">
@@ -32,7 +32,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- ChatGPT -->
-            <com.google.android.material.card.MaterialCardView android:id="@+id/cardChatGPT" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" app:cardBackgroundColor="@color/bg_card">
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardChatGPT" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" app:cardBackgroundColor="@color/bg_card" android:stateListAnimator="@animator/wobbly_slime">
                 <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
                     <ImageView android:id="@+id/ivChatGPT" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_chatgpt_logo" android:padding="8dp" android:background="@color/surface_lavender"/>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/ivChatGPT" android:layout_toStartOf="@+id/ivArrowChatGPT" android:layout_marginStart="16dp" android:layout_centerVertical="true" android:orientation="vertical">
@@ -44,7 +44,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Grok -->
-            <com.google.android.material.card.MaterialCardView android:id="@+id/cardGrok" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" app:cardBackgroundColor="@color/bg_card">
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardGrok" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" app:cardBackgroundColor="@color/bg_card" android:stateListAnimator="@animator/wobbly_slime">
                 <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
                     <ImageView android:id="@+id/ivGrok" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_grok_logo" android:padding="8dp" android:background="@color/surface_gray"/>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/ivGrok" android:layout_toStartOf="@+id/ivArrowGrok" android:layout_marginStart="16dp" android:layout_centerVertical="true" android:orientation="vertical">
@@ -56,7 +56,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- DeepSeek -->
-            <com.google.android.material.card.MaterialCardView android:id="@+id/cardDeepSeek" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" app:cardBackgroundColor="@color/bg_card">
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardDeepSeek" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground" app:cardBackgroundColor="@color/bg_card" android:stateListAnimator="@animator/wobbly_slime">
                 <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
                     <ImageView android:id="@+id/ivDeepSeek" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_deepseek_logo" android:padding="8dp" android:background="@color/surface_purple"/>
                     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_toEndOf="@id/ivDeepSeek" android:layout_toStartOf="@+id/ivArrowDeepSeek" android:layout_marginStart="16dp" android:layout_centerVertical="true" android:orientation="vertical">

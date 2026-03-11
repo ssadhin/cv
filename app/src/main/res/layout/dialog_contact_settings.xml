@@ -31,7 +31,7 @@
         <!-- Global Icon Color -->
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="20dp">
             <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Global Icon Color" android:textColor="@color/text_secondary" android:textSize="14sp" />
-            <View android:id="@+id/color_preview_contact" android:layout_width="32dp" android:layout_height="32dp" android:background="@android:color/black" android:elevation="2dp" />
+            <View android:id="@+id/color_preview_contact" android:layout_width="32dp" android:layout_height="32dp" android:background="@android:color/black" android:elevation="2dp" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime" />
         </LinearLayout>
 
         <!-- Global Spacing -->

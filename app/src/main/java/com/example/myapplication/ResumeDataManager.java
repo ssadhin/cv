@@ -10,8 +10,8 @@ import java.util.List;
 
 public class ResumeDataManager {
 
-    public static final String[] TEMPLATE_IDS = {"default", "timeline", "glass", "bento"};
-    public static final String[] TEMPLATE_NAMES = {"Standard Modern", "Timeline", "Glass", "Bento Grid"};
+    public static final String[] TEMPLATE_IDS = {"default", "timeline", "classic", "bento"};
+    public static final String[] TEMPLATE_NAMES = {"Standard Modern", "Timeline", "Classic", "Bento Grid"};
 
     public static class FieldModel {
         String key;
@@ -1001,16 +1001,16 @@ public class ResumeDataManager {
                 sb.append("<p style=\"line-height: 1.6; color: var(--text-main);\">").append(getFieldValue(item, "summary")).append("</p>");
                 break;
             case "education":
-                sb.append("<div class=\"data-table-item\"><div class=\"table-row\"><span class=\"table-label\">Institute:</span> <span class=\"table-val\" style=\"font-weight:600;\">")
+                sb.append("<div class=\"data-table-item\"><div class=\"table-row\" style=\"justify-content: space-between;\"><div><span class=\"table-label\">Institute:</span> <span class=\"table-val\" style=\"font-weight:600;\">")
                   .append(getFieldValue(item, "inst")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">Year:</span> <span class=\"table-val\">").append(getFieldValue(item, "year")).append("</span>");
-                sb.append("<span class=\"table-label\" style=\"margin-left:14px;\">Board:</span> <span class=\"table-val\">").append(getFieldValue(item, "board")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">Degree:</span> <span class=\"table-val\">").append(getFieldValue(item, "deg")).append("</span>");
                 String gpa = getFieldValue(item, "gpa");
                 if (!gpa.equals("...") && !gpa.isEmpty()) {
-                    sb.append("<span style=\"margin-left:auto; font-size:0.85em; opacity:0.8;\">GPA: ").append(gpa).append("</span>");
+                    sb.append("<span class=\"table-val\" style=\"font-size:0.85em; color: var(--text-muted);\">CGPA: ").append(gpa).append("</span>");
                 }
-                sb.append("</div></div>");
+                sb.append("</div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">Year:</span> <span class=\"table-val\">").append(getFieldValue(item, "year")).append("</span>");
+                sb.append("<span class=\"table-label\" style=\"margin-left:14px;\">Board:</span> <span class=\"table-val\">").append(getFieldValue(item, "board")).append("</span></div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">Degree:</span> <span class=\"table-val\">").append(getFieldValue(item, "deg")).append("</span></div></div>");
                 break;
             case "experience":
             case "volunteer":

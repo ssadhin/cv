@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/cardPurpose" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="@color/surface_dialog" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" app:rippleColor="#33000000" android:clickable="true" android:focusable="true">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/cardPurpose" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="8dp" app:cardCornerRadius="16dp" app:cardElevation="2dp" app:cardBackgroundColor="@color/surface_dialog" app:strokeColor="@color/divider_color_new" app:strokeWidth="1dp" app:rippleColor="#33000000" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime">
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="vertical" android:padding="20dp">
 

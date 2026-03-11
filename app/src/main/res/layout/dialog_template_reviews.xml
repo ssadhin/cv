@@ -40,11 +40,11 @@
     <!-- Bottom Input Bar -->
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
 
-        <ImageButton android:id="@+id/btn_add_review_image" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_add" app:tint="@color/text_secondary" android:contentDescription="Add Image" />
+        <ImageButton android:id="@+id/btn_add_review_image" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_add" app:tint="@color/text_secondary" android:contentDescription="Add Image" android:stateListAnimator="@animator/wobbly_slime" />
 
         <EditText android:id="@+id/et_review_input" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:background="@drawable/bg_pill_outline" android:hint="Write a review..." android:padding="10dp" android:textSize="14sp" android:layout_marginStart="8dp" android:layout_marginEnd="8dp" android:maxLines="3" />
 
-        <ImageButton android:id="@+id/btn_submit_review" android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_circle_dark" android:src="@drawable/ic_send" app:tint="#FFFFFF" android:padding="8dp" android:contentDescription="Send Review" />
+        <ImageButton android:id="@+id/btn_submit_review" android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_circle_dark" android:src="@drawable/ic_send" app:tint="#FFFFFF" android:padding="8dp" android:contentDescription="Send Review" android:stateListAnimator="@animator/wobbly_slime" />
     </LinearLayout>
 
 </LinearLayout>

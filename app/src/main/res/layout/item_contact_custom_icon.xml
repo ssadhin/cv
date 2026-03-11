@@ -6,7 +6,7 @@
         <ImageView android:id="@+id/section_icon" android:layout_width="28dp" android:layout_height="28dp" android:layout_gravity="center" android:scaleType="centerInside" />
 
         <!-- Placeholder/Indicator for custom icons -->
-        <ImageView android:id="@+id/btn_add_section" android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="bottom|end" android:src="@drawable/ic_add" android:background="@drawable/circular_button_background" android:backgroundTint="#4CAF50" android:padding="2dp" android:visibility="gone" />
+        <ImageView android:id="@+id/btn_add_section" android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="bottom|end" android:src="@drawable/ic_add" android:background="@drawable/circular_button_background" android:backgroundTint="#4CAF50" android:padding="2dp" android:visibility="gone" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime" />
     </FrameLayout>
 
     <TextView android:id="@+id/section_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="10sp" android:textColor="@color/text_secondary" android:visibility="gone" />

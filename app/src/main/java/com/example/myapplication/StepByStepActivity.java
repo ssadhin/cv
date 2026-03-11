@@ -178,7 +178,7 @@ public class StepByStepActivity extends AppCompatActivity {
             List<FieldModel> fields = new ArrayList<>();
             switch (type) {
                 case "header":
-                    fields.add(new FieldModel("name", StepByStepActivity.this.getString(R.string.field_full_name), getString(R.string.placeholder_name), "text"));
+                    fields.add(new FieldModel("name", StepByStepActivity.this.getString(R.string.field_name), getString(R.string.placeholder_name), "text"));
                     fields.add(new FieldModel("addr", StepByStepActivity.this.getString(R.string.field_address), getString(R.string.placeholder_address), "text"));
                     fields.add(new FieldModel("email", StepByStepActivity.this.getString(R.string.field_email), "email@example.com", "text"));
                     fields.add(new FieldModel("phone", StepByStepActivity.this.getString(R.string.field_phone), "+1 234 567 890", "text"));
@@ -191,7 +191,7 @@ public class StepByStepActivity extends AppCompatActivity {
                 case "name_profession":
                 case "nameProfessionSection":
                     fields.add(new FieldModel("name", StepByStepActivity.this.getString(R.string.field_name), getString(R.string.placeholder_name)));
-                    fields.add(new FieldModel("prof", StepByStepActivity.this.getString(R.string.field_profession), getString(R.string.placeholder_profession)));
+                    fields.add(new FieldModel("prof", StepByStepActivity.this.getString(R.string.field_prof), getString(R.string.placeholder_profession)));
                     break;
                 case "personal":
                 case "personalDetails":
@@ -2630,17 +2630,17 @@ public class StepByStepActivity extends AppCompatActivity {
                 sb.append("<div class=\"summary-text\">").append(getFieldValue(item, "summary")).append("</div>");
                 break;
             case "education":
-                sb.append("<div class=\"data-table-item\"><div class=\"table-row\"><span class=\"table-label\">")
+                sb.append("<div class=\"data-table-item\"><div class=\"table-row\" style=\"justify-content: space-between;\"><div><span class=\"table-label\">")
                   .append(getString(R.string.label_institute)).append("</span> <span class=\"table-val\" style=\"font-weight:600;\">")
                   .append(getFieldValue(item, "inst")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_year)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "year")).append("</span>");
-                sb.append("<span class=\"table-label\" style=\"margin-left:14px;\">").append(getString(R.string.label_board)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "board")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_degree)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "deg")).append("</span>");
                 String gpa = getFieldValue(item, "gpa");
                 if (!gpa.equals("...") && !gpa.isEmpty()) {
-                    sb.append("<span style=\"margin-left:auto; font-size:0.85em; opacity:0.8;\">").append(R.string.label_gpa_prefix).append(gpa).append("</span>");
+                    sb.append("<span class=\"table-val\" style=\"font-size:0.85em; color: var(--text-muted);\">").append(getString(R.string.label_gpa_prefix)).append(gpa).append("</span>");
                 }
-                sb.append("</div></div>");
+                sb.append("</div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_year)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "year")).append("</span>");
+                sb.append("<span class=\"table-label\" style=\"margin-left:14px;\">").append(getString(R.string.label_board)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "board")).append("</span></div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">").append(getString(R.string.label_degree)).append("</span> <span class=\"table-val\">").append(getFieldValue(item, "deg")).append("</span></div></div>");
                 break;
             case "experience":
             case "volunteer":

@@ -12,9 +12,13 @@
 
         <TextView android:id="@+id/tvSectionsList" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginBottom="8dp" android:background="@color/surface_card_nested" android:padding="16dp" android:text="• Section 1\n• Section 2" android:textColor="@color/text_primary" android:textSize="14sp" android:lineSpacingExtra="4dp" android:fontFamily="monospace"/>
 
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="@string/extra_sections_question" android:textColor="@color/text_secondary" android:textSize="13sp" android:layout_marginTop="8dp"/>
+        <TextView android:id="@+id/tvExtraQuestion" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="@string/extra_sections_question" android:textColor="@color/text_secondary" android:textSize="13sp" android:layout_marginTop="8dp"/>
 
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnAddSections" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:text="@string/extra_sections_add_btn" android:textAllCaps="false" android:textSize="16sp" android:textStyle="bold" app:cornerRadius="28dp" app:backgroundTint="@color/brand_primary" android:textColor="#FFFFFF"/>
+        <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/cbExtraSections" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/include_extra_sections" android:checked="true" android:textColor="@color/text_primary" app:buttonTint="@color/brand_primary" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/cbExtraInfo" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/include_extra_info" android:checked="false" android:textColor="@color/text_primary" app:buttonTint="@color/brand_primary" />
+
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnApplyTemplate" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:text="@string/apply_template" android:textAllCaps="false" android:textSize="16sp" android:textStyle="bold" app:cornerRadius="28dp" app:backgroundTint="@color/brand_primary" android:textColor="#FFFFFF"/>
 
         <TextView android:id="@+id/btnSkipSections" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="@string/maybe_later" android:textColor="@color/text_secondary" android:textSize="14sp" android:textStyle="bold" android:padding="8dp" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless"/>
     </LinearLayout>

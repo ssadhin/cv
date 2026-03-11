@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/sub_bg">
 
     <!-- Back Button -->
-    <ImageButton android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="16dp" android:layout_marginTop="24dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_chevron_left" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:tint="@color/text_primary" />
+    <ImageButton android:id="@+id/btnBack" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="16dp" android:layout_marginTop="24dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_chevron_left" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:tint="@color/text_primary" android:stateListAnimator="@animator/wobbly_slime" />
 
     <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:clipToPadding="false" android:clipChildren="false" android:paddingBottom="40dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@id/btnBack">
 
@@ -19,9 +19,9 @@
 
             <!-- Billing Toggle -->
             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="32dp" android:background="@drawable/toggle_bg" android:orientation="horizontal" android:padding="4dp" android:clipChildren="false" android:clipToPadding="false">
-                <TextView android:id="@+id/btnMonthly" android:layout_width="100dp" android:layout_height="36dp" android:gravity="center" android:text="@string/billing_monthly" android:textColor="@color/text_secondary" android:textSize="13sp" android:textStyle="bold" />
+                <TextView android:id="@+id/btnMonthly" android:layout_width="100dp" android:layout_height="36dp" android:gravity="center" android:text="@string/billing_monthly" android:textColor="@color/text_secondary" android:textSize="13sp" android:textStyle="bold" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime" />
                 <FrameLayout android:layout_width="110dp" android:layout_height="36dp" android:clipChildren="false">
-                    <TextView android:id="@+id/btnYearly" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/toggle_selected_bg" android:gravity="center" android:text="@string/billing_yearly" android:textColor="@color/text_primary" android:textSize="13sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/btnYearly" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/toggle_selected_bg" android:gravity="center" android:text="@string/billing_yearly" android:textColor="@color/text_primary" android:textSize="13sp" android:textStyle="bold" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="top|end" android:layout_marginTop="-8dp" android:layout_marginEnd="-8dp" android:background="@drawable/badge_bg" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:text="@string/billing_discount_20" android:textColor="@color/white" android:textSize="9sp" android:textStyle="bold" />
                 </FrameLayout>
             </LinearLayout>

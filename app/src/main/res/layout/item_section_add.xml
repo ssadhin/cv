@@ -8,7 +8,7 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="4dp">
 
             <!-- Pill-shaped container (Visible part) -->
-            <LinearLayout android:id="@+id/section_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp" android:clickable="true" android:focusable="true">
+            <LinearLayout android:id="@+id/section_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime">
 
                 <!-- Icon (Left) - Hidden as requested -->
                 <FrameLayout android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="@drawable/circular_button_background" android:backgroundTint="#E3F2FD" android:visibility="gone">
@@ -28,7 +28,7 @@
                 <ImageView android:id="@+id/done_badge" android:layout_width="16dp" android:layout_height="16dp" android:layout_marginEnd="8dp" android:src="@drawable/ic_check" app:tint="#4CAF50" android:visibility="gone" />
 
                 <!-- Add Button (Right) -->
-                <ImageButton android:id="@+id/btn_add_section" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/circular_button_background" android:src="@drawable/ic_add" android:padding="8dp" android:scaleType="centerInside" android:backgroundTint="#4CAF50" app:tint="#FFFFFF" android:clickable="true" />
+                <ImageButton android:id="@+id/btn_add_section" android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/circular_button_background" android:src="@drawable/ic_add" android:padding="8dp" android:scaleType="centerInside" android:backgroundTint="#4CAF50" app:tint="#FFFFFF" android:clickable="true" android:stateListAnimator="@animator/wobbly_slime" />
 
             </LinearLayout>
 

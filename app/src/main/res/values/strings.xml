@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_print">Print</string>
     <string name="print">Print</string>
+    <string name="save">Save</string>
     <string name="next">Next</string>
     <string name="lorem_ipsum">Lorem ipsum</string>
     <string name="previous">Previous</string>
@@ -94,6 +95,9 @@
 
     <!-- Step By Step Fields -->
     <string name="field_name">Full Name</string>
+    <string name="your_name">Your Name</string>
+    <string name="professional_title">Professional Title</string>
+    <string name="field_profile_pic">Profile Picture</string>
     <string name="field_email">Email</string>
     <string name="field_phone">Phone</string>
     <string name="field_address">Address</string>
@@ -136,7 +140,20 @@
     <string name="field_course">Course</string>
     <string name="field_amt">Amount</string>
     <string name="field_test">Test Name</string>
+    <string name="na">N/A</string>
+    <string name="label_institute">Institute</string>
+    <string name="label_year">Year</string>
+    <string name="label_board">Board</string>
+    <string name="label_degree">Degree</string>
+    <string name="label_gpa_prefix">CGPA: </string>
+    <string name="label_passport_no">Passport No</string>
+    <string name="label_issued_by">Issued By</string>
+    <string name="label_issue_date">Issue Date</string>
+    <string name="label_expiry_date">Expiry Date</string>
     <string name="field_score">Score</string>
+    <string name="field_details">Details</string>
+    <string name="field_cert_name">Certification Name</string>
+    <string name="field_pub">Journal / Publisher</string>
     <string name="field_father">Father\'s Details</string>
     <string name="field_mother">Mother\'s Details</string>
     <string name="field_siblings">Siblings Details</string>
@@ -169,6 +186,7 @@
 
     <!-- Step By Step Section Names -->
     <string name="section_header">Header Info</string>
+    <string name="section_contact">Contact Details</string>
     <string name="section_profile">Profile Picture</string>
     <string name="section_name_prof">Name &amp; Profession</string>
     <string name="section_personal">Personal Details</string>
@@ -263,6 +281,7 @@
     <!-- Coupons -->
     <string name="coupon_title">Have a Coupon?</string>
     <string name="coupon_hint">Enter code</string>
+    <string name="current">Current Plan</string>
     <string name="coupon_apply">Apply</string>
     <string name="coupon_applied">Coupon applied successfully!</string>
     <string name="coupon_invalid">Invalid coupon code.</string>
@@ -492,6 +511,9 @@
     <string name="selected_count">%d Selected</string>
     <string name="sorted_a_z">Sorted A-Z</string>
     <string name="vitae_user">Vitae User</string>
+    <string name="user">User</string>
+    <string name="cv_filename_format">%1$s %2$s CV.json</string>
+    <string name="cv_filename_format_count">%1$s %2$s CV %3$d.json</string>
     <string name="guest_with_id">Guest (%s)</string>
     <string name="group_label">Group: %s</string>
     <string name="folder">Folder</string>
@@ -501,6 +523,7 @@
     <string name="delete_folder_warning">\nAll contents will be lost.</string>
     <string name="deleted">Deleted</string>
     <string name="failed_to_delete">Failed to delete</string>
+    <string name="failed_to_move">Failed to move</string>
     <string name="rename_resume">Rename Resume</string>
     <string name="rename">Rename</string>
     <string name="error_rename_exists">Failed to rename (name might exist)</string>
@@ -546,14 +569,12 @@
     <string name="pro_feature_only">PRO Feature Only</string>
     <string name="pro_feature_desc">Automatic AI is a premium feature included in the $10 PRO tier. Upgrade now to unlock fully automated CV generation!</string>
     <string name="upgrade_now">Upgrade Now</string>
-    <string name="maybe_later">Maybe Later</string>
 
     <!-- AI Common & Wizard -->
     <string name="prompt_copied_msg">Prompt copied to clipboard! Paste it into AI.</string>
     <string name="pasted_from_clipboard">Pasted from clipboard</string>
     <string name="ai_limit_reached">AI Monthly Limit Reached. Upgrade for more!</string>
     <string name="please_enter_data">Please enter data</string>
-    <string name="template_standard_modern">Standard Modern</string>
     <string name="template_standard">Standard</string>
     <string name="generate_cv">Generate CV</string>
     <string name="error_generating_cv_prefix">Error generating CV: </string>
@@ -646,6 +667,9 @@
     <string name="unavailable">Unavailable</string>
     <string name="ad_free_price_yearly">$9.6/year</string>
     <string name="ad_free_price_monthly">Ad-Free — $0.8/mo</string>
+    <string name="admob_ready">AdMob Initialized</string>
+    <string name="dns_restricted"> (DNS Restricted)</string>
+    <string name="ad_restricted_opening">Ad restricted. Opening directly...</string>
 
     <!-- Toolbar Labels -->
     <string name="toolbar_add">Add</string>
@@ -660,4 +684,7 @@
     <string name="toolbar_underline">Underline</string>
     <string name="toolbar_strike">Strike</string>
     <string name="toolbar_highlight">Highlight</string>
+    <string name="include_extra_sections">Include Extra Sections</string>
+    <string name="include_extra_info">Include Pre-saved Information</string>
+    <string name="apply_template">Apply Template</string>
 </resources>

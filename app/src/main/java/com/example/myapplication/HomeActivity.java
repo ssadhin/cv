@@ -118,6 +118,9 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         View btnHomeNewCV = findViewById(R.id.btnHomeNewCV);
         View btnHomeStepByStep = findViewById(R.id.btnHomeStepByStep);
         View btnHomeAI = findViewById(R.id.btnHomeAI);
+        
+        WobblyAnimationHelper.attachWobblyTouchListener(btnHomeNewCV);
+        WobblyAnimationHelper.attachWobblyTouchListener(btnHomeAI);
         btnToggleView = findViewById(R.id.btnToggleView);
         btnSort = findViewById(R.id.btnSort);
         gridSizeSlider = findViewById(R.id.gridSizeSlider);
@@ -290,6 +293,14 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             } else {
                 createNewResume();
             }
+        });
+
+        btnHomeNewCV.setOnLongClickListener(v -> {
+            if (isMenuOpen) {
+                toggleMenu(false);
+            }
+            importLauncher.launch("*/*");
+            return true;
         });
 
         btnHomeStepByStep.setOnClickListener(v -> {

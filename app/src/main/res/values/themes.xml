@@ -3,6 +3,27 @@
     <style name="Base.Theme.MyApplication" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="materialButtonStyle">@style/WobblyMaterialButton</item>
+        <item name="android:buttonStyle">@style/WobblyStandardButton</item>
+        <item name="imageButtonStyle">@style/WobblyImageButton</item>
+        <item name="android:imageButtonStyle">@style/WobblyImageButton</item>
+        <item name="materialCardViewStyle">@style/WobblyCardView</item>
+    </style>
+
+    <style name="WobblyMaterialButton" parent="Widget.Material3.Button">
+        <item name="android:stateListAnimator">@animator/wobbly_slime</item>
+    </style>
+
+    <style name="WobblyImageButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:stateListAnimator">@animator/wobbly_slime</item>
+    </style>
+
+    <style name="WobblyStandardButton" parent="Widget.AppCompat.Button">
+        <item name="android:stateListAnimator">@animator/wobbly_slime</item>
+    </style>
+
+    <style name="WobblyCardView" parent="Widget.Material3.CardView.Elevated">
+        <item name="android:stateListAnimator">@animator/wobbly_slime</item>
     </style>
 
     <style name="Theme.MyApplication" parent="Base.Theme.MyApplication" />

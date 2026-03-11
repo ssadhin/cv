@@ -8,6 +8,6 @@
 
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvSections" android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="16dp" android:clipToPadding="false" android:paddingBottom="80dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@id/tvSectionPrompt" />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton android:id="@+id/btnAddSection" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16dp" android:backgroundTint="#1a237e" android:text="Add Section" android:textColor="@color/white" app:icon="@android:drawable/ic_input_add" app:iconTint="@color/white" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton android:id="@+id/btnAddSection" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16dp" android:backgroundTint="#1a237e" android:text="Add Section" android:textColor="@color/white" app:icon="@android:drawable/ic_input_add" app:iconTint="@color/white" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" android:stateListAnimator="@animator/wobbly_slime" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

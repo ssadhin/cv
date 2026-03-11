@@ -83,7 +83,7 @@
             <!-- Y Position Slider -->
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                 <TextView android:layout_width="80dp" android:layout_height="wrap_content" android:text="@string/move_y" android:textColor="@color/text_secondary" />
-                <SeekBar android:id="@+id/slider_y" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_weight="1" android:max="200" android:progress="100" android:thumbTint="@color/brand_primary" android:progressTint="@color/brand_primary" />
+                <SeekBar android:id="@+id/slider_y" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="200" android:progress="100" android:thumbTint="@color/brand_primary" android:progressTint="@color/brand_primary" />
                 <TextView android:id="@+id/txt_y_val" android:layout_width="40dp" android:layout_height="wrap_content" android:text="0" android:gravity="end" android:textColor="@color/text_primary" android:textStyle="bold" />
             </LinearLayout>
 
