@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -1318,9 +1318,17 @@
 
 
         .objective {
+            grid-column: 1 / -1 !important;
+            width: 100% !important;
             padding: 0 30px;
             margin-bottom: 25px;
             margin-top: 0 !important;
+        }
+
+        .declaration {
+            grid-column: 1 / -1 !important;
+            width: 100% !important;
+            padding: 0 30px;
         }
 
         .objective h2 {
@@ -3995,12 +4003,85 @@
             justify-content: center;
             gap: 6px;
             text-align: center;
-            font-size: 0.85em;
-            font-weight: 600;
             color: var(--primary-color);
             height: fit-content;
             align-self: center;
         }
+
+        /* === GLASS MORPHIC DESIGN (Design 5) === */
+        .section-glass {
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        .section-glass .data-table-item,
+        .section-glass .skill-group,
+        .section-glass .simple-list-item,
+        .section-glass .pd-row {
+            display: grid !important;
+            grid-template-columns: 45px 1fr !important;
+            grid-template-areas:
+                "side hero"
+                "side meta"
+                "side content" !important;
+            gap: 15px !important;
+            padding: 20px !important;
+            background: var(--glass-bg) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid var(--glass-border) !important;
+            border-radius: var(--section-radius, 16px) !important;
+            margin-bottom: 20px !important;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+            overflow: visible !important;
+        }
+
+        .section-glass .timeline-duration {
+            grid-area: side;
+            width: 45px;
+            min-height: 100px;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            white-space: nowrap;
+            font-size: 0.8em;
+            font-weight: 600;
+            padding: 15px 0;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .section-glass .bento-hero {
+            grid-area: hero;
+            font-size: 1.25em !important;
+            font-weight: 800 !important;
+            color: var(--primary-color) !important;
+        }
+
+        .section-glass .bento-meta {
+            grid-area: meta;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .section-glass .bento-content {
+            grid-area: content;
+            margin-top: 5px;
+        }
+
+        .section-glass .timeline-extracted {
+            display: none !important;
+        }
+
 
         .section-bento .bento-date-box i {
             margin-bottom: 6px;
@@ -4305,9 +4386,6 @@
             #global-ui-overlay,
             .left-radius-control,
             .header-line-spacing-control,
-            .split-divider-line,
-            .split-frame-overlay,
-            .split-shape,
             .item-bg-control,
             #sigControls {
                 display: none !important;
@@ -4774,9 +4852,22 @@
         </div>
 
         <script>
-            // Debug panel stubs (panels removed)
-            window.recordDebug = function () { };
-            // ---------------------------------
+            // ── Debug Logger ──────────────────────────────────────────────
+            window._debugLog = [];
+            window.recordDebug = function(msg) {
+                const entry = '[' + new Date().toISOString().substring(11,23) + '] ' + msg;
+                window._debugLog.push(entry);
+                console.log(entry);
+                // Keep log from growing unbounded
+                if (window._debugLog.length > 500) window._debugLog.shift();
+            };
+            // Called from Android: window.Android.getDebugLog() or via JS injection
+            window.getDebugLog = function() {
+                return window._debugLog.join('\n');
+            };
+            // Called from Android Java: webView.evaluateJavascript("window.getDebugLog()", ...)
+            // ─────────────────────────────────────────────────────────────
+
             // ---------------------------------
             const LS_KEY = 'resume_app_v2_data';
             const LS_METRICS = 'resume_app_v2_metrics';
@@ -4836,13 +4927,16 @@
                 'education': `<div class="data-table-item"><div class="table-row" style="justify-content: space-between;"><div><span class="table-label">Institute:</span> <span class="table-val" contenteditable="true" style="font-weight:600">Name</span></div><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">CGPA: 3.8</span></div><div class="table-row"><span class="table-label">Year:</span> <span class="table-val" contenteditable="true">Year</span> <span class="table-label" style="margin-left:14px;">Board:</span> <span class="table-val" contenteditable="true">Board Name</span></div><div class="table-row"><span class="table-label">Degree:</span> <span class="table-val" contenteditable="true">Degree</span></div></div>`,
                 'projects': `<div class="data-table-item"><div class="table-row" style="justify-content: space-between;"><span class="table-val" contenteditable="true" style="font-weight:700;">Project</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">Year</span></div><div class="table-row" style="margin-top:-2px; margin-bottom:5px; font-size:0.85em; color:#777;"><i class="fas fa-map-marker-alt" style="font-size:0.9em; margin-right:4px;" oncontextmenu="showNativeIconSettings(event, this)"></i><span class="table-val" contenteditable="true">Location</span></div><div class="proj-desc" contenteditable="true">Description...</div><div class="table-row" style="margin-top:5px;"><a href="#" onclick="promptLink(this); return false;" style="font-size:0.85em; color:var(--primary-color); text-decoration:underline;">Link</a></div></div>`,
                 'skills': `<div class="skill-group"><span class="skill-header" contenteditable="true">Category</span><div class="skill-sub" contenteditable="true" oninput="updateSmartProgress(this)">Skills...</div><div class="progress-visual"><div class="progress-visual-fill"></div><div class="progress-visual-circle"></div></div></div>`,
-                'personal': `<div class="pd-row"><span class="pd-label" contenteditable="true">Label:</span> <span class="pd-val" contenteditable="true">Value</span></div>`,
+                'personal': `<div class="pd-row"><span class="pd-label" contenteditable="true">Nationality:</span> <span class="pd-val" contenteditable="true">...</span></div>
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Date of Birth:</span> <span class="pd-val" contenteditable="true">...</span></div>
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Gender:</span> <span class="pd-val" contenteditable="true">...</span></div>
+                <div class="pd-row"><span class="pd-label" contenteditable="true">Marital Status:</span> <span class="pd-val" contenteditable="true">...</span></div>`,
                 'passport': `<div class="data-table-item"><div class="table-row"><span class="table-label">Passport No:</span> <span class="table-val" contenteditable="true">P0000000</span></div><div class="table-row"><span class="table-label">Issued By:</span> <span class="table-val" contenteditable="true">Place of Issue</span></div><div class="table-row"><span class="table-label">Issue Date:</span> <span class="table-val" contenteditable="true">DD/MM/YYYY</span></div><div class="table-row"><span class="table-label">Expiry Date:</span> <span class="table-val" contenteditable="true">DD/MM/YYYY</span></div></div>`,
                 'visaStatus': `<div class="pd-row"><span class="pd-label" contenteditable="true">Country:</span> <span class="pd-val" contenteditable="true">United States</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Type:</span> <span class="pd-val" contenteditable="true">H1-B / Student / Work</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Status:</span> <span class="pd-val" contenteditable="true">Valid / Pending</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Expiry:</span> <span class="pd-val" contenteditable="true">DD/MM/YYYY</span></div>`,
                 'researchExp': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Project / Research Title</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">Year</span></div><div class="table-row"><span class="table-val" contenteditable="true" style="font-style:italic">Organization / Lab</span></div><div class="proj-desc" contenteditable="true">Key research findings and methodologies...</div></div>`,
                 'teachingExp': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Course Name</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">Year</span></div><div class="table-row"><span class="table-val" contenteditable="true" style="font-style:italic">Institution / University</span></div><div class="proj-desc" contenteditable="true">Key teaching responsibilities and modules...</div></div>`,
                 'grants': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Grant / Funding Title</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">Year</span></div><div class="table-row"><span class="table-val" contenteditable="true" style="font-style:italic">Awarding Agency / Amount</span></div><div class="proj-desc" contenteditable="true">Brief description...</div></div>`,
-                'testScores': `<div class="pd-row"><span class="pd-label" contenteditable="true">Test:</span> <span class="pd-val" contenteditable="true">IELTS / GRE / SAT</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Score:</span> <span class="pd-val" contenteditable="true">8.5 / 320 / 1500</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Date:</span> <span class="pd-val" contenteditable="true">DD/MM/YYYY</span></div>`,
+                'testScores': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Test Name</span><span class="table-val" contenteditable="true" style="font-weight:600; color:var(--primary-color)">Score</span></div><div class="table-row"><span class="table-label">Date:</span> <span class="table-val" contenteditable="true">DD/MM/YYYY</span></div></div>`,
                 'familyDetails': `<div class="pd-row"><span class="pd-label" contenteditable="true">Father:</span> <span class="pd-val" contenteditable="true">Name / Occupation</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Mother:</span> <span class="pd-val" contenteditable="true">Name / Occupation</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Siblings:</span> <span class="pd-val" contenteditable="true">Number / Details</span></div>`,
                 'partnerExpectations': `<div class="pd-row"><span class="pd-label" contenteditable="true">Pref:</span> <span class="pd-val" contenteditable="true">Education / Profession</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Expectations:</span> <span class="pd-val" contenteditable="true">Values / Lifestyle</span></div>`,
                 'lifestyleHabits': `<div class="pd-row"><span class="pd-label" contenteditable="true">Diet:</span> <span class="pd-val" contenteditable="true">Veg / Non-Veg</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Smoking:</span> <span class="pd-val" contenteditable="true">Regular / Occasional / No</span></div><div class="pd-row"><span class="pd-label" contenteditable="true">Drinking:</span> <span class="pd-val" contenteditable="true">Regular / Occasional / No</span></div>`,
@@ -4891,6 +4985,7 @@
                                 <span class="contact-val" contenteditable="true" oninput="window.updateContactItemStyle(this)" onkeyup="window.updateContactItemStyle(this)" onblur="window.updateContactItemStyle(this)">New Contact Detail</span>
                             </a>`,
                 'hobbies': `<div class="skill-group"><span class="skill-header" contenteditable="true">Category</span><div class="skill-sub" contenteditable="true">Hobbies...</div></div>`,
+                'interests': `<div class="skill-group"><span class="skill-header" contenteditable="true">Category</span><div class="skill-sub" contenteditable="true">Interests...</div></div>`,
                 'certificate-simple': `<div class="data-table-item"><div class="table-row" style="justify-content:space-between"><span class="table-val" contenteditable="true" style="font-weight:700">Certificate Name</span><span class="table-val" contenteditable="true" style="font-size:0.85em; color: var(--text-muted);">Year</span></div><div class="table-row"><span class="table-val" contenteditable="true" style="font-style:italic">Issuing Organization</span></div></div>`,
                 'name_profession': `<div class="header-info" style="text-align: left; padding-left: 10px;">
                     <div id="nameProfessionWrapper" style="position:relative;">
@@ -4911,7 +5006,7 @@
                             <i class="fas fa-bars" style="font-size: 14px; color: var(--primary-color);"></i>
                         </div>
                     </div>`,
-                'declaration_block': `<p contenteditable="true" style="margin-bottom: 20px;">I hereby certify that the above information are true and correct according to the best of my knowledge & My Experience.</p>
+                'declaration_block': `<p contenteditable="true" style="margin-bottom: 20px;">According to my knowledge, I confirm that everything, every information in the CV is correct.</p>
                 <div class="signature-wrapper">
                     <div class="signature-controls" id="sigControls">
                         <button class="signature-btn" id="uploadSigBtn"><i class="fas fa-upload"></i> Upload Image</button>
@@ -8892,230 +8987,93 @@
 
             // --- SECTION DESIGN LOGIC ---
             function applySectionDesign(type) {
-                // type: 'default', 'timeline', 'classic', 'bento'
+                // type: 'default', 'timeline', 'classic', 'bento', 'glass'
                 currentSectionDesign = type;
-                // UPDATED: Added hobbies, interests, references to be inclusive
                 const targetSections = document.querySelectorAll('section[data-type="education"], section[data-type="experience"], section[data-type="projects"], section[data-type="volunteer"], section[data-type="internships"], section[data-type="achievements"], section[data-type="awards"], section[data-type="certifications"], section[data-type="publications"], section[data-type="affiliations"], section[data-type="training"], section[data-type="extra"], section[data-type="certificate-simple"], section[data-type="researchExp"], section[data-type="teachingExp"], section[data-type="grants"]');
-
-                // Global cleanup
-
 
                 targetSections.forEach(sec => {
                     // Remove all design classes first
-                    sec.classList.remove('section-timeline', 'section-classic', 'section-bento');
+                    sec.classList.remove('section-timeline', 'section-classic', 'section-bento', 'section-glass');
 
-                    // Cleanup Bento specific wraps
-                    sec.querySelectorAll('.bento-date-box').forEach(el => el.remove()); // Remove duplicate entirely
-                    sec.querySelectorAll('.bento-hero, .bento-meta, .bento-content').forEach(el => {
-                        const parent = el.parentNode;
-                        while (el.firstChild) parent.insertBefore(el.firstChild, el);
-                        el.remove();
+                    // Cleanup design specific wraps/elements
+                    sec.querySelectorAll('.bento-date-box, .timeline-duration, .bento-hero, .bento-meta, .bento-content').forEach(el => {
+                        // For containers, move children back to parent then remove container
+                        if (el.classList.contains('bento-hero') || el.classList.contains('bento-meta') || el.classList.contains('bento-content')) {
+                            const parent = el.parentNode;
+                            while (el.firstChild) parent.insertBefore(el.firstChild, el);
+                            el.remove();
+                        } else {
+                            el.remove(); // Simple elements like date box or duration capsule
+                        }
                     });
 
-                    // Cleanup timeline specific elements
-                    const durationFields = sec.querySelectorAll('.timeline-duration');
-                    durationFields.forEach(field => field.remove());
                     const extracted = sec.querySelectorAll('.timeline-extracted');
                     extracted.forEach(el => el.classList.remove('timeline-extracted'));
 
                     if (type === 'timeline') {
                         sec.classList.add('section-timeline');
-
                         const items = sec.querySelectorAll('.data-table-item');
                         items.forEach(item => {
-                            let durationField = item.querySelector('.timeline-duration');
-                            if (!durationField) {
-                                durationField = document.createElement('span');
-                                durationField.className = 'timeline-duration';
-                                durationField.contentEditable = 'true';
-
-                                let dateText = 'Duration';
-
-                                // 1. Try finding by common labels
-                                const labels = Array.from(item.querySelectorAll('.table-label'));
-                                const dateLabel = labels.find(el => {
-                                    const t = el.textContent.toLowerCase();
-                                    return t.includes('year') || t.includes('date') || t.includes('duration') || t.includes('period') || t.includes('time');
-                                });
-
-                                if (dateLabel) {
-                                    const val = dateLabel.parentElement.querySelector('.table-val');
-                                    if (val && val.textContent.trim()) {
-                                        dateText = val.textContent.trim();
-                                        if (dateText === '-' || dateText === 'Date - Date') dateText = '';
-
-                                        const otherLabels = Array.from(dateLabel.parentElement.querySelectorAll('.table-label')).filter(l => l !== dateLabel);
-                                        if (otherLabels.length > 0) {
-                                            dateLabel.classList.add('timeline-extracted');
-                                            val.classList.add('timeline-extracted');
-                                        } else {
-                                            dateLabel.parentElement.classList.add('timeline-extracted');
-                                        }
-                                    }
-                                } else {
-                                    // 2. Try finding right-aligned muted text (common in Experience/Achievements)
-                                    const mutedVals = Array.from(item.querySelectorAll('.table-val')).filter(el => {
-                                        const style = el.getAttribute('style') || '';
-                                        return style.includes('var(--text-muted)') || style.includes('opacity') || style.includes('#666');
-                                    });
-
-                                    if (mutedVals.length > 0) {
-                                        // Take the last muted one (often the date)
-                                        const dateSpan = mutedVals[mutedVals.length - 1];
-                                        if (dateSpan.textContent.trim()) {
-                                            dateText = dateSpan.textContent.trim();
-                                            if (dateText === '-' || dateText === 'Date - Date') dateText = '';
-                                            dateSpan.classList.add('timeline-extracted');
-                                        }
-                                    }
-                                }
-
-                                durationField.textContent = dateText;
-                                durationField.setAttribute('placeholder', 'Duration');
-                                item.insertBefore(durationField, item.firstChild);
-
-                                durationField.addEventListener('input', () => triggerAutoSave());
-                            }
+                            let durationField = document.createElement('span');
+                            durationField.className = 'timeline-duration';
+                            durationField.contentEditable = 'true';
+                            let dateText = extractDateFromItem(item);
+                            durationField.textContent = dateText;
+                            durationField.setAttribute('placeholder', 'Duration');
+                            item.insertBefore(durationField, item.firstChild);
+                            durationField.addEventListener('input', () => triggerAutoSave());
                         });
-                    } else if (type === 'classic') {
+                    }
+                    else if (type === 'classic') {
                         sec.classList.add('section-classic');
-
                         const items = sec.querySelectorAll('.data-table-item');
                         items.forEach(item => {
-                            let durationField = item.querySelector('.timeline-duration');
-                            if (!durationField) {
-                                durationField = document.createElement('span');
-                                durationField.className = 'timeline-duration';
-                                durationField.contentEditable = 'true';
+                            let durationField = document.createElement('span');
+                            durationField.className = 'timeline-duration';
+                            durationField.contentEditable = 'true';
+                            let dateText = extractDateFromItem(item);
+                            durationField.textContent = dateText;
+                            durationField.setAttribute('placeholder', 'Date');
+                            item.insertBefore(durationField, item.firstChild);
+                            
+                            const rightContainer = document.createElement('div');
+                            rightContainer.className = 'bento-meta';
+                            const childrenToMove = Array.from(item.childNodes).filter(c => c !== durationField);
+                            childrenToMove.forEach(child => rightContainer.appendChild(child));
+                            item.appendChild(rightContainer);
 
-                                let dateText = 'Date';
-                                let dEl = null;
-
-                                // 1. Try finding by common labels
-                                const labels = Array.from(item.querySelectorAll('.table-label'));
-                                const dateLabel = labels.find(el => {
-                                    const t = el.textContent.toLowerCase();
-                                    return t.includes('year') || t.includes('date') || t.includes('duration') || t.includes('period') || t.includes('time');
-                                });
-
-                                if (dateLabel) {
-                                    dEl = dateLabel.parentElement.querySelector('.table-val');
-                                    if (dEl) {
-                                        dateText = dEl.textContent.trim();
-                                        if (dateText === '-' || dateText === 'Date - Date') dateText = '';
-                                        const otherLabels = Array.from(dateLabel.parentElement.querySelectorAll('.table-label')).filter(l => l !== dateLabel);
-                                        if (otherLabels.length > 0) {
-                                            dateLabel.classList.add('timeline-extracted');
-                                            dEl.classList.add('timeline-extracted');
-                                        } else {
-                                            dateLabel.parentElement.classList.add('timeline-extracted');
-                                        }
-                                    }
-                                } else {
-                                    // 2. Fallback to right-aligned muted text
-                                    const mutedVals = Array.from(item.querySelectorAll('.table-val')).filter(el => {
-                                        const style = el.getAttribute('style') || '';
-                                        return style.includes('var(--text-muted)') || style.includes('opacity') || style.includes('#666');
-                                    });
-
-                                    if (mutedVals.length > 0) {
-                                        dEl = mutedVals[mutedVals.length - 1];
-                                        dateText = dEl.textContent.trim();
-                                        if (dateText === '-' || dateText === 'Date - Date') dateText = '';
-                                        dEl.classList.add('timeline-extracted');
-                                    }
-                                }
-
-                                durationField.textContent = dateText;
-                                durationField.setAttribute('placeholder', 'Date');
-                                item.insertBefore(durationField, item.firstChild);
-
-                                // Wrap the rest of the content (excluding the duration capsule) in a flex container so it flows right side of the capsule line
-                                const rightContainer = document.createElement('div');
-                                rightContainer.className = 'bento-meta';
-
-                                // To avoid breaking live-editing links, simply move top-level children into rightContainer
-                                const childrenToMove = Array.from(item.childNodes).filter(c => c !== durationField);
-                                childrenToMove.forEach(child => rightContainer.appendChild(child));
-
-                                item.appendChild(rightContainer);
-
-                                // Bi-directional sync
-                                durationField.addEventListener('input', () => {
-                                    if (dEl) dEl.textContent = durationField.textContent;
-                                    triggerAutoSave();
-                                });
-                            }
-                        });
-                        sec.classList.add('section-bento');
-
-                        sec.querySelectorAll('.data-table-item').forEach(item => {
-                            // 1. Create Bento containers
-                            const hero = document.createElement('div'); hero.className = 'bento-hero';
-                            const meta = document.createElement('div'); meta.className = 'bento-meta';
-                            const dateBox = document.createElement('div'); dateBox.className = 'bento-date-box';
-                            const content = document.createElement('div'); content.className = 'bento-content';
-
-                            // 2. Identify elements
-                            const rows = Array.from(item.querySelectorAll('.table-row, .pd-row'));
-                            const role = item.querySelector('.exp-role');
-                            const list = item.querySelector('.resp-list, .proj-desc');
-
-                            // Extract Date (Robust matching)
-                            let dateText = "Period";
-                            let dEl = null;
-
-                            // Try finding by labels first (matches timeline logic)
-                            const labels = Array.from(item.querySelectorAll('.table-label'));
-                            const dateLabel = labels.find(el => {
-                                const t = el.textContent.toLowerCase();
-                                return t.includes('year') || t.includes('date') || t.includes('duration') || t.includes('period') || t.includes('time');
-                            });
-
-                            if (dateLabel) {
-                                dEl = dateLabel.parentElement.querySelector('.table-val');
-                                if (dEl) {
-                                    dateText = dEl.textContent.trim();
-                                    if (dateText === '-' || dateText === 'Date - Date') dateText = '';
-                                    const otherLabels = Array.from(dateLabel.parentElement.querySelectorAll('.table-label')).filter(l => l !== dateLabel);
-                                    if (otherLabels.length > 0) {
-                                        dateLabel.classList.add('timeline-extracted');
-                                        dEl.classList.add('timeline-extracted');
-                                    } else {
-                                        dateLabel.parentElement.classList.add('timeline-extracted');
-                                    }
-                                }
-                            } else {
-                                // Fallback to muted values
-                                const mutedVals = Array.from(item.querySelectorAll('.table-val')).filter(el => {
-                                    const s = el.getAttribute('style') || '';
-                                    return s.includes('text-muted') || s.includes('color: #777') || s.includes('#666');
-                                });
-                                if (mutedVals.length > 0) {
-                                    dEl = mutedVals[mutedVals.length - 1];
-                                    dateText = dEl.textContent.trim();
-                                    if (dateText === '-' || dateText === 'Date - Date') dateText = '';
-                                    dEl.classList.add('timeline-extracted');
-                                }
-                            }
-
-                            // 3. Move items into containers
-                            if (role) hero.appendChild(role);
-                            else if (rows[0] && rows[0].querySelector('.table-val')) {
-                                hero.appendChild(rows[0].querySelector('.table-val'));
-                            }
-
-                            dateBox.innerHTML = '<i class="fas fa-calendar-alt"></i>';
-                            const dateSpan = document.createElement('span');
-                            dateSpan.textContent = dateText;
-                            dateSpan.contenteditable = "true";
-                            dateBox.appendChild(dateSpan);
-
-                            // FIX: Two-way sync back to hidden original field for persistence
-                            dateSpan.addEventListener('input', () => {
-                                if (dEl) dEl.textContent = dateSpan.textContent;
+                            durationField.addEventListener('input', () => {
+                                syncDateBack(item, durationField.textContent);
                                 triggerAutoSave();
                             });
+                        });
+                    }
+                    else if (type === 'glass') {
+                        sec.classList.add('section-glass');
+                        const items = sec.querySelectorAll('.data-table-item');
+                        items.forEach(item => {
+                            // 1. Setup Date Capsule
+                            const durationField = document.createElement('span');
+                            durationField.className = 'timeline-duration';
+                            durationField.contentEditable = 'true';
+                            durationField.textContent = extractDateFromItem(item) || 'Date';
+                            item.appendChild(durationField);
+
+                            // 2. Setup Containers
+                            const hero = document.createElement('div'); hero.className = 'bento-hero';
+                            const meta = document.createElement('div'); meta.className = 'bento-meta';
+                            const content = document.createElement('div'); content.className = 'bento-content';
+
+                            // 3. Populate Containers
+                            const role = item.querySelector('.exp-role');
+                            const list = item.querySelector('.resp-list, .proj-desc');
+                            const rows = Array.from(item.querySelectorAll('.table-row, .pd-row'));
+
+                            if (role) hero.appendChild(role);
+                            else if (rows[0]) {
+                                const val = rows[0].querySelector('.table-val');
+                                if (val) hero.appendChild(val);
+                            }
 
                             rows.forEach(row => {
                                 if (!row.contains(role) && !row.classList.contains('timeline-extracted') && !row.querySelector('.timeline-extracted')) {
@@ -9128,11 +9086,93 @@
                             // 4. Assemble
                             item.appendChild(hero);
                             item.appendChild(meta);
+                            item.appendChild(content);
+
+                            durationField.addEventListener('input', () => {
+                                syncDateBack(item, durationField.textContent);
+                                triggerAutoSave();
+                            });
+                        });
+                    }
+                    else if (type === 'bento') {
+                        sec.classList.add('section-bento');
+                        sec.querySelectorAll('.data-table-item').forEach(item => {
+                            const hero = document.createElement('div'); hero.className = 'bento-hero';
+                            const meta = document.createElement('div'); meta.className = 'bento-meta';
+                            const dateBox = document.createElement('div'); dateBox.className = 'bento-date-box';
+                            const content = document.createElement('div'); content.className = 'bento-content';
+
+                            const rows = Array.from(item.querySelectorAll('.table-row, .pd-row'));
+                            const role = item.querySelector('.exp-role');
+                            const list = item.querySelector('.resp-list, .proj-desc');
+                            let dateText = extractDateFromItem(item) || 'Period';
+
+                            if (role) hero.appendChild(role);
+                            else if (rows[0] && rows[0].querySelector('.table-val')) {
+                                hero.appendChild(rows[0].querySelector('.table-val'));
+                            }
+
+                            dateBox.innerHTML = '<i class="fas fa-calendar-alt"></i>';
+                            const dateSpan = document.createElement('span');
+                            dateSpan.textContent = dateText;
+                            dateSpan.contenteditable = "true";
+                            dateBox.appendChild(dateSpan);
+
+                            dateSpan.addEventListener('input', () => {
+                                syncDateBack(item, dateSpan.textContent);
+                                triggerAutoSave();
+                            });
+
+                            rows.forEach(row => {
+                                if (!row.contains(role) && !row.classList.contains('timeline-extracted') && !row.querySelector('.timeline-extracted')) {
+                                    meta.appendChild(row);
+                                }
+                            });
+                            if (list) content.appendChild(list);
+
+                            item.appendChild(hero);
+                            item.appendChild(meta);
                             item.appendChild(dateBox);
                             item.appendChild(content);
                         });
                     }
                 });
+
+                // Helper: Robust date extraction
+                function extractDateFromItem(item) {
+                    const labels = Array.from(item.querySelectorAll('.table-label'));
+                    const dateLabel = labels.find(el => {
+                        const t = el.textContent.toLowerCase();
+                        return t.includes('year') || t.includes('date') || t.includes('duration') || t.includes('period') || t.includes('time');
+                    });
+                    if (dateLabel) {
+                        const val = dateLabel.parentElement.querySelector('.table-val');
+                        if (val) {
+                            let text = val.textContent.trim();
+                            if (text === 'Date - Date' || text === '-') text = '';
+                            dateLabel.classList.add('timeline-extracted');
+                            val.classList.add('timeline-extracted');
+                            return text;
+                        }
+                    }
+                    const mutedVals = Array.from(item.querySelectorAll('.table-val')).filter(el => {
+                        const s = el.getAttribute('style') || '';
+                        return s.includes('text-muted') || s.includes('#666') || s.includes('#777');
+                    });
+                    if (mutedVals.length > 0) {
+                        const last = mutedVals[mutedVals.length - 1];
+                        last.classList.add('timeline-extracted');
+                        let text = last.textContent.trim();
+                        return (text === 'Date - Date' || text === '-') ? '' : text;
+                    }
+                    return '';
+                }
+
+                // Helper: Sync back for persistence
+                function syncDateBack(item, text) {
+                    const hidden = item.querySelector('.timeline-extracted.table-val');
+                    if (hidden) hidden.textContent = text;
+                }
 
                 localStorage.setItem(LS_DESIGNS, JSON.stringify({
                     progress: currentProgressDesign,
@@ -9144,6 +9184,7 @@
                 }
                 triggerAutoSave();
             }
+
 
             // --- SORT & DRAG ---
             function setupItemSortable(handle, item) {
@@ -10150,7 +10191,41 @@
                     tb.appendChild(contactSettingsBtn);
                 }
 
-                if (section.id !== 'declarationSection') {
+                // Wide (Globe) Toggle - The user's "website button"
+                if (section.id !== 'headerBoxSection') {
+                    const wideBtn = document.createElement('button'); wideBtn.className = 'toolbar-btn'; wideBtn.innerHTML = '<i class="fas fa-globe"></i>';
+                    wideBtn.title = 'Toggle Wide (Full-Width)';
+                    wideBtn.onclick = () => {
+                        const isFull = section.classList.toggle('full-width');
+                        if (isFull) {
+                            const main = document.querySelector('.main-content');
+                            if (main && section.parentNode !== main) main.appendChild(section);
+                        } else {
+                            const left = document.getElementById('leftCol');
+                            if (left && section.parentNode !== left) left.appendChild(section);
+                        }
+                        triggerAutoSave();
+                    };
+                    let holdTimer;
+                    wideBtn.onmousedown = wideBtn.ontouchstart = () => {
+                        holdTimer = setTimeout(() => {
+                            const isFull = section.classList.toggle('full-width');
+                            if (isFull) {
+                                const main = document.querySelector('.main-content');
+                                if (main && section.parentNode !== main) main.appendChild(section);
+                            } else {
+                                const left = document.getElementById('leftCol');
+                                if (left && section.parentNode !== left) left.appendChild(section);
+                            }
+                            triggerAutoSave();
+                        }, 500);
+                    };
+                    wideBtn.onmouseup = wideBtn.onmouseleave = wideBtn.ontouchend = () => clearTimeout(holdTimer);
+                    tb.appendChild(wideBtn);
+                }
+
+                if (section.id !== 'headerBoxSection' && section.id !== 'profileSection' && section.id !== 'nameProfessionSection') {
+
                     const swapBtn = document.createElement('button'); swapBtn.className = 'toolbar-btn'; swapBtn.innerHTML = '<i class="fas fa-exchange-alt"></i>';
                     swapBtn.onclick = () => { if (window.Android) { Android.onToolbarAction('section_swap_column'); } const p = section.closest('.left-column') ? document.getElementById('leftCol') : document.getElementById('rightCol'); const t = p.id === 'leftCol' ? document.getElementById('rightCol') : document.getElementById('leftCol'); t.appendChild(section); section.style.transform = 'translateY(0)'; removeToolbar(); triggerAutoSave(); };
                     tb.appendChild(swapBtn);
@@ -10331,7 +10406,6 @@
 
                     tb.appendChild(moveDownBtn);
                 }
-
 
                 const delBtn = document.createElement('button'); delBtn.className = 'toolbar-btn delete-btn'; delBtn.innerHTML = '<i class="fas fa-trash"></i>';
                 delBtn.onclick = () => {
@@ -10948,7 +11022,7 @@
                 { id: 'activeLife', name: 'Active Lifestyle', icon: 'fa-running', type: 'active_lifestyle', col: 'right', group: 'gridAdd', desc: 'Fitness routines & achievements' },
                 { id: 'physicalFitness', name: 'Interests (Misc)', icon: 'fa-heartbeat', type: 'simple-list', col: 'left', group: 'gridAdd', desc: 'Legacy Interest Section' },
                 { id: 'interests', name: 'Interests', icon: 'fa-star', type: 'hobbies', col: 'left', group: 'gridAdd', desc: 'Hobbies & Interests' },
-                { id: 'declarationSection', name: 'Declaration', icon: 'fa-file-signature', type: 'declaration_block', col: 'left', group: 'gridAdd', desc: 'Signature & statement' },
+                { id: 'declarationSection', name: 'Declaration', icon: 'fa-file-signature', type: 'declaration_block', col: 'both', group: 'gridAdd', desc: 'Signature & statement' },
                 { id: 'blankSection', name: 'Blank Section', icon: 'fa-square', type: 'blank_section', col: 'both', group: 'gridAdd', desc: 'Customizable blank canvas (No Header)' },
                 { id: 'stickSection', name: 'Stick Section', icon: 'fa-minus', type: 'stick_section', col: 'both', group: 'gridAdd', desc: 'Customizable line element' }
             ];
@@ -12018,8 +12092,8 @@
             }
 
             function updatePageBreaks() {
-                // Use a margin-safe A4 height (297mm exact, 280mm safe printable area)
-                const pageHeightMm = 280;
+                // Exact A4 height (297mm)
+                const pageHeightMm = 297;
                 const dpi = 96;
                 const mmPerPx = 25.4 / dpi;
 
@@ -12028,7 +12102,7 @@
                 const totalMm = totalPx * mmPerPx;
                 const numPages = Math.ceil(totalMm / pageHeightMm);
 
-                // Create page breaks at exact 280mm intervals
+                // Create page breaks at exact 297mm intervals
                 for (let i = 1; i < numPages; i++) {
                     const breakPositionMm = pageHeightMm * i;
 
@@ -12783,7 +12857,7 @@
                     }
 
                     // Remove the toggle button code itself
-                    finalContent = finalContent.replace(/<div class="template-toggle-btn"[\s\S]*?<\/div>/g, '');
+                    finalContent = finalContent.replace(/<div(?:[^>]*\s)?class="[^"]*template-toggle-btn[^"]*"[^>]*>[\s\S]*?<\/div>/g, '');
 
                     // Capture Parent Structure
                     let parentType = 'main';
@@ -14548,7 +14622,7 @@
 
                 if (props.iconBg) h2.style.setProperty('--h2-icon-bg', props.iconBg);
                 if (props.textBg) h2.style.setProperty('--h2-text-bg', props.textBg);
-                if (props.iconRadius !== undefined) h2.style.setProperty('--h2-icon-radius', props.iconRadius + '%');
+                if (props.iconRadius !== undefined) h2.style.setProperty('--h2-icon-radius', props.iconRadius + (typeof props.iconRadius === 'string' && props.iconRadius.includes('%') ? '' : '%'));
                 if (props.textRadius !== undefined) h2.style.setProperty('--h2-text-radius', props.textRadius + 'px');
 
                 // Swap icon position (toggle left/right)
@@ -14563,64 +14637,46 @@
                     } else {
                         h2.classList.remove('connected');
                     }
-                    // When connected, text frame should apply to h2 (since text-bg is now relative to h2)
-                    const isConnected = h2.classList.contains('connected');
-                    const textBg = h2.querySelector('.h2-text-bg');
-                    if (textBg) {
-                        const fw = h2.dataset.textFrameWidth || 0;
-                        const fc = h2.dataset.textFrameColor || '#333333';
-                        if (parseInt(fw) > 0) {
-                            window._applyFrameToElement(textBg, fw, fc);
-                        }
-                    }
                 }
 
                 // Connector shape between icon and title
-                // 0=None, 1=Line, 2=Dot, 3=Diamond, 4=Hexagon
                 if (props.connectorShape !== undefined) {
                     h2.dataset.connectorShape = props.connectorShape;
                     const shapeId = parseInt(props.connectorShape);
-
-                    // Remove existing connector
                     const existing = h2.querySelector('.h2-connector');
                     if (existing) existing.remove();
 
                     if (shapeId > 0) {
                         const connector = document.createElement('div');
                         connector.className = 'h2-connector';
-
                         const shapeClasses = ['', 'connector-line', 'connector-dot', 'connector-diamond', 'connector-hexagon'];
-                        if (shapeClasses[shapeId]) {
-                            connector.classList.add(shapeClasses[shapeId]);
-                        }
-
-                        // Insert between icon-wrap and text-wrap
+                        if (shapeClasses[shapeId]) connector.classList.add(shapeClasses[shapeId]);
                         const iconWrap = h2.querySelector('.h2-icon-wrap');
                         const textWrap = h2.querySelector('.h2-text-wrap');
-                        if (iconWrap && textWrap) {
-                            iconWrap.after(connector);
-                        }
+                        if (iconWrap && textWrap) iconWrap.after(connector);
                     }
                 }
 
-                // Icon size
+                // Icon size (FIX: parseInt to avoid string concatenation)
                 if (props.iconSize !== undefined) {
+                    const sz = parseInt(props.iconSize) || 24;
                     const icon = h2.querySelector('i');
-                    if (icon) icon.style.fontSize = props.iconSize + 'px';
+                    if (icon) icon.style.fontSize = sz + 'px';
                     const iconWrap = h2.querySelector('.h2-icon-wrap');
                     if (iconWrap) {
-                        iconWrap.style.minWidth = (props.iconSize + 16) + 'px';
-                        iconWrap.style.minHeight = (props.iconSize + 16) + 'px';
+                        iconWrap.style.minWidth = (sz + 16) + 'px';
+                        iconWrap.style.minHeight = (sz + 16) + 'px';
                     }
                 }
 
                 // Title font size
                 if (props.titleFontSize !== undefined) {
+                    const fsz = parseInt(props.titleFontSize) || 18;
                     const textWrap = h2.querySelector('.h2-text-wrap');
                     if (textWrap) {
-                        textWrap.style.fontSize = props.titleFontSize + 'px';
+                        textWrap.style.fontSize = fsz + 'px';
                     } else {
-                        h2.style.fontSize = props.titleFontSize + 'px';
+                        h2.style.fontSize = fsz + 'px';
                     }
                 }
 
@@ -14649,7 +14705,7 @@
                     }
                 }
 
-                // Apply title background shape (with dynamic width)
+                // Apply title background shape
                 if (props.textLeftShape !== undefined || props.textRightShape !== undefined ||
                     props.textLeftW !== undefined || props.textRightW !== undefined ||
                     props.textLeftColor !== undefined || props.textRightColor !== undefined) {
@@ -14663,13 +14719,9 @@
                         textBg.style.clipPath = window.buildTextBgClipPath(ls, rs, lw, rw);
                         textBg.style.webkitClipPath = textBg.style.clipPath;
 
-                        if (ls > 0 || rs > 0) {
-                            textBg.style.borderRadius = '0';
-                        } else {
-                            textBg.style.borderRadius = '';
-                        }
+                        if (ls > 0 || rs > 0) textBg.style.borderRadius = '0';
+                        else textBg.style.borderRadius = '';
 
-                        // Apply shape colors via gradient if individual colors are set
                         const lc = h2.dataset.textLeftColor;
                         const rc = h2.dataset.textRightColor;
                         const baseBg = getComputedStyle(h2).getPropertyValue('--h2-text-bg').trim();
@@ -14687,8 +14739,8 @@
                 if (props.connectorW !== undefined || props.connectorH !== undefined || props.connectorColor !== undefined) {
                     const conn = h2.querySelector('.h2-connector');
                     if (conn) {
-                        if (props.connectorW !== undefined) conn.style.width = props.connectorW + 'px';
-                        if (props.connectorH !== undefined) conn.style.height = props.connectorH + 'px';
+                        if (props.connectorW !== undefined) conn.style.width = parseInt(props.connectorW) + 'px';
+                        if (props.connectorH !== undefined) conn.style.height = parseInt(props.connectorH) + 'px';
                         if (props.connectorColor !== undefined) conn.style.background = props.connectorColor;
                     }
                 }
@@ -14696,11 +14748,8 @@
                 // Title font color
                 if (props.titleFontColor !== undefined) {
                     const textWrap = h2.querySelector('.h2-text-wrap');
-                    if (textWrap) {
-                        textWrap.style.color = props.titleFontColor;
-                    } else {
-                        h2.style.color = props.titleFontColor;
-                    }
+                    if (textWrap) textWrap.style.color = props.titleFontColor;
+                    else h2.style.color = props.titleFontColor;
                 }
 
                 // Apply icon background shape
@@ -14710,35 +14759,36 @@
                         const is = parseInt(props.iconShape);
                         iconBg.style.clipPath = window.buildIconBgClipPath(is);
                         iconBg.style.webkitClipPath = iconBg.style.clipPath;
-                        if (is > 0) {
-                            iconBg.style.borderRadius = '0';
-                        } else {
-                            iconBg.style.borderRadius = '';
-                        }
+                        if (is > 0) iconBg.style.borderRadius = '0';
+                        else iconBg.style.borderRadius = '';
                     }
                 }
 
-                // --- Frame System ---
+                // --- Frame System --- (FIX: Ensure frame targets connected h2 if needed)
                 if (props.iconFrameWidth !== undefined) h2.dataset.iconFrameWidth = props.iconFrameWidth;
                 if (props.iconFrameColor !== undefined) h2.dataset.iconFrameColor = props.iconFrameColor;
                 if (props.textFrameWidth !== undefined) h2.dataset.textFrameWidth = props.textFrameWidth;
                 if (props.textFrameColor !== undefined) h2.dataset.textFrameColor = props.textFrameColor;
 
-                // Apply icon frame
-                if (props.iconFrameWidth !== undefined || props.iconFrameColor !== undefined) {
-                    const iconBg = h2.querySelector('.h2-icon-bg');
-                    if (iconBg) {
-                        window._applyFrameToElement(iconBg, h2.dataset.iconFrameWidth || 0, h2.dataset.iconFrameColor || '#333333');
-                    }
+                const isConnected = h2.classList.contains('connected');
+                
+                // Apply icon frame (only if not connected, since icon bg is hidden then)
+                const iconBg = h2.querySelector('.h2-icon-bg');
+                if (iconBg && !isConnected) {
+                    window._applyFrameToElement(iconBg, h2.dataset.iconFrameWidth || 0, h2.dataset.iconFrameColor || '#333333');
                 }
 
                 // Apply title frame
-                if (props.textFrameWidth !== undefined || props.textFrameColor !== undefined) {
-                    const textBg = h2.querySelector('.h2-text-bg');
-                    if (textBg) {
-                        window._applyFrameToElement(textBg, h2.dataset.textFrameWidth || 0, h2.dataset.textFrameColor || '#333333');
-                    }
+                const textBg = h2.querySelector('.h2-text-bg');
+                if (textBg) {
+                    // In connected mode, the background covers everything, wrap the parent?
+                    // Actually, .h2-text-bg in connected mode stretches to h2 boundaries.
+                    window._applyFrameToElement(textBg, h2.dataset.textFrameWidth || 0, h2.dataset.textFrameColor || '#333333');
                 }
+
+                // FIX: Ensure custom header doesn't fill 100% width by default unless aligned
+                h2.style.width = 'fit-content';
+                h2.style.minWidth = 'unset';
 
                 triggerAutoSave();
             };
@@ -14749,13 +14799,13 @@
                 const h2 = sec.querySelector('h2');
                 if (!h2) return;
 
-                // Extract all relevant custom properties
+                const style = getComputedStyle(h2);
                 const props = {
-                    iconBg: h2.style.getPropertyValue('--h2-icon-bg').trim() || '',
-                    textBg: h2.style.getPropertyValue('--h2-text-bg').trim() || '',
-                    iconRadius: parseInt(h2.style.getPropertyValue('--h2-icon-radius') || '0'),
-                    textRadius: parseInt(h2.style.getPropertyValue('--h2-text-radius') || '0'),
-                    swapIcon: h2.style.flexDirection === 'row-reverse',
+                    iconBg: style.getPropertyValue('--h2-icon-bg').trim() || '',
+                    textBg: style.getPropertyValue('--h2-text-bg').trim() || '',
+                    iconRadius: parseInt(style.getPropertyValue('--h2-icon-radius') || '0'),
+                    textRadius: parseInt(style.getPropertyValue('--h2-text-radius') || '0'),
+                    swapIcon: style.flexDirection === 'row-reverse',
                     connectToggle: h2.classList.contains('connected'),
                     connectorShape: h2.dataset.connectorShape || '0',
 
@@ -14774,9 +14824,9 @@
                     connectorH: h2.querySelector('.h2-connector') ? h2.querySelector('.h2-connector').style.height.replace('px', '') : '',
                     connectorColor: h2.querySelector('.h2-connector') ? h2.querySelector('.h2-connector').style.background : '',
 
-                    titleFontColor: h2.querySelector('.h2-text-wrap') ? h2.querySelector('.h2-text-wrap').style.color : h2.style.color,
-                    iconSize: h2.querySelector('i') ? h2.querySelector('i').style.fontSize.replace('px', '') : '',
-                    titleFontSize: h2.querySelector('.h2-text-wrap') ? h2.querySelector('.h2-text-wrap').style.fontSize.replace('px', '') : '',
+                    titleFontColor: h2.querySelector('.h2-text-wrap') ? getComputedStyle(h2.querySelector('.h2-text-wrap')).color : style.color,
+                    iconSize: h2.querySelector('i') ? parseInt(getComputedStyle(h2.querySelector('i')).fontSize) : 24,
+                    titleFontSize: h2.querySelector('.h2-text-wrap') ? parseInt(getComputedStyle(h2.querySelector('.h2-text-wrap')).fontSize) : parseInt(style.fontSize),
 
                     iconFrameWidth: h2.dataset.iconFrameWidth || '0',
                     iconFrameColor: h2.dataset.iconFrameColor || '',
@@ -15017,12 +15067,13 @@
                             if (sourceHeader.classList.contains('custom-header')) {
                                 // Custom style: extract all properties and apply properly
                                 const h2 = sourceHeader;
+                                const style = getComputedStyle(h2);
                                 const props = {
-                                    iconBg: h2.style.getPropertyValue('--h2-icon-bg').trim() || '',
-                                    textBg: h2.style.getPropertyValue('--h2-text-bg').trim() || '',
-                                    iconRadius: parseInt(h2.style.getPropertyValue('--h2-icon-radius') || '0'),
-                                    textRadius: parseInt(h2.style.getPropertyValue('--h2-text-radius') || '0'),
-                                    swapIcon: h2.style.flexDirection === 'row-reverse',
+                                    iconBg: style.getPropertyValue('--h2-icon-bg').trim() || '',
+                                    textBg: style.getPropertyValue('--h2-text-bg').trim() || '',
+                                    iconRadius: parseInt(style.getPropertyValue('--h2-icon-radius') || '0'),
+                                    textRadius: parseInt(style.getPropertyValue('--h2-text-radius') || '0'),
+                                    swapIcon: style.flexDirection === 'row-reverse',
                                     connectToggle: h2.classList.contains('connected'),
                                     connectorShape: h2.dataset.connectorShape || '0',
                                     textLeftShape: h2.dataset.textLeftShape || '0',
@@ -15037,9 +15088,9 @@
                                     connectorW: h2.querySelector('.h2-connector') ? h2.querySelector('.h2-connector').style.width.replace('px', '') : '',
                                     connectorH: h2.querySelector('.h2-connector') ? h2.querySelector('.h2-connector').style.height.replace('px', '') : '',
                                     connectorColor: h2.querySelector('.h2-connector') ? h2.querySelector('.h2-connector').style.background : '',
-                                    titleFontColor: h2.querySelector('.h2-text-wrap') ? h2.querySelector('.h2-text-wrap').style.color : h2.style.color,
-                                    iconSize: h2.querySelector('i') ? h2.querySelector('i').style.fontSize.replace('px', '') : '',
-                                    titleFontSize: h2.querySelector('.h2-text-wrap') ? h2.querySelector('.h2-text-wrap').style.fontSize.replace('px', '') : '',
+                                    titleFontColor: h2.querySelector('.h2-text-wrap') ? getComputedStyle(h2.querySelector('.h2-text-wrap')).color : style.color,
+                                    iconSize: h2.querySelector('i') ? parseInt(getComputedStyle(h2.querySelector('i')).fontSize) : 24,
+                                    titleFontSize: h2.querySelector('.h2-text-wrap') ? parseInt(getComputedStyle(h2.querySelector('.h2-text-wrap')).fontSize) : parseInt(style.fontSize),
                                     iconFrameWidth: h2.dataset.iconFrameWidth || '0',
                                     iconFrameColor: h2.dataset.iconFrameColor || '',
                                     textFrameWidth: h2.dataset.textFrameWidth || '0',
@@ -15237,7 +15288,7 @@
 
                     // A. Backup Current Data & Live Metrics
                     let currentDataByDataType = {};
-                    let sharedData = { name: "", title: "", image: "", personal: [] };
+                    let sharedData = { name: "", title: "", image: "", personal: [], header: { items: [] } };
 
                     const rs = getComputedStyle(document.documentElement);
                     const liveMetrics = {
@@ -15248,28 +15299,87 @@
                         spacing: (document.getElementById('spacingSlider')) ? document.getElementById('spacingSlider').value : null
                     };
 
+                    if (injectedData && typeof injectedData === 'string') {
+                        try { injectedData = JSON.parse(injectedData); } catch(e) { console.error("Error parsing injectedData:", e); }
+                    }
                     if (injectedData) {
+
                         if (injectedData.html) {
                             // AI-generated full state: Extract section content for hydration
                             const temp = document.createElement('div');
                             temp.innerHTML = injectedData.html;
                             console.log("[applyUserTemplate] Parsing injectedData.html, found elements:", temp.querySelectorAll('#mainHeader, section').length);
-                            temp.querySelectorAll('#mainHeader, section').forEach(sec => {
+                            temp.querySelectorAll('#mainHeader, section').forEach(sec =>
+                                 {
                                 const dt = sec.getAttribute('data-type') || sec.id;
                                 console.log("[applyUserTemplate] Extracted section:", dt, "content length:", sec.innerHTML.length);
-                                if (dt) currentDataByDataType[dt] = sec.innerHTML;
+                                if (dt) {
+                                    // Never store Declaration data from the AI — protect it completely
+                                    if (dt === 'declarationSection' || dt === 'declaration_block') {
+                                        window.recordDebug('[AI Extraction] SKIPPING declarationSection from AI HTML to protect it. Content was: ' + sec.innerText.trim().substring(0, 80));
+                                    } else {
+                                        currentDataByDataType[dt] = sec.innerHTML;
+                                    }
+                                }
                             });
-                            const h1 = temp.querySelector('h1');
-                            if (h1) sharedData.name = h1.innerText;
-                            const prof = temp.querySelector('.professional-title');
-                            if (prof) sharedData.title = prof.innerText;
+                            const h1 = temp.querySelector('h1') || temp.querySelector('.name') || temp.querySelector('#name') || temp.querySelector('.profile-name');
+                            if (h1) sharedData.name = h1.innerText.trim();
+                            const prof = temp.querySelector('.professional-title') || temp.querySelector('.title') || temp.querySelector('.role') || temp.querySelector('#title') || temp.querySelector('.profile-title');
+                            if (prof) sharedData.title = prof.innerText.trim();
                             const pImg = temp.querySelector('#profileImg');
-                            if (pImg) sharedData.image = pImg.src;
-                            // contact-item check removed
-                            console.log("[applyUserTemplate] Extracted sharedData:", JSON.stringify(sharedData));
+                            // Extraction for Personal Details smart hydration from AI HTML
+                            const personalSec = temp.querySelector('[data-type="personal"], #personalDetails');
+                            if (personalSec) {
+                                personalSec.querySelectorAll('.pd-row, .table-row, .data-table-item, .info-row, .detail-row').forEach(row => {
+                                    const lbl = row.querySelector('.pd-label, .table-label, .row-label, label, strong');
+                                    const val = row.querySelector('.pd-val, .table-val, .pd-value, .row-value, span:not(.pd-label):not(.table-label)');
+                                    if (lbl && val) {
+                                        const labelText = lbl.innerText.replace(':', '').trim();
+                                        const valText = val.innerText.trim();
+                                        if (labelText && valText) {
+                                            sharedData.personal.push({ label: labelText, text: valText });
+                                        }
+                                    }
+                                });
+
+                                // BACKFILL: Ensure standard fields (Nationality, DOB, Gender, Marital Status) always exist
+                                const standardLabels = ["Nationality", "Date of Birth", "Gender", "Marital Status"];
+                                standardLabels.forEach(sLabel => {
+                                    const exists = sharedData.personal.some(p => p.label.toLowerCase().includes(sLabel.toLowerCase()) || sLabel.toLowerCase().includes(p.label.toLowerCase()));
+                                    if (!exists) {
+                                        sharedData.personal.push({ label: sLabel, text: "..." });
+                                    }
+                                });
+                            }
+
+                            // Extraction for Contact Items (Header) from AI HTML
+                            const contactItems = temp.querySelectorAll('.contact-item, .header-column-left div, .header-column-right div, .contact-info div');
+                            contactItems.forEach(item => {
+                                const iconEl = item.querySelector('i');
+                                const textEl = item.querySelector('span, a, .contact-val, .contact-text');
+                                if (textEl && textEl.innerText.trim() && textEl.innerText.trim() !== "...") {
+                                    sharedData.header.items.push({
+                                        icon: iconEl ? iconEl.className : "fas fa-info-circle",
+                                        text: textEl.innerText.trim()
+                                    });
+                                }
+                            });
+
+                            console.log("[applyUserTemplate] Extracted sharedData from AI HTML:", JSON.stringify(sharedData));
                         } else {
                             currentDataByDataType = injectedData.currentDataByDataType || {};
-                            sharedData = injectedData.sharedData || sharedData;
+                            if (injectedData.sharedData) {
+                                // Merge sharedData instead of overwriting to keep AI extracted details (DOB/NAT/GEN)
+                                if (injectedData.sharedData.name) sharedData.name = injectedData.sharedData.name;
+                                if (injectedData.sharedData.title) sharedData.title = injectedData.sharedData.title;
+                                if (injectedData.sharedData.image) sharedData.image = injectedData.sharedData.image;
+                                if (injectedData.sharedData.personal && injectedData.sharedData.personal.length > 0) {
+                                    sharedData.personal = [...sharedData.personal, ...injectedData.sharedData.personal.filter(p1 => !sharedData.personal.some(p2 => p2.label === p1.label))];
+                                }
+                                if (injectedData.sharedData.header && injectedData.sharedData.header.items) {
+                                    sharedData.header.items = [...sharedData.header.items, ...injectedData.sharedData.header.items.filter(i1 => !sharedData.header.items.some(i2 => i2.text === i1.text))];
+                                }
+                            }
                         }
                     } else {
                         document.querySelectorAll('#mainHeader, section').forEach(sec => {
@@ -15292,6 +15402,48 @@
                         const pImg = resumePage.querySelector('#profileImg');
                         if (pImg) sharedData.image = pImg.src;
                     }
+
+                    // --- CROSS-ALIASING FOR AI HYDRATION ---
+                    // ResumeDataManager generates short type names (e.g. 'personal'), but templates use camelCase element IDs (e.g. 'personalDetails')
+                    const typeMap = {
+                        'contact': 'contactDetails',
+                        'personal': 'personalDetails',
+                        'passport': 'passportDetails',
+                        'visa': 'visaStatus',
+                        'family': 'familyDetails',
+                        'lifestyle': 'lifestyleHabits',
+                        'research': 'researchExp',
+                        'teaching': 'teachingExp',
+                        'test_scores': 'testScores',
+                        'astrological': 'astrologySection',
+                        'active_lifestyle': 'activeLife',
+                        'interests': 'interests' // Direct mapping to ensure it stays as Interests
+                    };
+                    Object.keys(typeMap).forEach(key => {
+                        const alias = typeMap[key];
+                        if (currentDataByDataType[key]) {
+                            if (currentDataByDataType[alias] && alias !== key) {
+                                // AGGRESSIVE MERGE: Cleanly combine content areas
+                                var tempA = document.createElement('div');
+                                tempA.innerHTML = currentDataByDataType[alias];
+                                var contentA = tempA.querySelector('.content-area') || tempA;
+
+                                var tempB = document.createElement('div');
+                                tempB.innerHTML = currentDataByDataType[key];
+                                var contentB = tempB.querySelector('.content-area') || tempB;
+
+                                if (contentA !== tempA || contentB !== tempB) {
+                                    contentA.innerHTML += contentB.innerHTML;
+                                    currentDataByDataType[alias] = tempA.innerHTML;
+                                } else {
+                                    currentDataByDataType[alias] += currentDataByDataType[key];
+                                }
+                            } else {
+                                currentDataByDataType[alias] = currentDataByDataType[key];
+                            }
+                            if (alias !== key) delete currentDataByDataType[key]; 
+                        }
+                    });
 
                     // --- EXTRA SECTION DETECTION ---
                     let extraSections = [];
@@ -15364,11 +15516,71 @@
 
             // Wrap the core logic to support async dialog callbacks
             const proceedWithTemplate = (template, injectedData, currentDataByDataType, sharedData, liveMetrics, keepExtraSections, keepExtraInfo, liveStylesBackup, globalRescuedShapes, globalRescuedControls, globalRescuedCanvas, globalRescuedAddBtn, globalRescuedCtxMenu) => {
+                const sectionMapping = {
+                    // Core Sections
+                    'nameProfessionSection': { name: 'Name & Profession', icon: 'fa-id-badge', column: 'header' },
+                    'personalDetails': { name: 'Personal Details', icon: 'fa-id-card', column: 'left' },
+                    'personal': { name: 'Personal Details', icon: 'fa-id-card', column: 'left' },
+                    'passportDetails': { name: 'Passport Details', icon: 'fa-passport', column: 'left' },
+                    'summarySection': { name: 'Summary', icon: 'fa-user-tie', column: 'objective' },
+                    'summary_paragraph': { name: 'Summary', icon: 'fa-user-tie', column: 'objective' },
+
+                    'visaStatus': { name: 'Visa Status', icon: 'fa-file-invoice', column: 'left' },
+                    'contactDetails': { name: 'Contact Details', icon: 'fa-address-book', column: 'left' },
+                    'contact': { name: 'Contact Details', icon: 'fa-address-book', column: 'left' },
+                    
+                    // Main Columns
+                    'experience': { name: 'Experience', icon: 'fa-briefcase', column: 'right' },
+                    'education': { name: 'Education', icon: 'fa-graduation-cap', column: 'right' },
+                    'projects': { name: 'Projects', icon: 'fa-project-diagram', column: 'right' },
+                    'skills': { name: 'Skills', icon: 'fa-tools', column: 'left' },
+                    'languages': { name: 'Languages', icon: 'fa-language', column: 'left' },
+                    'certificates': { name: 'Certificates', icon: 'fa-certificate', column: 'left' },
+                    'awards': { name: 'Awards', icon: 'fa-trophy', column: 'right' },
+                    'certifications': { name: 'Certifications', icon: 'fa-certificate', column: 'left' },
+
+                    // Additional Sections
+                    'volunteer': { name: 'Volunteer Exp', icon: 'fa-hands-helping', column: 'right' },
+                    'internships': { name: 'Internships', icon: 'fa-laptop-code', column: 'right' },
+                    'achievements': { name: 'Achievements', icon: 'fa-star', column: 'right' },
+                    'training': { name: 'Training', icon: 'fa-chalkboard-teacher', column: 'right' },
+                    'publications': { name: 'Publications', icon: 'fa-book', column: 'right' },
+                    'researchExp': { name: 'Research', icon: 'fa-microscope', column: 'right' },
+                    'teachingExp': { name: 'Teaching', icon: 'fa-chalkboard-teacher', column: 'right' },
+                    'grants': { name: 'Grants', icon: 'fa-hand-holding-usd', column: 'right' },
+                    'affiliations': { name: 'Affiliations', icon: 'fa-users', column: 'right' },
+                    'hobbies': { name: 'Hobbies', icon: 'fa-gamepad', column: 'left' },
+                    'interests': { name: 'Interests', icon: 'fa-star', column: 'left' },
+                    'extra': { name: 'Extracurricular', icon: 'fa-futbol', column: 'right' },
+                    'references': { name: 'References', icon: 'fa-user-check', column: 'right' },
+                    'testScores': { name: 'Test Scores', icon: 'fa-check-double', column: 'right' },
+                    'weblinks': { name: 'Web Links', icon: 'fa-link', column: 'left' },
+
+                    // Identity & Lifestyle
+                    'familyDetails': { name: 'Family Info', icon: 'fa-users-cog', column: 'left' },
+                    'partnerExpectations': { name: 'Partner Expectations', icon: 'fa-heart', column: 'right' },
+                    'lifestyleHabits': { name: 'Lifestyle', icon: 'fa-apple-alt', column: 'left' },
+                    'astrologySection': { name: 'Astrology', icon: 'fa-sun', column: 'left' },
+                    'physicalProfile': { name: 'Physical', icon: 'fa-user-check', column: 'left' },
+                    'visualRegistry': { name: 'Photos', icon: 'fa-camera', column: 'left' },
+                    'activeLife': { name: 'Active Life', icon: 'fa-running', column: 'left' },
+                    'physicalFitness': { name: 'Physical Fitness', icon: 'fa-heartbeat', column: 'right' },
+                    
+                    // Final
+                    'declarationSection': { name: 'Declaration', icon: 'fa-file-signature', column: 'both' },
+                    'declaration_block': { name: 'Declaration', icon: 'fa-file-signature', column: 'both' }
+
+                };
                 try {
 
                     // Helper for Smart Hydration
                     const hydrateSection = (el, dt, content) => {
-                        const isIdentity = dt === 'mainHeader' || dt === 'name_profession' || dt === 'personal' || dt === 'profileSection' || dt === 'profile_pic' || dt === 'profile_picture';
+                        // Strip out floating minus signs (.template-toggle-btn) saved from old templates
+                        if (content) {
+                            content = content.replace(/<div(?:[^>]*\s)?class="[^"]*template-toggle-btn[^"]*"[^>]*>[\s\S]*?<\/div>/g, '');
+                        }
+
+                        const isIdentity = dt === 'mainHeader' || dt === 'profileSection' || dt === 'profile_pic' || dt === 'profile_picture' || dt === 'declarationSection' || dt === 'declaration_block' || dt.startsWith('blankSection') || dt.startsWith('blank_section') || dt.startsWith('stickSection') || dt.startsWith('stick_section') || dt === 'contact' || dt === 'contactDetails';
 
                         // PRE-HYDRATION: Capture current title text BEFORE any innerHTML replacement wipes it
                         let originalTitleText = '';
@@ -15378,7 +15590,7 @@
                         if (initialH2) {
                             const titleSpan = initialH2.querySelector('.h2-title-text');
                             if (titleSpan) {
-                                originalTitleText = titleSpan.innerText;
+                                originalTitleText = titleSpan.textContent.trim();
                             } else {
                                 originalTitleText = initialH2.innerText || initialH2.textContent;
                             }
@@ -15471,13 +15683,50 @@
                                     var clone = rowTemplate.cloneNode(true);
                                     // Strip template ID to allow sequential reassignment
                                     clone.removeAttribute('id');
-                                    var labelEl = clone.querySelector('.pd-label, .table-label');
-                                    var valEl = clone.querySelector('.pd-val, .table-val');
+                                    var labelEl = clone.querySelector('.pd-label, .table-label, label');
+                                    var valEl = clone.querySelector('.pd-val, .table-val, .pd-value, span:not(.pd-label)');
                                     if (labelEl) labelEl.innerText = pd.label;
                                     if (valEl) valEl.innerText = pd.text;
                                     parent.appendChild(clone);
                                 });
                             }
+                            
+                            // 4. Hydrate Contact Details (New logic for templates with dedicated contact areas)
+                            if (dt === 'mainHeader' || dt === 'contact' || dt === 'contactDetails') {
+                                var contactContainers = temp.querySelectorAll('.contact-info, .header-column-left, .header-column-right, .content-area');
+                                if (contactContainers.length === 0 && (dt === 'contact' || dt === 'contactDetails')) {
+                                    contactContainers = [temp]; // Fallback if no specific container
+                                }
+
+                                if (sharedData.header && sharedData.header.items && sharedData.header.items.length > 0) {
+                                    contactContainers.forEach(container => {
+                                        var cItems = container.querySelectorAll('.contact-item, .pd-row, .table-row');
+                                        if (cItems.length > 0) {
+                                            var rowProto = cItems[0].cloneNode(true);
+                                            var parentNode = cItems[0].parentNode;
+                                            cItems.forEach(i => i.remove());
+                                            
+                                            sharedData.header.items.forEach(ci => {
+                                                var clone = rowProto.cloneNode(true);
+                                                var vEl = clone.querySelector('.contact-val, .pd-val, span:last-child, .pd-value, .contact-text');
+                                                var iEl = clone.querySelector('i');
+                                                if (vEl) vEl.innerText = ci.text;
+                                                if (iEl && ci.icon) iEl.className = ci.icon;
+                                                parentNode.appendChild(clone);
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+
+                            // Skip Declaration Section hydration - it is now fully protected by Rescue & Restore
+                            if (dt === 'declarationSection' || dt === 'declaration_block') {
+                                window.recordDebug('[hydrateSection] Skipping ' + dt + ' to protect its rescued content.');
+                                return;
+                            }
+
+                            // Replace current plain h2 with template's styled h2
+                
 
                             // Preserve Styles from Live Item to Template Item (e.g. custom backgrounds)
                             const backup = liveStylesBackup[dt];
@@ -15541,16 +15790,16 @@
                                     // Also re-enable contentEditable because enableEditingUI ignores header text completely.
                                     // FIX: This must be done on `el` AFTER setting innerHTML, otherwise listeners are lost!
                                     if (typeof isEditing !== 'undefined' && isEditing) {
-                                        el.querySelectorAll('.pd-row, .contact-item, .data-table-item, .skill-group, .table-row, .award-item, li').forEach(function (item) {
-                                            if (item.tagName !== 'LI') {
-                                                item.classList.add('editing');
-                                                item.onclick = function (e) { e.stopPropagation(); if (typeof showItemToolbar === 'function') showItemToolbar(e, item); };
-                                            } else {
+                                    el.querySelectorAll('.pd-row, .contact-item, .data-table-item, .skill-group, .table-row, .award-item, .declaration-item, li').forEach(function (item) {
+                                        if (item.tagName !== 'LI') {
+                                            item.classList.add('editing');
+                                            item.onclick = function (e) { e.stopPropagation(); if (typeof showItemToolbar === 'function') showItemToolbar(e, item); };
+                                        } else {
                                                 item.classList.add('editing');
                                                 item.onclick = function (e) { e.stopPropagation(); window.currentEditableElement = item; if (window.Android && typeof window.Android.showToolbar === 'function') window.Android.showToolbar('default'); };
                                             }
                                         });
-                                        el.querySelectorAll('span:not(.table-label):not(.pd-label), .pd-val, .contact-val, .skill-sub, h3').forEach(function (txt) {
+                                        el.querySelectorAll('span:not(.table-label):not(.pd-label), .pd-val, .contact-val, .skill-sub, .declaration-item, h3').forEach(function (txt) {
                                             txt.contentEditable = 'true';
                                         });
                                     }
@@ -15560,7 +15809,7 @@
                             }
                         }
                         // Priority 1.5: Custom Template Data (Extra Info requested by user)
-                        else if (keepExtraInfo && template.sections && template.sections.find(s => (s.dataType || s.id) === dt && s.isSelected === true)) {
+                        else if (keepExtraInfo && !currentDataByDataType[dt] && template.sections && template.sections.find(s => (s.dataType || s.id) === dt && s.isSelected === true)) {
                             // User opted to keep the template creator's pre-filled data for this specific section!
                             // We completely bypass Priority 2 (current CV data) and Priority 3 (blank placeholders).
                             el.innerHTML = content;
@@ -15603,7 +15852,7 @@
 
                                 // FIX: This must be done on `el` AFTER setting innerHTML, otherwise listeners are lost!
                                 if (typeof isEditing !== 'undefined' && isEditing) {
-                                    el.querySelectorAll('.pd-row, .contact-item, .data-table-item, .skill-group, .table-row, .award-item, li').forEach(function (item) {
+                                    el.querySelectorAll('.pd-row, .contact-item, .data-table-item, .skill-group, .table-row, .award-item, .declaration-item, li').forEach(function (item) {
                                         if (item.tagName !== 'LI') {
                                             item.classList.add('editing');
                                             item.onclick = function (e) { e.stopPropagation(); if (typeof showItemToolbar === 'function') showItemToolbar(e, item); };
@@ -15612,7 +15861,7 @@
                                             item.onclick = function (e) { e.stopPropagation(); window.currentEditableElement = item; if (window.Android && typeof window.Android.showToolbar === 'function') window.Android.showToolbar('default'); };
                                         }
                                     });
-                                    el.querySelectorAll('span:not(.table-label):not(.pd-label), .pd-val, .contact-val, .skill-sub, h3').forEach(function (txt) {
+                                    el.querySelectorAll('span:not(.table-label):not(.pd-label), .pd-val, .contact-val, .skill-sub, .declaration-item, h3').forEach(function (txt) {
                                         txt.contentEditable = 'true';
                                     });
                                 }
@@ -15639,7 +15888,7 @@
                             var contentArea = fallbackTemp.querySelector('.content-area');
 
                             if (contentArea) {
-                                var defaultHtml = ITEM_TEMPLATES[dt] || ITEM_TEMPLATES['default'];
+                                var defaultHtml = DEFAULT_TEMPLATES[dt] || DEFAULT_TEMPLATES['default'];
 
                                 // Specific pre-populated fallbacks matching native "Add Section" logic
                                 if (dt === 'contact' || dt === 'contactDetails') {
@@ -15668,7 +15917,7 @@
                                 contentArea.innerHTML = defaultHtml;
 
                                 if (typeof isEditing !== 'undefined' && isEditing) {
-                                    contentArea.querySelectorAll('.pd-row, .contact-item, .data-table-item, .skill-group, .table-row, .award-item, li').forEach(function (item) {
+                                    contentArea.querySelectorAll('.pd-row, .contact-item, .data-table-item, .skill-group, .table-row, .award-item, .declaration-item, li').forEach(function (item) {
                                         if (item.tagName !== 'LI') {
                                             item.classList.add('editing');
                                             item.onclick = function (e) { e.stopPropagation(); if (typeof showItemToolbar === 'function') showItemToolbar(e, item); };
@@ -15677,7 +15926,7 @@
                                             item.onclick = function (e) { e.stopPropagation(); window.currentEditableElement = item; if (window.Android && typeof window.Android.showToolbar === 'function') window.Android.showToolbar('default'); };
                                         }
                                     });
-                                    contentArea.querySelectorAll('span:not(.table-label):not(.pd-label), .pd-val, .contact-val, .skill-sub, h3').forEach(function (txt) {
+                                    contentArea.querySelectorAll('span:not(.table-label):not(.pd-label), .pd-val, .contact-val, .skill-sub, .declaration-item, h3').forEach(function (txt) {
                                         txt.contentEditable = 'true';
                                     });
                                 }
@@ -15871,6 +16120,46 @@
                                 });
                             }
 
+                            // POST-HYDRATION: Adaptive Mapping for Personal & Contact Details
+                            // 1. Force normalized titles and icons for Contact & Personal
+                            if (dt === 'contact' || dt === 'contactDetails' || dt === 'personal' || dt === 'personalDetails') {
+                                const h2 = el.querySelector('h2');
+                                if (h2) {
+                                    const isContact = dt === 'contact' || dt === 'contactDetails';
+                                    const targetName = isContact ? "CONTACT DETAILS" : "PERSONAL DETAILS";
+                                    const targetIcon = isContact ? "fa-address-book" : "fa-id-card";
+                                    
+                                    const iconEl = h2.querySelector('i');
+                                    const textEl = h2.querySelector('.h2-title-text') || Array.from(h2.childNodes).find(n => n.nodeType === 3);
+                                    
+                                    if (iconEl) iconEl.className = "fas " + targetIcon;
+                                    if (textEl) {
+                                        if (textEl.nodeType === 3) textEl.textContent = " " + targetName;
+                                        else textEl.innerText = targetName;
+                                    }
+                                }
+                            }
+
+                            // 2. Bridge AI shorthand (nat, gen, mar, dob) to template labels (Nationality, Gender, etc.)
+                            if (dt === 'personalDetails' || dt === 'personal') {
+                                const rows = el.querySelectorAll('.pd-row, .table-row');
+                                const pdMap = {
+                                    "nat": "Nationality", "nationality": "Nationality", "origin": "Nationality",
+                                    "gen": "Gender", "gender": "Gender", "sex": "Gender",
+                                    "mar": "Marital Status", "ms": "Marital Status", "status": "Marital Status", "marital": "Marital Status",
+                                    "dob": "Date of Birth", "birth": "Date of Birth", "birthday": "Date of Birth",
+                                    "religion": "Religion", "rel": "Religion",
+                                    "lang": "Languages", "languages": "Languages"
+                                };
+                                rows.forEach(row => {
+                                    const labelEl = row.querySelector('.pd-label, .table-label');
+                                    if (labelEl) {
+                                        const rawL = labelEl.innerText.replace(':', '').trim().toLowerCase();
+                                        if (pdMap[rawL]) labelEl.innerText = pdMap[rawL] + ":";
+                                    }
+                                });
+                            }
+
                             var shapesFound = el.querySelectorAll('.dropped-shape');
                             var btnsFound = el.querySelectorAll('.color-trigger, .frame-trigger, #headerGearBtn, #headerMenuBtn');
                             window._dbgLog.push({ t: Date.now(), fn: 'hydrateSection', msg: 'POST [' + dt + ']: shapes=' + shapesFound.length + ' btns=' + btnsFound.length + ' rescuedShapes=' + globalRescuedShapes.length + ' rescuedCtrls=' + Object.keys(globalRescuedControls).length });
@@ -15881,6 +16170,7 @@
                         // but Priority 2 hydration replaced it with plain h2 from currentDataByDataType.
                         // Extract the styled h2 from template content and graft it back.
                         // FIX: 'personal' is an identity section but still needs its H2 title grafted!
+                        // Skip declarationSection here as well to prevent any accidental title overwrites
                         if ((!isIdentity || dt === 'personal') && content) {
                             const templateTemp = document.createElement('div');
                             templateTemp.innerHTML = content;
@@ -15901,8 +16191,8 @@
                                     if (userH2) {
                                         var userTitleSpan = userH2.querySelector('.h2-title-text');
                                         currentTitleText = userTitleSpan
-                                            ? userTitleSpan.innerText.trim()
-                                            : (userH2.innerText || userH2.textContent || '').trim();
+                                            ? userTitleSpan.textContent.trim()
+                                            : (userH2.textContent || '').trim();
                                         // Also rescue icon class from user backup if not captured from live DOM
                                         if (!originalIconClass) {
                                             var userIcon = userH2.querySelector('i');
@@ -15917,8 +16207,20 @@
                                 if (!currentTitleText) {
                                     var tplTitleSpan = templateH2.querySelector('.h2-title-text');
                                     currentTitleText = tplTitleSpan
-                                        ? tplTitleSpan.innerText.trim()
-                                        : (templateH2.innerText || templateH2.textContent || '').trim();
+                                        ? tplTitleSpan.textContent.trim()
+                                        : (templateH2.textContent || '').trim();
+                                }
+
+                                // FIX: If title is still empty (e.g. template was saved as a skeleton which stripped text nodes)
+                                // Fallback to the default section name to prevent completely blank headers.
+                                if (!currentTitleText) {
+                                    if (typeof ALL_SECTIONS !== 'undefined') {
+                                        const def = ALL_SECTIONS.find(s => s.id === dt || s.type === dt);
+                                        if (def) currentTitleText = def.name.toUpperCase();
+                                    }
+                                    if (!currentTitleText && dt) {
+                                        currentTitleText = dt.replace(/([A-Z])/g, ' $1').trim().toUpperCase();
+                                    }
                                 }
 
                                 if (templateH2.classList.contains('custom-header')) {
@@ -16005,9 +16307,15 @@
                     };
 
                     // B. Support Multiple Formats
+                    
+                    // RESCUE: Capture Declaration section before it gets overwritten
+                    const oldDecl = resumePage.querySelector('#declarationSection') || resumePage.querySelector('[data-type="declarationSection"]') || resumePage.querySelector('[data-type="declaration_block"]');
+                    const rescuedDecl = oldDecl ? { html: oldDecl.innerHTML, type: oldDecl.getAttribute('data-type'), id: oldDecl.id } : null;
+
                     if (template.html) {
                         // FORMAT 1: Full HTML (.vitae version)
                         resumePage.innerHTML = template.html;
+                        
                         window.normalizeContactItems();
 
                         // DEBUG: Count shapes right after injecting template HTML
@@ -16017,8 +16325,13 @@
                         window._dbgLog.push({ t: Date.now(), fn: 'applyTemplate', msg: 'AFTER HTML inject: shapes=' + shapesAfterInject + ' header-style=' + headerStyleAfterInject });
 
                         // Hydrate Data back into the new HTML
+                        const handledIds = new Set();
                         resumePage.querySelectorAll('#mainHeader, section').forEach(sec => {
                             const dt = sec.getAttribute('data-type') || sec.id;
+                            if (dt) {
+                                if (handledIds.has(dt)) return;
+                                handledIds.add(dt);
+                            }
                             // Use temporary content capture for hydration if no current data exists
                             const originalTemplateContent = sec.innerHTML;
                             hydrateSection(sec, dt, originalTemplateContent);
@@ -16054,17 +16367,6 @@
                         }
 
                         // E. Create missing sections for AI data that template doesn't have
-                        const sectionMapping = {
-                            'summarySection': { name: 'Summary', icon: 'fa-user-tie', column: 'objective' },
-                            'experience': { name: 'Experience', icon: 'fa-briefcase', column: 'right' },
-                            'education': { name: 'Education', icon: 'fa-graduation-cap', column: 'right' },
-                            'skills': { name: 'Skills', icon: 'fa-tools', column: 'left' },
-                            'languages': { name: 'Languages', icon: 'fa-language', column: 'left' },
-                            'projects': { name: 'Projects', icon: 'fa-project-diagram', column: 'right' },
-                            'certifications': { name: 'Certifications', icon: 'fa-certificate', column: 'left' },
-                            'awards': { name: 'Awards', icon: 'fa-trophy', column: 'right' },
-                            'references': { name: 'References', icon: 'fa-user-check', column: 'right' }
-                        };
 
                         // 0. Remove sections that are NO LONGER in the data (Sync Deletions)
                         // This fixes the issue where deleting a section in Android UI didn't remove it from Preview
@@ -16077,7 +16379,10 @@
 
                             // 2. Check if this section exists in current data
                             // Check both currentDataByDataType (keyed by type) and by ID if present
-                            if (!currentDataByDataType[dt] && !currentDataByDataType[sec.id] && !keepExtraSections) {
+                            // [SPECIAL PROTECTION]: Skip removal for Declaration, Blank, and Stick sections
+                            const isSpecial = dt === 'declarationSection' || dt === 'declaration_block' || dt === 'personalDetails' || dt === 'personal' || dt.startsWith('blankSection') || dt.startsWith('stickSection');
+
+                            if (!currentDataByDataType[dt] && !currentDataByDataType[sec.id] && !keepExtraSections && !isSpecial) {
                                 console.log('[applyUserTemplate] Removing obsolete section:', dt);
                                 sec.remove();
                             }
@@ -16087,9 +16392,18 @@
                         Object.keys(currentDataByDataType).forEach(dt => {
                             if (dt === 'mainHeader' || dt === 'headerSection') return;
                             const existsInTemplate = resumePage.querySelector(`[data-type="${dt}"], #${dt}`);
-                            if (!existsInTemplate && currentDataByDataType[dt]) {
+                            
+                            // DUPLICATION PROTECTION: Also check if a section with the same name already exists
+                            const mapping = sectionMapping[dt];
+                            const nameExists = mapping ? Array.from(resumePage.querySelectorAll('h2')).some(h2 => h2.innerText.trim().toLowerCase().includes(mapping.name.toLowerCase())) : false;
+
+                            if (!existsInTemplate && !nameExists && currentDataByDataType[dt]) {
                                 // Create the section
-                                const mapping = sectionMapping[dt] || { name: dt.replace(/([A-Z])/g, ' $1').trim(), icon: 'fa-star', column: 'right' };
+                                const mapping = sectionMapping[dt];
+                                if (!mapping) {
+                                    console.warn('[applyUserTemplate] Skipping unrecognized section type:', dt);
+                                    return;
+                                }
                                 const newSection = document.createElement('section');
                                 newSection.className = 'resume-section';
                                 newSection.id = dt;
@@ -16293,7 +16607,80 @@
                             }
                         });
 
-                        // (Styles are applied globally below â€” removed duplicate here)
+                        // NEW: Create missing sections for AI data that template doesn't have (Format 2)
+                        Object.keys(currentDataByDataType).forEach(dt => {
+                            if (dt === 'mainHeader' || dt === 'headerSection') return;
+                            
+                            // DUPLICATION PROTECTION: Skip if aliased canonical section already exists
+                            if (dt === 'contact' && resumePage.querySelector('[data-type="contactDetails"], #contactDetails')) return;
+                            if (dt === 'personal' && resumePage.querySelector('[data-type="personalDetails"], #personalDetails')) return;
+                            if (dt === 'contactDetails' && resumePage.querySelector('[data-type="contact"], #contact')) return;
+                            if (dt === 'personalDetails' && resumePage.querySelector('[data-type="personal"], #personal')) return;
+
+                            const existsInTemplate = resumePage.querySelector(`[data-type="${dt}"], #${dt}`);
+                            if (!existsInTemplate && currentDataByDataType[dt]) {
+                                const mapping = sectionMapping[dt] || { name: dt.replace(/([A-Z])/g, ' $1').trim(), icon: 'fa-star', column: 'right' };
+                                const newSection = document.createElement('section');
+                                newSection.className = 'resume-section';
+                                newSection.id = dt;
+                                newSection.setAttribute('data-type', dt);
+
+                                const tempDiv = document.createElement('div');
+                                tempDiv.innerHTML = currentDataByDataType[dt];
+                                const existingH2 = tempDiv.querySelector('h2');
+                                if (existingH2) existingH2.remove();
+                                const existingContentArea = tempDiv.querySelector('.content-area');
+                                let finalContent = existingContentArea ? existingContentArea.innerHTML : tempDiv.innerHTML;
+
+                                newSection.innerHTML = `<h2><i class="fas ${mapping.icon}"></i> ${mapping.name.toUpperCase()}</h2><div class="content-area">${finalContent}</div>`;
+                                if (template.designs && template.designs.section) {
+                                    newSection.setAttribute('data-design', template.designs.section);
+                                } else if (typeof currentSectionDesign !== 'undefined') {
+                                    newSection.setAttribute('data-design', currentSectionDesign);
+                                }
+
+                                let targetCol = mapping.column;
+                                if (injectedData && injectedData.columnAssignments && injectedData.columnAssignments[dt]) {
+                                    targetCol = injectedData.columnAssignments[dt];
+                                }
+
+                                if (targetCol === 'both') {
+                                    newSection.classList.add('full-width');
+                                    resumePage.appendChild(newSection);
+                                } else if (targetCol === 'objective') {
+                                    newSection.classList.add('objective');
+                                    newSection.classList.add('full-width');
+                                    if (mainContent) resumePage.insertBefore(newSection, mainContent);
+
+                                    else resumePage.appendChild(newSection);
+                                } else if (targetCol === 'left' && leftCol) {
+                                    leftCol.appendChild(newSection);
+                                } else if (rightCol) {
+                                    rightCol.appendChild(newSection);
+                                } else if (mainContent) {
+                                    mainContent.appendChild(newSection);
+                                } else {
+                                    resumePage.appendChild(newSection);
+                                }
+                                console.log('[applyUserTemplate] Created missing section (Format 2):', dt, 'in column:', targetCol);
+
+                            }
+                        });
+                    }
+
+                    // RESTORE: Put the rescued Declaration back if it was lost or overwritten (Universal)
+                    if (rescuedDecl) {
+                        const newDecl = resumePage.querySelector('#declarationSection') || resumePage.querySelector('[data-type="declarationSection"]') || resumePage.querySelector('[data-type="declaration_block"]');
+                        if (newDecl) {
+                            newDecl.innerHTML = rescuedDecl.html;
+                        } else {
+                            // If the new template doesn't have a declaration section, re-append it
+                            const declEl = document.createElement('section');
+                            if (rescuedDecl.id) declEl.id = rescuedDecl.id;
+                            if (rescuedDecl.type) declEl.setAttribute('data-type', rescuedDecl.type);
+                            declEl.innerHTML = rescuedDecl.html;
+                            resumePage.appendChild(declEl);
+                        }
                     }
 
                     // RESTORE BACKGROUND CLASSES
@@ -16433,6 +16820,51 @@
                     if (typeof setupSignature === 'function') setupSignature();
                     if (typeof updatePageBreaks === 'function') updatePageBreaks();
                     if (liveMetrics.spacing && typeof applySpacing === 'function') applySpacing(liveMetrics.spacing);
+
+                    // ────────────────────────────────────────────────────────
+                    // DECLARATION SAFETY NET
+                    // After ALL hydration and template operations are complete,
+                    // inspect the Declaration section. If it is empty or missing
+                    // the oath, fill it in now. This is the final fallback.
+                    // ────────────────────────────────────────────────────────
+                    (function ensureDeclarationOath() {
+                        const declSection = resumePage.querySelector('#declarationSection') ||
+                                            resumePage.querySelector('[data-type="declarationSection"]') ||
+                                            resumePage.querySelector('[data-type="declaration_block"]');
+                        const OATH = 'According to my knowledge, I confirm that everything, every information in the CV is correct.';
+
+                        window.recordDebug('[Declaration] Safety-net check. Section found: ' + !!declSection);
+
+                        if (!declSection) {
+                            window.recordDebug('[Declaration] Safety-net: section NOT FOUND in DOM.');
+                            return;
+                        }
+
+                        const contentArea = declSection.querySelector('.content-area') || declSection;
+                        const existingText = contentArea.innerText.trim();
+                        window.recordDebug('[Declaration] Safety-net: contentArea.innerText="' + existingText.substring(0, 60) + '"');
+
+                        // Only fill if content area is empty or only has placeholder-like text
+                        if (existingText.length < 5 || existingText.toLowerCase().includes('brief description') || existingText.toLowerCase().includes('write your')) {
+                            window.recordDebug('[Declaration] Safety-net: FILLING with oath.');
+                            // Preserve the h2 title if present — only replace content area
+                            let targetArea = declSection.querySelector('.content-area');
+                            if (!targetArea) {
+                                targetArea = document.createElement('div');
+                                targetArea.className = 'content-area';
+                                // Move non-h2 children into the new content area
+                                Array.from(declSection.childNodes).forEach(function(n) {
+                                    if (n.tagName !== 'H2') targetArea.appendChild(n);
+                                });
+                                declSection.appendChild(targetArea);
+                            }
+                            targetArea.innerHTML = '<div class="declaration-item" contenteditable="true">' + OATH + '</div>';
+                            window.recordDebug('[Declaration] Safety-net: Oath injected successfully.');
+                        } else {
+                            window.recordDebug('[Declaration] Safety-net: Section already has content, skipping.');
+                        }
+                    })();
+
 
                     // Re-sync design selection to sidebar
                     if (window.Android && typeof window.Android.updateNativeDesignSelection === 'function') {

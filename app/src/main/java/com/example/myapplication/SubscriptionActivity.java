@@ -22,6 +22,7 @@ import com.android.billingclient.api.ProductDetails;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.QueryProductDetailsParams;
+import com.android.billingclient.api.QueryPurchasesParams;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -240,6 +241,7 @@ public class SubscriptionActivity extends AppCompatActivity {
             public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     queryProducts();
+                    checkSubscriptionStatus();
                 }
             }
 
@@ -287,6 +289,57 @@ public class SubscriptionActivity extends AppCompatActivity {
         } else {
             updateTier(tier);
         }
+    }
+
+
+    private void checkSubscriptionStatus() {
+        if (billingClient == null || !billingClient.isReady()) return;
+
+        QueryPurchasesParams params = QueryPurchasesParams.newBuilder()
+                .setProductType(BillingClient.ProductType.SUBS)
+                .build();
+
+        Log.d("Billing", "Querying active purchases to verify validity...");
+        billingClient.queryPurchasesAsync(params, (billingResult, purchases) -> {
+            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && purchases != null) {
+                Tier highestTier = Tier.FREE;
+                boolean foundSub = false;
+
+                for (Purchase purchase : purchases) {
+                    if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+                        foundSub = true;
+                        String productId = purchase.getProducts().get(0);
+                        if (productId.contains("plus")) {
+                            highestTier = Tier.PLUS;
+                        } else if (productId.contains("ad_free") && highestTier == Tier.FREE) {
+                            highestTier = Tier.AD_FREE;
+                        }
+                    }
+                }
+
+                final Tier finalTier = highestTier;
+                final boolean hasSubscription = foundSub;
+                
+                runOnUiThread(() -> {
+                    Tier current = tierManager.getUserTier();
+                    if (hasSubscription) {
+                        if (current != finalTier) {
+                            tierManager.setTier(finalTier);
+                            updateUI();
+                            Log.i("Billing", "Restored active subscription from Google Play: " + finalTier);
+                        }
+                    } else if (current == Tier.PLUS || current == Tier.AD_FREE) {
+                        // Revert local state to FREE if no Play Store sub found.
+                        // syncUserToCloud will then pull the cloud authoritative tier (e.g. if they have a coupon)
+                        tierManager.setTier(Tier.FREE);
+                        updateUI();
+                        Log.i("Billing", "No active subscription found. Resetting local tier (Cloud sync will handle coupons).");
+                    }
+                });
+            } else {
+                Log.e("Billing", "QueryPurchases failed: " + billingResult.getDebugMessage());
+            }
+        });
     }
 
     private void launchBillingFlow(Tier tier) {

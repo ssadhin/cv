@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ResumeDataManager {
@@ -83,10 +84,10 @@ public class ResumeDataManager {
                 fields.add(new FieldModel("web", "Website/Link", "http://...", "text"));
                 break;
             case "personal":
-                fields.add(new FieldModel("nationality", "Nationality", "American", "text"));
-                fields.add(new FieldModel("dob", "Date of Birth", "15 January 1990", "text"));
-                fields.add(new FieldModel("gender", "Gender", "Male", "text"));
-                fields.add(new FieldModel("ms", "Marital Status", "Single", "text"));
+                fields.add(new FieldModel("nationality", "Nationality", "...", "text"));
+                fields.add(new FieldModel("dob", "Date of Birth", "...", "text"));
+                fields.add(new FieldModel("gender", "Gender", "...", "text"));
+                fields.add(new FieldModel("ms", "Marital Status", "...", "text"));
                 fields.add(new FieldModel("height", "Height", "N/A", "text"));
                 break;
             case "passport":
@@ -208,6 +209,11 @@ public class ResumeDataManager {
                 fields.add(new FieldModel("diet", "Diet", "Veg/Non-Veg/etc", "text"));
                 fields.add(new FieldModel("habits", "Social Habits", "Drinking/Smoking/etc", "text"));
                 break;
+            case "astrological":
+                fields.add(new FieldModel("rashi", "Zodiac Sign (Rashi)", "e.g., Aries / Mesh", "text"));
+                fields.add(new FieldModel("nakshatra", "Birth Star (Nakshatra)", "e.g., Rohini", "text"));
+                fields.add(new FieldModel("gotra", "Lineage / Clan (Gotra)", "e.g., Kashyap", "text"));
+                break;
             case "physical":
                 fields.add(new FieldModel("weight", "Weight", "", "text"));
                 fields.add(new FieldModel("complexion", "Complexion", "Fair/Tanned/etc", "text"));
@@ -225,6 +231,7 @@ public class ResumeDataManager {
     }
 
     public static final List<SectionModel> ALL_SECTIONS_TEMPLATE = Arrays.asList(
+        new SectionModel("contactDetails", "Contact Details", "fa-address-book", "contact", "gridEssentials"),
         new SectionModel("nameProfessionSection", "Name & Profession", "fa-id-badge", "name_profession", "gridEssentials"),
         new SectionModel("personalDetails", "Personal Details", "fa-id-card", "personal", "gridEssentials"),
         new SectionModel("passportDetails", "Passport Details", "fa-passport", "passport", "gridEssentials"),
@@ -260,7 +267,7 @@ public class ResumeDataManager {
         new SectionModel("visualRegistry", "Visual Representation", "fa-camera", "photography", "gridAdd"),
         new SectionModel("activeLife", "Active Lifestyle", "fa-running", "active_lifestyle", "gridAdd"),
         new SectionModel("physicalFitness", "Interests (Misc)", "fa-heartbeat", "simple-list", "gridAdd"),
-        new SectionModel("interests", "Interests", "fa-star", "hobbies", "gridAdd"),
+        new SectionModel("interests", "Interests", "fa-star", "interests", "gridAdd"),
         new SectionModel("declarationSection", "Declaration", "fa-file-signature", "declaration_block", "gridAdd")
     );
 
@@ -293,6 +300,28 @@ public class ResumeDataManager {
                     } else {
                         section = new SectionModel(sId, sName, "fa-star", sType, "gridAdd");
                     }
+                    
+                    // FORCED NAMING: Sync Contact and Personal details to professional standards
+                    if (sType.equals("contact") || sId.equals("contactDetails")) {
+                        section.name = "Contact Details";
+                        section.icon = "fa-address-book";
+                    } else if (sType.equals("personal") || sId.equals("personalDetails")) {
+                        section.name = "Personal Details";
+                        section.icon = "fa-id-card";
+                    }
+                    
+                    // DEDUPLICATION: Ensure only one Contact Details section
+                    if (sId.equals("contactDetails") || sType.equals("contact")) {
+                        boolean alreadyHandled = false;
+                        for (SectionModel existing : sections) {
+                            if (existing.id.equals("contactDetails") || existing.type.equals("contact")) {
+                                alreadyHandled = true;
+                                break;
+                            }
+                        }
+                        if (alreadyHandled) continue; 
+                    }
+
                     section.items.clear();
 
                     if (sLoopObj.has("items")) {
@@ -308,7 +337,8 @@ public class ResumeDataManager {
                                     FieldModel newF = new FieldModel(f.key, f.label, f.type);
                                     for (int k = 0; k < fieldsArray.length(); k++) {
                                         JSONObject fj = fieldsArray.getJSONObject(k);
-                                        if (fj.getString("key").equals(f.key)) {
+                                        String fjKey = fj.getString("key");
+                                        if (fjKey.equals(f.key) || getMappedFieldKey(sType, fjKey).equals(f.key)) {
                                             newF.value = fj.optString("value", "");
                                             break;
                                         }
@@ -342,15 +372,22 @@ public class ResumeDataManager {
     private static final java.util.Map<String, String[]> SHORTHAND_MAP = new java.util.HashMap<String, String[]>() {{
         // key -> [sectionId, sectionName, type]
         put("hdr", new String[]{"nameProfessionSection", "Name & Profession", "name_profession"});
+        put("header", new String[]{"nameProfessionSection", "Name & Profession", "name_profession"});
+
         put("sum", new String[]{"summarySection", "Summary", "summary_paragraph"});
+        put("summary", new String[]{"summarySection", "Summary", "summary_paragraph"});
+        put("objective", new String[]{"summarySection", "Summary", "summary_paragraph"});
+        put("obj", new String[]{"summarySection", "Summary", "summary_paragraph"});
         put("per", new String[]{"personalDetails", "Personal Details", "personal"});
+        put("personal", new String[]{"personalDetails", "Personal Details", "personal"});
+
         put("pass", new String[]{"passportDetails", "Passport Details", "passport"});
         put("exp", new String[]{"experience", "Work Experience", "experience"});
-        put("edu", new String[]{"education", "Education", "education"});
+        put("edu", new String[]{"education", "Education", "education"});  // FIX: was missing!
         put("skl", new String[]{"skills", "Skills", "skills"});
         put("pro", new String[]{"projects", "Projects", "projects"});
         put("cert", new String[]{"certifications", "Certifications", "certifications"});
-        put("crt", new String[]{"certificates", "Certificates", "simple-list"});
+        put("crt", new String[]{"certifications", "Certifications", "certifications"});
         put("awd", new String[]{"awards", "Awards", "awards"});
         put("ach", new String[]{"awards", "Achievements", "awards"});
         put("lan", new String[]{"languages", "Languages", "languages"});
@@ -362,18 +399,31 @@ public class ResumeDataManager {
         put("gra", new String[]{"grants", "Grants & Funding", "grants"});
         put("aff", new String[]{"affiliations", "Affiliations", "affiliations"});
         put("trn", new String[]{"training", "Training", "training"});
-        put("int", new String[]{"internships", "Internships", "internships"});
-        put("hob", new String[]{"hobbies", "Hobbies", "hobbies"});
+        put("isn", new String[]{"internships", "Internships", "internships"});
+        put("intern", new String[]{"internships", "Internships", "internships"});
+        put("internship", new String[]{"internships", "Internships", "internships"});
+        put("int", new String[]{"interests", "Interests", "interests"}); // Changed from hobbies
+        put("interest", new String[]{"interests", "Interests", "interests"});
+        put("its", new String[]{"interests", "Interests", "interests"});
+        put("hob", new String[]{"interests", "Interests", "interests"});
+
         put("ext", new String[]{"extra", "Extracurricular", "extra"});
         put("web", new String[]{"weblinks", "Web Links", "weblinks"});
         put("dec", new String[]{"declarationSection", "Declaration", "declaration_block"});
+        put("declaration", new String[]{"declarationSection", "Declaration", "declaration_block"});
+
         put("vis", new String[]{"visaStatus", "Visa Status", "visa"});
         put("tst", new String[]{"testScores", "Test Scores", "test_scores"});
+        put("test", new String[]{"testScores", "Test Scores", "test_scores"});
+        put("score", new String[]{"testScores", "Test Scores", "test_scores"});
         put("fam", new String[]{"familyDetails", "Family Details", "family"});
         put("pex", new String[]{"partnerExpectations", "Partner Expectations", "expectations"});
         put("lst", new String[]{"lifestyleHabits", "Lifestyle", "lifestyle"});
         put("ast", new String[]{"astrologySection", "Astrological Details", "astrological"});
         put("phy", new String[]{"physicalProfile", "Physical Profile", "physical"});
+        put("cnt", new String[]{"contactDetails", "Contact Details", "contact"});
+        put("con", new String[]{"contactDetails", "Contact Details", "contact"});
+        put("contact", new String[]{"contactDetails", "Contact Details", "contact"});
     }};
 
     // Contact fields that should appear in header, not personal details
@@ -420,11 +470,42 @@ public class ResumeDataManager {
             Log.e("ResumeDataManager", "Error filtering contact fields", e);
         }
 
-        // Second pass: Filter contact fields (Ensure we don't have redundant logic if needed)
+
+        // New Pass: Create a dedicated Contact Section if hdr exists (for Smart Hydration in templates)
         try {
-            // Header sync - No longer syncing back to a 'cnt' shorthand since we removed it
+            if (data.has("hdr")) {
+                JSONObject hdr = data.optJSONObject("hdr");
+                if (hdr != null) {
+                    SectionModel contactSec = new SectionModel("contactDetails", "Contact Details", "fa-address-book", "contact", "gridEssentials");
+                    contactSec.items.clear();
+                    List<FieldModel> fields = new ArrayList<>();
+                    java.util.Iterator<String> keys = hdr.keys();
+                    while (keys.hasNext()) {
+                        String k = keys.next();
+                        String lowerK = k.toLowerCase();
+                        if (CONTACT_FIELDS.contains(lowerK)) {
+                             String mappedKey = k;
+                             if (lowerK.contains("linkedin")) mappedKey = "linkedin";
+                             else if (lowerK.contains("github")) mappedKey = "github";
+                             else if (lowerK.contains("facebook") || lowerK.equals("fb")) mappedKey = "facebook";
+                             else if (lowerK.equals("link") || lowerK.equals("website") || lowerK.equals("url") || lowerK.equals("web")) mappedKey = "link";
+                             else if (lowerK.contains("email")) mappedKey = "email";
+                             else if (lowerK.contains("phone") || lowerK.contains("tel") || lowerK.contains("mob")) mappedKey = "phone";
+                             else if (lowerK.contains("addr") || lowerK.contains("address")) mappedKey = "addr";
+
+                             FieldModel fm = new FieldModel(mappedKey, k, "text");
+                             fm.value = hdr.optString(k, "");
+                             fields.add(fm);
+                        }
+                    }
+                    if (!fields.isEmpty()) {
+                        contactSec.items.add(new ItemModel(fields));
+                        sectionMap.put("contactDetails", contactSec);
+                    }
+                }
+            }
         } catch (Exception e) {
-             Log.e("ResumeDataManager", "Error syncing header", e);
+            Log.e("ResumeDataManager", "Error duplicating contact section", e);
         }
         
         try {
@@ -433,11 +514,14 @@ public class ResumeDataManager {
                 String shortKey = keys.next();
                 String[] mapping = SHORTHAND_MAP.get(shortKey);
                 if (mapping == null) continue;
-
+ 
                 String sId = mapping[0];
                 String sName = mapping[1];
                 String sType = mapping[2];
                 
+                // SINGLETON CHECK: Sections that should only ever have ONE item
+                boolean isSingleton = sId.equals("contactDetails") || sId.equals("personalDetails") || sId.equals("summarySection") || sId.equals("declarationSection");
+
                 SectionModel template = null;
                 for (SectionModel t : ALL_SECTIONS_TEMPLATE) {
                     if (t.id.equals(sId)) { template = t; break; }
@@ -456,85 +540,122 @@ public class ResumeDataManager {
                 Object val = data.get(shortKey);
                 if (val instanceof JSONArray) {
                     JSONArray arr = (JSONArray) val;
+                    List<String> simpleStrings = new ArrayList<>();
                     for (int i = 0; i < arr.length(); i++) {
-                        JSONObject itemObj = arr.getJSONObject(i);
-                        List<FieldModel> fields = new ArrayList<>();
-                        java.util.Iterator<String> itemKeys = itemObj.keys();
-                        while (itemKeys.hasNext()) {
-                            String fKey = itemKeys.next();
-                            if (shortKey.equals("per") && CONTACT_FIELDS.contains(fKey.toLowerCase())) continue;
-                            
-                            // 1. Alias Mapping (Fix for missing Company/Institute)
-                            String lowerKey = fKey.toLowerCase();
-                            String mappedKey = fKey;
-                            
-                            if (lowerKey.equals("com") || lowerKey.equals("company") || lowerKey.equals("org")) mappedKey = "comp";
-                            else if (lowerKey.equals("inst") || lowerKey.equals("school") || lowerKey.equals("college")) mappedKey = "inst";
-                            else if (lowerKey.equals("role") || lowerKey.equals("position") || lowerKey.equals("pos") || lowerKey.equals("title")) mappedKey = "role";
-                            else if (lowerKey.equals("desc") || lowerKey.equals("description") || lowerKey.equals("summary") || lowerKey.equals("resp")) mappedKey = "desc";
-                            else if (lowerKey.equals("year") || lowerKey.equals("date") || lowerKey.equals("dur")) mappedKey = "dur";
-                            
-                            // Contextual fix for 'dur' vs 'year' depending on section
-                            if (shortKey.equals("edu") && mappedKey.equals("dur")) mappedKey = "year";
-                            else if (shortKey.equals("exp") && mappedKey.equals("year")) mappedKey = "dur";
-
-                            String label = fKey;
-                            if (template != null && !template.items.isEmpty()) {
-                                for (FieldModel tf : template.items.get(0).fields) {
-                                    if (tf.key.equalsIgnoreCase(mappedKey) || tf.key.equalsIgnoreCase(fKey)) {
-                                        label = tf.label;
-                                        mappedKey = tf.key; // Align to template strict key
-                                        break;
+                        Object entry = arr.opt(i);
+                        if (entry instanceof JSONObject) {
+                            JSONObject itemObj = (JSONObject) entry;
+                            List<FieldModel> fields = new ArrayList<>();
+                            java.util.Iterator<String> itemKeys = itemObj.keys();
+                            while (itemKeys.hasNext()) {
+                                String fKey = itemKeys.next();
+                                if (shortKey.equals("per") && CONTACT_FIELDS.contains(fKey.toLowerCase())) continue;
+                                String mappedKey = getMappedFieldKey(shortKey, fKey);
+                                String label = getFieldLabel(template, mappedKey, fKey);
+                                FieldModel fm = new FieldModel(mappedKey, label, "text");
+                                fm.value = getJsonVal(itemObj, fKey);
+                                fields.add(fm);
+                            }
+                            if (!fields.isEmpty()) {
+                                if (isSingleton && !section.items.isEmpty()) {
+                                    ItemModel first = section.items.get(0);
+                                    for (FieldModel newF : fields) {
+                                        boolean found = false;
+                                        for (FieldModel existingF : first.fields) {
+                                            if (existingF.key.equals(newF.key)) {
+                                                if (existingF.value == null || existingF.value.isEmpty() || existingF.value.equals("...")) existingF.value = newF.value;
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!found) first.fields.add(newF);
                                     }
+                                } else {
+                                    section.items.add(new ItemModel(fields));
                                 }
                             }
-                            
-                            FieldModel fm = new FieldModel(mappedKey, label, "text");
-                            fm.value = getJsonVal(itemObj, fKey);
-                            fields.add(fm);
+                        } else if (entry != null) {
+                            simpleStrings.add(entry.toString());
                         }
-                        if (!fields.isEmpty()) section.items.add(new ItemModel(fields));
+                    }
+                    if (!simpleStrings.isEmpty()) {
+                        String joined = android.text.TextUtils.join(", ", simpleStrings);
+                        String fKey = (shortKey.equals("skl") || shortKey.equals("hob") || shortKey.equals("int") || shortKey.equals("interest") || shortKey.equals("interests") || shortKey.equals("its")) ? "vals" : "val";
+                        String mappedKey = getMappedFieldKey(shortKey, fKey);
+                        FieldModel fm = new FieldModel(mappedKey, getFieldLabel(template, mappedKey, fKey), "text");
+                        fm.value = joined;
+                        section.items.add(new ItemModel(new ArrayList<>(Collections.singletonList(fm))));
                     }
                 } else if (val instanceof JSONObject) {
                     JSONObject itemObj = (JSONObject) val;
                     List<FieldModel> fields = new ArrayList<>();
+                    
                     java.util.Iterator<String> itemKeys = itemObj.keys();
                     while (itemKeys.hasNext()) {
                         String fKey = itemKeys.next();
                         if (shortKey.equals("per") && CONTACT_FIELDS.contains(fKey.toLowerCase())) continue;
                         
-                        // Alias Mapping for JSONObject case (hdr, cnt, sum, per)
-                        String lowerKey = fKey.toLowerCase();
-                        String mappedKey = fKey;
-                        
-                        if (shortKey.equals("sum") && (lowerKey.equals("desc") || lowerKey.equals("summary") || lowerKey.equals("body"))) {
-                            mappedKey = "summary";
-                        } else if (lowerKey.contains("linkedin")) {
-                            mappedKey = "linkedin";
-                        } else if (lowerKey.contains("github")) {
-                            mappedKey = "github";
-                        } else if (lowerKey.contains("facebook") || lowerKey.equals("fb")) {
-                            mappedKey = "facebook";
-                        } else if (lowerKey.equals("link") || lowerKey.equals("website") || lowerKey.equals("url") || lowerKey.equals("web")) {
-                            mappedKey = "link";
-                        }
-                        
-                        String label = fKey;
-                        if (template != null && !template.items.isEmpty()) {
-                            for (FieldModel tf : template.items.get(0).fields) {
-                                if (tf.key.equalsIgnoreCase(mappedKey) || tf.key.equalsIgnoreCase(fKey)) {
-                                    label = tf.label;
-                                    mappedKey = tf.key;
-                                    break;
-                                }
-                            }
-                        }
+                        String mappedKey = getMappedFieldKey(shortKey, fKey);
+                        String label = getFieldLabel(template, mappedKey, fKey);
                         
                         FieldModel fm = new FieldModel(mappedKey, label, "text");
                         fm.value = getJsonVal(itemObj, fKey);
                         fields.add(fm);
                     }
-                    if (!fields.isEmpty()) section.items.add(new ItemModel(fields));
+
+                    if (!fields.isEmpty()) {
+                        if (isSingleton && !section.items.isEmpty()) {
+                            // SMART MERGE
+                            ItemModel first = section.items.get(0);
+                            for (FieldModel newF : fields) {
+                                boolean found = false;
+                                for (FieldModel existingF : first.fields) {
+                                    if (existingF.key.equals(newF.key)) {
+                                        if (existingF.value == null || existingF.value.isEmpty() || existingF.value.equals("...")) {
+                                            existingF.value = newF.value;
+                                        }
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) first.fields.add(newF);
+                            }
+                        } else {
+                            section.items.add(new ItemModel(fields));
+                        }
+                    }
+                } else if (val != null && !(val instanceof JSONArray) && !(val instanceof JSONObject)) {
+                    // PRIMITIVE VALUE (String, etc.) SUPPORT
+                    String valStr = val.toString().trim();
+                    if (!valStr.isEmpty() && !valStr.equals("...")) {
+                        String fKey = "val"; // Default fallback
+                        if (shortKey.equals("sum") || shortKey.equals("summary") || shortKey.equals("objective") || shortKey.equals("obj")) fKey = "summary";
+                        else if (shortKey.equals("hdr") || shortKey.equals("header")) fKey = "role";
+                        else if (shortKey.equals("dec") || shortKey.equals("declaration")) fKey = "text";
+                        
+                        String mappedKey = getMappedFieldKey(shortKey, fKey);
+                        String label = getFieldLabel(template, mappedKey, fKey);
+                        
+                        FieldModel fm = new FieldModel(mappedKey, label, "text");
+                        fm.value = valStr;
+                        List<FieldModel> fields = new ArrayList<>();
+                        fields.add(fm);
+                        
+                        if (isSingleton && !section.items.isEmpty()) {
+                            ItemModel first = section.items.get(0);
+                            boolean found = false;
+                            for (FieldModel existingF : first.fields) {
+                                if (existingF.key.equals(fm.key)) {
+                                    if (existingF.value == null || existingF.value.isEmpty() || existingF.value.equals("...")) existingF.value = fm.value;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) first.fields.add(fm);
+                        } else {
+                            section.items.add(new ItemModel(fields));
+                        }
+                    }
                 }
                 Log.d("ResumeDataManager", "Processed shorthand section: " + shortKey + " -> " + sId + " (Total items: " + section.items.size() + ")");
             }
@@ -545,10 +666,63 @@ public class ResumeDataManager {
             }
 
         } catch (Exception e) {
-            Log.e("ResumeDataManager", "Error parsing shorthand JSON", e);
+            Log.e("ResumeDataManager", "Error parsing structured JSON", e);
         }
         
+        ensureEssentialSections(sectionMap);
         return new ArrayList<>(sectionMap.values());
+    }
+
+    private static void ensureEssentialSections(java.util.Map<String, SectionModel> sectionMap) {
+        String[][] essentials = {
+            {"contactDetails", "Contact Details", "fa-address-book", "contact", "gridEssentials"},
+            {"personalDetails", "Personal Details", "fa-id-card", "personal", "gridEssentials"},
+            {"summarySection", "Summary", "fa-user-tie", "summary_paragraph", "gridEssentials"},
+            {"declarationSection", "Declaration", "fa-file-signature", "declaration_block", "gridEssentials"}
+        };
+        for (String[] ess : essentials) {
+            SectionModel s;
+            if (!sectionMap.containsKey(ess[0])) {
+                s = new SectionModel(ess[0], ess[1], ess[2], ess[3], ess[4]);
+                sectionMap.put(ess[0], s);
+            } else {
+                s = sectionMap.get(ess[0]);
+            }
+
+            // BACKFILL: Ensure Personal Details always has the 4 standard fields
+            if (ess[0].equals("personalDetails") && !s.items.isEmpty()) {
+                ItemModel item = s.items.get(0);
+                String[] standardKeys = {"nationality", "dob", "gender", "ms"};
+                String[] standardLabels = {"Nationality", "Date of Birth", "Gender", "Marital Status"};
+                
+                ArrayList<FieldModel> newFields = new ArrayList<>();
+                for (int i = 0; i < standardKeys.length; i++) {
+                    FieldModel existing = null;
+                    for (FieldModel f : item.fields) {
+                        // Check key match, mapped key match, or fuzzy label match
+                        if (f.key.equalsIgnoreCase(standardKeys[i]) || 
+                            getMappedFieldKey("per", f.key).equalsIgnoreCase(standardKeys[i]) ||
+                            f.label.toLowerCase().contains(standardLabels[i].toLowerCase())) {
+                            existing = f;
+                            break;
+                        }
+                    }
+                    if (existing != null) {
+                        newFields.add(existing);
+                    } else {
+                        newFields.add(new FieldModel(standardKeys[i], standardLabels[i], "...", "text"));
+                    }
+                }
+                
+                // Add any other non-standard fields that might exist
+                for (FieldModel f : item.fields) {
+                    boolean isStandard = false;
+                    for (String skip : standardKeys) if (f.key.equals(skip)) { isStandard = true; break; }
+                    if (!isStandard) newFields.add(f);
+                }
+                item.fields = newFields;
+            }
+        }
     }
 
     private static String sanitizeJson(String json) {
@@ -577,7 +751,8 @@ public class ResumeDataManager {
         
         // Shorthand Mappings (Shorthand -> Template ID)
         java.util.Map<String, String> sectionMap = new java.util.HashMap<>();
-        sectionMap.put("hdr", "headerSection"); sectionMap.put("header", "headerSection");
+        sectionMap.put("hdr", "nameProfessionSection"); sectionMap.put("header", "nameProfessionSection");
+
         sectionMap.put("sum", "summarySection"); sectionMap.put("summary", "summarySection");
         sectionMap.put("objective", "summarySection");
         sectionMap.put("exp", "experience"); sectionMap.put("experience", "experience");
@@ -589,9 +764,13 @@ public class ResumeDataManager {
         sectionMap.put("vol", "volunteer"); sectionMap.put("ach", "achievements");
         sectionMap.put("web", "weblinks"); sectionMap.put("hob", "hobbies");
         sectionMap.put("pub", "publications"); sectionMap.put("ref", "references");
-        sectionMap.put("trn", "training"); sectionMap.put("int", "internships");
+        sectionMap.put("trn", "training"); sectionMap.put("int", "interests");
+        sectionMap.put("isn", "internships"); sectionMap.put("intern", "internships");
+        sectionMap.put("interest", "interests");
         sectionMap.put("per", "personalDetails"); sectionMap.put("pass", "passportDetails");
+
         sectionMap.put("awd", "awards"); sectionMap.put("dec", "declarationSection");
+        sectionMap.put("tst", "testScores"); sectionMap.put("test", "testScores");
 
         // Key Mappings (Shorthand -> Field Key)
         java.util.Map<String, String> keyMap = new java.util.HashMap<>();
@@ -740,6 +919,30 @@ public class ResumeDataManager {
         return sections;
     }
 
+    private static JSONArray serializeSections(List<SectionModel> sections) throws JSONException {
+        JSONArray arr = new JSONArray();
+        for (SectionModel s : sections) {
+            JSONObject sObj = new JSONObject();
+            sObj.put("id", s.id);
+            sObj.put("name", s.name);
+            sObj.put("type", s.type);
+            sObj.put("icon", s.icon);
+            sObj.put("group", s.group);
+
+            JSONArray itemsArr = new JSONArray();
+            for (ItemModel item : s.items) {
+                JSONObject itemObj = new JSONObject();
+                for (FieldModel f : item.fields) {
+                    itemObj.put(f.key, f.value);
+                }
+                itemsArr.put(itemObj);
+            }
+            sObj.put("items", itemsArr);
+            arr.put(sObj);
+        }
+        return arr;
+    }
+
     public static JSONObject generateStateJson(List<SectionModel> sections, JSONObject originalData) throws JSONException {
         JSONObject state = new JSONObject();
         JSONObject headerData = new JSONObject();
@@ -798,7 +1001,18 @@ public class ResumeDataManager {
         html.append("<header id=\"mainHeader\">");
         
         if (headerData.length() > 0) {
-            html.append("<div class=\"header-info\"><h1>").append(headerData.optString("name", "Your Name")).append("</h1>");
+            String hName = headerData.optString("name", "Your Name");
+            // Try to get role/title from the header section item directly
+            String hTitle = "";
+            if (headerSec != null && !headerSec.items.isEmpty()) {
+                hTitle = getFieldValue(headerSec.items.get(0), "role");
+                if (hTitle.equals("...") || hTitle.isEmpty()) hTitle = getFieldValue(headerSec.items.get(0), "title");
+                if (hTitle.equals("...")) hTitle = "";
+            }
+            html.append("<div class=\"header-info\"><h1>").append(hName).append("</h1>");
+            if (!hTitle.isEmpty()) {
+                html.append("<div class=\"professional-title\">").append(hTitle).append("</div>");
+            }
             html.append("<div class=\"contact-info\">");
             
             JSONArray items = headerData.optJSONArray("items");
@@ -909,17 +1123,21 @@ public class ResumeDataManager {
         flags.put("iconsHidden", false); flags.put("breaksHidden", false); flags.put("isEditing", true);
         state.put("flags", flags);
         
+        // Export raw data for smart hydration in templates
+        state.put("sections", serializeSections(sections));
+        state.put("header", headerData);
+        
         return state;
     }
 
     private static String generateSectionWrapper(SectionModel section) {
         StringBuilder sb = new StringBuilder();
         String extraClass = "";
-        if (section.id.equals("summarySection")) extraClass = "objective";
+        if (section.id.equals("summarySection")) extraClass = "objective full-width";
         else if (section.id.equals("personalDetails")) extraClass = "personal-details";
-        else if (section.id.equals("declarationSection")) extraClass = "declaration";
+        else if (section.id.equals("declarationSection")) extraClass = "declaration full-width";
 
-        sb.append("<section class=\"resume-section ").append(extraClass).append("\" id=\"").append(section.id).append("\" data-section-type=\"").append(section.type).append("\">");
+        sb.append("<section class=\"resume-section ").append(extraClass).append("\" id=\"").append(section.id).append("\" data-type=\"").append(section.type).append("\" data-section-type=\"").append(section.type).append("\">");
         sb.append("<h2><i class=\"fas ").append(section.icon).append("\"></i> ").append(section.name.toUpperCase()).append("</h2>");
         sb.append("<div class=\"content-area\">");
         for (ItemModel item : section.items) {
@@ -933,6 +1151,8 @@ public class ResumeDataManager {
         StringBuilder sb = new StringBuilder();
         switch (type) {
             case "header":
+            case "name_profession":
+
                 // 1. Name & Title
                 String name = getFieldValue(item, "name");
                 String title = getFieldValue(item, "role"); // Some templates might map title/role
@@ -988,6 +1208,39 @@ public class ResumeDataManager {
                       .append(f.value.isEmpty() ? "N/A" : f.value).append("</span></div>");
                 }
                 break;
+            case "contact":
+                sb.append("<div class=\"contact-grid\">");
+                for (FieldModel f : item.fields) {
+                    if (f.value.isEmpty() || f.value.equals("...")) continue;
+                    
+                    String icon = "fa-info-circle";
+                    String prefix = "fas";
+                    String lowKey = f.key.toLowerCase();
+                    
+                    if (lowKey.contains("email")) icon = "fa-envelope";
+                    else if (lowKey.contains("phone") || lowKey.contains("tel") || lowKey.contains("mob")) icon = "fa-phone";
+                    else if (lowKey.contains("addr") || lowKey.contains("city") || lowKey.contains("loc")) icon = "fa-map-marker-alt";
+                    else if (lowKey.contains("link") || lowKey.contains("web") || lowKey.contains("url") || lowKey.contains("port") || lowKey.contains("git") || lowKey.contains("site")) icon = "fa-link";
+                    
+                    if (lowKey.contains("git")) { icon = "fa-github"; prefix = "fab"; }
+                    else if (lowKey.contains("linkedin")) { icon = "fa-linkedin"; prefix = "fab"; }
+                    else if (lowKey.contains("face") || lowKey.contains("fb")) { icon = "fa-facebook"; prefix = "fab"; }
+                    else if (lowKey.contains("twit") || lowKey.contains("x")) { icon = "fa-twitter"; prefix = "fab"; }
+                    else if (lowKey.contains("insta")) { icon = "fa-instagram"; prefix = "fab"; }
+                    
+                    String val = f.value;
+                    String displayVal = val;
+                    if (val.startsWith("http") || val.contains(".com") || val.contains(".org") || val.contains(".me") || val.contains(".io")) {
+                        String href = val.startsWith("http") || val.startsWith("www") ? val : "https://" + val;
+                        if (!val.startsWith("http") && val.startsWith("www")) href = "https://" + val;
+                        displayVal = "<a href=\"" + href + "\" target=\"_blank\">" + val + "</a>";
+                    }
+
+                    sb.append("<div class=\"contact-item\"><i class=\"").append(prefix).append(" ").append(icon).append("\"></i> ")
+                      .append("<span>").append(displayVal).append("</span></div>");
+                }
+                sb.append("</div>");
+                break;
             case "weblinks":
                 sb.append("<div class=\"data-table-item\">");
                 String wName = getFieldValue(item, "name");
@@ -998,8 +1251,12 @@ public class ResumeDataManager {
                 sb.append("</div>");
                 break;
             case "summary_paragraph":
-                sb.append("<p style=\"line-height: 1.6; color: var(--text-main);\">").append(getFieldValue(item, "summary")).append("</p>");
+                String sumText = getFieldValue(item, "summary");
+                // FALLBACK: Some AI output or older data might use 'desc' key
+                if (sumText.equals("...") || sumText.isEmpty()) sumText = getFieldValue(item, "desc");
+                sb.append("<p style=\"line-height: 1.6; color: var(--text-main);\">").append(sumText).append("</p>");
                 break;
+
             case "education":
                 sb.append("<div class=\"data-table-item\"><div class=\"table-row\" style=\"justify-content: space-between;\"><div><span class=\"table-label\">Institute:</span> <span class=\"table-val\" style=\"font-weight:600;\">")
                   .append(getFieldValue(item, "inst")).append("</span></div>");
@@ -1020,14 +1277,27 @@ public class ResumeDataManager {
                   .append(getFieldValue(item, "dur")).append("</span></div>");
                 sb.append("<div class=\"table-row\"><span class=\"table-val exp-role\">").append(getFieldValue(item, "role")).append("</span></div>");
                 sb.append("<ul class=\"resp-list\">");
-                String desc = getFieldValue(item, "desc");
-                String[] bullets = desc.equals("...") ? new String[]{"..."} : desc.split("\n");
-                for (String b : bullets) {
+                String descRaw = getFieldValue(item, "desc");
+                String[] bulletpts = descRaw.equals("...") ? new String[]{"..."} : descRaw.split("\n");
+                for (String b : bulletpts) {
                     if (!b.trim().isEmpty()) {
                         sb.append("<li>").append(b.trim()).append("</li>");
                     }
                 }
                 sb.append("</ul></div>");
+                break;
+            case "awards":
+            case "achievements":
+                sb.append("<div class=\"data-table-item\"><div class=\"table-row\" style=\"justify-content: space-between;\"><span class=\"table-val\" style=\"font-weight:700;\">")
+                  .append(getFieldValue(item, "title")).append("</span><span class=\"table-val\" style=\"font-size:0.85em; color: var(--text-muted);\">")
+                  .append(getFieldValue(item, "year")).append("</span></div>");
+                sb.append("<div class=\"proj-desc\">").append(getFieldValue(item, "desc")).append("</div></div>");
+                break;
+            case "certifications":
+                sb.append("<div class=\"data-table-item\"><div class=\"table-row\" style=\"justify-content: space-between;\"><span class=\"table-val\" style=\"font-weight:700;\">")
+                  .append(getFieldValue(item, "name")).append("</span><span class=\"table-val\" style=\"font-size:0.85em; color: var(--text-muted);\">")
+                  .append(getFieldValue(item, "year")).append("</span></div>");
+                sb.append("<div class=\"proj-desc\">").append(getFieldValue(item, "desc")).append("</div></div>");
                 break;
             case "projects":
                 sb.append("<div class=\"data-table-item\"><div class=\"table-row\" style=\"justify-content: space-between;\"><span class=\"table-val\" style=\"font-weight:700;\">")
@@ -1040,8 +1310,15 @@ public class ResumeDataManager {
             case "skills":
             case "hobbies":
             case "interests":
-                sb.append("<div class=\"skill-group\"><span class=\"skill-header\">").append(getFieldValue(item, "cat")).append("</span>");
-                sb.append("<div class=\"skill-sub\">").append(getFieldValue(item, "vals")).append("</div></div>");
+                sb.append("<div class=\"skill-group\">");
+                String groupCat = getFieldValue(item, "cat");
+                if (!groupCat.equals("...") && !groupCat.isEmpty()) {
+                    sb.append("<span class=\"skill-header\">").append(groupCat).append("</span>");
+                }
+                String skillVals = getFieldValue(item, "vals");
+                if (skillVals.equals("...") || skillVals.isEmpty()) skillVals = getFieldValue(item, "val");
+                if (skillVals.equals("...") || skillVals.isEmpty()) skillVals = getFieldValue(item, "text");
+                sb.append("<div class=\"skill-sub\">").append(skillVals).append("</div></div>");
                 break;
             case "languages":
                 sb.append("<div class=\"data-table-item\"><div class=\"table-row\"><span class=\"table-label\">")
@@ -1049,7 +1326,6 @@ public class ResumeDataManager {
                   .append(getFieldValue(item, "lvl")).append("</span></div></div>");
                 break;
             case "visa":
-            case "test_scores":
             case "family":
             case "lifestyle":
             case "astrological":
@@ -1157,20 +1433,13 @@ public class ResumeDataManager {
                 if (!eDesc.equals("...")) sb.append("<div class=\"proj-desc\">").append(eDesc).append("</div>");
                 sb.append("</div>");
                 break;
-            case "awards":
-            case "achievements":
+            case "test_scores":
                 sb.append("<div class=\"data-table-item\">");
-                sb.append("<div class=\"table-row\" style=\"justify-content:space-between;\"><span class=\"table-val\" style=\"font-weight:700;\">").append(getFieldValue(item, "title")).append("</span>");
-                sb.append("<span class=\"table-val\" style=\"color:#666;\">").append(getFieldValue(item, "year")).append("</span></div>");
-                String bDesc = getFieldValue(item, "body");
-                if (!bDesc.equals("...")) sb.append("<div class=\"proj-desc\">").append(bDesc).append("</div>");
-                sb.append("</div>");
-                break;
-            case "certifications":
-                sb.append("<div class=\"data-table-item\">");
-                sb.append("<div class=\"table-row\" style=\"justify-content:space-between;\"><span class=\"table-val\" style=\"font-weight:700;\">").append(getFieldValue(item, "name")).append("</span>");
-                sb.append("<span class=\"table-val\" style=\"color:#666;\">").append(getFieldValue(item, "date")).append("</span></div>");
-                sb.append("<div class=\"table-row\"><span class=\"table-val\" style=\"font-style:italic;\">").append(getFieldValue(item, "org")).append("</span></div>");
+                sb.append("<div class=\"table-row\" style=\"justify-content:space-between;\">")
+                  .append("<span class=\"table-val\" style=\"font-weight:700;\">").append(getFieldValue(item, "test")).append("</span>")
+                  .append("<span class=\"table-val\" style=\"font-weight:600; color:var(--primary-color);\">").append(getFieldValue(item, "score")).append("</span>")
+                  .append("</div>");
+                sb.append("<div class=\"table-row\"><span class=\"table-label\">Date:</span> <span class=\"table-val\">").append(getFieldValue(item, "date")).append("</span></div>");
                 sb.append("</div>");
                 break;
             default:
@@ -1179,6 +1448,61 @@ public class ResumeDataManager {
                 sb.append("<div class=\"simple-list-item\">").append(val).append("</div>");
         }
         return sb.toString();
+    }
+
+    private static String getMappedFieldKey(String shortKey, String fKey) {
+        String lowerKey = fKey.toLowerCase();
+        String mappedKey = fKey;
+
+        if (lowerKey.equals("com") || lowerKey.equals("company") || lowerKey.equals("org")) mappedKey = "comp";
+        else if (lowerKey.equals("inst") || lowerKey.equals("school") || lowerKey.equals("college") || lowerKey.equals("university")) mappedKey = "inst";
+        else if (lowerKey.equals("role") || lowerKey.equals("position") || lowerKey.equals("pos") || lowerKey.equals("title") || lowerKey.equals("job_title") || lowerKey.equals("work_role") || lowerKey.equals("professional_title")) mappedKey = "role";
+        else if (lowerKey.equals("desc") || lowerKey.equals("description") || lowerKey.equals("resp") || lowerKey.equals("responsibilities")) mappedKey = "desc";
+        else if (lowerKey.equals("summary") || lowerKey.equals("objective") || lowerKey.equals("obj")) mappedKey = "summary";
+
+        else if (lowerKey.equals("year") || lowerKey.equals("date") || lowerKey.equals("dur") || lowerKey.equals("duration")) mappedKey = "dur";
+        else if (lowerKey.equals("deg") || lowerKey.equals("degree")) mappedKey = "deg";
+        else if (lowerKey.equals("gpa") || lowerKey.equals("grade")) mappedKey = "gpa";
+        else if (lowerKey.equals("board")) mappedKey = "board";
+        else if (lowerKey.equals("nat") || lowerKey.equals("nationality")) mappedKey = "nationality";
+        else if (lowerKey.equals("dob") || lowerKey.equals("birth") || lowerKey.equals("dateofbirth") || lowerKey.equals("date_of_birth") || lowerKey.equals("birthday")) mappedKey = "dob";
+        else if (lowerKey.equals("gen") || lowerKey.equals("gender") || lowerKey.equals("sex") || lowerKey.equals("gender_identity") || lowerKey.equals("gender_idenity")) mappedKey = "gender";
+        else if (lowerKey.equals("mar") || lowerKey.equals("marital") || lowerKey.equals("maritalstatus") || lowerKey.equals("marital_status") || lowerKey.equals("single") || lowerKey.equals("married")) mappedKey = "ms";
+        else if (lowerKey.equals("cat") || lowerKey.equals("category")) mappedKey = "cat";
+        else if (lowerKey.equals("vals") || lowerKey.equals("skills") || lowerKey.equals("items") || lowerKey.equals("values")) mappedKey = "vals";
+        else if (lowerKey.equals("lang") || lowerKey.equals("language") || (lowerKey.equals("name") && shortKey.equals("lan"))) mappedKey = "lang";
+        else if (lowerKey.equals("lvl") || lowerKey.equals("level") || lowerKey.equals("proficiency")) mappedKey = "lvl";
+        else if (lowerKey.equals("h") || lowerKey.equals("height")) mappedKey = "height";
+        else if (lowerKey.contains("linkedin")) mappedKey = "linkedin";
+        else if (lowerKey.contains("github")) mappedKey = "github";
+        else if (lowerKey.contains("facebook") || lowerKey.equals("fb")) mappedKey = "facebook";
+        else if (lowerKey.equals("link") || lowerKey.equals("website") || lowerKey.equals("url") || lowerKey.equals("web")) mappedKey = "link";
+        else if (shortKey.equals("ast") && (lowerKey.equals("zodiac") || lowerKey.equals("zodiacsign") || lowerKey.equals("rashi"))) mappedKey = "rashi";
+        else if (shortKey.equals("ast") && (lowerKey.equals("birthstar") || lowerKey.equals("birth_star") || lowerKey.equals("nakshatra") || lowerKey.equals("star"))) mappedKey = "nakshatra";
+        else if (shortKey.equals("ast") && (lowerKey.equals("lineage") || lowerKey.equals("clan") || lowerKey.equals("gotra") || lowerKey.equals("lineageclan"))) mappedKey = "gotra";
+        else if (shortKey.equals("sum") && (lowerKey.equals("desc") || lowerKey.equals("summary") || lowerKey.equals("body"))) mappedKey = "summary";
+        else if (shortKey.equals("tst") && (lowerKey.equals("name") || lowerKey.equals("title") || lowerKey.equals("testname"))) mappedKey = "test";
+        else if (shortKey.equals("tst") && (lowerKey.equals("val") || lowerKey.equals("value") || lowerKey.equals("result"))) mappedKey = "score";
+        else if ((shortKey.equals("interests") || shortKey.equals("its") || shortKey.equals("int")) && (lowerKey.equals("val") || lowerKey.equals("vals") || lowerKey.equals("interest") || lowerKey.equals("hobbies") || lowerKey.equals("value"))) mappedKey = "vals";
+        else if ((shortKey.equals("isn") || shortKey.equals("int")) && (lowerKey.equals("comp") || lowerKey.equals("company") || lowerKey.equals("org"))) mappedKey = "comp";
+
+        if (shortKey.equals("edu") && mappedKey.equals("dur")) mappedKey = "year";
+        else if (shortKey.equals("exp") && mappedKey.equals("year")) mappedKey = "dur";
+
+        return mappedKey;
+    }
+
+    private static String getFieldLabel(SectionModel template, String mappedKey, String originalKey) {
+        String label = originalKey;
+        if (template != null && !template.items.isEmpty()) {
+            for (FieldModel tf : template.items.get(0).fields) {
+                if (tf.key.equalsIgnoreCase(mappedKey) || tf.key.equalsIgnoreCase(originalKey)) {
+                    label = tf.label;
+                    break;
+                }
+            }
+        }
+        return label;
     }
 
     private static String getJsonVal(JSONObject obj, String key) {

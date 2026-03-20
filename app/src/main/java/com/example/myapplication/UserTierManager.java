@@ -206,6 +206,27 @@ public class UserTierManager {
 
                 int responseCode = conn.getResponseCode();
                 Log.d(TAG, "Cloudflare Sync Response: " + responseCode);
+
+                if (responseCode == 200) {
+                    java.io.InputStream is = conn.getInputStream();
+                    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+                    String responseStr = s.hasNext() ? s.next() : "";
+                    
+                    if (!responseStr.isEmpty()) {
+                        JSONObject responseJson = new JSONObject(responseStr);
+                        if (responseJson.has("tier")) {
+                            String cloudTier = responseJson.getString("tier");
+                            Log.d(TAG, "Authoritative tier from Cloud: " + cloudTier);
+                            
+                            // Update local tier if different (avoiding setTier to prevent loops)
+                            String currentLocalTier = prefs.getString(KEY_USER_TIER, Tier.FREE.name());
+                            if (!currentLocalTier.equals(cloudTier)) {
+                                prefs.edit().putString(KEY_USER_TIER, cloudTier).apply();
+                                Log.i(TAG, "User tier updated from Cloud: " + cloudTier);
+                            }
+                        }
+                    }
+                }
                 conn.disconnect();
             } catch (Exception e) {
                 Log.e(TAG, "Cloudflare Sync Error", e);

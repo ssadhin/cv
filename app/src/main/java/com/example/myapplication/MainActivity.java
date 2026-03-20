@@ -1747,7 +1747,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                      Log.d(TAG, "Applying AI Template: " + aiTemplate);
                      // Map IDs just in case, or pass directly if matching JS
                      // sectionDesignIds = {"default", "timeline", "glass", "bento"};
-                     myWebView.evaluateJavascript("if(window.updateSectionDesign) window.updateSectionDesign('" + aiTemplate + "');", null);
+                     myWebView.evaluateJavascript("if(window.applyLayoutDesign) window.applyLayoutDesign('" + aiTemplate + "');", null);
                      
                      // Update Native Index for UI consistency
                      for(int i=0; i<sectionDesignIds.length; i++) {
@@ -1812,6 +1812,7 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                 }
                 
                 if (getIntent() != null && getIntent().getBooleanExtra("EXTRA_FROM_STEP_BY_STEP", false)) {
+                    hasEnteredEditOnce = true; // Skip first-time edit reload as we already have fresh AI data
                     ArrayList<String> sections = getIntent().getStringArrayListExtra("EXTRA_STEP_BY_STEP_SECTIONS");
                     String layout = getIntent().getStringExtra("EXTRA_TARGET_LAYOUT");
                     String wizardData = getIntent().getStringExtra("EXTRA_STEP_BY_STEP_DATA");
@@ -1839,19 +1840,23 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
                             "localStorage.removeItem('resume_app_v2_redo');";
                     
                     if (wizardData != null) {
+                        hasEnteredEditOnce = true; // Avoid first-edit reload when coming from AI
                         if (templateJson != null) {
                             String safeTemplate = org.json.JSONObject.quote(templateJson);
-                            String setupJs = "window.applyUserTemplate(" + safeTemplate + ", " + wizardData + "); ";
+                            String safeWizardData = org.json.JSONObject.quote(wizardData);
+                            String setupJs = "window.applyUserTemplate(" + safeTemplate + ", " + safeWizardData + "); ";
                             view.evaluateJavascript(clearStorageJs + setupJs, null);
                             Log.d(TAG, "✓ Applied Full Template + AI Data via applyUserTemplate");
                         } else {
+                            String safeWizardData = org.json.JSONObject.quote(wizardData);
                             String layoutSafe = (layout != null) ? "'" + layout + "'" : "null";
-                            String setupJs = "window.loadResumeData(" + wizardData + ", " + layoutSafe + "); ";
+                            String setupJs = "window.loadResumeData(" + safeWizardData + ", " + layoutSafe + "); ";
                             view.evaluateJavascript(clearStorageJs + setupJs, null);
                             Log.d(TAG, "✓ Injected Full Wizard Data (via loadResumeData)");
                         }
-                    }
- else if (sections != null) {
+
+                    } else if (sections != null) {
+                        hasEnteredEditOnce = true;
                         StringBuilder sb = new StringBuilder("[");
                         for (int i = 0; i < sections.size(); i++) {
                             sb.append("'").append(sections.get(i)).append("'");

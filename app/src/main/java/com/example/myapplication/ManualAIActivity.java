@@ -115,7 +115,7 @@ public class ManualAIActivity extends AppCompatActivity {
                 View btnCopyPromptLarge = step1View.findViewById(R.id.btnCopyPromptLarge);
                 if (btnCopyPromptLarge != null) {
                     btnCopyPromptLarge.setOnClickListener(v -> {
-                        copyToClipboard(getString(R.string.master_prompt_simple));
+                        copyToClipboard(getString(R.string.master_prompt_advanced));
                         isPromptCopied = true;
                         if (btnNextStep1 != null) {
                             btnNextStep1.setEnabled(true);
@@ -123,6 +123,11 @@ public class ManualAIActivity extends AppCompatActivity {
                         }
                         showLargeToast(getString(R.string.manual_ai_prompt_copied_msg));
                     });
+                }
+
+                View btnSkipToStep3 = step1View.findViewById(R.id.btnSkipToStep3);
+                if (btnSkipToStep3 != null) {
+                    btnSkipToStep3.setOnClickListener(v -> goToStep(3));
                 }
             }
 

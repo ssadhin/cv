@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -12755,8 +12755,8 @@
                 }
 
                 function updatePageBreaks() {
-                    // Use a margin-safe A4 height (297mm exact, 280mm safe printable area)
-                    const pageHeightMm = 280;
+                    // Exact A4 height (297mm)
+                    const pageHeightMm = 297;
                     const dpi = 96;
                     const mmPerPx = 25.4 / dpi;
 
@@ -12765,7 +12765,7 @@
                     const totalMm = totalPx * mmPerPx;
                     const numPages = Math.ceil(totalMm / pageHeightMm);
 
-                    // Create page breaks at exact 280mm intervals
+                    // Create page breaks at exact 297mm intervals
                     for (let i = 1; i < numPages; i++) {
                         const breakPositionMm = pageHeightMm * i;
 
@@ -13520,7 +13520,7 @@
                         }
 
                         // Remove the toggle button code itself
-                        finalContent = finalContent.replace(/<div class="template-toggle-btn"[\s\S]*?<\/div>/g, '');
+                        finalContent = finalContent.replace(/<div(?:[^>]*\s)?class="[^"]*template-toggle-btn[^"]*"[^>]*>[\s\S]*?<\/div>/g, '');
 
                         // Capture Parent Structure
                         let parentType = 'main';
@@ -16104,6 +16104,11 @@
                     try {
                         // Helper for Smart Hydration
                         const hydrateSection = (el, dt, content) => {
+                            // Strip out floating minus signs (.template-toggle-btn) saved from old templates
+                            if (content) {
+                                content = content.replace(/<div(?:[^>]*\s)?class="[^"]*template-toggle-btn[^"]*"[^>]*>[\s\S]*?<\/div>/g, '');
+                            }
+
                             const isIdentity = dt === 'mainHeader' || dt === 'name_profession' || dt === 'personal' || dt === 'profileSection' || dt === 'profile_pic' || dt === 'profile_picture';
 
                             // PRE-HYDRATION: Capture current title text BEFORE any innerHTML replacement wipes it
@@ -16114,7 +16119,7 @@
                             if (initialH2) {
                                 const titleSpan = initialH2.querySelector('.h2-title-text');
                                 if (titleSpan) {
-                                    originalTitleText = titleSpan.innerText;
+                                    originalTitleText = titleSpan.textContent.trim();
                                 } else {
                                     originalTitleText = initialH2.innerText || initialH2.textContent;
                                 }
@@ -16636,8 +16641,8 @@
                                         if (userH2) {
                                             var userTitleSpan = userH2.querySelector('.h2-title-text');
                                             currentTitleText = userTitleSpan
-                                                ? userTitleSpan.innerText.trim()
-                                                : (userH2.innerText || userH2.textContent || '').trim();
+                                                ? userTitleSpan.textContent.trim()
+                                                : (userH2.textContent || '').trim();
                                             // Also rescue icon class from user backup if not captured from live DOM
                                             if (!originalIconClass) {
                                                 var userIcon = userH2.querySelector('i');
@@ -16652,8 +16657,20 @@
                                     if (!currentTitleText) {
                                         var tplTitleSpan = templateH2.querySelector('.h2-title-text');
                                         currentTitleText = tplTitleSpan
-                                            ? tplTitleSpan.innerText.trim()
-                                            : (templateH2.innerText || templateH2.textContent || '').trim();
+                                            ? tplTitleSpan.textContent.trim()
+                                            : (templateH2.textContent || '').trim();
+                                    }
+
+                                    // FIX: If title is still empty (e.g. template was saved as a skeleton which stripped text nodes)
+                                    // Fallback to the default section name to prevent completely blank headers.
+                                    if (!currentTitleText) {
+                                        if (typeof ALL_SECTIONS !== 'undefined') {
+                                            const def = ALL_SECTIONS.find(s => s.id === dt || s.type === dt);
+                                            if (def) currentTitleText = def.name.toUpperCase();
+                                        }
+                                        if (!currentTitleText && dt) {
+                                            currentTitleText = dt.replace(/([A-Z])/g, ' $1').trim().toUpperCase();
+                                        }
                                     }
 
                                     if (templateH2.classList.contains('custom-header')) {
