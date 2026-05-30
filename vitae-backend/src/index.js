@@ -239,11 +239,12 @@ export default {
 
 				if (!uid) return new Response("Missing uid", { status: 400, headers: corsHeaders });
 
+				const currentMonth = new Date().toISOString().substring(0, 7); // YYYY-MM
+				
 				// Server-authoritative tier: sync does NOT accept tier from client.
-				// Tier is only set via /api/subscriptions/verify or /api/coupons/verify.
 				await env.DB.prepare(`
-					INSERT INTO Users (uid, email, name, ip, device_model, android_version, tier, last_seen)
-					VALUES (?, ?, ?, ?, ?, ?, 'FREE', CURRENT_TIMESTAMP)
+					INSERT INTO Users (uid, email, name, ip, device_model, android_version, tier, last_seen, last_reset_month)
+					VALUES (?, ?, ?, ?, ?, ?, 'FREE', CURRENT_TIMESTAMP, ?)
 					ON CONFLICT(uid) DO UPDATE SET
 						email = excluded.email,
 						name = excluded.name,
@@ -251,11 +252,28 @@ export default {
 						device_model = excluded.device_model,
 						android_version = excluded.android_version,
 						last_seen = CURRENT_TIMESTAMP
-				`).bind(uid, email || null, name || null, ip || null, device_model || null, android_version || null).run();
+				`).bind(uid, email || null, name || null, ip || null, device_model || null, android_version || null, currentMonth).run();
 
-				// Return the server-authoritative tier so app can sync
-				const user = await env.DB.prepare(`SELECT tier FROM Users WHERE uid = ?`).bind(uid).first();
-				return new Response(JSON.stringify({ success: true, tier: user ? user.tier : 'FREE' }), {
+				let user = await env.DB.prepare(`SELECT tier, trial_start, ai_count, template_count, last_reset_month FROM Users WHERE uid = ?`).bind(uid).first();
+				
+				// Auto-reset monthly limits
+				if (user.last_reset_month !== currentMonth) {
+					await env.DB.prepare(`UPDATE Users SET ai_count = 0, template_count = 0, last_reset_month = ? WHERE uid = ?`).bind(currentMonth, uid).run();
+					user.ai_count = 0;
+					user.template_count = 0;
+				}
+
+				// Check trial status (3 days)
+				const trialStart = new Date(user.trial_start).getTime();
+				const is_in_trial = (Date.now() - trialStart) < (3 * 24 * 60 * 60 * 1000);
+
+				return new Response(JSON.stringify({ 
+					success: true, 
+					tier: user.tier,
+					ai_count: user.ai_count,
+					template_count: user.template_count,
+					is_in_trial: is_in_trial
+				}), {
 					headers: { "Content-Type": "application/json", ...corsHeaders }
 				});
 			}
@@ -606,6 +624,21 @@ export default {
 
 				if (!prompt) return new Response("Missing prompt", { status: 400, headers: corsHeaders });
 
+				// Check Per-User AI Limit
+				const user = await env.DB.prepare(`SELECT tier, ai_count, last_reset_month FROM Users WHERE uid = ?`).bind(authUid).first();
+				if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: corsHeaders });
+				
+				const currentMonth = new Date().toISOString().substring(0, 7);
+				let aiCount = user.last_reset_month === currentMonth ? user.ai_count : 0;
+				
+				let allowedLimit = 3;
+				if (user.tier === 'AD_FREE') allowedLimit = 5;
+				else if (['PRO', 'PLUS', 'ELITE'].includes(user.tier)) allowedLimit = 999999;
+				
+				if (aiCount >= allowedLimit) {
+					return new Response(JSON.stringify({ error: "Monthly AI Limit Reached", limit_reached: true }), { status: 403, headers: corsHeaders });
+				}
+
 				const today = new Date().toISOString().split('T')[0];
 
 				// 1. Check/Increment Quota in D1
@@ -645,11 +678,54 @@ export default {
 				// 3. Increment usage count on success
 				if (geminiResponse.ok) {
 					await env.DB.prepare(`UPDATE AiUsage SET request_count = request_count + 1, last_updated = CURRENT_TIMESTAMP WHERE day = ?`).bind(today).run();
+					
+					// Increment user's AI count
+					if (user.last_reset_month === currentMonth) {
+						await env.DB.prepare(`UPDATE Users SET ai_count = ai_count + 1 WHERE uid = ?`).bind(authUid).run();
+					} else {
+						await env.DB.prepare(`UPDATE Users SET ai_count = 1, template_count = 0, last_reset_month = ? WHERE uid = ?`).bind(currentMonth, authUid).run();
+					}
 				}
 
 				return new Response(JSON.stringify(aiData), {
 					headers: { "Content-Type": "application/json", ...corsHeaders }
 				});
+			}
+
+			// ==========================================
+			// ENDPOINT: POST /api/users/usage
+			// Increments template download count
+			// ==========================================
+			if (method === "POST" && path === "/api/users/usage") {
+				const body = await request.json();
+				const { uid } = body;
+
+				const authUid = await verifyFirebaseToken(request);
+				if (!authUid || authUid !== uid) {
+					return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+				}
+
+				const user = await env.DB.prepare(`SELECT tier, template_count, last_reset_month FROM Users WHERE uid = ?`).bind(authUid).first();
+				if (!user) return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: corsHeaders });
+				
+				const currentMonth = new Date().toISOString().substring(0, 7);
+				let templateCount = user.last_reset_month === currentMonth ? user.template_count : 0;
+				
+				let allowedLimit = 3;
+				if (user.tier === 'AD_FREE') allowedLimit = 5;
+				else if (['PRO', 'PLUS', 'ELITE'].includes(user.tier)) allowedLimit = 999999;
+				
+				if (templateCount >= allowedLimit) {
+					return new Response(JSON.stringify({ error: "Monthly Template Limit Reached", limit_reached: true }), { status: 403, headers: corsHeaders });
+				}
+
+				if (user.last_reset_month === currentMonth) {
+					await env.DB.prepare(`UPDATE Users SET template_count = template_count + 1 WHERE uid = ?`).bind(authUid).run();
+				} else {
+					await env.DB.prepare(`UPDATE Users SET template_count = 1, ai_count = 0, last_reset_month = ? WHERE uid = ?`).bind(currentMonth, authUid).run();
+				}
+
+				return new Response(JSON.stringify({ success: true, count: templateCount + 1 }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
 			}
 
 			// ==========================================

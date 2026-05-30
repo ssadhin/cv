@@ -96,13 +96,7 @@ public class UserTierManager {
      */
     public boolean isInTrialPeriod() {
         if (getUserTier() != Tier.FREE) return false;
-
-        long trialStart = prefs.getLong(KEY_TRIAL_START, -1);
-        if (trialStart == -1) return false;
-
-        long now = System.currentTimeMillis();
-        long threeDaysMillis = 3L * 24 * 60 * 60 * 1000;
-        return (now - trialStart) < threeDaysMillis;
+        return prefs.getBoolean("is_in_trial", false);
     }
 
     public Tier getUserTier() {
@@ -231,6 +225,15 @@ public class UserTierManager {
                         JSONObject responseJson = new JSONObject(responseStr);
                         if (responseJson.has("tier")) {
                             String cloudTier = responseJson.getString("tier");
+                            if (responseJson.has("ai_count")) {
+                                prefs.edit().putInt(KEY_AI_COUNT, responseJson.getInt("ai_count")).apply();
+                            }
+                            if (responseJson.has("template_count")) {
+                                prefs.edit().putInt(KEY_TEMPLATE_COUNT, responseJson.getInt("template_count")).apply();
+                            }
+                            if (responseJson.has("is_in_trial")) {
+                                prefs.edit().putBoolean("is_in_trial", responseJson.getBoolean("is_in_trial")).apply();
+                            }
                             Log.d(TAG, "Authoritative tier from server: " + cloudTier);
                             
                             // Server is authoritative — always update local tier to match
@@ -318,42 +321,53 @@ public class UserTierManager {
         prefs.edit().putLong(KEY_TRIAL_START, System.currentTimeMillis()).apply();
     }
 
-    public int getExportsThisMonth() {
-        checkAndResetMonthlyLimits();
-        return prefs.getInt(KEY_EXPORT_COUNT, 0);
-    }
-
-    public void incrementExportCount() {
-        checkAndResetMonthlyLimits();
-        int current = prefs.getInt(KEY_EXPORT_COUNT, 0);
-        prefs.edit().putInt(KEY_EXPORT_COUNT, current + 1).apply();
-    }
-
     public int getAICount() {
-        checkAndResetMonthlyLimits();
         return prefs.getInt(KEY_AI_COUNT, 0);
     }
 
     public void incrementAICount() {
-        checkAndResetMonthlyLimits();
         int current = prefs.getInt(KEY_AI_COUNT, 0);
         prefs.edit().putInt(KEY_AI_COUNT, current + 1).apply();
     }
 
     public int getTemplateCount() {
-        checkAndResetMonthlyLimits();
         return prefs.getInt(KEY_TEMPLATE_COUNT, 0);
     }
 
     public void incrementTemplateCount() {
-        checkAndResetMonthlyLimits();
         int current = prefs.getInt(KEY_TEMPLATE_COUNT, 0);
         prefs.edit().putInt(KEY_TEMPLATE_COUNT, current + 1).apply();
+        
+        // Notify server
+        new Thread(() -> {
+            try {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    com.google.android.gms.tasks.Task<com.google.firebase.auth.GetTokenResult> task = user.getIdToken(false);
+                    com.google.firebase.auth.GetTokenResult result = com.google.android.gms.tasks.Tasks.await(task, 10, java.util.concurrent.TimeUnit.SECONDS);
+                    if (result != null && result.getToken() != null) {
+                        java.net.URL url = new java.net.URL("https://vitae-backend.asanistudiobangladesh.workers.dev/api/users/usage");
+                        java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("Content-Type", "application/json");
+                        conn.setRequestProperty("Authorization", "Bearer " + result.getToken());
+                        conn.setDoOutput(true);
+                        org.json.JSONObject json = new org.json.JSONObject();
+                        json.put("uid", user.getUid());
+                        java.io.OutputStream os = conn.getOutputStream();
+                        os.write(json.toString().getBytes("UTF-8"));
+                        os.close();
+                        conn.getResponseCode();
+                        conn.disconnect();
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to increment template count on server", e);
+            }
+        }).start();
     }
 
     public boolean canExport() {
-        // Users can now export as many times as they want.
-        // Ad logic for FREE tier (exports > 3) is handled in MainActivity.
         return true;
     }
 
@@ -375,24 +389,6 @@ public class UserTierManager {
         if (tier == Tier.AD_FREE) limit = 5; // $1 tier
         
         return getTemplateCount() < limit;
-    }
-
-    private void checkAndResetMonthlyLimits() {
-        long lastReset = prefs.getLong(KEY_LAST_EXPORT_RESET, 0);
-        Calendar last = Calendar.getInstance();
-        last.setTimeInMillis(lastReset);
-        
-        Calendar now = Calendar.getInstance();
-        
-        if (now.get(Calendar.MONTH) != last.get(Calendar.MONTH) || 
-            now.get(Calendar.YEAR) != last.get(Calendar.YEAR)) {
-            prefs.edit()
-                .putInt(KEY_EXPORT_COUNT, 0)
-                .putInt(KEY_AI_COUNT, 0)
-                .putInt(KEY_TEMPLATE_COUNT, 0)
-                .putLong(KEY_LAST_EXPORT_RESET, System.currentTimeMillis())
-                .apply();
-        }
     }
 
     public boolean shouldShowAds() {

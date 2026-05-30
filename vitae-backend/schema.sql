@@ -61,6 +61,10 @@ CREATE TABLE Users (
     android_version TEXT,
     tier TEXT DEFAULT 'FREE',
     tier_source TEXT DEFAULT 'NONE',
+    trial_start DATETIME DEFAULT CURRENT_TIMESTAMP,
+    ai_count INTEGER DEFAULT 0,
+    template_count INTEGER DEFAULT 0,
+    last_reset_month TEXT,
     last_seen DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
