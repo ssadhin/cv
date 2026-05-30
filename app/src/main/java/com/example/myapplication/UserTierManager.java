@@ -319,6 +319,35 @@ public class UserTierManager {
         prefs.edit().putLong(KEY_TRIAL_START, System.currentTimeMillis()).apply();
     }
 
+    private static final String KEY_LAST_EXPORT_RESET = "last_export_reset";
+
+    private void checkAndResetMonthlyLimits() {
+        long lastReset = prefs.getLong(KEY_LAST_EXPORT_RESET, 0);
+        java.util.Calendar last = java.util.Calendar.getInstance();
+        last.setTimeInMillis(lastReset);
+        
+        java.util.Calendar now = java.util.Calendar.getInstance();
+        
+        if (now.get(java.util.Calendar.MONTH) != last.get(java.util.Calendar.MONTH) || 
+            now.get(java.util.Calendar.YEAR) != last.get(java.util.Calendar.YEAR)) {
+            prefs.edit()
+                .putInt(KEY_EXPORT_COUNT, 0)
+                .putLong(KEY_LAST_EXPORT_RESET, System.currentTimeMillis())
+                .apply();
+        }
+    }
+
+    public int getExportsThisMonth() {
+        checkAndResetMonthlyLimits();
+        return prefs.getInt(KEY_EXPORT_COUNT, 0);
+    }
+
+    public void incrementExportCount() {
+        checkAndResetMonthlyLimits();
+        int current = prefs.getInt(KEY_EXPORT_COUNT, 0);
+        prefs.edit().putInt(KEY_EXPORT_COUNT, current + 1).apply();
+    }
+
     public int getAICount() {
         return prefs.getInt(KEY_AI_COUNT, 0);
     }
