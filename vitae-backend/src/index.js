@@ -581,6 +581,30 @@ export default {
 				});
 			}
 
+			// ==========================================
+			// ENDPOINT: POST /api/user/delete-data
+			// Deletes all user data (Templates, Reviews, BannedUsers, Users)
+			// ==========================================
+			if (method === "POST" && path === "/api/user/delete-data") {
+				const body = await request.json();
+				const { uid } = body;
+
+				if (!uid) {
+					return new Response(JSON.stringify({ error: "Missing uid" }), { status: 400, headers: corsHeaders });
+				}
+
+				// Execute deletions across all relevant tables
+				await env.DB.prepare(`DELETE FROM Tags WHERE template_id IN (SELECT id FROM Templates WHERE user_id = ?)`).bind(uid).run();
+				await env.DB.prepare(`DELETE FROM Templates WHERE user_id = ?`).bind(uid).run();
+				await env.DB.prepare(`DELETE FROM Reviews WHERE user_id = ?`).bind(uid).run();
+				await env.DB.prepare(`DELETE FROM BannedUsers WHERE user_id = ?`).bind(uid).run();
+				await env.DB.prepare(`DELETE FROM Users WHERE uid = ?`).bind(uid).run();
+
+				return new Response(JSON.stringify({ success: true, message: "User data deleted" }), {
+					headers: { "Content-Type": "application/json", ...corsHeaders }
+				});
+			}
+
 			return new Response("Vitae Backend API Check", { status: 200, headers: corsHeaders });
 
 		} catch (e) {
