@@ -319,8 +319,6 @@ public class UserTierManager {
         prefs.edit().putLong(KEY_TRIAL_START, System.currentTimeMillis()).apply();
     }
 
-    private static final String KEY_LAST_EXPORT_RESET = "last_export_reset";
-
     private void checkAndResetMonthlyLimits() {
         long lastReset = prefs.getLong(KEY_LAST_EXPORT_RESET, 0);
         java.util.Calendar last = java.util.Calendar.getInstance();
