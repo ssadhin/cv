@@ -241,8 +241,6 @@ public class UserTierManager {
                                 if (!currentLocalTier.equals(cloudTier)) {
                                     prefs.edit().putString(KEY_USER_TIER, cloudTier).apply();
                                     Log.i(TAG, "Tier synced from server: " + cloudTier);
-                                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> 
-                                        Toast.makeText(context, "Tier Updated: " + cloudTier, Toast.LENGTH_SHORT).show());
                                 }
                         }
                     }

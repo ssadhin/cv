@@ -688,7 +688,11 @@ public class MainActivity extends AppCompatActivity implements ColorPickerDialog
         atsBadgeScore = findViewById(R.id.ats_badge_score);
 
         initMonetizationInEditor();
-        setupNativeDebugSystem();
+        // setupNativeDebugSystem();
+        View dbgBall = findViewById(R.id.debug_ball);
+        if (dbgBall != null) dbgBall.setVisibility(View.GONE);
+        View dbgPanel = findViewById(R.id.debug_native_panel);
+        if (dbgPanel != null) dbgPanel.setVisibility(View.GONE);
     }
 
     private void setupNativeDebugSystem() {

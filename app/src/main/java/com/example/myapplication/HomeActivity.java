@@ -159,7 +159,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         initMonetization();
         
         // Debug Toast
-        Toast.makeText(this, getString(R.string.current_tier_msg, tierManager.getUserTier().name()), Toast.LENGTH_LONG).show();
+        // Debug toast removed
 
         ShapeableImageView ivAppLogo = findViewById(R.id.ivAppLogo);
         ShapeableImageView ivUserProfile = findViewById(R.id.ivUserProfile);
