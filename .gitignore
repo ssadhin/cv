@@ -15,3 +15,5 @@
 local.properties
 app/signing.properties
 app/google-services.json
+app/*.jks
+app/*.pem
