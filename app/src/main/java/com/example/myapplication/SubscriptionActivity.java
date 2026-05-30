@@ -344,10 +344,61 @@ public class SubscriptionActivity extends AppCompatActivity {
                     final Purchase verifyPurchase = bestPurchase;
                     runOnUiThread(() -> applyPurchaseEffect(verifyPurchase));
                 } else {
-                    Log.d("Billing", "No active Play Store subscriptions found.");
+                    Log.d("Billing", "No active Play Store subscriptions found. Syncing with backend to downgrade if necessary.");
+                    syncCancellationWithBackend();
                 }
             } else {
                 Log.e("Billing", "QueryPurchases failed: " + billingResult.getDebugMessage());
+            }
+        });
+    }
+
+    private void syncCancellationWithBackend() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+        user.getIdToken(false).addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                String token = task.getResult().getToken();
+                new Thread(() -> {
+                    try {
+                        java.net.URL url = new java.net.URL(API_BASE_URL + "/api/subscriptions/sync-status");
+                        java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setRequestProperty("Content-Type", "application/json");
+                        conn.setRequestProperty("Authorization", "Bearer " + token);
+                        conn.setDoOutput(true);
+
+                        org.json.JSONObject json = new org.json.JSONObject();
+                        json.put("uid", user.getUid());
+
+                        java.io.OutputStream os = conn.getOutputStream();
+                        os.write(json.toString().getBytes("UTF-8"));
+                        os.close();
+
+                        if (conn.getResponseCode() == 200) {
+                            java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(conn.getInputStream()));
+                            StringBuilder responseStr = new StringBuilder();
+                            String line;
+                            while ((line = br.readLine()) != null) responseStr.append(line);
+                            br.close();
+                            
+                            org.json.JSONObject resp = new org.json.JSONObject(responseStr.toString());
+                            if (resp.has("tier")) {
+                                Tier newTier = Tier.valueOf(resp.getString("tier"));
+                                runOnUiThread(() -> {
+                                    if (tierManager.getUserTier() != newTier) {
+                                        tierManager.setTierFromServer(newTier);
+                                        updateUIForTier(newTier);
+                                        Toast.makeText(this, "Subscription expired. Reverted to " + newTier.name(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }
+                        }
+                        conn.disconnect();
+                    } catch (Exception e) {
+                        Log.e("Billing", "Error syncing cancellation", e);
+                    }
+                }).start();
             }
         });
     }

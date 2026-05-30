@@ -60,6 +60,7 @@ CREATE TABLE Users (
     device_model TEXT,
     android_version TEXT,
     tier TEXT DEFAULT 'FREE',
+    tier_source TEXT DEFAULT 'NONE',
     last_seen DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

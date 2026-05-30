@@ -407,33 +407,40 @@ public class UserTierManager {
         }
 
         String uid = user.getUid();
-        new Thread(() -> {
-            try {
-                java.net.URL url = new java.net.URL(API_BASE_URL + "/api/user/delete-data");
-                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json");
-                conn.setDoOutput(true);
+        user.getIdToken(false).addOnCompleteListener(task -> {
+            String token = task.isSuccessful() && task.getResult() != null ? task.getResult().getToken() : "";
+            
+            new Thread(() -> {
+                try {
+                    java.net.URL url = new java.net.URL(API_BASE_URL + "/api/user/delete-data");
+                    java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    if (!token.isEmpty()) {
+                        conn.setRequestProperty("Authorization", "Bearer " + token);
+                    }
+                    conn.setDoOutput(true);
 
-                org.json.JSONObject json = new org.json.JSONObject();
-                json.put("uid", uid);
-                json.put("types", new org.json.JSONArray(types));
+                    org.json.JSONObject json = new org.json.JSONObject();
+                    json.put("uid", uid);
+                    json.put("types", new org.json.JSONArray(types));
 
-                java.io.OutputStream os = conn.getOutputStream();
-                os.write(json.toString().getBytes("UTF-8"));
-                os.close();
+                    java.io.OutputStream os = conn.getOutputStream();
+                    os.write(json.toString().getBytes("UTF-8"));
+                    os.close();
 
-                int responseCode = conn.getResponseCode();
-                if (responseCode == 200) {
-                    callback.onProcessed(true, "Data deletion successful.");
-                } else {
-                    callback.onProcessed(false, "Server error: " + responseCode);
+                    int responseCode = conn.getResponseCode();
+                    if (responseCode == 200) {
+                        callback.onProcessed(true, "Data deletion successful.");
+                    } else {
+                        callback.onProcessed(false, "Server error: " + responseCode);
+                    }
+                    conn.disconnect();
+                } catch (Exception e) {
+                    callback.onProcessed(false, e.getMessage());
                 }
-                conn.disconnect();
-            } catch (Exception e) {
-                callback.onProcessed(false, e.getMessage());
-            }
-        }).start();
+            }).start();
+        });
     }
 
     public String getUserId() {

@@ -23,6 +23,24 @@ public class AISelectionActivity extends AppCompatActivity {
     private final OkHttpClient httpClient = new OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor(chain -> {
+                okhttp3.Request original = chain.request();
+                try {
+                    com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+                    if (user != null) {
+                        com.google.android.gms.tasks.Task<com.google.firebase.auth.GetTokenResult> task = user.getIdToken(false);
+                        com.google.firebase.auth.GetTokenResult result = com.google.android.gms.tasks.Tasks.await(task, 10, java.util.concurrent.TimeUnit.SECONDS);
+                        if (result != null && result.getToken() != null) {
+                            return chain.proceed(original.newBuilder()
+                                .header("Authorization", "Bearer " + result.getToken())
+                                .build());
+                        }
+                    }
+                } catch (Exception e) {
+                    android.util.Log.e("AuthInterceptor", "Failed to get token", e);
+                }
+                return chain.proceed(original);
+            })
             .build();
     private static final String API_BASE_URL = "https://vitae-backend.asanistudiobangladesh.workers.dev";
 

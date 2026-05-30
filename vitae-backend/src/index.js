@@ -1,3 +1,27 @@
+const FIREBASE_API_KEY = 'AIzaSyDlm28Plkpgwtv-1EMvbP_3nmuThplWuDw';
+
+async function verifyFirebaseToken(request) {
+	const authHeader = request.headers.get('Authorization');
+	if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+	const token = authHeader.split(' ')[1];
+	try {
+		const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ idToken: token })
+		});
+		if (!response.ok) return null;
+		const data = await response.json();
+		if (data.users && data.users.length > 0) {
+			return data.users[0].localId;
+		}
+		return null;
+	} catch (e) {
+		console.error("Firebase token verification failed:", e.message);
+		return null;
+	}
+}
+
 // --- Google Play RSA Signature Verification ---
 // This public key is from Play Console > Monetization > Licensing.
 // It is SAFE to embed — it's a public key that can only verify, not forge, signatures.
@@ -104,6 +128,11 @@ export default {
 				const body = await request.json();
 				const { user_id, title, content, tag, thumbnail } = body;
 
+				const authUid = await verifyFirebaseToken(request);
+				if (!authUid || authUid !== user_id) {
+					return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+				}
+
 				if (!title || !content) {
 					return new Response(JSON.stringify({ error: "Missing title or content" }), { status: 400, headers: corsHeaders });
 				}
@@ -188,7 +217,7 @@ export default {
 
 				// Update User Tier in DB
 				const result = await env.DB.prepare(`
-					UPDATE Users SET tier = ?, last_seen = CURRENT_TIMESTAMP WHERE uid = ?
+					UPDATE Users SET tier = ?, tier_source = 'COUPON', last_seen = CURRENT_TIMESTAMP WHERE uid = ?
 				`).bind(targetTier, uid).run();
 
 				if (!result.meta.changes) {
@@ -263,7 +292,7 @@ export default {
 
 					// Purchase is genuine — grant tier
 					await env.DB.prepare(`
-						UPDATE Users SET tier = ?, last_seen = CURRENT_TIMESTAMP WHERE uid = ?
+						UPDATE Users SET tier = ?, tier_source = 'PLAY_STORE', last_seen = CURRENT_TIMESTAMP WHERE uid = ?
 					`).bind(targetTier, uid).run();
 
 					return new Response(JSON.stringify({ success: true, tier: targetTier }), {
@@ -274,6 +303,28 @@ export default {
 					console.error('Subscription verification error:', e.message);
 					return new Response(JSON.stringify({ error: "Purchase verification failed" }), { status: 500, headers: corsHeaders });
 				}
+			}
+
+			// ==========================================
+			// ENDPOINT: POST /api/subscriptions/sync-status
+			// Downgrades user if Play Store sub is canceled
+			// ==========================================
+			if (method === "POST" && path === "/api/subscriptions/sync-status") {
+				const body = await request.json();
+				const { uid } = body;
+				
+				const authUid = await verifyFirebaseToken(request);
+				if (!authUid || authUid !== uid) {
+					return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+				}
+
+				const user = await env.DB.prepare(`SELECT tier, tier_source FROM Users WHERE uid = ?`).bind(uid).first();
+				if (user && user.tier_source === 'PLAY_STORE' && user.tier !== 'FREE') {
+					await env.DB.prepare(`UPDATE Users SET tier = 'FREE', tier_source = 'NONE' WHERE uid = ?`).bind(uid).run();
+					return new Response(JSON.stringify({ success: true, tier: 'FREE' }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+				}
+				
+				return new Response(JSON.stringify({ success: true, tier: user ? user.tier : 'FREE' }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
 			}
 
 			// ==========================================
@@ -318,6 +369,11 @@ export default {
 				const body = await request.json();
 				const { template_id, user_id, score, review_text, images } = body;
 
+				const authUid = await verifyFirebaseToken(request);
+				if (!authUid || authUid !== user_id) {
+					return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+				}
+
 				if (!template_id || !score || !review_text) {
 					return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers: corsHeaders });
 				}
@@ -342,6 +398,11 @@ export default {
 				const body = await request.json();
 				const { user_id, score, review_text, images } = body;
 
+				const authUid = await verifyFirebaseToken(request);
+				if (!authUid || authUid !== user_id) {
+					return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+				}
+
 				if (!user_id || !score || !review_text) {
 					return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400, headers: corsHeaders });
 				}
@@ -362,6 +423,11 @@ export default {
 			if (method === "DELETE" && path.startsWith("/api/reviews/")) {
 				const id = path.split('/')[3];
 				const user_id = url.searchParams.get("userId");
+
+				const authUid = await verifyFirebaseToken(request);
+				if (!authUid || authUid !== user_id) {
+					return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+				}
 
 				if (!user_id) return new Response("Missing userId", { status: 400, headers: corsHeaders });
 
@@ -533,6 +599,11 @@ export default {
 				const body = await request.json();
 				const { prompt, model } = body;
 				
+				const authUid = await verifyFirebaseToken(request);
+				if (!authUid) {
+					return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+				}
+
 				if (!prompt) return new Response("Missing prompt", { status: 400, headers: corsHeaders });
 
 				const today = new Date().toISOString().split('T')[0];
@@ -588,6 +659,11 @@ export default {
 			if (method === "POST" && path === "/api/user/delete-data") {
 				const body = await request.json();
 				const { uid } = body;
+
+				const authUid = await verifyFirebaseToken(request);
+				if (!authUid || authUid !== uid) {
+					return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
+				}
 
 				if (!uid) {
 					return new Response(JSON.stringify({ error: "Missing uid" }), { status: 400, headers: corsHeaders });
