@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/node_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/node_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="12dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <!-- Indentation Spacer (width set dynamically: level × 48dp) -->
+        <View
+            android:id="@+id/indent_spacer"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+
+        <!-- Expander Chevron (rotated: 0° = expanded, -90° = collapsed) -->
+        <ImageView
+            android:id="@+id/iv_expander"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_expand_more"
+            android:padding="4dp"
+            app:tint="@color/text_secondary" />
+
+        <!-- Circular Checkbox (switches between ic_circle_check and ic_circle_empty) -->
+        <ImageView
+            android:id="@+id/node_checkbox"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_circle_empty" />
+
+        <!-- Label Text -->
+        <TextView
+            android:id="@+id/node_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Node Label"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,16 +1,59 @@
+// --- Google Play RSA Signature Verification ---
+// This public key is from Play Console > Monetization > Licensing.
+// It is SAFE to embed — it's a public key that can only verify, not forge, signatures.
+const PLAY_RSA_PUBLIC_KEY = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAukdH3ssZz1OGXrOYJ+VtZhRkU3eknS1St1wBA5vuvquymV3x48AiypIr/AiOblkJNnZnWsYTWasutbDNVpPvm8KpOESWHFPGNNhZcTHfHxkSQ9En1i6kVZSV0D3zM7Ki+FdRaUECyGFwsU4d0uK/C1McsASa8AXyrAXa3IC2QvAAjstPj3CEDAQ0ChlDX59Ve4xrc17KL2N+wQi94W9g0Cpd4fkCeUsHn/QT3UNgrMpq1qYVnTYWgtcgV2fbpYUCh7HliWXLQ5cBt3oIKChMzCEo3GPGh+d9SZtGO9wItaJvLcbPX7YJKjR3rPNEq4ZR54Y5vEcXBJmwmXoY/DkIWwIDAQAB';
+
+async function verifyPlaySignature(originalJson, signature) {
+	// Decode the base64 public key (SPKI format)
+	const keyBuffer = Uint8Array.from(atob(PLAY_RSA_PUBLIC_KEY), c => c.charCodeAt(0));
+
+	// Import RSA public key for verification
+	const publicKey = await crypto.subtle.importKey(
+		'spki', keyBuffer.buffer,
+		{ name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-1' },
+		false, ['verify']
+	);
+
+	// Decode the base64 signature from Google Play
+	const sigBuffer = Uint8Array.from(atob(signature), c => c.charCodeAt(0));
+
+	// Verify: does Google's signature match the purchase JSON?
+	return await crypto.subtle.verify(
+		'RSASSA-PKCS1-v1_5',
+		publicKey,
+		sigBuffer.buffer,
+		new TextEncoder().encode(originalJson)
+	);
+}
+
+// --- Product ID to Tier Mapping ---
+const PRODUCT_TIER_MAP = {
+	'ad_free_monthly': 'AD_FREE', 'ad_free_yearly': 'AD_FREE',
+	'plus_monthly': 'PLUS', 'plus_yearly': 'PLUS',
+	'pro_monthly': 'PRO', 'pro_yearly': 'PRO',
+	'elite_monthly': 'ELITE', 'elite_yearly': 'ELITE'
+};
+
 export default {
 	async fetch(request, env, ctx) {
 		const url = new URL(request.url);
 		const path = url.pathname;
 		const method = request.method;
 
-		// --- Default CORS Headers for Android app and Web Dashboard ---
+		// --- CORS Headers (restricted to known origins) ---
+		const origin = request.headers.get("Origin");
+		const ALLOWED_ORIGINS = ["null"]; // "null" = Android WebView (file://)
+
 		const corsHeaders = {
-			"Access-Control-Allow-Origin": "*",
 			"Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS,DELETE",
 			"Access-Control-Allow-Headers": "Content-Type, Authorization",
 			"Access-Control-Max-Age": "86400",
 		};
+
+		// Only allow CORS for known origins; native Android HTTP clients don't send Origin
+		if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+			corsHeaders["Access-Control-Allow-Origin"] = origin || "null";
+		}
 
 		if (method === "OPTIONS") {
 			return new Response(null, { headers: corsHeaders });
@@ -19,14 +62,15 @@ export default {
 		// --- ADMIN AUTH CHECK ---
 		// Validates if the route starts with /api/admin and checks the Authorization header
 		const isAdminRoute = path.startsWith('/api/admin');
-		// Hardcoded admin secret for this basic implementation (can be moved to env vars later)
-		const ADMIN_SECRET = 'vitae_admin_secret_2026';
+		// Admin secret loaded from environment variable (set via: wrangler secret put ADMIN_SECRET)
+		const ADMIN_SECRET = env.ADMIN_SECRET;
 
 		if (isAdminRoute) {
+			if (!ADMIN_SECRET) {
+				return new Response(JSON.stringify({ error: "Server admin configuration missing" }), { status: 500, headers: corsHeaders });
+			}
 			const authHeader = request.headers.get('Authorization');
-			const allowedKeys = [`Bearer ${ADMIN_SECRET}`, 'Bearer MASTER', 'Bearer DEBUG'];
-
-			if (!authHeader || !allowedKeys.includes(authHeader)) {
+			if (!authHeader || authHeader !== `Bearer ${ADMIN_SECRET}`) {
 				return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: corsHeaders });
 			}
 		}
@@ -126,12 +170,14 @@ export default {
 					return new Response(JSON.stringify({ error: "Missing uid or code" }), { status: 400, headers: corsHeaders });
 				}
 
-				// Define valid coupons and their associated tiers
-				const validCoupons = {
-					"VITAE-ELITE-FREE": "ELITE",
-					"VITAE2026": "PLUS",
-					"DEBUG-ADS-ON": "FREE"
-				};
+				// Coupon codes are stored in env var as JSON (set via wrangler secret put VALID_COUPONS)
+				// Format: {"CODE1":"TIER1","CODE2":"TIER2"}
+				let validCoupons = {};
+				try {
+					if (env.VALID_COUPONS) validCoupons = JSON.parse(env.VALID_COUPONS);
+				} catch (e) {
+					return new Response(JSON.stringify({ error: "Server coupon configuration error" }), { status: 500, headers: corsHeaders });
+				}
 
 				const normalizedCode = code.trim().toUpperCase();
 				const targetTier = validCoupons[normalizedCode];
@@ -160,24 +206,88 @@ export default {
 			// ==========================================
 			if (method === "POST" && path === "/api/users/sync") {
 				const body = await request.json();
-				const { uid, email, name, ip, device_model, android_version, tier } = body;
+				const { uid, email, name, ip, device_model, android_version } = body;
 
 				if (!uid) return new Response("Missing uid", { status: 400, headers: corsHeaders });
 
+				// Server-authoritative tier: sync does NOT accept tier from client.
+				// Tier is only set via /api/subscriptions/verify or /api/coupons/verify.
 				await env.DB.prepare(`
 					INSERT INTO Users (uid, email, name, ip, device_model, android_version, tier, last_seen)
-					VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+					VALUES (?, ?, ?, ?, ?, ?, 'FREE', CURRENT_TIMESTAMP)
 					ON CONFLICT(uid) DO UPDATE SET
 						email = excluded.email,
 						name = excluded.name,
 						ip = excluded.ip,
 						device_model = excluded.device_model,
 						android_version = excluded.android_version,
-						tier = excluded.tier,
 						last_seen = CURRENT_TIMESTAMP
-				`).bind(uid, email || null, name || null, ip || null, device_model || null, android_version || null, tier || 'FREE').run();
+				`).bind(uid, email || null, name || null, ip || null, device_model || null, android_version || null).run();
 
-				return new Response(JSON.stringify({ success: true }), {
+				// Return the server-authoritative tier so app can sync
+				const user = await env.DB.prepare(`SELECT tier FROM Users WHERE uid = ?`).bind(uid).first();
+				return new Response(JSON.stringify({ success: true, tier: user ? user.tier : 'FREE' }), {
+					headers: { "Content-Type": "application/json", ...corsHeaders }
+				});
+			}
+
+			// ==========================================
+			// ENDPOINT: POST /api/subscriptions/verify
+			// Verifies Google Play purchase token server-side and grants tier
+			// ==========================================
+			if (method === "POST" && path === "/api/subscriptions/verify") {
+				const body = await request.json();
+				const { uid, originalJson, signature } = body;
+
+				if (!uid || !originalJson || !signature) {
+					return new Response(JSON.stringify({ error: "Missing uid, originalJson, or signature" }), { status: 400, headers: corsHeaders });
+				}
+
+				try {
+					// Verify Google Play's RSA signature on the purchase data
+					const isValid = await verifyPlaySignature(originalJson, signature);
+
+					if (!isValid) {
+						return new Response(JSON.stringify({ error: "Invalid purchase signature — purchase is not genuine" }), { status: 403, headers: corsHeaders });
+					}
+
+					// Signature verified — extract product ID from the purchase JSON
+					const purchaseData = JSON.parse(originalJson);
+					const productId = purchaseData.productId;
+
+					// Map product to tier
+					const targetTier = PRODUCT_TIER_MAP[productId];
+					if (!targetTier) {
+						return new Response(JSON.stringify({ error: "Unknown product ID: " + productId }), { status: 400, headers: corsHeaders });
+					}
+
+					// Purchase is genuine — grant tier
+					await env.DB.prepare(`
+						UPDATE Users SET tier = ?, last_seen = CURRENT_TIMESTAMP WHERE uid = ?
+					`).bind(targetTier, uid).run();
+
+					return new Response(JSON.stringify({ success: true, tier: targetTier }), {
+						headers: { "Content-Type": "application/json", ...corsHeaders }
+					});
+
+				} catch (e) {
+					console.error('Subscription verification error:', e.message);
+					return new Response(JSON.stringify({ error: "Purchase verification failed" }), { status: 500, headers: corsHeaders });
+				}
+			}
+
+			// ==========================================
+			// ENDPOINT: GET /api/users/:uid/tier
+			// Returns the server-authoritative tier for a user
+			// ==========================================
+			if (method === "GET" && path.match(/^\/api\/users\/[^\/]+\/tier$/)) {
+				const uid = decodeURIComponent(path.split('/')[3]);
+				const user = await env.DB.prepare(`SELECT tier FROM Users WHERE uid = ?`).bind(uid).first();
+
+				return new Response(JSON.stringify({
+					success: true,
+					tier: user ? user.tier : 'FREE'
+				}), {
 					headers: { "Content-Type": "application/json", ...corsHeaders }
 				});
 			}
@@ -415,10 +525,68 @@ export default {
 				});
 			}
 
+			// ==========================================
+			// ENDPOINT: POST /api/ai/chat
+			// Proxies requests to Gemini 3 Flash with a 1000-request daily limit
+			// ==========================================
+			if (method === "POST" && path === "/api/ai/chat") {
+				const body = await request.json();
+				const { prompt, model } = body;
+				
+				if (!prompt) return new Response("Missing prompt", { status: 400, headers: corsHeaders });
+
+				const today = new Date().toISOString().split('T')[0];
+
+				// 1. Check/Increment Quota in D1
+				// Ensure record exists for today
+				await env.DB.prepare(`INSERT OR IGNORE INTO AiUsage (day, request_count) VALUES (?, 0)`).bind(today).run();
+				
+				// Get current count
+				const usage = await env.DB.prepare(`SELECT request_count FROM AiUsage WHERE day = ?`).bind(today).first();
+				
+				if (usage && usage.request_count >= 1000) {
+					return new Response(JSON.stringify({ 
+						success: false, 
+						error: "Daily Global Quota Reached (1,000 requests). Try again tomorrow." 
+					}), { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } });
+				}
+
+				// 2. Proxy to Google Gemini API
+				const GEMINI_API_KEY = env.GEMINI_API_KEY;
+				if (!GEMINI_API_KEY) {
+					return new Response("Server AI configuration error (Missing API Key)", { status: 500, headers: corsHeaders });
+				}
+
+				const targetModel = model || "gemini-2.5-flash";
+				
+				const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${GEMINI_API_KEY}`;
+				
+				const geminiResponse = await fetch(geminiUrl, {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						contents: [{ parts: [{ text: prompt }] }]
+					})
+				});
+
+				const aiData = await geminiResponse.json();
+
+				// 3. Increment usage count on success
+				if (geminiResponse.ok) {
+					await env.DB.prepare(`UPDATE AiUsage SET request_count = request_count + 1, last_updated = CURRENT_TIMESTAMP WHERE day = ?`).bind(today).run();
+				}
+
+				return new Response(JSON.stringify(aiData), {
+					headers: { "Content-Type": "application/json", ...corsHeaders }
+				});
+			}
+
 			return new Response("Vitae Backend API Check", { status: 200, headers: corsHeaders });
 
 		} catch (e) {
-			return new Response(e.message, { status: 500, headers: corsHeaders });
+			// Do not expose internal error details to clients
+			console.error('Internal server error:', e.message);
+			return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
 		}
 	},
 };

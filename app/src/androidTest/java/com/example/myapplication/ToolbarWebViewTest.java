@@ -8,7 +8,7 @@ import android.webkit.WebView;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
 import org.json.JSONObject;
 import org.junit.Rule;
@@ -23,49 +23,48 @@ import java.util.concurrent.TimeUnit;
 public class ToolbarWebViewTest {
 
     @Rule
-    public ActivityTestRule<MainActivity> activityRule =
-            new ActivityTestRule<>(MainActivity.class);
+    public ActivityScenarioRule<MainActivity> activityScenarioRule =
+            new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
     public void undoRedoHandlersAreBoundAndClickable() throws Throwable {
-        MainActivity activity = activityRule.getActivity();
-        assertThat(activity, notNullValue());
-
-        WebView webView = activity.findViewById(R.id.webview);
-        assertThat(webView, notNullValue());
-
         CountDownLatch latch = new CountDownLatch(1);
         boolean[] result = new boolean[2];
         Throwable[] error = new Throwable[1];
 
-        activityRule.runOnUiThread(() ->
-                webView.evaluateJavascript(
-                        "JSON.stringify({" +
-                                "hasUndo: typeof window.undo === 'function'," +
-                                "hasRedo: typeof window.redo === 'function'" +
-                                "})",
-                        value -> {
-                            try {
-                                if (value == null || value.equals("null")) {
-                                    throw new AssertionError("Received null from evaluateJavascript");
-                                }
-                                String json = value;
-                                if (json.startsWith("\"") && json.endsWith("\"") && json.length() >= 2) {
-                                    json = json.substring(1, json.length() - 1)
-                                            .replace("\\\"", "\"")
-                                            .replace("\\\\", "\\");
-                                }
-                                JSONObject obj = new JSONObject(json);
-                                result[0] = obj.optBoolean("hasUndo", false);
-                                result[1] = obj.optBoolean("hasRedo", false);
-                            } catch (Throwable t) {
-                                error[0] = t;
-                            } finally {
-                                latch.countDown();
+        activityScenarioRule.getScenario().onActivity(activity -> {
+            assertThat(activity, notNullValue());
+
+            WebView webView = activity.findViewById(R.id.webview);
+            assertThat(webView, notNullValue());
+
+            webView.evaluateJavascript(
+                    "JSON.stringify({" +
+                            "hasUndo: typeof window.undo === 'function'," +
+                            "hasRedo: typeof window.redo === 'function'" +
+                            "})",
+                    value -> {
+                        try {
+                            if (value == null || value.equals("null")) {
+                                throw new AssertionError("Received null from evaluateJavascript");
                             }
+                            String json = value;
+                            if (json.startsWith("\"") && json.endsWith("\"") && json.length() >= 2) {
+                                json = json.substring(1, json.length() - 1)
+                                        .replace("\\\"", "\"")
+                                        .replace("\\\\", "\\");
+                            }
+                            JSONObject obj = new JSONObject(json);
+                            result[0] = obj.optBoolean("hasUndo", false);
+                            result[1] = obj.optBoolean("hasRedo", false);
+                        } catch (Throwable t) {
+                            error[0] = t;
+                        } finally {
+                            latch.countDown();
                         }
-                )
-        );
+                    }
+            );
+        });
 
         if (!latch.await(15, TimeUnit.SECONDS)) {
             throw new AssertionError("Timed out waiting for WebView JS evaluation");

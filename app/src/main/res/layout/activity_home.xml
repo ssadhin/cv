@@ -11,45 +11,236 @@
 
 
 
+    <!-- Guidelines for Branding Header Spacing -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/glHeaderTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.0" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/glHeaderBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.20" />
+
     <!-- Branding Header -->
-    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/brandingHeader" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="48dp" android:paddingBottom="16dp" android:background="@android:color/transparent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/brandingHeader" 
+        android:layout_width="0dp" 
+        android:layout_height="0dp" 
+        android:background="@android:color/transparent" 
+        android:clipChildren="false" 
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="@id/glHeaderTop" 
+        app:layout_constraintBottom_toBottomOf="@id/glHeaderBottom" 
+        app:layout_constraintStart_toStartOf="parent" 
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageButton android:id="@+id/ivRestoreBrand" android:layout_width="48dp" android:layout_height="48dp" android:layout_marginStart="16dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_revert" android:visibility="gone" app:tint="#8A8A8A" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="@id/profileContainer" app:layout_constraintBottom_toBottomOf="@id/profileContainer" />
+        <ImageButton android:id="@+id/ivRestoreBrand" 
+            android:layout_width="48dp" 
+            android:layout_height="48dp" 
+            android:layout_marginStart="16dp" 
+            android:background="?attr/selectableItemBackgroundBorderless" 
+            android:src="@android:drawable/ic_menu_revert" 
+            android:visibility="gone" 
+            app:tint="#8A8A8A" 
+            app:layout_constraintStart_toStartOf="parent" 
+            app:layout_constraintTop_toTopOf="@id/profileContainer" 
+            app:layout_constraintBottom_toBottomOf="@id/profileContainer" />
 
-        <LinearLayout android:id="@+id/profileContainer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/profileContainer" 
+            android:layout_width="match_parent" 
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-            <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="4dp">
-                <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivAppLogo" android:layout_width="90dp" android:layout_height="90dp" android:src="@drawable/cv" android:contentDescription="@string/app_logo_desc" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless" app:shapeAppearanceOverlay="@style/CircleAppearance" />
+            <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivAppLogo" 
+                android:layout_width="0dp" 
+                android:layout_height="0dp" 
+                android:src="@drawable/cv" 
+                android:contentDescription="@string/app_logo_desc" 
+                android:clickable="true" 
+                android:focusable="true" 
+                android:background="?attr/selectableItemBackgroundBorderless" 
+                app:layout_constraintHeight_percent="0.6"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintBottom_toTopOf="@+id/tvAppTitle"
+                app:shapeAppearanceOverlay="@style/CircleAppearance" />
 
-                <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivUserProfile" android:layout_width="90dp" android:layout_height="90dp" android:visibility="gone" android:scaleType="centerCrop" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless" app:shapeAppearanceOverlay="@style/CircleAppearance" />
-            </FrameLayout>
+            <com.google.android.material.imageview.ShapeableImageView android:id="@+id/ivUserProfile" 
+                android:layout_width="0dp" 
+                android:layout_height="0dp" 
+                android:visibility="gone" 
+                android:scaleType="centerCrop" 
+                android:clickable="true" 
+                android:focusable="true" 
+                android:background="?attr/selectableItemBackgroundBorderless" 
+                app:layout_constraintHeight_percent="0.6" 
+                app:layout_constraintDimensionRatio="1:1" 
+                app:layout_constraintTop_toTopOf="parent" 
+                app:layout_constraintStart_toStartOf="parent" 
+                app:layout_constraintEnd_toEndOf="parent" 
+                app:layout_constraintBottom_toTopOf="@+id/tvAppTitle" 
+                app:shapeAppearanceOverlay="@style/CircleAppearance" />
 
-            <TextView android:id="@+id/tvAppTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/app_name" android:textColor="@color/fab_purple_main" android:textSize="34sp" android:textStyle="bold" android:fontFamily="@font/dancing_script" android:layout_marginTop="8dp"/>
-        </LinearLayout>
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/logoBarrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="ivAppLogo,ivUserProfile" />
+
+            <androidx.appcompat.widget.AppCompatTextView 
+                android:id="@+id/tvAppTitle" 
+                android:layout_width="0dp" 
+                android:layout_height="wrap_content" 
+                android:text="@string/app_name" 
+                android:textColor="@color/fab_purple_main" 
+                android:textSize="34sp" 
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeMaxTextSize="48sp"
+                app:autoSizeStepGranularity="2sp"
+                android:textStyle="bold" 
+                android:fontFamily="@font/dancing_script" 
+                android:gravity="center"
+                android:maxLines="1"
+                app:layout_constraintWidth_percent="0.6"
+                app:layout_constraintTop_toBottomOf="@id/logoBarrier"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <TextView android:id="@+id/tvRecentHeader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:layout_marginStart="24dp" android:text="@string/recent" android:textColor="@color/fab_purple_main" android:textSize="20sp" android:textStyle="bold" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/brandingHeader" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/glRecentHeaderTop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.21" />
+
+    <androidx.appcompat.widget.AppCompatTextView 
+        android:id="@+id/tvRecentHeader" 
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:text="@string/recent" 
+        android:textColor="@color/fab_purple_main" 
+        android:textSize="20sp" 
+        android:textStyle="bold" 
+        app:layout_constraintStart_toStartOf="parent" 
+        app:layout_constraintTop_toTopOf="@id/glRecentHeaderTop" 
+        app:layout_constraintHorizontal_bias="0.06"
+        android:layout_marginStart="24dp"/>
 
     <!-- Grouped Sort Controls shifted left -->
-    <LinearLayout android:id="@+id/sortControlsGroup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" app:layout_constraintBottom_toBottomOf="@id/tvRecentHeader" app:layout_constraintTop_toTopOf="@id/tvRecentHeader" app:layout_constraintStart_toEndOf="@id/tvRecentHeader" app:layout_constraintEnd_toStartOf="@+id/controlsContainer" app:layout_constraintHorizontal_bias="0.2">
+    <LinearLayout android:id="@+id/sortControlsGroup" 
+        android:layout_width="0dp" 
+        android:layout_height="wrap_content" 
+        android:orientation="horizontal" 
+        android:gravity="center_vertical" 
+        app:layout_constraintBottom_toBottomOf="@id/tvRecentHeader" 
+        app:layout_constraintTop_toTopOf="@id/tvRecentHeader" 
+        app:layout_constraintStart_toEndOf="@id/tvRecentHeader" 
+        app:layout_constraintEnd_toStartOf="@+id/controlsContainer" 
+        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintWidth_percent="0.32">
 
-        <ImageButton android:id="@+id/btnSort" android:layout_width="36dp" android:layout_height="36dp" android:background="?attr/selectableItemBackgroundBorderless" android:padding="6dp" android:src="@android:drawable/ic_menu_sort_alphabetically" app:tint="@color/fab_purple_main" />
+        <ImageButton android:id="@+id/btnSort" 
+            android:layout_width="0dp" 
+            android:layout_height="wrap_content" 
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless" 
+            android:padding="6dp" 
+            android:src="@android:drawable/ic_menu_sort_alphabetically" 
+            app:tint="@color/fab_purple_main" />
 
-        <TextView android:id="@+id/tvSortLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:text="@string/sorted_by_time_edited" android:textColor="#8A5CD4" android:textSize="11sp" />
+        <androidx.appcompat.widget.AppCompatTextView 
+            android:id="@+id/tvSortLabel" 
+            android:layout_width="0dp" 
+            android:layout_height="wrap_content" 
+            android:layout_weight="3"
+            android:layout_marginStart="4dp" 
+            android:text="@string/sorted_by_time_edited" 
+            android:textColor="#8A5CD4" 
+            android:textSize="11sp" 
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="8sp"
+            app:autoSizeMaxTextSize="12sp"
+            android:maxLines="1"/>
     </LinearLayout>
 
-    <LinearLayout android:id="@+id/controlsContainer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="16dp" android:gravity="center_vertical" android:orientation="horizontal" app:layout_constraintBottom_toBottomOf="@id/tvRecentHeader" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="@id/tvRecentHeader">
+    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/controlsContainer" 
+        android:layout_width="0dp" 
+        android:layout_height="wrap_content" 
+        app:layout_constraintBottom_toBottomOf="@id/tvRecentHeader" 
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd" 
+        app:layout_constraintTop_toTopOf="@id/tvRecentHeader"
+        app:layout_constraintWidth_percent="0.4">
 
-        <SeekBar android:id="@+id/gridSizeSlider" android:layout_width="180dp" android:layout_height="wrap_content" android:max="3" android:progress="0" android:visibility="gone" android:progressDrawable="@drawable/bg_neumorphic_slider_track" android:thumb="@drawable/bg_neumorphic_slider_thumb" android:splitTrack="false" android:minHeight="12dp" android:maxHeight="12dp" android:paddingStart="18dp" android:paddingEnd="18dp" />
+        <SeekBar android:id="@+id/gridSizeSlider" 
+            android:layout_width="0dp" 
+            android:layout_height="wrap_content" 
+            android:max="3" 
+            android:progress="0" 
+            android:visibility="gone" 
+            android:progressDrawable="@drawable/bg_neumorphic_slider_track" 
+            android:thumb="@drawable/bg_neumorphic_slider_thumb" 
+            android:splitTrack="false" 
+            android:minHeight="6dp" 
+            android:maxHeight="6dp"
+            app:layout_constraintEnd_toStartOf="@+id/btnCloseSelection"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <ImageButton android:id="@+id/btnCloseSelection" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_close_clear_cancel" app:tint="@color/text_primary" android:visibility="gone" />
+        <ImageButton android:id="@+id/btnCloseSelection" 
+            android:layout_width="0dp" 
+            android:layout_height="0dp" 
+            android:background="?attr/selectableItemBackgroundBorderless" 
+            android:src="@android:drawable/ic_menu_close_clear_cancel" 
+            app:tint="@color/text_primary" 
+            android:visibility="gone"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@+id/btnDeleteSelected"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <ImageButton android:id="@+id/btnDeleteSelected" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_delete" app:tint="#D32F2F" android:visibility="gone" tools:visibility="visible" />
+        <ImageButton android:id="@+id/btnDeleteSelected" 
+            android:layout_width="0dp" 
+            android:layout_height="0dp" 
+            android:background="?attr/selectableItemBackgroundBorderless" 
+            android:src="@android:drawable/ic_menu_delete" 
+            app:tint="#D32F2F" 
+            android:visibility="gone" 
+            tools:visibility="visible"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toStartOf="@+id/btnToggleView"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <ImageButton android:id="@+id/btnToggleView" android:layout_width="40dp" android:layout_height="40dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_grid" app:tint="@color/fab_purple_main" />
-    </LinearLayout>
+        <ImageButton android:id="@+id/btnToggleView" 
+            android:layout_width="0dp" 
+            android:layout_height="0dp" 
+            android:background="?attr/selectableItemBackgroundBorderless" 
+            android:src="@drawable/ic_grid" 
+            app:tint="@color/fab_purple_main"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvRecentResumes" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginTop="16dp" android:clipToPadding="false" android:paddingBottom="8dp" app:layout_constraintBottom_toTopOf="@id/adView" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toBottomOf="@id/tvRecentHeader" />
 
@@ -74,7 +265,7 @@
 
             <!-- Option 2: Export/Import -->
             <LinearLayout android:id="@+id/optionExport" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="16dp" android:gravity="center_vertical" android:orientation="horizontal" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/import_vitae" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/import_career_compass" android:textColor="#FFFFFF" android:layout_marginEnd="12dp" android:textStyle="bold" />
                 <com.google.android.material.floatingactionbutton.FloatingActionButton android:layout_width="wrap_content" android:layout_height="wrap_content" app:fabSize="normal" android:src="@android:drawable/ic_menu_share" app:tint="@color/text_secondary" app:backgroundTint="@color/bg_button" android:stateListAnimator="@animator/wobbly_slime" />
             </LinearLayout>
 
@@ -88,44 +279,193 @@
 
     </FrameLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/home_fab_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginEnd="24dp" android:layout_marginBottom="32dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" android:clipChildren="false" android:clipToPadding="false">
+    <!-- Guidelines for Percentage Positioning -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
 
-        <!-- 1. Step-by-Step Button (Top Pill) -->
-        <com.google.android.material.card.MaterialCardView android:id="@+id/btnHomeStepByStep" android:layout_width="wrap_content" android:layout_height="64dp" android:layout_marginBottom="16dp" app:cardCornerRadius="32dp" app:cardElevation="8dp" app:cardBackgroundColor="@color/white" app:strokeWidth="0dp" app:layout_constraintBottom_toTopOf="@id/btnHomeAI" app:layout_constraintEnd_toEndOf="parent" android:visibility="gone">
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineStepByStepBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.82" />
 
-            <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="24dp" android:paddingEnd="8dp">
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineAIBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.895" />
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/step_by_step" android:textColor="@color/fab_text_dark" android:textSize="18sp" android:textStyle="bold" android:layout_marginEnd="16dp"/>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineNewCVBottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.98" />
 
-                <FrameLayout android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/lavender_circle_light_bg">
-                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_zigzag_trend" app:tint="@color/fab_icon_purple" />
-                </FrameLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+    <!-- 1. Step-by-Step Button -->
+    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/btnHomeStepByStep" 
+        android:layout_width="0dp" 
+        android:layout_height="0dp" 
+        android:background="@drawable/pill_with_shadow" 
+        android:clickable="true" 
+        android:focusable="true" 
+        android:foreground="@drawable/ripple_pill" 
+        android:stateListAnimator="@animator/wobbly_slime" 
+        android:outlineProvider="background" 
+        app:layout_constraintBottom_toTopOf="@id/guidelineStepByStepBottom" 
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd" 
+        app:layout_constraintWidth_percent="0.33" 
+        app:layout_constraintDimensionRatio="2:1" 
+        android:hapticFeedbackEnabled="true"
+        android:paddingStart="16dp" 
+        android:paddingEnd="12dp">
 
-        <!-- 2. AI Helper Button (Middle Pill) -->
-        <LinearLayout android:id="@+id/btnHomeAI" android:layout_width="wrap_content" android:layout_height="76dp" android:layout_marginBottom="24dp" android:background="@drawable/pill_with_shadow" android:clickable="true" android:focusable="true" android:foreground="@drawable/ripple_pill" android:stateListAnimator="@animator/wobbly_slime" android:outlineProvider="background" app:layout_constraintBottom_toTopOf="@id/btnHomeNewCV" app:layout_constraintEnd_toEndOf="parent" android:hapticFeedbackEnabled="true">
+        <androidx.appcompat.widget.AppCompatTextView 
+            android:id="@+id/tvStepLabel"
+            android:layout_width="0dp" 
+            android:layout_height="0dp"
+            android:gravity="center_vertical|start"
+            android:text="@string/step_by_step_mode" 
+            android:textColor="@color/fab_text_dark" 
+            android:textSize="14sp" 
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="8sp"
+            app:autoSizeMaxTextSize="15sp"
+            android:textStyle="bold" 
+            android:maxLines="1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.55"
+            app:layout_constraintHorizontal_bias="0.0"/>
 
-            <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center" android:orientation="horizontal" android:paddingStart="24dp" android:paddingEnd="24dp">
+        <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/circleBgStep"
+            android:layout_width="0dp" 
+            android:layout_height="0dp" 
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintHeight_percent="0.65"
+            android:background="@drawable/purple_circle_bg"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/ai_helper" android:textColor="@color/fab_text_dark" android:textSize="18sp" android:textStyle="bold" android:layout_marginEnd="16dp"/>
-
-                <FrameLayout android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/purple_circle_bg">
-                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_sparkles_premium" app:tint="@color/white" />
-                </FrameLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- 3. New CV Button (Bottom Circle) -->
-        <FrameLayout android:id="@+id/btnHomeNewCV" android:layout_width="84dp" android:layout_height="84dp" android:background="@drawable/circle_with_shadow" android:clickable="true" android:focusable="true" android:foreground="@drawable/ripple_circle" android:stateListAnimator="@animator/wobbly_slime" android:outlineProvider="background" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" android:hapticFeedbackEnabled="true">
-
-            <ImageView android:layout_width="36dp" android:layout_height="36dp" android:layout_gravity="center" android:src="@drawable/ic_add_bold" app:tint="@color/white" />
-        </FrameLayout>
-
+            <ImageView android:id="@+id/ivStepIcon"
+                android:layout_width="0dp" 
+                android:layout_height="0dp" 
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintHeight_percent="0.5"
+                android:src="@drawable/ic_stairs" 
+                app:tint="@color/white"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- 2. AI Helper Button -->
+    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/btnHomeAI" 
+        android:layout_width="0dp" 
+        android:layout_height="0dp" 
+        android:background="@drawable/pill_with_shadow" 
+        android:clickable="true" 
+        android:focusable="true" 
+        android:foreground="@drawable/ripple_pill" 
+        android:stateListAnimator="@animator/wobbly_slime" 
+        android:outlineProvider="background" 
+        app:layout_constraintBottom_toTopOf="@id/guidelineAIBottom" 
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd" 
+        app:layout_constraintWidth_percent="0.28" 
+        app:layout_constraintDimensionRatio="1.8:1" 
+        android:hapticFeedbackEnabled="true"
+        android:paddingStart="16dp" 
+        android:paddingEnd="12dp">
+
+        <androidx.appcompat.widget.AppCompatTextView 
+            android:id="@+id/tvAILabel"
+            android:layout_width="0dp" 
+            android:layout_height="0dp"
+            android:gravity="center_vertical|start"
+            android:text="@string/ai_helper" 
+            android:textColor="@color/fab_text_dark" 
+            android:textSize="14sp" 
+            app:autoSizeTextType="uniform"
+            app:autoSizeMinTextSize="7sp"
+            app:autoSizeMaxTextSize="15sp"
+            android:textStyle="bold" 
+            android:maxLines="1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.55"
+            app:layout_constraintHorizontal_bias="0.5"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/circleBgAI"
+            android:layout_width="0dp" 
+            android:layout_height="0dp" 
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintHeight_percent="0.65"
+            android:background="@drawable/purple_circle_bg"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView android:id="@+id/ivAIIcon"
+                android:layout_width="0dp" 
+                android:layout_height="0dp" 
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintHeight_percent="0.5"
+                android:src="@drawable/ic_sparkles_premium" 
+                app:tint="@color/white"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 3. New CV Button -->
+    <FrameLayout android:id="@+id/btnHomeNewCV" 
+        android:layout_width="0dp" 
+        android:layout_height="0dp" 
+        android:background="@drawable/circle_with_shadow" 
+        android:clickable="true" 
+        android:focusable="true" 
+        android:foreground="@drawable/ripple_circle" 
+        android:stateListAnimator="@animator/wobbly_slime" 
+        android:outlineProvider="background" 
+        app:layout_constraintBottom_toTopOf="@id/guidelineNewCVBottom" 
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd" 
+        app:layout_constraintWidth_percent="0.18" 
+        app:layout_constraintDimensionRatio="1:1" 
+        android:hapticFeedbackEnabled="true">
+
+        <ImageView android:layout_width="match_parent" 
+            android:layout_height="match_parent" 
+            android:layout_gravity="center" 
+            android:padding="12dp"
+            android:src="@drawable/ic_add_bold" 
+            app:tint="@color/white" />
+    </FrameLayout>
+
     <!-- AdMob Banner -->
-    <com.google.android.gms.ads.AdView android:id="@+id/adView" android:layout_width="match_parent" android:layout_height="50dp" android:background="#FF00FF" android:visibility="gone" app:adSize="BANNER" app:adUnitId="ca-app-pub-3940256099942544/6300978111" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+    <com.google.android.gms.ads.AdView android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:visibility="gone"
+        android:background="@android:color/transparent"
+        app:adSize="BANNER"
+        app:adUnitId="@string/ad_unit_id_banner"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Folder Expansion Animation Overlay -->
     <View android:id="@+id/folderRevealOverlay" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/bg_primary" android:visibility="invisible" android:elevation="25dp" />
@@ -145,6 +485,5 @@
 
     </LinearLayout>
 
-    <include layout="@layout/design_break_overlay" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

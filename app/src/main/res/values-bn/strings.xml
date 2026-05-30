@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Vitae</string>
+    <string name="app_name">Career Compass</string>
     <string name="action_settings">সেটিংস</string>
     <string name="action_print">প্রিন্ট</string>
     <string name="print">প্রিন্ট</string>
@@ -18,7 +18,7 @@
     <string name="no_recent_cvs">সাম্প্রতিক কোনো সিভি নেই</string>
     <string name="ai_mode">এআই (AI) মোড</string>
     <string name="step_by_step_demo">ধাপে ধাপে (ডেমো)</string>
-    <string name="import_vitae">ইম্পোর্ট করুন (.vitae)</string>
+    <string name="import_career_compass">ইম্পোর্ট করুন (.careercompass)</string>
     <string name="new_cv">নতুন সিভি</string>
 
     <!-- Settings -->
@@ -56,6 +56,7 @@
     <!-- Step By Step -->
     <string name="select_purpose">উদ্দেশ্য নির্বাচন করুন</string>
     <string name="choose_template">টেমপ্লেট নির্বাচন করুন</string>
+    <string name="select_template_first">চালিয়ে যাওয়ার জন্য একটি টেমপ্লেট নির্বাচন করুন</string>
     <string name="manage_sections">সেকশন ম্যানেজ করুন</string>
     <string name="editor">এডিটর</string>
     <string name="back">পেছনে</string>
@@ -77,14 +78,14 @@
     <string name="error_picking_image">ছবি নির্বাচনে ত্রুটি হয়েছে</string>
 
     <!-- Login -->
-    <string name="login_to_vitae">Vitae-তে লগ ইন করুন</string>
+    <string name="login_to_career_compass">Career Compass-তে লগ ইন করুন</string>
     <string name="email_hint">ইমেইল</string>
     <string name="password_hint">পাসওয়ার্ড</string>
     <string name="login_btn">লগ ইন</string>
     <string name="dont_have_account">অ্যাকাউন্ট নেই? সাইন আপ করুন</string>
 
     <!-- Signup -->
-    <string name="join_vitae">Vitae-তে যোগ দিন</string>
+    <string name="join_career_compass">Career Compass-তে যোগ দিন</string>
     <string name="full_name_hint">পুরো নাম</string>
     <string name="create_account">অ্যাকাউন্ট তৈরি করুন</string>
     <string name="already_have_account">আগে থেকেই অ্যাকাউন্ট আছে? লগ ইন করুন</string>
@@ -255,7 +256,7 @@
     <string name="template_sidebar_pro">সাইডবার প্রো (Sidebar Pro)</string>
 
     <!-- Subscription Screen -->
-    <string name="sub_title">Vitae-কে আরও উঁচুতে নিয়ে যান</string>
+    <string name="sub_title">Career Compass-কে আরও উঁচুতে নিয়ে যান</string>
     <string name="sub_subtitle">আপনার ক্যারিয়ারের জন্য সঠিক সাবস্ক্রিপশনটি নির্বাচন করুন।</string>
     <string name="sub_elite_title">এলিট (Elite)</string>
     <string name="sub_elite_desc">প্রো-এর সব কিছু + নিখুঁত রেজ্যুমের জন্য আনলিমিটেড এআই সুবিধা।</string>
@@ -277,7 +278,7 @@
     <string name="sub_secure">সুরক্ষিত</string>
     <string name="sub_sync">সিঙ্ক</string>
     <string name="sub_flex">ফ্লেক্স</string>
-    <string name="sub_title_html">আপনার &lt;font color=\'#A08CFF\'>&lt;i>Vitae&lt;/i>&lt;/font> উন্নত করুন</string>
+    <string name="sub_title_html">আপনার &lt;font color=\'#A08CFF\'>&lt;i>Career Compass&lt;/i>&lt;/font> উন্নত করুন</string>
 
     <!-- Coupons -->
     <string name="coupon_title">আপনার কি কুপন আছে?</string>
@@ -508,7 +509,7 @@
     <string name="current_tier_msg">বর্তমান টায়ার: %s</string>
     <string name="selected_count">%dটি নির্বাচিত</string>
     <string name="sorted_a_z">অ-ক ক্রমে সাজানো</string>
-    <string name="vitae_user">ভিটা ব্যবহারকারী</string>
+    <string name="career_compass_user">Career Compass ব্যবহারকারী</string>
     <string name="guest_with_id">অতিথি (%s)</string>
     <string name="group_label">গ্রুপ: %s</string>
     <string name="folder">ফোল্ডার</string>
@@ -538,8 +539,8 @@
     <string name="moved_items_to_group">%dটি আইটেম %s এ সরানো হয়েছে</string>
     <string name="moved_to_main_list">মূল তালিকায় সরানো হয়েছে</string>
     <string name="failed_to_ungroup">আনগ্রুপ করতে ব্যর্থ হয়েছে</string>
-    <string name="error_creating_package">.vitae প্যাকেজ তৈরিতে ত্রুটি</string>
-    <string name="share_vitae_package">.vitae প্যাকেজ শেয়ার করুন</string>
+    <string name="error_creating_package">.careercompass প্যাকেজ তৈরিতে ত্রুটি</string>
+    <string name="share_career_compass_package">.careercompass প্যাকেজ শেয়ার করুন</string>
     <string name="error_sharing_file">ফাইল শেয়ার করতে ত্রুটি</string>
     <string name="imported_successfully">সফলভাবে ইম্পোর্ট করা হয়েছে!</string>
     <string name="import_failed">ইম্পোর্ট ব্যর্থ হয়েছে</string>
@@ -555,8 +556,8 @@
     <string name="login_to_manage_sub">সাবস্ক্রিপশন পরিচালনা করতে দয়া করে লগ ইন করুন।</string>
     <string name="english">ইংরেজি</string>
     <string name="bangla">বাংলা</string>
-    <string name="about_vitae">ভিটা সম্পর্কে</string>
-    <string name="about_vitae_msg">ভিটা সিভি বিল্ডার\nভার্সন ২.৪.০\n\nপ্রফেশনালদের জন্য একটি প্রিমিয়াম রেজ্যুমে বিল্ডার।</string>
+    <string name="about_career_compass">Career Compass সম্পর্কে</string>
+    <string name="about_career_compass_msg">Career Compass সিভি বিল্ডার\nভার্সন ২.৪.০\n\nপ্রফেশনালদের জন্য একটি প্রিমিয়াম রেজ্যুমে বিল্ডার।</string>
     <string name="ok">ঠিক আছে</string>
 
     <!-- AI Selection / Upgrade -->

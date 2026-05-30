@@ -15,7 +15,7 @@
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/sub_subtitle" android:textColor="@color/text_secondary" android:textSize="14sp" />
 
             <!-- Banner Ad -->
-            <com.google.android.gms.ads.AdView android:id="@+id/adViewSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:visibility="gone" app:adSize="BANNER" app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+            <com.google.android.gms.ads.AdView android:id="@+id/adViewSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_alignParentBottom="true" android:background="@android:color/transparent" app:adSize="BANNER" app:adUnitId="@string/ad_unit_id_banner" />
 
             <!-- Billing Toggle -->
             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:layout_marginTop="32dp" android:background="@drawable/toggle_bg" android:orientation="horizontal" android:padding="4dp" android:clipChildren="false" android:clipToPadding="false">
@@ -27,7 +27,7 @@
             </LinearLayout>
 
             <!-- Elite Card -->
-            <com.google.android.material.card.MaterialCardView android:id="@+id/cardElite" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="32dp" app:cardBackgroundColor="@color/sub_elite_bg" app:cardCornerRadius="24dp" app:cardElevation="4dp" app:strokeWidth="0dp">
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardElite" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="32dp" app:cardBackgroundColor="@color/sub_elite_bg" app:cardCornerRadius="24dp" app:cardElevation="4dp" app:strokeWidth="0dp" android:visibility="gone">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
                     <!-- Collapsed State -->
                     <RelativeLayout android:id="@+id/layoutEliteCollapsed" android:layout_width="match_parent" android:layout_height="wrap_content">
@@ -61,7 +61,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Pro Card -->
-            <com.google.android.material.card.MaterialCardView android:id="@+id/cardPro" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="#0F172A" app:cardCornerRadius="24dp" app:cardElevation="2dp" app:strokeWidth="0dp">
+            <com.google.android.material.card.MaterialCardView android:id="@+id/cardPro" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="#0F172A" app:cardCornerRadius="24dp" app:cardElevation="2dp" app:strokeWidth="0dp" android:visibility="gone">
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
                     <RelativeLayout android:id="@+id/layoutProCollapsed" android:layout_width="match_parent" android:layout_height="wrap_content">
                         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
@@ -207,6 +207,5 @@
     </ScrollView>
 
     <!-- Ad Break Overlay -->
-    <include layout="@layout/design_break_overlay" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

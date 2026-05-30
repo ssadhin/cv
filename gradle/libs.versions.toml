@@ -1,5 +1,5 @@
 [versions]
-agp = "9.1.0"
+agp = "9.2.0"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -14,6 +14,7 @@ firebaseBom = "32.7.0"
 googlePlayAuth = "20.7.0"
 playServicesAds = "22.6.0"
 billing = "7.0.0"
+recaptcha = "18.4.0"
 
 [libraries]
 google-services = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
@@ -23,6 +24,8 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googlePlayAuth" }
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 billing = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
+recaptcha = { group = "com.google.android.recaptcha", name = "recaptcha", version.ref = "recaptcha" }
+firebase-appcheck-playintegrity = { group = "com.google.firebase", name = "firebase-appcheck-playintegrity" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

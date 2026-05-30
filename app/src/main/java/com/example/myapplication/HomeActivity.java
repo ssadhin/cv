@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.transition.AutoTransition;
 import android.transition.TransitionManager;
 import android.view.DragEvent;
@@ -39,6 +40,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.bumptech.glide.Glide;
 import com.google.android.material.imageview.ShapeableImageView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 
 import java.io.File;
@@ -79,7 +81,14 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
     private static final String KEY_IS_GRID_VIEW = "isGridView";
     private static final String KEY_IS_SORT_ALPHA = "isSortAlpha";
     private static final String KEY_GRID_SPAN = "gridSpanCount";
+    private static final String KEY_SETTINGS_CLICKS = "settings_click_count_prompt";
     private FirebaseAuth mAuth;
+    private int settingsClickCount = 0;
+    private Handler headerHandler = new Handler();
+    private Runnable headerRunnable;
+    private long headerToggleInterval = 3000;
+    private boolean isFirstHeaderPrompt = true;
+    private boolean isForcedDefault = false;
 
     private File currentDir;
     private View fabOptionsPanel;
@@ -97,13 +106,8 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
     private ActivityResultLauncher<String> importLauncher;
     private InterstitialAd mInterstitialAd;
     private UserTierManager tierManager;
-    private View breakOverlay;
-    private View btnCloseBreak;
-    private TextView tvAdBlockMsg;
     private AdView adView;
     
-    private final android.os.Handler breakTimerHandler = new android.os.Handler();
-    private Runnable breakTimerRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +125,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         
         WobblyAnimationHelper.attachWobblyTouchListener(btnHomeNewCV);
         WobblyAnimationHelper.attachWobblyTouchListener(btnHomeAI);
+        WobblyAnimationHelper.attachWobblyTouchListener(btnHomeStepByStep);
         btnToggleView = findViewById(R.id.btnToggleView);
         btnSort = findViewById(R.id.btnSort);
         gridSizeSlider = findViewById(R.id.gridSizeSlider);
@@ -144,6 +149,12 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         
         // Initialize UserTierManager (Must be before initMonetization)
         tierManager = new UserTierManager(this);
+
+        if (getIntent().getBooleanExtra("reauth_for_deletion", false)) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra("reauth_for_deletion", true);
+            startActivity(intent);
+        }
         
         initMonetization();
         
@@ -154,12 +165,19 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         ShapeableImageView ivUserProfile = findViewById(R.id.ivUserProfile);
 
         ivAppLogo.setOnClickListener(v -> {
+            incrementSettingsClicks();
             startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
         });
 
         ivUserProfile.setOnClickListener(v -> {
+            incrementSettingsClicks();
             startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
         });
+
+        // Initialize Settings Click Count
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        settingsClickCount = prefs.getInt(KEY_SETTINGS_CLICKS, 0);
+        updateHeaderInterval();
 
 
 
@@ -172,8 +190,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             }
         );
 
-        // Restore Preferences
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        // Restore Other Preferences
         isGridView = prefs.getBoolean(KEY_IS_GRID_VIEW, false);
         isSortAlphabetical = prefs.getBoolean(KEY_IS_SORT_ALPHA, false);
         gridSpanCount = prefs.getInt(KEY_GRID_SPAN, 2);
@@ -258,7 +275,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                      // Set top padding to exactly 6% so title moves into logo's place
                      brandingHeader.setPadding(brandingHeader.getPaddingLeft(), topPadding6Percent, brandingHeader.getPaddingRight(), 8);
                      
-                     LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) appTitle.getLayoutParams();
+                     ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) appTitle.getLayoutParams();
                      params.topMargin = 0;
                      appTitle.setLayoutParams(params);
                      
@@ -269,7 +286,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                      // Restore same 6% padding for the logo
                      brandingHeader.setPadding(brandingHeader.getPaddingLeft(), topPadding6Percent, brandingHeader.getPaddingRight(), 16);
                      
-                     LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) appTitle.getLayoutParams();
+                     ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) appTitle.getLayoutParams();
                      params.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
                      appTitle.setLayoutParams(params);
                 }
@@ -280,7 +297,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                      appLogo.setVisibility(View.VISIBLE);
                      brandingHeader.setPadding(brandingHeader.getPaddingLeft(), topPadding6Percent, brandingHeader.getPaddingRight(), 16);
                      
-                     LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) appTitle.getLayoutParams();
+                     ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) appTitle.getLayoutParams();
                      params.topMargin = (int) (8 * getResources().getDisplayMetrics().density);
                      appTitle.setLayoutParams(params);
                 }
@@ -307,7 +324,9 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             if (isMenuOpen) {
                 toggleMenu(false);
             } else {
-                Intent intent = new Intent(HomeActivity.this, StepByStepActivity.class);
+                Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+                intent.putExtra("EXTRA_IS_NEW", true);
+                intent.putExtra("EXTRA_OPEN_WIZARD", true);
                 startActivity(intent);
             }
         });
@@ -337,7 +356,9 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
 
         optionStepByStep.setOnClickListener(v -> {
             toggleMenu(false);
-            Intent intent = new Intent(HomeActivity.this, StepByStepActivity.class);
+            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
+            intent.putExtra("EXTRA_IS_NEW", true);
+            intent.putExtra("EXTRA_OPEN_WIZARD", true);
             startActivity(intent);
         });
 
@@ -372,14 +393,24 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             @Override
             public void onProgressChanged(android.widget.SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    gridSpanCount = 5 - progress; // 5 columns (small) to 2 columns (large)
+                    final int newSpan = 5 - progress;
+                    gridSpanCount = newSpan;
                     savePreference(KEY_GRID_SPAN, gridSpanCount);
-                    if (isGridView) {
-                        setupLayoutManager();
-                    }
-                    if (adapter != null) {
-                        adapter.setSpanCount(gridSpanCount);
-                    }
+                    
+                    // Critical Fix: Update existing layout manager instead of recreating it
+                    // Also post() to avoid "Cannot call this method while RecyclerView is computing a layout"
+                    rvRecentResumes.post(() -> {
+                        RecyclerView.LayoutManager lm = rvRecentResumes.getLayoutManager();
+                        if (isGridView && lm instanceof GridLayoutManager) {
+                            ((GridLayoutManager) lm).setSpanCount(newSpan);
+                        } else if (isGridView) {
+                            rvRecentResumes.setLayoutManager(new GridLayoutManager(HomeActivity.this, newSpan));
+                        }
+                        
+                        if (adapter != null) {
+                            adapter.setSpanCount(newSpan);
+                        }
+                    });
                 }
             }
             @Override public void onStartTrackingTouch(android.widget.SeekBar seekBar) {}
@@ -499,9 +530,16 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         loadResumes();
         updateUI();
         new UserTierManager(this).syncUserToCloud();
+        startHeaderAnimation();
     }
 
-    private boolean isForcedDefault = false;
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (headerHandler != null && headerRunnable != null) {
+            headerHandler.removeCallbacks(headerRunnable);
+        }
+    }
 
     private void setupBrandingSwipe() {
         GestureDetector gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
@@ -575,7 +613,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             if (user != null && !user.isAnonymous()) {
                 // Real User
                 String name = user.getDisplayName();
-                tvAppTitle.setText(name != null && !name.isEmpty() ? name : getString(R.string.vitae_user));
+                tvAppTitle.setText(name != null && !name.isEmpty() ? name : getString(R.string.career_compass_user));
 
                 File profilePic = new File(getFilesDir(), "profile_pic.jpg");
                 if (profilePic.exists()) {
@@ -1196,7 +1234,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
             shareIntent.setType("application/zip"); 
             shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(shareIntent, getString(R.string.share_vitae_package)));
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.share_career_compass_package)));
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, R.string.error_sharing_file, Toast.LENGTH_SHORT).show();
@@ -1208,7 +1246,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
         if (baseName.endsWith(".json")) {
             baseName = baseName.substring(0, baseName.lastIndexOf("."));
         }
-        File zipFile = new File(getCacheDir(), baseName + ".vitae");
+        File zipFile = new File(getCacheDir(), baseName + ".careercompass");
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
             if (fileOrDir.isDirectory()) {
                 zipFolder(fileOrDir, fileOrDir.getName(), zos);
@@ -1337,6 +1375,7 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
     }
     private void initMonetization() {
         adView = findViewById(R.id.adView);
+        if (adView != null) adView.setBackgroundColor(android.graphics.Color.TRANSPARENT);
 
         if (tierManager.shouldShowAds()) {
             // Check if already initialized at application level
@@ -1362,123 +1401,138 @@ public class HomeActivity extends AppCompatActivity implements ResumeAdapter.OnI
                 
                 final boolean finalIsReady = isReady;
                 runOnUiThread(() -> {
-                    Toast.makeText(HomeActivity.this, statuses.toString(), Toast.LENGTH_LONG).show();
                     if (adView != null) {
-                        adView.setVisibility(View.VISIBLE);
+                        adView.setVisibility(View.GONE);
                         
                         adView.setAdListener(new com.google.android.gms.ads.AdListener() {
                             @Override
                             public void onAdLoaded() {
                                 super.onAdLoaded();
                                 Log.d("AdMob", "Home Banner Loaded Successfully");
+                                adView.setVisibility(View.VISIBLE);
                                 adView.setBackgroundColor(Color.TRANSPARENT); 
+                                runOnUiThread(() -> adjustButtonMargins());
                             }
 
                             @Override
                             public void onAdFailedToLoad(@NonNull com.google.android.gms.ads.LoadAdError adError) {
                                 super.onAdFailedToLoad(adError);
-                                String detailedError = "!!! HOME AD FAIL !!!\n" +
-                                        "Code: " + adError.getCode() + "\n" +
-                                        "Domain: " + adError.getDomain() + "\n" +
-                                        "Message: " + adError.getMessage() + "\n" +
-                                        "ResponseInfo: " + (adError.getResponseInfo() != null ? adError.getResponseInfo().toString() : "Null");
-                                Log.e("AdMob", detailedError);
-                                Toast.makeText(HomeActivity.this, detailedError, Toast.LENGTH_LONG).show();
+                                Log.e("AdMob", "Home Banner Failed: " + adError.getMessage());
+                                runOnUiThread(() -> {
+                                    Toast.makeText(HomeActivity.this, "Home Ad Failed: " + adError.getMessage(), Toast.LENGTH_LONG).show();
+                                    adjustButtonMargins();
+                                });
                             }
                         });
 
-                        // Attempt load even if not fully ready (it might fill later)
-                        AdRequest adRequest = new AdRequest.Builder().build();
+                        com.google.android.gms.ads.AdRequest adRequest = new com.google.android.gms.ads.AdRequest.Builder().build();
                         adView.loadAd(adRequest);
+                        adjustButtonMargins();
                     }
-                    loadInterstitialAd();
                 });
             });
-        }
- else {
+        } else {
             if (adView != null) {
                 adView.setVisibility(View.GONE);
-            }
-        }
-        breakOverlay = findViewById(R.id.break_overlay);
-        btnCloseBreak = findViewById(R.id.btn_close_break);
-        tvAdBlockMsg = findViewById(R.id.tv_ad_block_msg);
-        startBreakTimer();
-    }
-
-    private void startBreakTimer() {
-        if (!tierManager.shouldShowAds()) return;
-        if (breakTimerRunnable != null) breakTimerHandler.removeCallbacks(breakTimerRunnable);
-        
-        breakTimerRunnable = () -> showBreakInterruption();
-        // 3m = 180s, 5m = 300s
-        long delay = UserTierManager.isFirstAdShownInSession ? 300000 : 180000;
-        breakTimerHandler.postDelayed(breakTimerRunnable, delay);
-    }
-
-    private void showBreakInterruption() {
-        if (isFinishing() || isDestroyed()) return;
-        
-        UserTierManager.isFirstAdShownInSession = true; // Flag that at least one ad was shown
-        
-        if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.GONE);
-        checkAdBlocker();
-
-        if (breakOverlay != null) {
-            breakOverlay.setVisibility(View.VISIBLE);
-            if (mInterstitialAd != null) {
-                mInterstitialAd.show(this);
-                mInterstitialAd = null;
-                loadInterstitialAd();
-                breakOverlay.postDelayed(() -> {
-                    if (btnCloseBreak != null) btnCloseBreak.setVisibility(View.VISIBLE);
-                }, 3000);
-            } else {
-                breakOverlay.postDelayed(() -> {
-                    if (btnCloseBreak != null) btnCloseBreak.setVisibility(View.VISIBLE);
-                }, 5000);
-            }
-            if (btnCloseBreak != null) {
-                btnCloseBreak.setOnClickListener(v -> {
-                    breakOverlay.setVisibility(View.GONE);
-                    btnCloseBreak.setVisibility(View.INVISIBLE);
-                    startBreakTimer();
-                });
+                adView.setBackgroundColor(Color.TRANSPARENT);
+                adjustButtonMargins();
             }
         }
     }
 
-    private void loadInterstitialAd() {
-        if (!tierManager.shouldShowAds()) return;
-        AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest,
-            new InterstitialAdLoadCallback() {
-                @Override
-                public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
-                    mInterstitialAd = interstitialAd;
-                }
-                @Override
-                public void onAdFailedToLoad(@NonNull com.google.android.gms.ads.LoadAdError loadAdError) {
-                    mInterstitialAd = null;
-                }
-            });
+    private void adjustButtonMargins() {
+        int adHeight = 0;
+        if (adView != null && adView.getVisibility() == View.VISIBLE) {
+            // Include a small bottom padding (4dp) above the ad
+            adHeight = (int) (54 * getResources().getDisplayMetrics().density);
+        }
+
+        View btnNewCV = findViewById(R.id.btnHomeNewCV);
+        View btnAI = findViewById(R.id.btnHomeAI);
+        View btnStep = findViewById(R.id.btnHomeStepByStep);
+
+        setBottomMargin(btnNewCV, adHeight);
+        setBottomMargin(btnAI, adHeight);
+        setBottomMargin(btnStep, adHeight);
     }
 
-    private void checkAdBlocker() {
-        new Thread(() -> {
-            try {
-                java.net.InetAddress address = java.net.InetAddress.getByName("googleads.g.doubleclick.net");
-                boolean isBlocked = address.getHostAddress().equals("127.0.0.1") || address.getHostAddress().equals("0.0.0.0");
-                if (isBlocked) {
-                    runOnUiThread(() -> {
-                        if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.VISIBLE);
-                    });
-                }
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.VISIBLE);
-                });
+    private void setBottomMargin(View view, int bottomMargin) {
+        if (view != null && view.getLayoutParams() instanceof android.view.ViewGroup.MarginLayoutParams) {
+            android.view.ViewGroup.MarginLayoutParams params = (android.view.ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            params.bottomMargin = bottomMargin;
+            view.requestLayout();
+        }
+    }
+
+    private void updateHeaderInterval() {
+        if (settingsClickCount >= 3) {
+            headerToggleInterval = 10000; // 10 seconds if user is familiar
+        } else {
+            headerToggleInterval = 3000; // 3 seconds if user is new
+        }
+    }
+
+    private void incrementSettingsClicks() {
+        settingsClickCount++;
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(KEY_SETTINGS_CLICKS, settingsClickCount).apply();
+        updateHeaderInterval();
+    }
+
+    private void startHeaderAnimation() {
+        if (headerRunnable != null) headerHandler.removeCallbacks(headerRunnable);
+        
+        // As requested: Show settings immediately on start for the first time
+        if (isFirstHeaderPrompt) {
+            showSettingsPrompt();
+        }
+
+        headerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                showSettingsPrompt();
+                headerHandler.postDelayed(this, headerToggleInterval + 3600); 
             }
+        };
+        
+        // If it's the first time, we already called it, so schedule the NEXT one after the standard gap
+        long initialDelay = isFirstHeaderPrompt ? (headerToggleInterval + 2600) : headerToggleInterval;
+        headerHandler.postDelayed(headerRunnable, initialDelay);
+    }
+
+    private void showSettingsPrompt() {
+        final View container = findViewById(R.id.profileContainer);
+        final ShapeableImageView ivAppLogo = findViewById(R.id.ivAppLogo);
+        final ShapeableImageView ivUserProfile = findViewById(R.id.ivUserProfile);
+        final TextView tvAppTitle = findViewById(R.id.tvAppTitle);
+
+        if (container == null || ivAppLogo == null || ivUserProfile == null || tvAppTitle == null) return;
+
+        // 1. Fade OUT Logo (Or just switch if it's the very first frame)
+        float initialAlpha = isFirstHeaderPrompt ? 0f : container.getAlpha();
+        
+        container.animate().alpha(0f).setDuration(isFirstHeaderPrompt ? 0 : 400).withEndAction(() -> {
+            // 2. Switch to Settings
+            ivUserProfile.setVisibility(View.GONE);
+            ivAppLogo.setVisibility(View.VISIBLE);
+            ivAppLogo.setImageResource(R.drawable.ic_settings);
+            tvAppTitle.setText(R.string.action_settings);
+
+            // 3. Fade IN Settings
+            container.animate().alpha(1f).setDuration(400).withEndAction(() -> {
+                // 4. STAY: 1s for first time, 2s for subsequent times
+                long stayDuration = isFirstHeaderPrompt ? 1000 : 2000;
+                isFirstHeaderPrompt = false; // Reset after first use
+
+                headerHandler.postDelayed(() -> {
+                    // 5. Fade OUT Settings
+                    container.animate().alpha(0f).setDuration(400).withEndAction(() -> {
+                        // 6. Restore Normal Branding
+                        updateUI();
+                        // 7. Fade IN Branding
+                        container.animate().alpha(1f).setDuration(400).start();
+                    }).start();
+                }, stayDuration);
+            }).start();
         }).start();
     }
 }

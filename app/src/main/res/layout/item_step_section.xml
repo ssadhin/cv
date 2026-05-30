@@ -1,26 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingVertical="4dp">
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="6dp"
+    app:cardBackgroundColor="@color/white"
+    app:strokeWidth="0dp">
 
-    <!-- Pill-shaped collapsed view -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:background="@drawable/pill_background" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="16dp" android:paddingEnd="8dp" android:elevation="1dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <!-- Section Name (center-left) -->
-        <TextView android:id="@+id/tvSectionName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="8dp" android:text="Section Name" android:textColor="#1a237e" android:textSize="15sp" android:textStyle="bold" />
+        <!-- Header View -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="24dp"
+            android:paddingEnd="16dp">
 
-        <!-- Delete button (circular) - NOW ON THE RIGHT -->
-        <ImageButton android:id="@+id/btnRemove" android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/circular_button_background" android:src="@drawable/ic_close" android:padding="8dp" android:backgroundTint="#f44336" app:tint="#FFFFFF" android:layout_marginEnd="8dp" />
+            <TextView
+                android:id="@+id/tvSectionName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Section Name"
+                android:textColor="#3D424D"
+                android:textSize="17sp"
+                android:textStyle="bold" />
 
-        <!-- Expand button (clickable) - RIGHT SIDE -->
-        <ImageButton android:id="@+id/ivExpand" android:layout_width="36dp" android:layout_height="36dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_expand_more" android:padding="8dp" app:tint="#1a237e" />
+            <ImageButton
+                android:id="@+id/btnRemove"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_close"
+                android:padding="10dp"
+                app:tint="#A0A4B0" />
+
+            <ImageButton
+                android:id="@+id/ivExpand"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_expand_more"
+                android:padding="10dp"
+                app:tint="#A0A4B0" />
+        </LinearLayout>
+
+        <!-- Expandable Body -->
+        <LinearLayout
+            android:id="@+id/expandableBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingBottom="20dp"
+            android:visibility="gone">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvItems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
+
+            <Button
+                android:id="@+id/btnAddItem"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="+ ADD ITEM"
+                android:textColor="#545965"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Expandable Body -->
-    <LinearLayout android:id="@+id/expandableBody" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="12dp" android:paddingBottom="12dp" android:background="#FAFAFA" android:layout_marginTop="4dp" android:visibility="gone">
-
-        <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvItems" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" />
-
-        <Button android:id="@+id/btnAddItem" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/add_item" android:textColor="#1a237e" />
-    </LinearLayout>
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

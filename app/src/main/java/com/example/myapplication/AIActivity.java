@@ -100,7 +100,7 @@ public class AIActivity extends AppCompatActivity {
                 return;
             }
             loadTemplates(); // Scan before showing dialog
-            showTemplateSelectionDialog(jsonInput);
+            showProcessAdAndContinue(jsonInput);
         });
 
         initMonetization();
@@ -466,7 +466,7 @@ public class AIActivity extends AppCompatActivity {
 
     private void loadAndShowEntryAd() {
         AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest,
+        InterstitialAd.load(this, getString(R.string.ad_unit_id_interstitial), adRequest,
             new InterstitialAdLoadCallback() {
                 @Override
                 public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
@@ -487,7 +487,7 @@ public class AIActivity extends AppCompatActivity {
     private void loadInterstitialAd() {
         if (!tierManager.shouldShowAds()) return;
         AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest,
+        InterstitialAd.load(this, getString(R.string.ad_unit_id_interstitial), adRequest,
             new InterstitialAdLoadCallback() {
                 @Override
                 public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {

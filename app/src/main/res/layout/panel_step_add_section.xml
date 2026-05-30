@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_section_title"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#3D424D"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Search Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:orientation="horizontal"
+            android:background="@drawable/rounded_box_bg"
+            android:backgroundTint="#F5F5F7"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="#A0A4B0"/>
+
+            <EditText
+                android:id="@+id/search_sections"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="@string/search_sections_hint"
+                android:textColorHint="#A0A4B0"
+                android:textColor="#3D424D"
+                android:textSize="15sp"
+                android:paddingStart="12dp"
+                android:inputType="text"
+                android:imeOptions="actionSearch"/>
+        </LinearLayout>
+        
+        <!-- Toolbar: Sort & Group -->
+        <HorizontalScrollView android:id="@+id/hsv_toolbar" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="32dp" android:scrollbars="none" android:layout_marginBottom="16dp" android:fillViewport="true">
+            <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:orientation="horizontal" android:gravity="center_vertical">
+                <TextView android:id="@+id/btn_sort_az" android:layout_width="wrap_content" android:layout_height="match_parent" android:minHeight="32dp" android:text="@string/sort_az" android:textSize="12sp" android:gravity="center" android:paddingHorizontal="16dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#3D424D" android:textColor="@color/white" android:clickable="true" android:focusable="true"/>
+                <View android:layout_width="8dp" android:layout_height="1dp"/>
+                <TextView android:id="@+id/btn_sort_usage" android:layout_width="wrap_content" android:layout_height="match_parent" android:minHeight="32dp" android:text="@string/sort_most_used" android:textSize="12sp" android:gravity="center" android:paddingHorizontal="16dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F7" android:textColor="#A0A4B0" android:clickable="true" android:focusable="true"/>
+                <View android:layout_width="8dp" android:layout_height="1dp"/>
+                <TextView android:id="@+id/btn_sort_recent" android:layout_width="wrap_content" android:layout_height="match_parent" android:minHeight="32dp" android:text="@string/sort_recent" android:textSize="12sp" android:gravity="center" android:paddingHorizontal="16dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="#F5F5F7" android:textColor="#A0A4B0" android:clickable="true" android:focusable="true"/>
+                <View android:layout_width="16dp" android:layout_height="1dp"/>
+                <CheckBox android:id="@+id/chk_group_by" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/group_sections" android:textSize="12sp" android:checked="true" android:buttonTint="#3D424D" android:textColor="#3D424D" android:textAllCaps="false"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- Dynamic Category Container -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:scrollbars="vertical"
+            android:clipToPadding="false"
+            android:paddingBottom="8dp">
+
+            <LinearLayout
+                android:id="@+id/sections_category_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <!-- Categories will be inflated here dynamically -->
+            </LinearLayout>
+        </ScrollView>
+        
+        <!-- Custom Close Button -->
+        <Button
+            android:id="@+id/btn_close_dialog"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/close"
+            android:textColor="#A0A4B0"
+            android:layout_marginTop="8dp"
+            app:cornerRadius="28dp"/>
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

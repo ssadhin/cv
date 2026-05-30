@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_ai_box_pill"
+    android:padding="20dp"
+    android:layout_margin="16dp">
+
+    <!-- Status text (maintained for compatibility) -->
+    <TextView
+        android:id="@+id/ai_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AI Assistant"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="8dp"
+        android:visibility="visible" />
+
+    <EditText
+        android:id="@+id/et_ai_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="100dp"
+        android:maxHeight="300dp"
+        android:maxLines="8"
+        android:hint="Hey I recently left my job as a teacher..."
+        android:background="@android:color/transparent"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_secondary"
+        android:gravity="top|start"
+        android:padding="0dp"
+        android:textSize="18sp"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btn_add_doc"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_circle_button"
+                android:src="@drawable/ic_add"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Add Document" />
+
+            <ImageButton
+                android:id="@+id/btn_voice_typing"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="16dp"
+                android:background="@drawable/bg_circle_button"
+                android:src="@drawable/ic_mic"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="Voice Typing" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/btn_ask_ai"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/ai_star_large"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_sparkle_large"
+                android:scaleType="fitCenter" />
+
+            <ImageView
+                android:id="@+id/ai_star_small"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_sparkle_small"
+                android:scaleType="fitCenter" />
+
+            <ImageView
+                android:id="@+id/ai_check_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_check_v"
+                android:visibility="gone"
+                app:tint="@color/text_primary"
+                android:scaleType="fitCenter" />
+        </FrameLayout>
+
+        <!-- Hidden but maintained for logic compatibility -->
+        <View
+            android:id="@+id/btn_apply_code"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+</LinearLayout>

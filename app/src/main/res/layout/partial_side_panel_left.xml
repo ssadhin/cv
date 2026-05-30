@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/side_panel_left" android:layout_width="0dp" android:layout_height="wrap_content" app:cardBackgroundColor="@android:color/transparent" app:cardElevation="0dp" app:layout_constraintWidth_percent="0.167" app:layout_constrainedHeight="true" app:layout_constraintBottom_toBottomOf="@+id/panel_limit_bottom" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="@+id/panel_limit_top" android:clipChildren="false" android:clipToPadding="false">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/side_panel_left" android:layout_width="0dp" android:layout_height="0dp" app:cardBackgroundColor="@android:color/transparent" app:cardElevation="0dp" app:layout_constraintWidth_percent="0.167" app:layout_constrainedHeight="true" app:layout_constraintBottom_toBottomOf="@+id/panel_limit_bottom" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="@+id/panel_limit_top" android:clipChildren="false" android:clipToPadding="false">
 
-    <LinearLayout android:id="@+id/panel_content_layout_left" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false">
+    <LinearLayout android:id="@+id/panel_content_layout_left" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_horizontal" android:orientation="vertical" android:clipChildren="false" android:clipToPadding="false">
 
         <FrameLayout android:id="@+id/swap_button_left" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="8dp" android:clipChildren="false" android:clipToPadding="false">
 
@@ -11,7 +11,7 @@
             <ImageButton android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="center" android:background="@android:color/transparent" android:clickable="false" android:scaleType="fitCenter" android:src="@drawable/swap" />
         </FrameLayout>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="150dp" android:background="@drawable/pill_background" android:orientation="vertical" android:paddingVertical="8dp" android:clipChildren="false" android:clipToPadding="false">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/pill_background" android:orientation="vertical" android:paddingVertical="8dp" android:clipChildren="false" android:clipToPadding="false">
 
             <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content">
 
@@ -49,11 +49,23 @@
 
                     <include android:id="@+id/line_spacing_button_left" layout="@layout/panel_button" />
 
-                    <FrameLayout android:id="@+id/line_spacing_slider_container_left" android:layout_width="match_parent" android:layout_height="150dp" android:clickable="false" android:focusable="false" android:visibility="gone">
-
+                    <FrameLayout android:id="@+id/line_spacing_original_container_left" android:layout_width="match_parent" android:layout_height="150dp" android:clickable="false" android:focusable="false" android:visibility="gone">
                         <SeekBar android:id="@+id/line_spacing_slider_left" android:layout_width="150dp" android:layout_height="wrap_content" android:layout_gravity="center" android:max="99" android:progress="49" android:rotation="270" android:clickable="false" android:focusable="false" android:enabled="false" />
-
                         <TextView android:id="@+id/line_spacing_value_left" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="50" android:textSize="14sp" android:textColor="@color/text_primary" android:textStyle="bold" android:clickable="false" android:focusable="false" />
+                    </FrameLayout>
+
+                    <include android:id="@+id/in_column_spacing_button_left" layout="@layout/panel_sub_button" android:visibility="gone" />
+
+                    <FrameLayout android:id="@+id/in_column_spacing_slider_container_left" android:layout_width="match_parent" android:layout_height="150dp" android:clickable="false" android:focusable="false" android:visibility="gone">
+                        <SeekBar android:id="@+id/in_column_spacing_slider_left" android:layout_width="150dp" android:layout_height="wrap_content" android:layout_gravity="center" android:max="99" android:progress="49" android:rotation="270" android:clickable="false" android:focusable="false" android:enabled="false" />
+                        <TextView android:id="@+id/in_column_spacing_value_left" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="50" android:textSize="14sp" android:textColor="@color/text_primary" android:textStyle="bold" android:clickable="false" android:focusable="false" />
+                    </FrameLayout>
+
+                    <include android:id="@+id/out_column_spacing_button_left" layout="@layout/panel_sub_button" android:visibility="gone" />
+
+                    <FrameLayout android:id="@+id/out_column_spacing_slider_container_left" android:layout_width="match_parent" android:layout_height="150dp" android:clickable="false" android:focusable="false" android:visibility="gone">
+                        <SeekBar android:id="@+id/out_column_spacing_slider_left" android:layout_width="150dp" android:layout_height="wrap_content" android:layout_gravity="center" android:max="99" android:progress="49" android:rotation="270" android:clickable="false" android:focusable="false" android:enabled="false" />
+                        <TextView android:id="@+id/out_column_spacing_value_left" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="50" android:textSize="14sp" android:textColor="@color/text_primary" android:textStyle="bold" android:clickable="false" android:focusable="false" />
                     </FrameLayout>
                 </LinearLayout>
             </ScrollView>

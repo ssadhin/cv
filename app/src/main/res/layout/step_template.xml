@@ -1,10 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingBottom="20dp"
+    android:paddingTop="0dp">
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Select a layout" android:textSize="18sp" android:textColor="#333" android:layout_marginBottom="4dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select a layout"
+        android:textSize="22sp"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"
+        android:layout_gravity="center_horizontal"/>
 
-    <TextView android:id="@+id/tvTemplateNotice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textSize="15sp" android:textColor="#444" android:layout_marginBottom="16dp"/>
+    <TextView
+        android:id="@+id/tvTemplateNotice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="14sp"
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"/>
 
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTemplates" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTemplates"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp"/>
 
 </LinearLayout>

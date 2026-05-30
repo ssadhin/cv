@@ -439,7 +439,7 @@ public class ManualAIActivity extends AppCompatActivity {
         }
         
         // Final verification before template selection/launch
-        showTemplateDialog(input);
+        showAdAndContinue(input);
     }
 
     private void showTemplateDialog(String input) {
@@ -479,8 +479,8 @@ public class ManualAIActivity extends AppCompatActivity {
             String[] assets = getAssets().list("default_templates");
             if (assets != null) {
                 for (String assetName : assets) {
-                    if (assetName.endsWith(".vitae")) {
-                        String name = assetName.replace(".vitae", "");
+                    if (assetName.endsWith(".careercompass") || assetName.endsWith(".vitae")) {
+                        String name = assetName.replace(".careercompass", "").replace(".vitae", "");
                         availableTemplates.add(new TemplateItem(name, "default_templates/" + assetName, true));
                     }
                 }
@@ -529,30 +529,11 @@ public class ManualAIActivity extends AppCompatActivity {
 
     private void processAndLaunch(String input) {
         try {
-            String jsonContent = extractJson(input);
-            List<ResumeDataManager.SectionModel> sections;
-            JSONObject originalData;
-
-            if (jsonContent != null) {
-                sections = ResumeDataManager.parseStructuredJson(jsonContent);
-                originalData = new JSONObject(jsonContent);
-            } else {
-                sections = ResumeDataManager.parseSmartText(input);
-                originalData = new JSONObject();
-            }
-
-            JSONObject finalState = ResumeDataManager.generateStateJson(sections, originalData);
-            
-            String templateJson = null;
-            if (selectedTemplateItem != null && !selectedTemplateItem.path.equals("default")) {
-                templateJson = selectedTemplateItem.isAsset ? loadVitaeAssetJson(selectedTemplateItem.path) : loadFileJson(selectedTemplateItem.path);
-            }
-
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("EXTRA_FROM_STEP_BY_STEP", true);
-            intent.putExtra("EXTRA_TARGET_LAYOUT", selectedTemplateItem != null ? selectedTemplateItem.path : "default");
-            intent.putExtra("EXTRA_STEP_BY_STEP_DATA", finalState.toString());
-            if (templateJson != null) intent.putExtra("EXTRA_TEMPLATE_JSON", templateJson);
+            // Launch as a new CV, bypassing the built-in template logic
+            intent.putExtra("EXTRA_IS_NEW", true);
+            // Send the raw AI output as a command to be handled surgically
+            intent.putExtra("EXTRA_MANUAL_AI_COMMAND", input);
             
             startActivity(intent);
             finish();
@@ -612,7 +593,7 @@ public class ManualAIActivity extends AppCompatActivity {
 
     private void loadInterstitialAd() {
         AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest,
+        InterstitialAd.load(this, getString(R.string.ad_unit_id_interstitial), adRequest,
             new InterstitialAdLoadCallback() {
                 @Override
                 public void onAdLoaded(@NonNull InterstitialAd ad) { mInterstitialAd = ad; }

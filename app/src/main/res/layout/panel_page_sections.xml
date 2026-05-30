@@ -4,32 +4,32 @@
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/add_section_title" android:textStyle="bold" android:textSize="16sp" android:textColor="@color/text_primary" android:gravity="center" android:layout_marginBottom="12dp"/>
 
-    <!-- Search Bar -->
-    <LinearLayout android:layout_width="match_parent" android:layout_height="40dp" android:orientation="horizontal" android:background="@drawable/rounded_box_bg" android:backgroundTint="@color/surface_card_nested" android:gravity="center_vertical" android:paddingHorizontal="12dp" android:layout_marginBottom="12dp">
+    <!-- Search Bar (using weight for proportional height) -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="0.12" android:minHeight="40dp" android:orientation="horizontal" android:background="@drawable/rounded_box_bg" android:backgroundTint="@color/surface_card_nested" android:gravity="center_vertical" android:paddingHorizontal="12dp" android:layout_marginBottom="12dp">
         <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@android:drawable/ic_menu_search" app:tint="@color/text_secondary"/>
         <EditText android:id="@+id/search_sections" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@null" android:hint="@string/search_sections_hint" android:textColorHint="@color/text_secondary" android:textColor="@color/text_primary" android:textSize="14sp" android:paddingStart="8dp" android:inputType="text" android:imeOptions="actionSearch"/>
     </LinearLayout>
 
-    <!-- Toolbar: Sort & Group -->
-    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:scrollbars="none" android:layout_marginBottom="12dp">
-        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-            <TextView android:id="@+id/btn_sort_az" android:layout_width="wrap_content" android:layout_height="32dp" android:text="@string/sort_az" android:textSize="12sp" android:gravity="center" android:paddingHorizontal="12dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="@color/brand_primary" android:textColor="@color/white" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime"/>
+    <!-- Toolbar: Sort & Group (using weight for proportional height) -->
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="0.08" android:minHeight="32dp" android:scrollbars="none" android:layout_marginBottom="12dp" android:fillViewport="true">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:id="@+id/btn_sort_az" android:layout_width="wrap_content" android:layout_height="match_parent" android:minHeight="32dp" android:text="@string/sort_az" android:textSize="11sp" android:gravity="center" android:paddingHorizontal="12dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="@color/brand_primary" android:textColor="@color/white" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime"/>
             <View android:layout_width="8dp" android:layout_height="1dp"/>
-            <TextView android:id="@+id/btn_sort_usage" android:layout_width="wrap_content" android:layout_height="32dp" android:text="@string/sort_most_used" android:textSize="12sp" android:gravity="center" android:paddingHorizontal="12dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="@color/surface_card_nested" android:textColor="@color/text_secondary" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime"/>
+            <TextView android:id="@+id/btn_sort_usage" android:layout_width="wrap_content" android:layout_height="match_parent" android:minHeight="32dp" android:text="@string/sort_most_used" android:textSize="11sp" android:gravity="center" android:paddingHorizontal="12dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="@color/surface_card_nested" android:textColor="@color/text_secondary" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime"/>
             <View android:layout_width="8dp" android:layout_height="1dp"/>
-            <TextView android:id="@+id/btn_sort_recent" android:layout_width="wrap_content" android:layout_height="32dp" android:text="@string/sort_recent" android:textSize="12sp" android:gravity="center" android:paddingHorizontal="12dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="@color/surface_card_nested" android:textColor="@color/text_secondary" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime"/>
+            <TextView android:id="@+id/btn_sort_recent" android:layout_width="wrap_content" android:layout_height="match_parent" android:minHeight="32dp" android:text="@string/sort_recent" android:textSize="11sp" android:gravity="center" android:paddingHorizontal="12dp" android:background="@drawable/rounded_box_bg" android:backgroundTint="@color/surface_card_nested" android:textColor="@color/text_secondary" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime"/>
             <View android:layout_width="16dp" android:layout_height="1dp"/>
-            <CheckBox android:id="@+id/chk_group_by" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/group_sections" android:textSize="12sp" android:checked="true" android:buttonTint="@color/brand_primary" android:textColor="@color/text_primary" android:textAllCaps="false"/>
+            <CheckBox android:id="@+id/chk_group_by" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/group_sections" android:textSize="11sp" android:checked="true" android:buttonTint="@color/brand_primary" android:textColor="@color/text_primary" android:textAllCaps="false"/>
         </LinearLayout>
     </HorizontalScrollView>
 
     <!-- Scrollable Grid for Dynamic Categories -->
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:scrollbars="vertical" android:paddingBottom="8dp">
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="0.65" android:scrollbars="vertical" android:paddingBottom="8dp">
         <LinearLayout android:id="@+id/sections_category_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
             <!-- Categories will be inflated here dynamically -->
         </LinearLayout>
     </ScrollView>
 
-    <Button android:id="@+id/btn_reset_all" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/reset_resume_data" android:layout_marginTop="8dp" android:backgroundTint="#F44336" android:textColor="#FFFFFF" android:textAllCaps="false" android:elevation="2dp" android:paddingVertical="12dp"/>
+    <Button android:id="@+id/btn_reset_all" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="0.10" android:minHeight="44dp" android:text="@string/reset_resume_data" android:layout_marginTop="8dp" android:backgroundTint="#F44336" android:textColor="#FFFFFF" android:textAllCaps="false" android:elevation="2dp" android:paddingVertical="8dp"/>
 
 </LinearLayout>

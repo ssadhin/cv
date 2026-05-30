@@ -65,7 +65,23 @@ public class LoginActivity extends AppCompatActivity {
                                 if (user.isEmailVerified()) {
                                     // Verification successful
                                     new UserTierManager(this).syncUserToCloud();
-                                    finish();
+                                    
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                    if (getIntent().getBooleanExtra("reauth_for_deletion", false)) {
+                                        intent.putExtra("reauth_for_deletion", true);
+                                    }
+                                    
+                                    // Check if this email was recently deleted
+                                    String lastDeleted = getSharedPreferences("VitaeMonetizationPrefs", MODE_PRIVATE)
+                                            .getString("last_deleted_email", "");
+                                    
+                                    if (!lastDeleted.isEmpty() && lastDeleted.equalsIgnoreCase(email)) {
+                                        showNewAccountConfirmation(intent);
+                                    } else {
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        startActivity(intent);
+                                        finish();
+                                    }
                                 } else {
                                     // Not verified - Show dialog and sign out
                                     showVerificationRequiredDialog(user);
@@ -83,6 +99,10 @@ public class LoginActivity extends AppCompatActivity {
         findViewById(R.id.tvGoToSignUp).setOnClickListener(v -> {
             startActivity(new Intent(this, SignupActivity.class));
         });
+
+        if (getIntent().getBooleanExtra("reauth_for_deletion", false)) {
+            Toast.makeText(this, "Please log in again to confirm account deletion", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void showForgotPasswordDialog() {
@@ -167,7 +187,22 @@ public class LoginActivity extends AppCompatActivity {
 
                             if (user.isEmailVerified()) {
                                 // Verified
-                                finish();
+                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                if (getIntent().getBooleanExtra("reauth_for_deletion", false)) {
+                                    intent.putExtra("reauth_for_deletion", true);
+                                }
+
+                                // Check if this email was recently deleted
+                                String lastDeleted = getSharedPreferences("VitaeMonetizationPrefs", MODE_PRIVATE)
+                                        .getString("last_deleted_email", "");
+
+                                if (!lastDeleted.isEmpty() && lastDeleted.equalsIgnoreCase(email)) {
+                                    showNewAccountConfirmation(intent);
+                                } else {
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                    finish();
+                                }
                             } else {
                                 // Not verified
                                 showVerificationRequiredDialog(user);
@@ -178,5 +213,28 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(this, R.string.firebase_auth_failed, Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void showNewAccountConfirmation(Intent nextIntent) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        String email = (user != null) ? user.getEmail() : "";
+        
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.new_account_required)
+            .setMessage(getString(R.string.new_account_msg, email))
+            .setPositiveButton(R.string.btn_create_new, (dialog, which) -> {
+                // Clear the tracking flag once they acknowledge
+                getSharedPreferences("VitaeMonetizationPrefs", MODE_PRIVATE)
+                        .edit().remove("last_deleted_email").apply();
+                
+                nextIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(nextIntent);
+                finish();
+            })
+            .setNegativeButton(R.string.cancel, (dialog, which) -> {
+                mAuth.signOut();
+            })
+            .setCancelable(false)
+            .show();
     }
 }

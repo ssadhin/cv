@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="4dp"
+    android:paddingVertical="4dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="#F5F5F7"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Pill-shaped container (Visible part) -->
+            <LinearLayout
+                android:id="@+id/section_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <!-- Icon (Left) - Hidden -->
+                <FrameLayout
+                    android:id="@+id/section_icon_frame"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/circular_button_background"
+                    android:backgroundTint="#E3F2FD"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/section_icon"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_add"
+                        app:tint="#1976D2" />
+                </FrameLayout>
+
+                <!-- Section Info (Center) -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/section_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Section Title"
+                        android:textColor="#3D424D"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/section_desc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Short description"
+                        android:textColor="#A0A4B0"
+                        android:textSize="12sp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- Done Badge (Center-Right) -->
+                <ImageView
+                    android:id="@+id/done_badge"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_check"
+                    app:tint="@color/brand_primary"
+                    android:visibility="gone" />
+
+                <!-- Add Button (Right) -->
+                <ImageButton
+                    android:id="@+id/btn_add_section"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/circular_button_background"
+                    android:src="@drawable/ic_add"
+                    android:padding="8dp"
+                    android:scaleType="centerInside"
+                    android:backgroundTint="#3D424D"
+                    app:tint="#FFFFFF"
+                    android:clickable="true" />
+
+            </LinearLayout>
+
+            <!-- Placement Controls (Hidden but required by Java code) -->
+            <LinearLayout
+                android:id="@+id/placement_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:visibility="gone"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_placement_indicator"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Add to: Left"
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:textColor="#3D424D" />
+
+                <ImageButton
+                    android:id="@+id/btn_toggle_placement"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/circular_button_background"
+                    android:backgroundTint="#F5F5F7"
+                    android:src="@drawable/ic_swap"
+                    android:padding="6dp"
+                    app:tint="#A0A4B0"
+                    android:scaleType="centerInside" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

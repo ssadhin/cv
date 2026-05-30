@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -27,6 +29,11 @@ import okhttp3.Response;
 
 public class UserTierManager {
     private static final String TAG = "UserTierManager";
+    private static final String API_BASE_URL = "https://vitae-backend.asanistudiobangladesh.workers.dev";
+    
+    public interface DeletionCallback {
+        void onProcessed(boolean success, String message);
+    }
     private static final String PREFS_NAME = "VitaeMonetizationPrefs";
     private static final String KEY_TRIAL_START = "trial_start_date";
     private static final String KEY_EXPORT_COUNT = "export_count_month";
@@ -110,6 +117,14 @@ public class UserTierManager {
     public void setTier(Tier tier) {
         prefs.edit().putString(KEY_USER_TIER, tier.name()).apply();
         syncUserToCloud();
+    }
+
+    /**
+     * Sets tier locally from a server-verified response.
+     * Does NOT trigger cloud sync to avoid infinite loop.
+     */
+    public void setTierFromServer(Tier tier) {
+        prefs.edit().putString(KEY_USER_TIER, tier.name()).apply();
     }
 
     /**
@@ -198,7 +213,7 @@ public class UserTierManager {
                 json.put("ip", userData.get("ip"));
                 json.put("device_model", userData.get("deviceModel"));
                 json.put("android_version", userData.get("androidVersion"));
-                json.put("tier", userData.get("tier"));
+                // NOTE: tier is NOT sent — server is authoritative for tier
 
                 java.io.OutputStream os = conn.getOutputStream();
                 os.write(json.toString().getBytes("UTF-8"));
@@ -216,14 +231,16 @@ public class UserTierManager {
                         JSONObject responseJson = new JSONObject(responseStr);
                         if (responseJson.has("tier")) {
                             String cloudTier = responseJson.getString("tier");
-                            Log.d(TAG, "Authoritative tier from Cloud: " + cloudTier);
+                            Log.d(TAG, "Authoritative tier from server: " + cloudTier);
                             
-                            // Update local tier if different (avoiding setTier to prevent loops)
+                            // Server is authoritative — always update local tier to match
                             String currentLocalTier = prefs.getString(KEY_USER_TIER, Tier.FREE.name());
-                            if (!currentLocalTier.equals(cloudTier)) {
-                                prefs.edit().putString(KEY_USER_TIER, cloudTier).apply();
-                                Log.i(TAG, "User tier updated from Cloud: " + cloudTier);
-                            }
+                                if (!currentLocalTier.equals(cloudTier)) {
+                                    prefs.edit().putString(KEY_USER_TIER, cloudTier).apply();
+                                    Log.i(TAG, "Tier synced from server: " + cloudTier);
+                                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> 
+                                        Toast.makeText(context, "Tier Updated: " + cloudTier, Toast.LENGTH_SHORT).show());
+                                }
                         }
                     }
                 }
@@ -379,7 +396,70 @@ public class UserTierManager {
     }
 
     public boolean shouldShowAds() {
-        // Show ads immediately for FREE tier, bypassing the 3-day trial as requested.
         return getUserTier() == Tier.FREE;
+    }
+
+    public void requestDataDeletion(List<String> types, DeletionCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onProcessed(false, "No authenticated user.");
+            return;
+        }
+
+        String uid = user.getUid();
+        new Thread(() -> {
+            try {
+                java.net.URL url = new java.net.URL(API_BASE_URL + "/api/user/delete-data");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+
+                org.json.JSONObject json = new org.json.JSONObject();
+                json.put("uid", uid);
+                json.put("types", new org.json.JSONArray(types));
+
+                java.io.OutputStream os = conn.getOutputStream();
+                os.write(json.toString().getBytes("UTF-8"));
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                if (responseCode == 200) {
+                    callback.onProcessed(true, "Data deletion successful.");
+                } else {
+                    callback.onProcessed(false, "Server error: " + responseCode);
+                }
+                conn.disconnect();
+            } catch (Exception e) {
+                callback.onProcessed(false, e.getMessage());
+            }
+        }).start();
+    }
+
+    public String getUserId() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        return (user == null || user.isAnonymous()) ? "guest_" + androidId : user.getUid();
+    }
+
+    public String getUserName() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
+            return user.getDisplayName();
+        }
+        return "Guest User";
+    }
+
+    public String getUserEmail() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && user.getEmail() != null && !user.getEmail().isEmpty()) {
+            return user.getEmail();
+        }
+        return "Guest User";
+    }
+
+    public void clearLocalData() {
+        prefs.edit().clear().apply();
+        Log.d(TAG, "Local data cleared successfully.");
     }
 }

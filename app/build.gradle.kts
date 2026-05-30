@@ -1,26 +1,51 @@
+ import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
 }
 
 android {
     namespace = "com.example.myapplication"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.asanistudiobd.vitae"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+
+        versionCode = 8
+        versionName = "b2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    val signingPropsFile = file("signing.properties")
+    val signingProps = Properties()
+    if (signingPropsFile.exists()) {
+        signingProps.load(FileInputStream(signingPropsFile))
+    }
+
+    signingConfigs {
+        create("release") {
+            if (signingPropsFile.exists()) {
+                keyAlias = signingProps.getProperty("keyAlias")
+                keyPassword = signingProps.getProperty("keyPassword")
+                storeFile = file(signingProps.getProperty("storeFile"))
+                storePassword = signingProps.getProperty("storePassword")
+            }
+        }
+    }
+
     buildTypes {
+        getByName("debug") {
+            // Uses default debug keystore — no release password needed
+        }
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -53,11 +78,15 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    implementation(libs.recaptcha)
     implementation(libs.play.services.auth)
     implementation(libs.play.services.ads)
     implementation(libs.billing)
+    implementation(libs.firebase.appcheck.playintegrity)
     implementation("com.github.bumptech.glide:glide:4.16.0")
 }
 
-
-apply(plugin = "com.google.gms.google-services")
+// Workaround for Android Studio cross-drive path issue ("'other' has different root")
+tasks.matching { it.name.startsWith("produce") && it.name.endsWith("BundleIdeListingFile") }.configureEach {
+    enabled = false
+}

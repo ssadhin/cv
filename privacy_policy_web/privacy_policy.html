@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Carrier Compass</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --accent: #7c3aed;
+            --bg: #ffffff;
+            --surface: #f9fafb;
+            --card-border: #e5e7eb;
+            --text-main: #111827;
+            --text-dim: #4b5563;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        nav {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        nav a {
+            color: var(--text-dim);
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--primary);
+        }
+
+        .policy-card {
+            background: var(--bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 { margin-top: 0; font-size: 2.2rem; font-weight: 700; letter-spacing: -0.02em; }
+        h2 { color: var(--text-main); font-size: 1.4rem; margin-top: 45px; border-bottom: 2px solid var(--surface); padding-bottom: 8px; font-weight: 700; }
+        h3 { color: var(--primary); font-size: 1.1rem; margin-top: 25px; font-weight: 600; }
+        
+        p, li { color: var(--text-dim); }
+        .highlight { color: var(--text-main); font-weight: 700; background-color: #fef3c7; padding: 2px 4px; border-radius: 4px; }
+        
+        .contact-box {
+            background: var(--surface);
+            border: 1px solid var(--card-border);
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 50px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+        table th, table td {
+            border: 1px solid var(--card-border);
+            padding: 10px 14px;
+            text-align: left;
+            color: var(--text-dim);
+        }
+        table th {
+            background: var(--surface);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .footer { text-align: center; margin-top: 50px; color: var(--text-dim); font-size: 0.9rem; padding-bottom: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="privacy_policy.html" class="logo">Carrier Compass</a>
+            <nav>
+                <a href="#" class="active">Privacy Policy</a>
+                <a href="delete_account.html">Account Deletion</a>
+            </nav>
+        </header>
+
+        <div class="policy-card">
+            <h1>Privacy Policy</h1>
+            <p><strong>Effective Date:</strong> May 17, 2026</p>
+            <p><strong>Last Updated:</strong> May 17, 2026 &mdash; <em>Version 2.0</em></p>
+            <hr style="opacity: 0.1; margin: 30px 0;">
+
+            <p>Welcome to <strong>Carrier Compass</strong> ("the App"), developed by Asani Studio Bangladesh ("we", "us", "our"). This policy explains what data we collect, why we collect it, how we process it, and your rights regarding that data.</p>
+
+            <h2>1. Data Storage: Local vs. Cloud</h2>
+            <h3>A. Your Resume Data (Private &amp; Local)</h3>
+            <p><span class="highlight">GUARANTEED:</span> All personal information you enter into your CV (Name, Experience, Education, etc.) is stored <strong>LOCALLY ON YOUR DEVICE ONLY</strong>. We do NOT sync your private resume entries to our servers.</p>
+
+            <h3>B. Template Designs &amp; Shared Content (Cloud-Based)</h3>
+            <p>To enable cross-device features, template layout configurations are stored in our cloud. If you choose to <strong>SHARE</strong> a design with the community, only the design layout and any text you explicitly include in that shared version will be uploaded.</p>
+
+            <h2>2. Data We Collect</h2>
+            <p>When you create an account or use the App, we collect the following data to provide our services:</p>
+
+            <table>
+                <tr><th>Data Type</th><th>Purpose</th><th>Storage</th></tr>
+                <tr><td>Email address</td><td>Account creation, communication</td><td>Firebase &amp; Cloudflare</td></tr>
+                <tr><td>Display name</td><td>Account identity</td><td>Firebase &amp; Cloudflare</td></tr>
+                <tr><td>IP address</td><td>Fraud prevention, trial verification</td><td>Cloudflare</td></tr>
+                <tr><td>Android device ID</td><td>Unique device identification for trial eligibility</td><td>Firebase</td></tr>
+                <tr><td>Device model &amp; Android version</td><td>Compatibility diagnostics</td><td>Cloudflare</td></tr>
+                <tr><td>Subscription tier</td><td>Feature access management</td><td>Cloudflare</td></tr>
+                <tr><td>Anonymous Firebase UID</td><td>Guest user tracking</td><td>Firebase</td></tr>
+            </table>
+
+            <h2>3. Third-Party Services</h2>
+            <p>We work with trusted providers to deliver our features. Each processes data under their own privacy policies:</p>
+            <ul>
+                <li><strong>Google Firebase (Authentication &amp; Firestore):</strong> Manages user accounts and stores user profile data in the cloud. <a href="https://firebase.google.com/support/privacy" style="color: var(--primary);">Firebase Privacy Policy</a></li>
+                <li><strong>Cloudflare Workers &amp; D1:</strong> Our backend API processes user data, subscription verification, and template storage on Cloudflare's infrastructure. <a href="https://www.cloudflare.com/privacypolicy/" style="color: var(--primary);">Cloudflare Privacy Policy</a></li>
+                <li><strong>Google AdMob:</strong> Manages advertisements within the App for free-tier users. <a href="https://policies.google.com/privacy" style="color: var(--primary);">Google Privacy Policy</a></li>
+                <li><strong>Google Play Billing:</strong> Handles secure payment processing for subscriptions.</li>
+                <li><strong>Google Gemini AI:</strong> We use Google's Gemini AI to assist with resume text generation and formatting. When you use the AI feature, your input text is sent to Google's Gemini API for processing. <a href="https://ai.google.dev/gemini-api/terms" style="color: var(--primary);">Gemini API Terms</a></li>
+            </ul>
+
+            <h2>4. Local Storage</h2>
+            <p>The App uses your device's local storage (SharedPreferences) to store your preferences, subscription tier cache, export counts, and session data. This data remains on your device and is not transmitted unless explicitly synced via the mechanisms described above.</p>
+
+            <h2>5. Legal Basis for Processing (GDPR)</h2>
+            <p>If you are located in the European Economic Area (EEA), our legal basis for collecting and using your data is:</p>
+            <ul>
+                <li><strong>Consent:</strong> When you create an account, you consent to the collection of your data as described in this policy.</li>
+                <li><strong>Contractual necessity:</strong> Processing your subscription and account data is necessary to provide the services you request.</li>
+                <li><strong>Legitimate interest:</strong> Fraud prevention (IP/device tracking for trial abuse prevention).</li>
+            </ul>
+
+            <h2>6. Data Retention</h2>
+            <ul>
+                <li><strong>Account data</strong> (email, name, device info): Retained while your account is active. Deleted within 30 days of account deletion request.</li>
+                <li><strong>Resume data:</strong> Stored locally only. Deleted when you uninstall the App or clear app data.</li>
+                <li><strong>Shared templates:</strong> Retained on our servers until you or an administrator removes them.</li>
+                <li><strong>AI processing:</strong> Input text sent to Gemini is not stored by us after processing. Refer to Google's Gemini API terms for their retention practices.</li>
+            </ul>
+
+            <h2>7. Your Rights</h2>
+            <p>You have the following rights regarding your personal data:</p>
+            <ul>
+                <li><strong>Right to access:</strong> Request a copy of the data we hold about you.</li>
+                <li><strong>Right to erasure:</strong> Request deletion of your account and associated data via our <a href="delete_account.html" style="color: var(--primary);">Account Deletion</a> page or by contacting us.</li>
+                <li><strong>Right to portability:</strong> Request your data in a machine-readable format.</li>
+                <li><strong>Right to object:</strong> Object to processing based on legitimate interest.</li>
+                <li><strong>Right to rectification:</strong> Request correction of inaccurate data.</li>
+            </ul>
+            <p>To exercise any of these rights, contact us at the email below. We will respond within 30 days.</p>
+
+            <h2>8. International Data Transfers</h2>
+            <p>Your data may be transferred to and processed in countries outside your country of residence, including the United States (Google/Firebase) and various global locations (Cloudflare's edge network). These transfers are protected by the service providers' standard contractual clauses and privacy frameworks.</p>
+
+            <h2>9. Children's Privacy</h2>
+            <p>Carrier Compass is not directed at children under 13. We do not knowingly collect personal data from children under 13. If you believe we have collected data from a child, please contact us immediately.</p>
+
+            <h2>10. Changes to This Policy</h2>
+            <p>We may update this policy from time to time. When we do, we will revise the "Last Updated" date at the top. We encourage you to review this page periodically.</p>
+            <p><strong>Version History:</strong></p>
+            <ul>
+                <li><strong>v2.0</strong> (May 17, 2026) — Added full data collection disclosure, third-party service details, GDPR sections, data retention, and user rights.</li>
+                <li><strong>v1.0</strong> (March 14, 2026) — Initial privacy policy.</li>
+            </ul>
+
+            <div class="contact-box">
+                <strong>Data Controller &amp; Contact</strong><br>
+                Asani Studio Bangladesh<br>
+                Email: <a href="mailto:asanistudiobangladesh@gmail.com" style="color: var(--primary); text-decoration: none;">asanistudiobangladesh@gmail.com</a>
+            </div>
+        </div>
+
+        <div class="footer">&copy; 2026 Asani Studio Bangladesh. Built for Privacy.</div>
+    </div>
+</body>
+</html>

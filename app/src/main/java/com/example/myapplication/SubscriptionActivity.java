@@ -18,6 +18,7 @@ import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.PendingPurchasesParams;
 import com.android.billingclient.api.ProductDetails;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
@@ -26,6 +27,9 @@ import com.android.billingclient.api.QueryPurchasesParams;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.example.myapplication.UserTierManager.Tier;
 
 import java.util.ArrayList;
@@ -57,11 +61,6 @@ public class SubscriptionActivity extends AppCompatActivity {
     private View layoutAdFreeCollapsed, layoutAdFreeExpanded;
     private View layoutFreeCollapsed, layoutFreeExpanded;
 
-    private final android.os.Handler breakTimerHandler = new android.os.Handler();
-    private Runnable breakTimerRunnable;
-    private View breakOverlay;
-    private View btnCloseBreak;
-    private View tvAdBlockMsg;
     private com.google.android.gms.ads.interstitial.InterstitialAd mInterstitialAd;
 
     @Override
@@ -107,9 +106,6 @@ public class SubscriptionActivity extends AppCompatActivity {
         layoutFreeCollapsed = findViewById(R.id.layoutFreeCollapsed);
         layoutFreeExpanded = findViewById(R.id.layoutFreeExpanded);
 
-        breakOverlay = findViewById(R.id.break_overlay);
-        btnCloseBreak = findViewById(R.id.btn_close_break);
-        tvAdBlockMsg = findViewById(R.id.tv_ad_block_msg);
         
         initMonetization();
         checkCurrentTier();
@@ -154,12 +150,19 @@ public class SubscriptionActivity extends AppCompatActivity {
             btnMonthly.setTextColor(Color.GRAY);
 
             tvElitePrice.setText(R.string.elite_price_yearly);
+            tvEliteYearlyFee.setText(R.string.elite_year_billed);
             tvEliteYearlyFee.setVisibility(View.VISIBLE);
+            
             tvProPrice.setText(R.string.pro_price_yearly);
+            tvProYearlyFee.setText(R.string.pro_year_billed);
             tvProYearlyFee.setVisibility(View.VISIBLE);
+            
             tvPlusPrice.setText(R.string.plus_price_yearly);
+            tvPlusYearlyFee.setText(R.string.plus_year_billed);
             tvPlusYearlyFee.setVisibility(View.VISIBLE);
-            tvAdFreePrice.setText(R.string.ad_free_price_yearly);
+            
+            tvAdFreePrice.setText(R.string.adfree_price_yearly);
+            tvAdFreeYearlyFee.setText(R.string.adfree_year_billed);
             tvAdFreeYearlyFee.setVisibility(View.VISIBLE);
         } else {
             btnMonthly.setBackgroundResource(R.drawable.toggle_selected_bg);
@@ -173,7 +176,7 @@ public class SubscriptionActivity extends AppCompatActivity {
             tvProYearlyFee.setVisibility(View.GONE);
             tvPlusPrice.setText(R.string.plus_price_monthly);
             tvPlusYearlyFee.setVisibility(View.GONE);
-            tvAdFreePrice.setText(R.string.ad_free_price_monthly);
+            tvAdFreePrice.setText(R.string.adfree_price_monthly);
             tvAdFreeYearlyFee.setVisibility(View.GONE);
         }
     }
@@ -229,7 +232,12 @@ public class SubscriptionActivity extends AppCompatActivity {
 
         billingClient = BillingClient.newBuilder(this)
                 .setListener(purchasesUpdatedListener)
-                .enablePendingPurchases()
+                .enablePendingPurchases(
+                    PendingPurchasesParams.newBuilder()
+                        .enableOneTimeProducts()
+                        .enablePrepaidPlans()
+                        .build()
+                )
                 .build();
 
         connectToBilling();
@@ -240,14 +248,20 @@ public class SubscriptionActivity extends AppCompatActivity {
             @Override
             public void onBillingSetupFinished(@NonNull BillingResult billingResult) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                    Toast.makeText(SubscriptionActivity.this, "Billing Connected", Toast.LENGTH_SHORT).show();
                     queryProducts();
                     checkSubscriptionStatus();
+                } else {
+                    Log.e("Billing", "Setup Failed: " + billingResult.getDebugMessage());
+                    Toast.makeText(SubscriptionActivity.this, "Billing Setup Failed: " + billingResult.getDebugMessage(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onBillingServiceDisconnected() {
-                // Attempt to reconnect in some production logic here
+                Log.w("Billing", "Service disconnected. Attempting reconnection...");
+                new android.os.Handler(android.os.Looper.getMainLooper())
+                    .postDelayed(() -> connectToBilling(), 3000);
             }
         });
     }
@@ -257,9 +271,14 @@ public class SubscriptionActivity extends AppCompatActivity {
         // Monthly
         productList.add(QueryProductDetailsParams.Product.newBuilder().setProductId("ad_free_monthly").setProductType(BillingClient.ProductType.SUBS).build());
         productList.add(QueryProductDetailsParams.Product.newBuilder().setProductId("plus_monthly").setProductType(BillingClient.ProductType.SUBS).build());
+        productList.add(QueryProductDetailsParams.Product.newBuilder().setProductId("pro_monthly").setProductType(BillingClient.ProductType.SUBS).build());
+        productList.add(QueryProductDetailsParams.Product.newBuilder().setProductId("elite_monthly").setProductType(BillingClient.ProductType.SUBS).build());
+        
         // Yearly
         productList.add(QueryProductDetailsParams.Product.newBuilder().setProductId("ad_free_yearly").setProductType(BillingClient.ProductType.SUBS).build());
         productList.add(QueryProductDetailsParams.Product.newBuilder().setProductId("plus_yearly").setProductType(BillingClient.ProductType.SUBS).build());
+        productList.add(QueryProductDetailsParams.Product.newBuilder().setProductId("pro_yearly").setProductType(BillingClient.ProductType.SUBS).build());
+        productList.add(QueryProductDetailsParams.Product.newBuilder().setProductId("elite_yearly").setProductType(BillingClient.ProductType.SUBS).build());
 
         QueryProductDetailsParams params = QueryProductDetailsParams.newBuilder()
                 .setProductList(productList)
@@ -267,6 +286,9 @@ public class SubscriptionActivity extends AppCompatActivity {
 
         billingClient.queryProductDetailsAsync(params, (billingResult, productDetailsList) -> {
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                int count = productDetailsList != null ? productDetailsList.size() : 0;
+                Log.d("Billing", "Products found: " + count);
+                runOnUiThread(() -> Toast.makeText(SubscriptionActivity.this, "Products found: " + count, Toast.LENGTH_SHORT).show());
                 if (productDetailsList != null) {
                     for (ProductDetails details : productDetailsList) {
                         productDetailsMap.put(details.getProductId(), details);
@@ -274,17 +296,13 @@ public class SubscriptionActivity extends AppCompatActivity {
                 }
             } else {
                 Log.e("Billing", "Query failed: " + billingResult.getDebugMessage());
+                runOnUiThread(() -> Toast.makeText(SubscriptionActivity.this, "Query Failed: " + billingResult.getDebugMessage(), Toast.LENGTH_LONG).show());
             }
         });
     }
 
     private void handleSubscriptionSelection(Tier tier) {
-        if (tier == Tier.PRO || tier == Tier.ELITE) {
-            Toast.makeText(this, R.string.unavailable_for_now, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (tier == Tier.AD_FREE || tier == Tier.PLUS) {
+        if (tier == Tier.AD_FREE || tier == Tier.PLUS || tier == Tier.PRO || tier == Tier.ELITE) {
             launchBillingFlow(tier);
         } else {
             updateTier(tier);
@@ -302,40 +320,32 @@ public class SubscriptionActivity extends AppCompatActivity {
         Log.d("Billing", "Querying active purchases to verify validity...");
         billingClient.queryPurchasesAsync(params, (billingResult, purchases) -> {
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK && purchases != null) {
-                Tier highestTier = Tier.FREE;
-                boolean foundSub = false;
+                Purchase bestPurchase = null;
+                int bestPrice = 0;
 
                 for (Purchase purchase : purchases) {
                     if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-                        foundSub = true;
                         String productId = purchase.getProducts().get(0);
-                        if (productId.contains("plus")) {
-                            highestTier = Tier.PLUS;
-                        } else if (productId.contains("ad_free") && highestTier == Tier.FREE) {
-                            highestTier = Tier.AD_FREE;
+                        int price = 0;
+                        if (productId.contains("elite")) price = Tier.ELITE.price;
+                        else if (productId.contains("pro")) price = Tier.PRO.price;
+                        else if (productId.contains("plus")) price = Tier.PLUS.price;
+                        else if (productId.contains("ad_free")) price = Tier.AD_FREE.price;
+
+                        if (price > bestPrice) {
+                            bestPrice = price;
+                            bestPurchase = purchase;
                         }
                     }
                 }
 
-                final Tier finalTier = highestTier;
-                final boolean hasSubscription = foundSub;
-                
-                runOnUiThread(() -> {
-                    Tier current = tierManager.getUserTier();
-                    if (hasSubscription) {
-                        if (current != finalTier) {
-                            tierManager.setTier(finalTier);
-                            updateUI();
-                            Log.i("Billing", "Restored active subscription from Google Play: " + finalTier);
-                        }
-                    } else if (current == Tier.PLUS || current == Tier.AD_FREE) {
-                        // Revert local state to FREE if no Play Store sub found.
-                        // syncUserToCloud will then pull the cloud authoritative tier (e.g. if they have a coupon)
-                        tierManager.setTier(Tier.FREE);
-                        updateUI();
-                        Log.i("Billing", "No active subscription found. Resetting local tier (Cloud sync will handle coupons).");
-                    }
-                });
+                if (bestPurchase != null) {
+                    // Verify the best purchase server-side (RSA signature check)
+                    final Purchase verifyPurchase = bestPurchase;
+                    runOnUiThread(() -> applyPurchaseEffect(verifyPurchase));
+                } else {
+                    Log.d("Billing", "No active Play Store subscriptions found.");
+                }
             } else {
                 Log.e("Billing", "QueryPurchases failed: " + billingResult.getDebugMessage());
             }
@@ -346,8 +356,14 @@ public class SubscriptionActivity extends AppCompatActivity {
         String productId;
         if (tier == Tier.AD_FREE) {
             productId = isYearly ? "ad_free_yearly" : "ad_free_monthly";
-        } else {
+        } else if (tier == Tier.PLUS) {
             productId = isYearly ? "plus_yearly" : "plus_monthly";
+        } else if (tier == Tier.PRO) {
+            productId = isYearly ? "pro_yearly" : "pro_monthly";
+        } else if (tier == Tier.ELITE) {
+            productId = isYearly ? "elite_yearly" : "elite_monthly";
+        } else {
+            return;
         }
 
         ProductDetails productDetails = productDetailsMap.get(productId);
@@ -403,15 +419,62 @@ public class SubscriptionActivity extends AppCompatActivity {
     }
 
     private void applyPurchaseEffect(Purchase purchase) {
-        String productId = purchase.getProducts().get(0);
-        if (productId.equals("ad_free_monthly") || productId.equals("ad_free_yearly")) {
-            tierManager.setTier(Tier.AD_FREE);
-        } else if (productId.equals("plus_monthly") || productId.equals("plus_yearly")) {
-            tierManager.setTier(Tier.PLUS);
-        }
-        updateUI();
-        expandCard(tierManager.getUserTier());
-        Toast.makeText(this, R.string.subscription_activated, Toast.LENGTH_LONG).show();
+        String originalJson = purchase.getOriginalJson();
+        String signature = purchase.getSignature();
+        String uid = tierManager.getUserId();
+
+        // Send purchase data + Google's signature to server for RSA verification
+        Toast.makeText(this, R.string.verifying, Toast.LENGTH_SHORT).show();
+
+        new Thread(() -> {
+            try {
+                java.net.URL url = new java.net.URL("https://vitae-backend.asanistudiobangladesh.workers.dev/api/subscriptions/verify");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setDoOutput(true);
+
+                org.json.JSONObject json = new org.json.JSONObject();
+                json.put("uid", uid);
+                json.put("originalJson", originalJson);
+                json.put("signature", signature);
+
+                java.io.OutputStream os = conn.getOutputStream();
+                os.write(json.toString().getBytes("UTF-8"));
+                os.close();
+
+                int responseCode = conn.getResponseCode();
+                java.io.InputStream is = (responseCode >= 200 && responseCode < 300) ? conn.getInputStream() : conn.getErrorStream();
+                String result = "";
+                if (is != null) {
+                    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+                    result = s.hasNext() ? s.next() : "";
+                }
+
+                final org.json.JSONObject responseJson = !result.isEmpty() ? new org.json.JSONObject(result) : new org.json.JSONObject();
+                conn.disconnect();
+
+                runOnUiThread(() -> {
+                    if (responseCode == 200 && responseJson.optBoolean("success")) {
+                        String serverTier = responseJson.optString("tier", "FREE");
+                        try {
+                            tierManager.setTierFromServer(Tier.valueOf(serverTier));
+                        } catch (Exception e) {
+                            tierManager.setTierFromServer(Tier.FREE);
+                        }
+                        updateUI();
+                        expandCard(tierManager.getUserTier());
+                        Toast.makeText(this, R.string.subscription_activated, Toast.LENGTH_LONG).show();
+                    } else {
+                        String error = responseJson.optString("error", "Verification failed");
+                        Toast.makeText(this, "Verification: " + error, Toast.LENGTH_LONG).show();
+                    }
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, "Verification error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                Log.e("Billing", "Server verification failed", e);
+            }
+        }).start();
     }
 
 
@@ -432,6 +495,7 @@ public class SubscriptionActivity extends AppCompatActivity {
     private void initMonetization() {
         AdView adViewSub = findViewById(R.id.adViewSub);
         if (adViewSub != null) {
+            adViewSub.setBackgroundColor(android.graphics.Color.TRANSPARENT);
             if (tierManager.shouldShowAds()) {
                 MobileAds.initialize(this, status -> {
                     Log.d("AdMob", "Sub Init Status: " + status.toString());
@@ -468,7 +532,6 @@ public class SubscriptionActivity extends AppCompatActivity {
         // New Ad Break Logic (Interstitial)
         if (tierManager.shouldShowAds()) {
             loadInterstitialAd();
-            startBreakTimer(); // Ensure the timer starts
         }
     }
 
@@ -598,79 +661,37 @@ public class SubscriptionActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void startBreakTimer() {
-        if (!tierManager.shouldShowAds()) return;
-        if (breakTimerRunnable != null) breakTimerHandler.removeCallbacks(breakTimerRunnable);
-        
-        breakTimerRunnable = () -> showBreakInterruption();
-        // 3m = 180s, 5m = 300s
-        long delay = UserTierManager.isFirstAdShownInSession ? 300000 : 180000;
-        breakTimerHandler.postDelayed(breakTimerRunnable, delay);
-    }
-
-    private void showBreakInterruption() {
-        if (isFinishing() || isDestroyed()) return;
-        
-        UserTierManager.isFirstAdShownInSession = true; // Flag as shown
-        
-        if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.GONE);
-        checkAdBlocker();
-
-        if (breakOverlay != null) {
-            breakOverlay.setVisibility(View.VISIBLE);
-            if (mInterstitialAd != null) {
-                mInterstitialAd.show(this);
-                mInterstitialAd = null;
-                loadInterstitialAd();
-                breakOverlay.postDelayed(() -> {
-                    if (btnCloseBreak != null) btnCloseBreak.setVisibility(View.VISIBLE);
-                }, 3000);
-            } else {
-                breakOverlay.postDelayed(() -> {
-                    if (btnCloseBreak != null) btnCloseBreak.setVisibility(View.VISIBLE);
-                }, 5000);
-            }
-            if (btnCloseBreak != null) {
-                btnCloseBreak.setOnClickListener(v -> {
-                    breakOverlay.setVisibility(View.GONE);
-                    btnCloseBreak.setVisibility(View.INVISIBLE);
-                    startBreakTimer();
-                });
-            }
-        }
-    }
 
     private void loadInterstitialAd() {
         if (!tierManager.shouldShowAds()) return;
+
         AdRequest adRequest = new AdRequest.Builder().build();
-        com.google.android.gms.ads.interstitial.InterstitialAd.load(this, "ca-app-pub-3940256099942544/1033173712", adRequest,
-            new com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback() {
-                @Override
-                public void onAdLoaded(@NonNull com.google.android.gms.ads.interstitial.InterstitialAd interstitialAd) {
-                    mInterstitialAd = interstitialAd;
-                }
-                @Override
-                public void onAdFailedToLoad(@NonNull com.google.android.gms.ads.LoadAdError loadAdError) {
-                    mInterstitialAd = null;
-                }
-            });
+        InterstitialAd.load(this, getString(R.string.ad_unit_id_interstitial), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        mInterstitialAd = interstitialAd;
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        mInterstitialAd = null;
+                        boolean blocked = isAdBlockerActive();
+                        String detailedError = "!!! INTERSTITIAL AD FAIL !!!\n" +
+                                "Code: " + loadAdError.getCode() + "\n" +
+                                "Message: " + loadAdError.getMessage() + "\n" +
+                                "AdBlocker: " + (blocked ? "Detected (Checking DNS...)" : "None Detected");
+                        Log.e("AdMob", detailedError);
+                    }
+                });
     }
 
-    private void checkAdBlocker() {
-        new Thread(() -> {
-            try {
-                java.net.InetAddress address = java.net.InetAddress.getByName("googleads.g.doubleclick.net");
-                boolean isBlocked = address.getHostAddress().equals("127.0.0.1") || address.getHostAddress().equals("0.0.0.0");
-                if (isBlocked) {
-                    runOnUiThread(() -> {
-                        if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.VISIBLE);
-                    });
-                }
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    if (tvAdBlockMsg != null) tvAdBlockMsg.setVisibility(View.VISIBLE);
-                });
-            }
-        }).start();
+    private boolean isAdBlockerActive() {
+        try {
+            java.net.InetAddress address = java.net.InetAddress.getByName("googleads.g.doubleclick.net");
+            return address.getHostAddress().equals("127.0.0.1") || address.getHostAddress().equals("0.0.0.0");
+        } catch (Exception e) {
+            return true;
+        }
     }
 }

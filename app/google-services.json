@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "279857990557-0e2lpg5nc63j7fhqqqk6qoah4vfrlfge.apps.googleusercontent.com",
+          "client_id": "279857990557-0pdnp9s61ig7u8132k55mujpe12km9b4.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.asanistudiobd.vitae",
-            "certificate_hash": "23e196761f12db7826b751b1c4b738c93307c89f"
+            "certificate_hash": "dae2b45d88a45a84e2735984a2120babe84211e9"
           }
         },
         {

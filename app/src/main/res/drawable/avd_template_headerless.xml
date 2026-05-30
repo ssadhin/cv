@@ -1,0 +1,97 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="170dp"
+    android:viewportWidth="120"
+    android:viewportHeight="170">
+
+    <!-- Base / Right Column Background (White) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 0,0 l 120,0 l 0,170 l -120,0 Z" />
+
+    <!-- Left Column (Light Blue) spans from top to bottom -->
+    <path
+        android:fillColor="#D8EAF6"
+        android:pathData="M 0,0 l 40,0 l 0,170 l -40,0 Z" />
+
+    <!-- Profile Picture placeholder (circle) on the Left Side -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 20,20 m -12,0 a 12,12 0 1,1 24,0 a 12,12 0 1,1 -24,0" />
+
+    <!-- Name placeholder (line) on the Left Side -->
+    <path
+        android:fillColor="#4A4A4A"
+        android:pathData="M 8,40 l 24,0 l 0,4 l -24,0 Z" />
+        
+    <!-- Contact / Subtitle placeholders (lines) on the Left Side -->
+    <path
+        android:fillColor="#8C8C8C"
+        android:pathData="M 8,48 l 20,0 l 0,2 l -20,0 Z" />
+    <path
+        android:fillColor="#8C8C8C"
+        android:pathData="M 8,52 l 16,0 l 0,2 l -16,0 Z" />
+
+    <!-- Left Column regular content placeholder -->
+    <path
+        android:fillColor="#9EB0C0"
+        android:pathData="M 8,65 l 18,0 l 0,3 l -18,0 Z" />
+    <path
+        android:fillColor="#B9C9D7"
+        android:pathData="M 8,73 l 24,0 l 0,2 l -24,0 Z" />
+    <path
+        android:fillColor="#B9C9D7"
+        android:pathData="M 8,78 l 20,0 l 0,2 l -20,0 Z" />
+        
+    <path
+        android:fillColor="#9EB0C0"
+        android:pathData="M 8,90 l 18,0 l 0,3 l -18,0 Z" />
+    <path
+        android:fillColor="#B9C9D7"
+        android:pathData="M 8,98 l 24,0 l 0,2 l -24,0 Z" />
+    <path
+        android:fillColor="#B9C9D7"
+        android:pathData="M 8,103 l 15,0 l 0,2 l -15,0 Z" />
+
+    <!-- Body content placeholders (Right Column) -->
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M 48,15 l 25,0 l 0,3 l -25,0 Z" />
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M 48,23 l 60,0 l 0,2 l -60,0 Z" />
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M 48,28 l 60,0 l 0,2 l -60,0 Z" />
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M 48,33 l 45,0 l 0,2 l -45,0 Z" />
+        
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M 48,45 l 25,0 l 0,3 l -25,0 Z" />
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M 48,53 l 60,0 l 0,2 l -60,0 Z" />
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M 48,58 l 45,0 l 0,2 l -45,0 Z" />
+        
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M 48,70 l 25,0 l 0,3 l -25,0 Z" />
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M 48,78 l 60,0 l 0,2 l -60,0 Z" />
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M 48,83 l 60,0 l 0,2 l -60,0 Z" />
+
+    <!-- CV Document outline -->
+    <path
+        android:strokeColor="#CCCCCC"
+        android:strokeWidth="1"
+        android:fillColor="#00000000"
+        android:pathData="M 0,0 l 120,0 l 0,170 l -120,0 Z" />
+
+</vector>

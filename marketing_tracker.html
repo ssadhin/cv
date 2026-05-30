@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrier Compass - Marketing Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a14;
+            --bg-secondary: #10101e;
+            --bg-card: rgba(18, 18, 35, 0.65);
+            --bg-glass: rgba(255, 255, 255, 0.04);
+            --bg-input: rgba(255, 255, 255, 0.06);
+            --text-primary: #e8e8f0;
+            --text-secondary: #8888a8;
+            --accent: #a78bfa;
+            --gradient-primary: linear-gradient(135deg, #7c3aed, #3b82f6);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: linear-gradient(180deg, var(--bg-primary) 0%, #0f0f24 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 24px 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .brand {
+            padding: 0 24px 24px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 24px;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: var(--text-primary);
+            background: var(--bg-glass);
+        }
+
+        .nav-item.active {
+            border-left-color: var(--accent);
+            background: rgba(167, 139, 250, 0.1);
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header { margin-bottom: 32px; }
+        h1 { font-size: 2rem; font-weight: 600; margin-bottom: 8px; }
+        p.subtitle { color: var(--text-secondary); }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Form Elements */
+        input, select, textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        button {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        button.primary {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+        }
+
+        button.danger {
+            color: var(--danger);
+            border-color: rgba(248, 113, 113, 0.3);
+            background: transparent;
+        }
+        
+        button.danger:hover {
+            background: rgba(248, 113, 113, 0.1);
+            border-color: var(--danger);
+        }
+
+        /* Tables */
+        .table-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 16px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        th { color: var(--text-secondary); font-weight: 500; white-space: nowrap; }
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+        .action-cell { width: 60px; text-align: right; }
+
+        /* Chart */
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+        canvas { width: 100%; height: 100%; }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge.success { color: var(--success); background: rgba(52, 211, 153, 0.1); }
+        .badge.warning { color: var(--warning); background: rgba(251, 191, 36, 0.1); }
+        .badge.danger { color: var(--danger); background: rgba(248, 113, 113, 0.1); }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="brand">Carrier Compass<br><span style="font-size: 0.8rem; font-weight: 400; color: var(--text-secondary);">Marketing Tracker</span></div>
+        <div class="nav-item active" data-target="daily">Daily Metrics</div>
+        <div class="nav-item" data-target="voc">VOC Bank</div>
+        <div class="nav-item" data-target="competitors">Competitor Tracker</div>
+        <div class="nav-item" data-target="content">Content Calendar</div>
+        <div class="nav-item" data-target="ideas">Ideas Bank</div>
+        <div class="nav-item" data-target="outreach">Outreach Tracker</div>
+        <div class="nav-item" data-target="tasks">Task Checklist</div>
+        <div class="nav-item" data-target="leads">Lead Magnet</div>
+
+        <div class="sidebar-bottom">
+            <button onclick="exportData()" title="Export JSON" style="flex:1">Export</button>
+            <button onclick="document.getElementById('importFile').click()" title="Import JSON" style="flex:1">Import</button>
+            <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Daily Metrics -->
+        <section id="daily" class="section active">
+            <header>
+                <h1>Daily Metrics Tracker</h1>
+                <p class="subtitle">Monitor your absolute growth across all platforms.</p>
+            </header>
+
+            <div class="card">
+                <h3 style="margin-bottom: 16px;">Total Audience Growth</h3>
+                <div class="chart-container"><canvas id="audienceChart"></canvas></div>
+            </div>
+
+            <div class="card">
+                <form onsubmit="addEntry(event, 'daily')">
+                    <div class="form-row">
+                        <div class="form-group"><label>Date</label><input type="date" id="d_date" required></div>
+                        <div class="form-group"><label>Play Store Impressions</label><input type="number" id="d_imp" required></div>
+                        <div class="form-group"><label>Downloads</label><input type="number" id="d_dl" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Email Subs</label><input type="number" id="d_em" required></div>
+                        <div class="form-group"><label>Social Followers</label><input type="number" id="d_soc" required></div>
+                        <div class="form-group"><label>Website Visitors</label><input type="number" id="d_vis" required></div>
+                    </div>
+                    <button type="submit" class="primary">Log Metrics</button>
+                </form>
+
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Date</th><th>Impressions</th><th>Downloads</th><th>Emails</th><th>Social</th><th>Total Audience</th><th></th></tr></thead>
+                        <tbody id="tb_daily"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VOC Bank -->
+        <section id="voc" class="section">
+            <header><h1>Voice of Customer (VOC)</h1></header>
+            <div class="card">
+                <form onsubmit="addEntry(event, 'voc')">
+                    <div class="form-row"><div class="form-group"><label>Quote</label><textarea id="v_quote" required rows="2"></textarea></div></div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Source</label><input type="text" id="v_src" required></div>
+                        <div class="form-group"><label>Theme</label><input type="text" id="v_tag" required></div>
+                        <div class="form-group"><label>Sentiment</label><select id="v_sent"><option>Positive</option><option>Neutral</option><option>Negative</option></select></div>
+                    </div>
+                    <button type="submit" class="primary">Save Feedback</button>
+                </form>
+                <div class="table-container">
+                    <table><thead><tr><th>Quote</th><th>Source</th><th>Theme</th><th>Sentiment</th><th></th></tr></thead><tbody id="tb_voc"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Competitor Tracker -->
+        <section id="competitors" class="section">
+            <header><h1>Competitor Tracker</h1></header>
+            <div class="card">
+                <form onsubmit="addEntry(event, 'comp')">
+                    <div class="form-row">
+                        <div class="form-group"><label>Name</label><input type="text" id="cp_name" required></div>
+                        <div class="form-group"><label>Rating</label><input type="number" step="0.1" id="cp_rate"></div>
+                        <div class="form-group"><label>Strengths</label><input type="text" id="cp_str"></div>
+                        <div class="form-group"><label>Weaknesses</label><input type="text" id="cp_weak"></div>
+                    </div>
+                    <button type="submit" class="primary">Save Competitor</button>
+                </form>
+                <div class="table-container">
+                    <table><thead><tr><th>Name</th><th>Rating</th><th>Strengths</th><th>Weaknesses</th><th></th></tr></thead><tbody id="tb_comp"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Content Calendar -->
+        <section id="content" class="section">
+            <header><h1>Content Calendar</h1></header>
+            <div class="card">
+                <form onsubmit="addEntry(event, 'content')">
+                    <div class="form-row">
+                        <div class="form-group"><label>Date</label><input type="date" id="c_date" required></div>
+                        <div class="form-group"><label>Platform</label><input type="text" id="c_plat" required></div>
+                        <div class="form-group"><label>Status</label><select id="c_stat"><option>Planned</option><option>Drafting</option><option>Published</option></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>Title / Topic</label><input type="text" id="c_title" required></div>
+                        <div class="form-group"><label>Metrics</label><input type="text" id="c_met"></div>
+                    </div>
+                    <button type="submit" class="primary">Log Content</button>
+                </form>
+                <div class="table-container">
+                    <table><thead><tr><th>Date</th><th>Platform</th><th>Title</th><th>Status</th><th>Metrics</th><th></th></tr></thead><tbody id="tb_content"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ideas Bank -->
+        <section id="ideas" class="section">
+            <header><h1>Content Ideas Bank</h1></header>
+            <div class="card">
+                <form onsubmit="addEntry(event, 'ideas')">
+                    <div class="form-row"><div class="form-group"><label>Hook (First 3s)</label><input type="text" id="i_hook" required></div></div>
+                    <div class="form-row"><div class="form-group"><label>Script/Details</label><textarea id="i_script" rows="3" required></textarea></div></div>
+                    <button type="submit" class="primary">Save Idea</button>
+                </form>
+                <div class="table-container">
+                    <table><thead><tr><th>Hook</th><th>Script</th><th></th></tr></thead><tbody id="tb_ideas"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Outreach -->
+        <section id="outreach" class="section">
+            <header><h1>Outreach Tracker</h1></header>
+            <div class="card">
+                <form onsubmit="addEntry(event, 'outreach')">
+                    <div class="form-row">
+                        <div class="form-group"><label>Name</label><input type="text" id="o_name" required></div>
+                        <div class="form-group"><label>Platform</label><input type="text" id="o_plat" required></div>
+                        <div class="form-group"><label>Status</label><select id="o_stat"><option>Contacted</option><option>Replied</option><option>Closed</option><option>Rejected</option></select></div>
+                    </div>
+                    <button type="submit" class="primary">Log Outreach</button>
+                </form>
+                <div class="table-container">
+                    <table><thead><tr><th>Name</th><th>Platform</th><th>Status</th><th></th></tr></thead><tbody id="tb_outreach"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tasks -->
+        <section id="tasks" class="section">
+            <header><h1>Task Checklist</h1></header>
+            <div class="card">
+                <form onsubmit="addEntry(event, 'tasks')">
+                    <div class="form-row">
+                        <div class="form-group"><label>Day</label><input type="text" id="t_day" required></div>
+                        <div class="form-group"><label>Task Details</label><input type="text" id="t_desc" required></div>
+                        <div class="form-group"><label>Progress %</label><input type="number" id="t_prog" value="0"></div>
+                    </div>
+                    <button type="submit" class="primary">Add Task</button>
+                </form>
+                <div class="table-container">
+                    <table><thead><tr><th>Day</th><th>Task</th><th>Progress %</th><th></th></tr></thead><tbody id="tb_tasks"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lead Magnet -->
+        <section id="leads" class="section">
+            <header><h1>Lead Magnet (Emails)</h1></header>
+            <div class="card">
+                <form onsubmit="addEntry(event, 'leads')">
+                    <div class="form-row">
+                        <div class="form-group"><label>Date</label><input type="date" id="l_date" required></div>
+                        <div class="form-group"><label>Visitors</label><input type="number" id="l_vis" required></div>
+                        <div class="form-group"><label>Emails Collected</label><input type="number" id="l_em" required></div>
+                    </div>
+                    <button type="submit" class="primary">Log Conversion</button>
+                </form>
+                <div class="table-container">
+                    <table><thead><tr><th>Date</th><th>Visitors</th><th>Emails</th><th>Conv Rate</th><th></th></tr></thead><tbody id="tb_leads"></tbody></table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const KEY = 'carrier_compass_data';
+        let db = { daily:[], voc:[], comp:[], content:[], ideas:[], outreach:[], tasks:[], leads:[] };
+
+        function load() {
+            const stored = localStorage.getItem(KEY);
+            if(stored) db = JSON.parse(stored);
+            Object.keys(db).forEach(k => render(k));
+            setDefaultDates();
+            drawChart();
+        }
+
+        function save() { localStorage.setItem(KEY, JSON.stringify(db)); }
+        
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(el => { if(!el.value) el.value = today; });
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', e => {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                const target = e.currentTarget.getAttribute('data-target');
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(target).classList.add('active');
+                if(target === 'daily') drawChart();
+            });
+        });
+
+        // Add & Delete
+        function addEntry(e, type) {
+            e.preventDefault();
+            const id = Date.now().toString();
+            if(type === 'daily') {
+                const em = parseInt(document.getElementById('d_em').value)||0;
+                const soc = parseInt(document.getElementById('d_soc').value)||0;
+                db.daily.push({ id, date: document.getElementById('d_date').value, imp: document.getElementById('d_imp').value, dl: document.getElementById('d_dl').value, em, soc, aud: em+soc });
+            } else if(type === 'voc') {
+                db.voc.push({ id, quote: document.getElementById('v_quote').value, src: document.getElementById('v_src').value, tag: document.getElementById('v_tag').value, sent: document.getElementById('v_sent').value });
+            } else if(type === 'comp') {
+                db.comp.push({ id, name: document.getElementById('cp_name').value, rate: document.getElementById('cp_rate').value, str: document.getElementById('cp_str').value, weak: document.getElementById('cp_weak').value });
+            } else if(type === 'content') {
+                db.content.push({ id, date: document.getElementById('c_date').value, plat: document.getElementById('c_plat').value, stat: document.getElementById('c_stat').value, title: document.getElementById('c_title').value, met: document.getElementById('c_met').value });
+            } else if(type === 'ideas') {
+                db.ideas.push({ id, hook: document.getElementById('i_hook').value, script: document.getElementById('i_script').value });
+            } else if(type === 'outreach') {
+                db.outreach.push({ id, name: document.getElementById('o_name').value, plat: document.getElementById('o_plat').value, stat: document.getElementById('o_stat').value });
+            } else if(type === 'tasks') {
+                db.tasks.push({ id, day: document.getElementById('t_day').value, desc: document.getElementById('t_desc').value, prog: document.getElementById('t_prog').value });
+            } else if(type === 'leads') {
+                const vis = parseInt(document.getElementById('l_vis').value)||1;
+                const em = parseInt(document.getElementById('l_em').value)||0;
+                db.leads.push({ id, date: document.getElementById('l_date').value, vis, em, conv: ((em/vis)*100).toFixed(1)+'%' });
+            }
+            save(); e.target.reset(); setDefaultDates(); render(type);
+        }
+
+        function del(type, id) {
+            if(confirm('Delete this entry?')) {
+                db[type] = db[type].filter(i => i.id !== id);
+                save(); render(type);
+            }
+        }
+
+        // Render Helpers
+        function btn(type, id) { return `<button class="danger" onclick="del('${type}', '${id}')">Del</button>`; }
+        function bge(s) { 
+            let c = 'badge ';
+            if(['Published','Positive','Closed'].includes(s)) c+='success';
+            else if(['Drafting','Neutral','Contacted','Replied'].includes(s)) c+='warning';
+            else if(['Rejected','Negative'].includes(s)) c+='danger';
+            return `<span class="${c}">${s}</span>`;
+        }
+
+        function render(type) {
+            const tb = document.getElementById('tb_'+type);
+            const d = db[type];
+            if(type === 'daily') {
+                tb.innerHTML = d.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(i=>`<tr><td>${i.date}</td><td>${i.imp}</td><td>${i.dl}</td><td>${i.em}</td><td>${i.soc}</td><td style="color:var(--accent);font-weight:600">${i.aud}</td><td class="action-cell">${btn(type,i.id)}</td></tr>`).join('');
+                drawChart();
+            } else if(type === 'voc') {
+                tb.innerHTML = d.map(i=>`<tr><td><em>"${i.quote}"</em></td><td>${i.src}</td><td>${i.tag}</td><td>${bge(i.sent)}</td><td class="action-cell">${btn(type,i.id)}</td></tr>`).join('');
+            } else if(type === 'comp') {
+                tb.innerHTML = d.map(i=>`<tr><td><strong>${i.name}</strong></td><td>${i.rate}</td><td>${i.str}</td><td>${i.weak}</td><td class="action-cell">${btn(type,i.id)}</td></tr>`).join('');
+            } else if(type === 'content') {
+                tb.innerHTML = d.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(i=>`<tr><td>${i.date}</td><td>${i.plat}</td><td>${i.title}</td><td>${bge(i.stat)}</td><td>${i.met}</td><td class="action-cell">${btn(type,i.id)}</td></tr>`).join('');
+            } else if(type === 'ideas') {
+                tb.innerHTML = d.map(i=>`<tr><td><strong>${i.hook}</strong></td><td style="white-space:pre-wrap">${i.script}</td><td class="action-cell">${btn(type,i.id)}</td></tr>`).join('');
+            } else if(type === 'outreach') {
+                tb.innerHTML = d.map(i=>`<tr><td>${i.name}</td><td>${i.plat}</td><td>${bge(i.stat)}</td><td class="action-cell">${btn(type,i.id)}</td></tr>`).join('');
+            } else if(type === 'tasks') {
+                tb.innerHTML = d.map(i=>`<tr><td>${i.day}</td><td>${i.desc}</td><td><div style="background:rgba(255,255,255,0.1);height:6px;border-radius:3px"><div style="width:${i.prog}%;height:100%;background:var(--accent);border-radius:3px"></div></div></td><td class="action-cell">${btn(type,i.id)}</td></tr>`).join('');
+            } else if(type === 'leads') {
+                tb.innerHTML = d.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(i=>`<tr><td>${i.date}</td><td>${i.vis}</td><td style="color:var(--accent);font-weight:600">${i.em}</td><td>${i.conv}</td><td class="action-cell">${btn(type,i.id)}</td></tr>`).join('');
+            }
+        }
+
+        // Chart
+        function drawChart() {
+            const canvas = document.getElementById('audienceChart');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width; canvas.height = rect.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const sorted = [...db.daily].sort((a,b) => new Date(a.date) - new Date(b.date));
+            if(sorted.length < 2) {
+                ctx.fillStyle = '#8888a8'; ctx.font = '14px Inter'; ctx.textAlign = 'center';
+                ctx.fillText('Log at least 2 days of metrics to see your growth chart', canvas.width/2, canvas.height/2);
+                return;
+            }
+
+            const maxAud = Math.max(...sorted.map(d => d.aud));
+            const padX = 40, padY = 40;
+            const w = canvas.width - padX*2;
+            const h = canvas.height - padY*2;
+            const stepX = w / (sorted.length - 1);
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 3;
+            sorted.forEach((d, i) => {
+                const x = padX + (i * stepX);
+                const y = canvas.height - padY - ((d.aud / maxAud) * h);
+                if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Fill area
+            ctx.lineTo(padX + w, canvas.height - padY);
+            ctx.lineTo(padX, canvas.height - padY);
+            ctx.fillStyle = 'rgba(167, 139, 250, 0.15)';
+            ctx.fill();
+        }
+
+        window.addEventListener('resize', drawChart);
+
+        // Import/Export
+        function exportData() {
+            const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `carrier_compass_data_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    if(imported.daily) {
+                        db = imported;
+                        save(); load(); alert('Data imported successfully!');
+                    }
+                } catch(error) { alert('Invalid file format.'); }
+            };
+            reader.readAsText(file);
+        }
+
+        document.addEventListener('DOMContentLoaded', load);
+    </script>
+</body>
+</html>

@@ -2,31 +2,33 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@android:color/transparent" android:fillViewport="true">
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp">
 
-        <!-- Controls Row -->
-        <!-- Controls Row -->
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:weightSum="1" android:layout_marginBottom="12dp">
+        <!-- Unitary Controls Row (Stable fixed height) -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="56dp" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
 
-            <!-- Resize Thumbnail Slider (50% width) -->
-            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.5" android:orientation="horizontal" android:gravity="center_vertical" android:paddingEnd="4dp">
-                <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_grid" app:tint="@color/text_secondary" android:layout_marginEnd="4dp" />
+            <!-- Compact Grid Size Slider (35% width for stability) -->
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.35" android:orientation="horizontal" android:gravity="center_vertical" android:paddingEnd="4dp">
+                <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/ic_grid" app:tint="@color/text_secondary" />
                 <SeekBar android:id="@+id/seekTemplateGridSize" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:max="3" android:progress="0" />
-                <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_grid" app:tint="@color/text_secondary" android:layout_marginStart="4dp" />
+                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_grid" app:tint="@color/text_secondary" />
             </LinearLayout>
 
-            <!-- Filters & Toggles (50% width, scrolling) -->
-            <HorizontalScrollView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.5" android:scrollbars="none" android:fillViewport="true">
-                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="4dp">
+            <!-- Scrollable Buttons & Switch (65% width) -->
+            <HorizontalScrollView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.65" android:scrollbars="none" android:fillViewport="true">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="4dp" android:minHeight="48dp">
 
                     <!-- Sort Toggle -->
-                    <TextView android:id="@+id/btnTemplateSortToggle" android:layout_width="wrap_content" android:layout_height="32dp" android:gravity="center" android:paddingStart="12dp" android:paddingEnd="12dp" android:text="Recent" android:textColor="#000000" android:textSize="12sp" android:background="@drawable/bg_pill_outline" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp" android:stateListAnimator="@animator/wobbly_slime" />
+                    <TextView android:id="@+id/btnTemplateSortToggle" android:layout_width="wrap_content" android:layout_height="36dp" android:gravity="center" android:paddingStart="10dp" android:paddingEnd="10dp" android:text="Recent" android:textColor="#000000" android:textSize="10sp" android:background="@drawable/bg_pill_outline" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="6dp" android:stateListAnimator="@animator/wobbly_slime" />
+
+                    <!-- Swap Direction Button -->
+                    <ImageButton android:id="@+id/btnTemplateSortDirection" android:layout_width="36dp" android:layout_height="36dp" android:src="@drawable/ic_swap" android:padding="6dp" android:scaleType="fitCenter" android:background="@drawable/bg_pill_outline" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="6dp" android:stateListAnimator="@animator/wobbly_slime" app:tint="#000000" />
 
                     <!-- Tag Filter -->
-                    <TextView android:id="@+id/btnTemplateTagFilter" android:layout_width="wrap_content" android:layout_height="32dp" android:gravity="center" android:paddingStart="12dp" android:paddingEnd="12dp" android:text="Tag: All" android:textColor="#000000" android:textSize="12sp" android:background="@drawable/bg_pill_outline" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="8dp" android:stateListAnimator="@animator/wobbly_slime" />
+                    <TextView android:id="@+id/btnTemplateTagFilter" android:layout_width="wrap_content" android:layout_height="36dp" android:gravity="center" android:paddingStart="10dp" android:paddingEnd="10dp" android:text="Tag: All" android:textColor="#000000" android:textSize="10sp" android:background="@drawable/bg_pill_outline" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" android:layout_marginEnd="6dp" android:stateListAnimator="@animator/wobbly_slime" />
 
                     <!-- Online / Offline Pill Switch -->
-                    <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switchOnlineOffline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="false" />
+                    <com.google.android.material.switchmaterial.SwitchMaterial android:id="@+id/switchOnlineOffline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="false" android:layout_marginEnd="4dp" />
                 </LinearLayout>
             </HorizontalScrollView>
         </LinearLayout>

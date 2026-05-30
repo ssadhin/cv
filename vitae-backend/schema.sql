@@ -27,7 +27,7 @@ CREATE TABLE Tags (
 
 -- Reviews Table
 CREATE TABLE Reviews (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY,
     template_id TEXT NOT NULL,
     user_id TEXT,
     score INTEGER NOT NULL CHECK (score >= 0 AND score <= 10),
@@ -71,3 +71,13 @@ CREATE INDEX idx_templates_created ON Templates(created_at DESC);
 CREATE INDEX idx_reviews_template ON Reviews(template_id);
 CREATE INDEX idx_tags_template ON Tags(template_id);
 CREATE INDEX idx_templates_status ON Templates(status);
+ 
+ -- AI Usage Tracking Table
+ CREATE TABLE IF NOT EXISTS AiUsage (
+     day TEXT PRIMARY KEY, -- Format: YYYY-MM-DD
+     request_count INTEGER DEFAULT 0,
+     last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+ );
+ 
+ -- Initialize AiUsage for today (if not exists)
+ INSERT OR IGNORE INTO AiUsage (day, request_count) VALUES (CURRENT_DATE, 0);

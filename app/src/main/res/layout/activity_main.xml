@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/root_container" android:layout_width="match_parent" android:layout_height="match_parent" tools:context=".MainActivity" android:clipChildren="false" android:clipToPadding="false">
+    xmlns:tools="http://schemas.android.com/tools" android:id="@+id/root_container" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/bg_primary" tools:context=".MainActivity" android:clipChildren="false" android:clipToPadding="false">
 
-    <!-- WebView fills the entire screen in the background -->
-    <WebView android:id="@+id/webview" android:layout_width="0dp" android:layout_height="0dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/glTopBuffer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <!-- WebView fills the area below the top buffer -->
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/glSafeStart"
+        app:layout_constraintTop_toTopOf="@id/glTopBuffer" />
+
+    <androidx.constraintlayout.widget.Guideline android:id="@+id/glSafeStart" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" app:layout_constraintGuide_percent="0.05" />
+    <androidx.constraintlayout.widget.Guideline android:id="@+id/glSafeEnd" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical" app:layout_constraintGuide_percent="0.95" />
+    <androidx.constraintlayout.widget.Guideline android:id="@+id/glSafeBottom" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" app:layout_constraintGuide_percent="1.0" />
 
     <!-- Guidelines for Side Panel Height Limits (Centered 64.6% area) -->
-    <androidx.constraintlayout.widget.Guideline android:id="@+id/panel_limit_top" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" app:layout_constraintGuide_percent="0.177" />
-    <androidx.constraintlayout.widget.Guideline android:id="@+id/panel_limit_bottom" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" app:layout_constraintGuide_percent="0.823" />
+    <androidx.constraintlayout.widget.Guideline android:id="@+id/panel_limit_top" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" app:layout_constraintGuide_percent="0.20" />
+    <androidx.constraintlayout.widget.Guideline android:id="@+id/panel_limit_bottom" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" app:layout_constraintGuide_percent="0.80" />
 
-    <!-- Collapsible Side Panel -->
     <include layout="@layout/partial_side_panel_left" />
 
     <!-- Collapsible Side Panel Right -->
@@ -47,11 +64,17 @@
             <ImageButton android:id="@+id/fab_redo_btn" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="true" android:focusable="true" android:contentDescription="@string/redo" android:scaleType="fitCenter" android:src="@drawable/redo" />
 
         </FrameLayout>
+
     </LinearLayout>
 
-    <LinearLayout android:id="@+id/add_edit_container" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginEnd="16dp" android:layout_marginBottom="16dp" android:gravity="end" android:orientation="vertical" app:layout_constraintWidth_percent="0.135" app:layout_constraintDimensionRatio="1:2.1" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" android:clipChildren="false" android:clipToPadding="false">
+    <LinearLayout android:id="@+id/add_edit_container" android:layout_width="0dp" android:layout_height="0dp" android:layout_marginEnd="16dp" android:layout_marginBottom="16dp" android:gravity="end" android:orientation="vertical" app:layout_constraintWidth_percent="0.135" app:layout_constraintDimensionRatio="1:4.5" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" android:clipChildren="false" android:clipToPadding="false">
+  
+        <FrameLayout android:id="@+id/fab_ai" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginBottom="16dp" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime" android:hapticFeedbackEnabled="true">
+            <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
+            <ImageButton android:id="@+id/btn_ai" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="6dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:contentDescription="@string/ai_assistant" android:scaleType="fitCenter" android:src="@drawable/ic_ai_custom" />
+        </FrameLayout>
 
-        <FrameLayout android:id="@+id/fab_wizard" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginBottom="16dp" android:visibility="gone" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime" android:hapticFeedbackEnabled="true">
+        <FrameLayout android:id="@+id/fab_wizard" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginBottom="16dp" android:visibility="visible" android:clickable="true" android:focusable="true" android:stateListAnimator="@animator/wobbly_slime" android:hapticFeedbackEnabled="true">
             <View android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:background="@drawable/custom_shadow" />
             <ImageButton android:id="@+id/btn_wizard" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_gravity="center" android:layout_margin="8dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:clickable="false" android:focusable="false" android:contentDescription="@string/step_by_step_wizard_desc" android:scaleType="fitCenter" android:src="@drawable/ic_step_by_step_wizard" />
         </FrameLayout>
@@ -130,6 +153,14 @@
 
     <TextView android:id="@+id/precise_line_spacing_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="50" android:textSize="24sp" android:textColor="@color/text_primary" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
 
+    <SeekBar android:id="@+id/precise_in_column_spacing_slider" android:layout_width="0dp" android:layout_height="112dp" android:max="99" android:progress="49" android:progressDrawable="@android:color/transparent" android:rotation="270" android:thumb="@drawable/slider_thumb_large" android:splitTrack="false" android:paddingStart="0dp" android:paddingEnd="0dp" android:visibility="gone" app:layout_constraintWidth_percent="0.646" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView android:id="@+id/precise_in_column_spacing_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="50" android:textSize="24sp" android:textColor="@color/text_primary" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
+    <SeekBar android:id="@+id/precise_out_column_spacing_slider" android:layout_width="0dp" android:layout_height="112dp" android:max="99" android:progress="49" android:progressDrawable="@android:color/transparent" android:rotation="270" android:thumb="@drawable/slider_thumb_large" android:splitTrack="false" android:paddingStart="0dp" android:paddingEnd="0dp" android:visibility="gone" app:layout_constraintWidth_percent="0.646" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView android:id="@+id/precise_out_column_spacing_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="50" android:textSize="24sp" android:textColor="@color/text_primary" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+
     <SeekBar android:id="@+id/precise_photo_radius_slider" android:layout_width="0dp" android:layout_height="112dp" android:max="60" android:progress="0" android:progressDrawable="@android:color/transparent" android:rotation="270" android:thumb="@drawable/slider_thumb_large" android:splitTrack="false" android:paddingStart="0dp" android:paddingEnd="0dp" android:visibility="gone" app:layout_constraintWidth_percent="0.646" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
 
     <TextView android:id="@+id/precise_photo_radius_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0" android:textSize="24sp" android:textColor="@color/text_primary" android:textStyle="bold" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
@@ -176,7 +207,200 @@
 
     <include android:id="@+id/btn_template_info_minimized" layout="@layout/template_info_panel" android:layout_width="56dp" android:layout_height="56dp" android:layout_marginBottom="100dp" android:visibility="gone" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Step-by-Step Wizard Panel (Hidden Overlay) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/wizard_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:clickable="false"
+        android:focusable="false"
+        android:elevation="10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Header -->
+        <RelativeLayout android:id="@+id/wizard_header" android:layout_width="match_parent" android:layout_height="64dp" android:background="@color/bg_card" android:paddingHorizontal="16dp" app:layout_constraintTop_toTopOf="parent" android:elevation="4dp">
+            <ImageButton android:id="@+id/wizard_btnClose" android:layout_width="48dp" android:layout_height="48dp" android:layout_centerVertical="true" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_back" app:tint="@color/text_primary" />
+            <TextView android:id="@+id/wizard_tvStepTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" android:text="@string/select_purpose" android:textColor="@color/text_primary" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:text="LIVE PREVIEW" android:textColor="@color/brand_primary" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.1" />
+        </RelativeLayout>
+
+        <!-- Progress Indicator -->
+        <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/wizard_progressBar" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="3" android:progress="1" app:layout_constraintTop_toBottomOf="@id/wizard_header" app:trackColor="@color/divider_color" app:indicatorColor="@color/text_primary" />
+
+        <!-- ViewPager2 for Steps (Bottom) - FLOATING OVERLAY STYLE -->
+        <androidx.cardview.widget.CardView android:id="@+id/wizard_cardSteps" android:layout_width="match_parent" android:layout_height="0dp" app:cardCornerRadius="24dp" app:cardElevation="12dp" app:cardBackgroundColor="@color/bg_primary" android:layout_marginHorizontal="16dp" android:layout_marginBottom="24dp" app:layout_constraintHeight_percent="0.45" app:layout_constraintBottom_toBottomOf="parent" android:clickable="true" android:focusable="true">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:paddingBottom="16dp">
+                
+                <!-- DRAG HANDLE (24dp hit area) -->
+                <FrameLayout
+                    android:id="@+id/wizard_drag_handle"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:background="#08000000"
+                    android:clickable="true"
+                    android:focusable="true">
+                    
+                    <View
+                        android:layout_width="64dp"
+                        android:layout_height="4dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_drag_handle_pill" />
+                </FrameLayout>
+                
+                <androidx.viewpager2.widget.ViewPager2 android:id="@+id/wizard_viewPager" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"/>
+                <!-- Footer inside the card -->
+                <LinearLayout android:id="@+id/wizard_footer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingHorizontal="16dp" android:paddingTop="8dp">
+                    <Button android:id="@+id/wizard_btnBack" style="@style/Widget.MaterialComponents.Button.TextButton" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:text="@string/back" android:visibility="gone" android:textColor="@color/text_secondary" app:cornerRadius="24dp"/>
+                    <View android:id="@+id/wizard_footerSpacer" android:layout_width="16dp" android:layout_height="0dp" android:visibility="gone"/>
+                    <Button android:id="@+id/wizard_btnNext" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:backgroundTint="@color/brand_primary" android:text="@string/next" android:textColor="@color/white" app:cornerRadius="24dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <!-- AdMob Banner -->
-    <com.google.android.gms.ads.AdView android:id="@+id/adViewMain" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" app:adSize="BANNER" app:adUnitId="ca-app-pub-3940256099942544/6300978111" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+    <!-- AdMob Banner -->
+    <com.google.android.gms.ads.AdView android:id="@+id/adViewMain" android:layout_width="wrap_content" android:layout_height="wrap_content" android:visibility="gone" android:background="@android:color/transparent" app:adSize="BANNER" app:adUnitId="@string/ad_unit_id_banner" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- On-Screen Debug Console (Visible for debugging) -->
+    <ScrollView
+        android:id="@+id/debug_console_scroll"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        android:layout_margin="16dp"
+        android:background="#A0000000"
+        android:padding="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/cv_name_display"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+        
+        <TextView
+            android:id="@+id/debug_console_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Debug Console Ready...\n"
+            android:textColor="#00FF00"
+            android:fontFamily="monospace"
+            android:textSize="10sp" />
+    </ScrollView>
+
+    <!-- Native Debug System (Floating Overlay) -->
+    <!-- Floating Ball (Minimizer) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/debug_ball"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="#CC000000"
+        app:cardCornerRadius="25dp"
+        app:cardElevation="12dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="16dp"
+        android:stateListAnimator="@animator/wobbly_slime"
+        android:clickable="true"
+        android:focusable="true">
+        
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_settings"
+            app:tint="#FFFFFF" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Tabbed Debug Panel (Full Overlay) -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/debug_native_panel"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="24dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="#F0F8FF"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/debug_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabMode="fixed"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="#2196F3"
+                app:tabSelectedTextColor="#2196F3"
+                app:tabTextColor="#666666">
+                <!-- Tabs will be added via Java -->
+            </com.google.android.material.tabs.TabLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#DDDDDD" />
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:padding="12dp">
+                
+                <TextView
+                    android:id="@+id/debug_log_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:text="Select a category to see logs..."
+                    android:textColor="#333333"
+                    android:textSize="11sp" />
+            </ScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="8dp"
+                android:gravity="end">
+                
+                <Button
+                    android:id="@+id/btn_debug_clear"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clear"
+                    android:textColor="#F44336" />
+
+                <Button
+                    android:id="@+id/btn_debug_copy"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Copy"
+                    android:textColor="#2196F3" />
+
+                <Button
+                    android:id="@+id/btn_debug_close"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Close"
+                    android:textColor="#333333" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
