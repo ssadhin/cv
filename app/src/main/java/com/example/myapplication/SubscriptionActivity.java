@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.Html;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import com.android.billingclient.api.AcknowledgePurchaseParams;
 import com.android.billingclient.api.BillingClient;
@@ -40,6 +42,7 @@ import java.util.Map;
 
 public class SubscriptionActivity extends AppCompatActivity {
 
+    private static final String API_BASE_URL = "https://vitae-backend.asanistudiobangladesh.workers.dev";
     private UserTierManager tierManager;
     private TextView tvFreeCurrent;
     private android.widget.EditText etCouponCode;
@@ -388,8 +391,8 @@ public class SubscriptionActivity extends AppCompatActivity {
                                 runOnUiThread(() -> {
                                     if (tierManager.getUserTier() != newTier) {
                                         tierManager.setTierFromServer(newTier);
-                                        updateUIForTier(newTier);
-                                        Toast.makeText(this, "Subscription expired. Reverted to " + newTier.name(), Toast.LENGTH_LONG).show();
+                                        updateUI();
+                                        Toast.makeText(SubscriptionActivity.this, "Subscription expired. Reverted to " + newTier.name(), Toast.LENGTH_LONG).show();
                                     }
                                 });
                             }
